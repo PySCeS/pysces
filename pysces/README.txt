@@ -1,7 +1,7 @@
 PySCeS - Python Simulator for Cellular Systems
 ----------------------------------------------
 
-Copyright (c) 2004 - 2010, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
+Copyright (c) 2004 - 2013, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
 All rights reserved.
 
 PySCeS is distributed under a BSD style licence, please see LICENCE.txt for details
@@ -73,4 +73,4 @@ unchanged and consists of two files lex.py and yacc.py in the lib/ and core2/
 modules.
 
 
-Brett G. Olivier, 8 June 2010
+Brett G. Olivier, 1 June 2013
