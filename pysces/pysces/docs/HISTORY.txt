@@ -1,0 +1,581 @@
+=============================================================================
+0.0.9 --> 0.1.0 (2004-05-07)
+============================
+This is the first official release of PySCeS!
+
+-- PyscesWeb.py --
+WWW related stuff for PySCeS at the moment an HTML formatting class available
+as pysces.html.* which wraps strings into HTML elements which can be written
+to an open file:
+
+pysces.html.par(str,File,align='l')
+ - str   : the text
+ - File  : a writeable object
+ - align : html alignment l,c,r
+pysces.html.h1(str,File,align='l')
+pysces.html.h2(str,File,align='l')
+pysces.html.h3(str,File,align='l')
+
+-- PyscesTest.py --
+
+Created a test suite for pysces using the unittest framework.
+ 
+Run tests by calling:
+pysces.test(lvl=1)	# default: lvl=1 
+
+lvl=1 tests: (based on linear1, branch1, moiety1) are carried out that 
+test .State(), .Evar() and .CCall() for steady-state metabolite, flux generation,
+elasticities and control coeff's.
+lvl=2 : test external modules, eg. PITCON
+lvl=10 : run all tests
+ 
+-- PyscesPlot.py --
+
+Created a plotting module which wraps some of the scipy.gplt module and adds
+some generic plotting routines. The first class is gnuplot based and is instantiated
+on PySCeS as pysces.plt.* The _2D and _3D methods take an array as an input and use
+axis indices to select axis columns. 2D allows multiple dependent variables to be
+plotted and they need to be specified in a list while 3D only allows a single surface
+to be plotted. PlotX plots columns 1 against 2: All the methods have a cmdout argument
+which if enabled returns a scipy.gplt string instead displaying a graph. Once enabled
+name allows a custom name to be used in the plot command. Fmt is a gnuplot format string
+while ykey/zkey is a list/string used for the key, if not specified the column index
+is used by default.
+
+pysces.plt.plot2D(ginput,x,ylist,cmdout=0,name=None,fmt='w l',ykey=None)
+pysces.plt.plot3D(ginput,x,y,z,cmdout=0,name=None,fmt='w l',zkey=None,arrayout=0)
+pysces.plt.plotX(ginput,cmdout=0,name=None,fmt='w l')
+
+With arguments: 
+ ginput  : data array
+ x,y,z   : integer column index (python)
+ cmdout  : 0:display graph, 1:return a scipy.gplt plot string
+ name    : user definable array name in plot string
+ fmt     : gnuplot data format string, lines:'w d', points:'w p', dots:'w d'
+ (yz)key : a list containing the data titles, len(key) == ginput.shape[1]
+ arrayout: return the plot array - this is a submatrix of ginput with col=3
+ 
+pysces.plt.save(filename,path=None)
+Wraps scipy.gplt.save but takes filename and path as arguments, path defaults
+to os.getcwd() if not specified. Filename is checked for .png and added if needed 
+ 
+!Breakthrough last minute addition - save_html()!
+
+This method not only saves an image to a directory, it writes a complets HTML file
+using the filename. This means the image is directly (re)loadable in a web browser.
+Like .Write_array html page header and footer writing can be optionally disabled:
+pysces.plt.save_html_header = 1 # 0:disable,1:enable header writing
+pysces.plt.save_html_footer = 1 # 0:disable,1:enable footer writing
+
+
+pysces.plt.save_html(imagename,File=None,path=None,name=None,close_file=1)
+ imagename : image filename
+ File	   : writable object (optional)
+ path	   : if File==None generates filename from path+filename/ or cwd+filename
+ name	   : graph legend title
+ close_file: close file obect on exit
+ 
+The following set graph attributes (with Gnuplot equivalent):
+pysces.plt.logx()	# set logscale x 
+pysces.plt.logy()	# set logscale y
+pysces.plt.linx()	# unset logscale x
+pysces.plt.liny()	# unset logscale y
+
+pysces.plt.xrng(start,end) # set xrange [start:end]
+pysces.plt.yrng(start,end) # set yrange [start:end]
+pysces.plt.zrng(start,end) # set zrange [start:end]
+
+pysces.plt.xlabel(l='') # set xlabel l
+pysces.plt.ylabel(l='') # set ylabel l
+pysces.plt.zlabel(l='') # set zlabel l
+
+pysces.plt.gridon()  # set grid
+pysces.plt.gridoff() # unset grid
+pysces.plt.ticslevel(x=0.0) # set ticslevel x
+
+-- PyscesUtils.py --
+
+Updated generic package methods:
+Copy models from the server model directory to the user model directory
+pysces.CopyModels(dirIn=os.path.join(pysces.install_dir,'pscmodels'),dirOut=pysces.model_dir,overwrite=0):
+
+Experimental: these only work if there is a newline at the end of the file
+pysces.ConvertFileD2U(Filelist) # convert [filelist] dos --> unix
+pysces.ConvertFileU2D(Filelist) # convert [filelist] unix --> dos
+
+-- PyscesModel.py --
+
+I've finally managed to interface the pitcon continuation algorithm into pysces
+It has been implemented as a single parameter contiuation, where you supply the
+continuation parameter and an array is returned. If a structural instability exists
+a 2D hopf curve is generated otherwise a steady state trace is returned. The scanpar3d
+argument is provided so PITCON can be wrapped into a second parameter loop and and the
+second continuation parameter inserted into the data set to generate a "2 parameter"
+continution and any potenetial hopf surfaces can be viewed. The wrapped fortran 
+algorithm is available as pysces.pitcon.pitcon1(8 nasty arguments). 
+
+.PITCON(scanpar,scanpar3d=None)
+scanpar is a <string> representation of a model paramter, for example if you have
+a model parameter such as mod.X scanpar would be:
+scanpar = 'X' 
+The second parameter accepts a <float> value and places it as the first column of the
+result array that is returned from PITCON, this is useful for 3D parameter plots
+
+My experience has been that continuation needs a lot of "tweaking" so almost 
+all PITCON controls are available:
+#my interface controls
+self.pitcon_fix_small = 0	#in the REq evaluation values <1.e-15 = 1.e-15
+self.pitcon_par_space = scipy.logspace(-1,3,10) #parameter space that pitcon must search in
+self.pitcon_iter = 10		#number of iterations to search for every point in par_space
+self.pitcon_allow_badstate = 0 	#initialize with non steady-state values 0:no,1:yes
+self.pitcon_flux_gen = 1	#generate fluxes as output
+self.pitcon_filter_neg = 1	#drop pitcon results containing negative concentrations 0:no,1:yes
+self.pitcon_filter_neg_res = 1  #drop output results containing negative concentrations 0:no,1:yes
+
+#pitcon integer options iwork in pitcon/dpcon61.f
+self.pitcon_init_par = 1		#Use X(1) for initial parameter 
+self.pitcon_par_opt = 0			#Parameterization option 0:allows program
+self.pitcon_jac_upd = 0			#Update jacobian every newton step
+self.pitcon_targ_val_idx = 0		#Seek target values for X(n)
+self.pitcon_limit_point_idx = 0		#Seek limit points in X(n)
+self.pitcon_output_lvl = 0		#Control amount of output.
+self.pitcon_jac_opt = 1			#Jacobian choice. 1:use forward difference,2:central difference
+self.pitcon_max_steps = 10*(ind var)+1) #max corrector steps
+
+#pitcon float options rwork in pitcon/dpcon61.f
+self.pitcon_abs_tol = 0.00001	#Absolute error tolerance 
+self.pitcon_rel_tol = 0.00001	#Relative error tolerance
+self.pitcon_min_step = 0.01	#Minimum stepsize
+self.pitcon_max_step = 30.0	#Maximum stepsize 
+self.pitcon_start_step = 0.3	#Starting stepsize 
+self.pitcon_start_dir = 1.0	#Starting direction +1.0/-1.0
+self.pitcon_targ_val = 0.0	#Target value (Seek solution with iwork[4]=)
+self.pitcon_max_grow = 3.0	#maximum growth factor
+
+Generic package methods moved into model class:
+.showODE(File=None) 	# display/write the unreduced set of ODE's
+.showODEr(File=None)	# display/write the reduced set of ODE's + moieties 
+
+New .showX methods for user friendly structural matrices
+.showN(File=None) 	# display/write the stoiciometric matrix N
+.showNr(File=None)	# display/write the reduced stoiciometric matrix Nr
+.showK(File=None) 	# display/write the kernel matrix K (unscaled)
+.showL(File=None) 	# display/write the link matrix L (unscaled)
+
+Extended .showElas(File=None) which shows all elasticities (var+par):
+.showEvar(File=None)	# display/write variable metabolite elasticities
+.showEpar(File=None)	# display/write parameter elasticities
+
+Unscaled elasticities and control coefficients are now attached as:
+.uecR_S	  # unscaled variable elasticity
+.uecR_P	  # unscaled parameter elasticity
+.uccJR_R  # unscaled flux control coefficient
+.uccS_R   # unscaled concentration control coefficient
+
+If unscaled MCA is requested with .mode_mca_scaled = 0 they
+can now co-exist with their scaled versions in a model object.
+The relevant .showX methods also reflect scaled vs. unscaled 
+\cc{}{} vs \ucc{}{} and \ec{}{} vs \uec{}{}
+
+Added a (paranoid?) switch to disable fallback to forward integration:
+.mode_solver_fallback_integration = 1 # 0:no fallback to forward integration
+				      # 1:fallback to integration
+
+Set the value that state/simulation routines considers to be zero for 
+initialisation purposes:
+.zero_val = 1.0e-6      # zeroval smaller than 1.0e-6 sometimes give problems
+
+Rewrote d2f to create .Write_array() method, writes an array to open file,
+accepts row/col arguments as options as well a close_file argument. You can
+specify the separator to make it tab or comma delimited and it can handle a
+single dimension vector:
+
+.Write_array(self,input,File=None,Row=None,Col=None,close_file=0,separator='  ')
+.write_array_header = 1 # write an id header
+.misc_write_arr_lflush = 5 # lines to write before flushing to disk
+
+Due to an innate dislike of creating LaTeX tables by hand <g> I've added 
+a .Write_array_latex() method that writes an array to a LaTeX array, 
+row/col labels are supported as well as a  close_file argument. 
+Vectors are not supported (only 2d arrays):
+
+.Write_array_latex(input,File=None,Row=None,Col=None,close_file=0)
+
+The last (but definitely not least!) in the Write_array series is Write_array_html
+This method takes arrays+/row+/col and writes very nice looking html pages. The row/col
+labels are written on the top and left respectively except when len(row/col) > 15
+in which case they are written on the right/bottom as well. If row/col exceeds a
+specific limit (3*interval) PySCeS highlights each interval=6 row/col. If more
+than one table per page is required the page/header can be switched on or off
+so that a sequence of tables can be written to a single html page, closed and viewed
+immediately.
+
+.Write_array_html(input,File=None,Row=None,Col=None,name=None,close_file=0)
+ - input : a (scipy/numeric) array
+ - File  : an open file object (must have write method)
+ - Row   : a list containing row headings (len(Row)==input.shape[0])
+ - Col   : a list containing col headings (len(Col)==input.shape[1])
+ - name  : a string containing a description for the table
+ - close_file : close file after write
+.write_array_html_header = 1 	   # write html page header
+.write_array_html_footer = 1 	   # write html page footer
+.write_array_html_format = '%2.4f' # html number format 
+
+Renamed the two built-in plot routines PlotSim and PlotScan1:
+.SimPlot(plot='met',filename='',title='title',logx='',logy='',cmdout=0)
+.Scan1Plot(plot=[],filename='',title='title',logx='',logy='',cmdout=0) 
+
+Organised a lot of function names including:
+.flux_gen(s) --> .FluxGen(s)
+.Evar()	     --> .EvalEvar()
+.Epar()	     --> .EvalEpar()
+.CCall()     --> .EvalCC()
+.showCCall() --> .showCC()
+.Eigen()     --> .EvalEigen()
+
+.forcing_function() --> Forcing_Function()
+
+=============================================================================
+0.0.8 --> 0.0.9 (2004-04-23)
+============================
+This version of PySCeS has changed substantially since versions <= 0.0.8
+If possible uninstall all previous versions before installing this one.
+The core PySCeS structure has been stabilised and this is essentially
+PySCeS 0.1.0 which will be officially released as soon as I've rewritten
+some unit tests and cleaned up a bit. - Brett
+
+    ***REMEMBER THIS IS STILL ALPHA SOFTWARE***
+
+***MANY NEW FEATURES HAVE ONLY HAD MINIMAL TESTING***
+
+ ***PLEASE REPORT ANY BUGS OR STRANGE BEHAVIOUR***
+
+       ***!HAVE FUN PLAYING WITH PySCeS!***
+
+-- setup.py, __init__.py --
+
+Pitcon extension is now in a "pitcon" directory
+Metatool source and build in "metatool" directory
+NLEQ interfaces are added in "nleq2" directory 
+
+NLEQ2 is a non-linear solver from ZIB "especially designed for numerically
+sensitive problems". It is not a GPL style licence but is available for "personal use
+and scientific research." ZIB has kindly given us permission to distribute NLEQ2 with
+PySCeS as long as it is used under their licence conditions see /nleq2/readme.txt. If
+you want to use PySCeS under conditions that contravene this licence (ie commercial usage)
+you *need* a commercial licence from ZIB or *must* install/redistribute PySCeS without nleq2.
+This can be done by setting nleq2 = 0 in setup.py
+
+Added module configuration sections/options to the pyscescfg.ini
+[PyscesModules]
+Built in modules that can be removed for debugging etc
+[XternalModules]
+Additional modules that PySCeS has interfaces for. For instance non-GPL code that
+might be distributed with PySCeS
+
+Added module switches: pysces.xxx_switch where xxx --> pitcon, metatool, nleq2 
+
+-- StoichAnalysis.py --
+
+Added .FixFloatMatrix(mat): checks the values in mat and rounds off (inplace) 
+anything with abs(val)<1.e-15 to remove any fp, factorisation leftovers. 
+(Thanks Johann for identifying this one) 
+Subsequently found that if the LU factorization wasn't cleaned properly it could
+lead to bad consequences, this has been fixed and my floating point stoichiometry
+is now secure (until the next problem at least - brett :)
+ 
+-- PyscesModel.py --
+
+Rearranged State() and created .mode_XXX options from .StateInit and .SimInit to
+.mode_sim_init = 0      # 0:initval, 1:zeroval, 2:lastss
+.mode_state_init = 0    # 0:initval, 1:zeroval, 2:sim, 3:1%state
+
+Lsoda options (zero value means routine decides)
+.lsoda_atol = 1.e-10    # The input parameters rtol and atol determine the error
+.lsoda_rtol = 1.e-5     # control performed by the solver.
+.lsoda_mxstep = 0       # maximum number (internally defined) steps allowed per point. 0: x <= 500
+.lsoda_h0 = 0.0         # the step size to be attempted on the first step.
+.lsoda_hmax = 0.0       # the maximum absolute step size allowed.
+.lsoda_hmin = 0.0       # the minimum absolute step size allowed.
+.lsoda_mxordn = 12      # maximum order to be allowed for the nonstiff (Adams) method.
+.lsoda_mxords = 5       # maximum order to be allowed for the stiff (BDF) method.
+.lsoda_mesg = 1         # print the exit status message 
+
+Hybrd options (zero value means routine decides)
+.hybrd_xtol = 1.e-12    # relative error tolerance
+.hybrd_maxfev = 0       # Maximum number of calls, zero means then 100*(len(metabolites)+1)
+.hybrd_epsfcn = copy.copy(self.mach_floateps) # A suitable step length for the forward-difference approximation of the Jacobian
+.hybrd_factor = 100     # A parameter determining the initial step bound in interval (0.1,100)
+.hybrd_mesg = 1         # print the exit status message
+
+Created a Forward Integration Solver (FINTSLV) routine as a fallback solver
+.fintslv_tol = 1.e-3   # max allowed deviation between max(sim_res) to be a steady state
+.fintslv_step = 5      # threshold number of steps where deviation < atol to be declared a steady state
+.fintslv_range = scipy.array([1,10,100,1000,5000,10000,50000, 50100,50200,50300,50400,50500,50600,50700,50800,50850,50900,50950,51000],'d')
+.fintslv_rmult = 1.0 	   # a range multiplier
+
+Wrote an interface to NLEQ2 as an optional plug-in solver (see nleq2.f for option details): 
+.nleq2_rtol   = 1.e-10  # relative error tolerance (initial)
+.nleq2_iter   = 2       # number of iterations to loop the solver through (2 should almost always be sufficient)
+.nleq2_jacgen = 2       # 2:numdiff, 3:numdiff+feedback
+.nleq2_iscal  = 0       # 0:xscal lower threshold of scaling vector, 1:always scaling vector 
+.nleq2_mprerr = 1       # 0:no output, 1:error, 2:+warning, 3:+info
+.nleq2_nonlin = 4       # 1:linear, 2:mildly non-lin, 3:highly non-lin, 4:extremely non-lin
+.nleq2_qrank1 = 0       # 0:no Broyden approx. rank-1 updates, 1:Broyden approx. rank-1 updates
+.nleq2_qnscal = 0       # 0:auto row scaling, 1:no row scaling
+.nleq2_ibdamp = 0       # 0:auto damping strategy, 1:damping on, 2:damping off
+.nleq2_iormon = 0       # 0:default(2) 1:convergance not checked, 2:+'weak stop', 3:+'hard stop' criterion
+.nleq2_mesg = 1          # print the exit status message
+
+
+Added a solver selection switch and instituted a solver fallback cascade which
+automatically switches to NLEQ2 (if available) and FINTSLV if HYBRD fails or returns invalid 
+ie. negative concentrations.
+.mode_solver = 0       	   # 0:HYBRD, 1:FINTSLV, 2:NLEQ2
+.mode_solver_fallback = 1  # 0:Solver failure fails, 
+                           # 1:solver failure falls back to NLEQ2 and FINTSLV
+
+removed num_elas as an argument from doEvar and added .mode_deriv as an attribute
+(Perturbation method should be used with forcing functions or inversion failure.) 
+.mode_elas_deriv = 0    	# 0:algebraic e's, 1:perturbed e's
+
+Refactored .doElasMca(...) to be consistant with other showXXX methods
+.showElas(file=None) 		# print elasticities to screen, or open file object 
+
+Fixed a lot of irritations in .showModel()
+
+Number strings now formatted as '%2.4e' (x.xxxxeyyy) instead of '%5.6f' (x.xxxxxx).
+Added a number format string that allows setting the display/print format of numbers: 
+.mode_number_format = '%2.4e' # this affects all number output formatting in PySCeS
+
+Added a .ResetNumberFormat() function which resets the number format to the default.
+
+Merged E_init() into MCA_init() and created a new function .InitMca()
+which scales K and L with current steady state and initialises E vectors.
+
+Renamed .doEvar() and .doEpar() to .Evar() and .Epar() and replaced upsymb arg
+.elas_evar_upsymb = 1        # attach elasticities:	0:no, 1:yes
+.elas_epar_upsymb = 1        # attach parameter elasticities: 0:no, 1:yes
+
+Renamed k(l)matrixmethod to:
+.AnalyseL() 	# Generate L matrix +
+.AnalyseK()		# Generate K matrix +
+
+Streamlined structural attributes:
+.nmatrix
+.nmatrix_row
+.nmatrix_col
+.nrmatrix
+.nrmatrix_row
+.nrmatrix_col
+
+.kmatrix
+.kmatrix_row
+.kmatrix_col
+.kmatrix_scaled
+.kzeromatrix
+.kzeromatrix_row
+.kzeromatrix_col
+
+.lmatrix
+.lmatrix_row
+.lmatrix_col
+.lmatrix_scaled
+.lzeromatrix
+.lzeromatrix_row
+.lzeromatrix_col
+
+.lconsmatrix
+.lconsmatrix_row
+.lconsmatrix_col
+
+Streamlined control analysis attributes:
+.evar 		# variable elasticity matrix  (scaled)
+.epar		# parameter elasticity matrix (scaled)
+.evar_u		# variable elasticity matrix  (unscaled)
+.epar_u		# parameter elasticity matrix (unscaled)
+.evar_row   # reaction names
+.evar_col	# variable names
+.epar_row	# reaction names
+.epar_col   # parameter names
+.kel_unscaled # unscaled control matrix K-EL
+
+Reordered the control coefficients (scaling dependant on .mode_mca_scaled)
+.mode_mca_scaled = 1  	# MCA scaling 0:unscaled E+C+Eig 1:scaled E+C+Eig
+
+.mca_ci			# independant flux/concentration control coefficients
+.mca_ci_row
+.mca_ci_col
+.mca_cjd		# dependant flux control coefficients
+.mca_cjd_row
+.mca_cjd_col
+.mca_csd		# dependant concentration control coefficients
+.mca_csd_row
+.mca_csd_col
+.mca_cc			# all control coefficients Jd/Ji/Si/Sd
+.mca_cc_row
+.mca_cc_col
+
+Control coefficients are now calculated using a single method:
+.CCall()
+.mca_ccj_upsymb = 1         # attach the flux control coefficients
+.mca_ccs_upsymb = 1         # attach the concentration control coefficients
+
+and displayed using:
+.showCCall(File=None)
+.mca_ccall_fluxout = 1       # in .showCCall() output flux cc's
+.mca_ccall_concout = 1       # in .showCCall() output conc cc's
+.mca_ccall_altout = 0        # in .showCCall() all CC's grouped by reaction
+
+Created .showModes() function to match .doModes() to show and calculate elementary modes
+.emode_intmode = 1   # 0:float metatool, 1:integer metatool
+.emode_userout = 0 	 # write metatool output to file 0:no, 1:yes 
+.emode_file = <name> # emode_userout filename default: modelname_emodes
+
+Created .showEigen() function to match .doEigen() to show and calculate eigen values
+.mode_eigen_output = 0       # 0:normal, 1:extended eigen value + left/right vectors
+
+.jacobian		# scaled NrEsL
+.jacobian_col
+.jacobian_row
+
+
+Created an info level for
+.info_moiety_conserve	# 0:no conservation, 1:conservation
+.info_flux_conserve		# 0:no conservation, 1:conservation
+
+Internal sanity test functions renamed to:
+.TestSimState(endTime=10000,points=101,diff=1.0e-5)		# compares the solved state to a long integration
+.TestElasCalc(testSlice=1.0e-5)	# compares the algebraic vs the numeric elasticities
+
+Fixed some naming inconsistancies where I had variables as types,
+specifically file --> File making PySCeS assertion happy.
+
+-- dpcon61w.f pitcon.pyf --
+
+Trying an alternate approach in my fortran wrapper routine and pyf which should
+be more elegant/stable
+
+-- Other --
+
+Created /docs/pyscesmacros.tex which contains Jannie Hofmeyr's LaTeX macros for 
+ec's and cc's which can be used to insert PySCeS output directly into LaTeX doc's.
+(Future PySCeS will have extended LaTeX/MetaPost/PS/PDF output capabilities)
+
+Special thanks to Johann Rohwer who is working overtime translating his 
+"real science" silicon cell models and using them to stress test PySCeS. 
+Many enhancements in ver. 0.0.8+ are as a result of these tests
+ - Brett	
+
+============================================================================
+0.0.7 --> 0.0.8 (2004-03-26)
+============================
+0.0.8 should be considered a *testing* release - you have been warned.
+
+-- PyscesModel.py --
+Fixed the available model display to only show model (.psc) files
+
+Rewrote the way PySCeS works with ODE's (State,Simulate,DEx,REq,REq2) to make
+it compatible with solvers other than LSODA/HYBRD. Instead of a 'padded' SI matrix
+to get a full length vector as a result, everything is done with the reduced matrices
+This is more memory and processor efficient and can't damage accuracy either.
+The old routines have been renamed xxx_old until I'm sure I don't need them.
+
+Split the routine makeSD_calc into:
+.Fix_S_fullinput(s_vec) - input: vector = len(S)   output: S (corrected for SD)
+.Fix_S_indinput(s_vec)  - input: vector = len(SI)  output: S (full S)
+This allows you to correct SD in S or generate [SI+SD] from SI. All S vectors in 
+original N order and SI in lzerocol
+
+Removed the core routines from Simulate and State and rearranged things so that I
+now have separate LSODA and HYBRD methods. This allows a pluggable solver
+architecture for future addition of different algorithms (cvode?, nleq2?).
+The interface is implemented with the generic form:
+def ROUTINE(initial):
+	def function(s):
+		return sdot
+	sim_res,status = subroutine(function,initial,args)
+	if status == OK:
+		return sim_res, status
+	else:
+		return sim_res, status > 0
+This will most probably change a bit but this basic strategy allows both a measure
+of flexibility and control. Also allows user to call these routines directly.
+The arguments to the subroutine() function can be set as PysMod attributes to
+avoid argument passing ... this will almost certainly change at some point.
+Optimizations such as Psyco can now also easily be integrated. 
+
+Changed .sim_init to .s_init a global concentration initialisation vector
+
+Refactored createTvec into BuildTvec it now initialises s_init from Xi and 
+runs showConserved() (old prettyConservation) by default
+Build_Tvec() - uses Xi values and updates .Tvec and .Conservation_Sums
+
+Rewrote showConserved() to bring it inline with other showX methods and
+fixed a previously undiscovered bug where the the metabolites are 
+labelled incorrectly:
+
+.showConserved(file=None,screenwrite=1) writes to an open file object if != None
+print to the screen if screenwrite=1 and creates .conserved_sums from .Lcons and
+.Tvec (used to be known as .Conservation_Sums)
+
+.Tvec is initially build from Xi and then rebuild when a Simulation or State is
+evaluated. 
+
+If .state_set_conserve is set to zero, .Tvec is not called with State and .Tvec can
+be manipulated or scanned.
+
+Most of these changes involved rewriting the last bits of "core code"
+from the orginal pysces development scripts. 
+=============================================================================
+0.0.6 --> 0.0.7 (2004-03-17)
+============================
+
+-- setup.py --
+User configurable options allow skipping external module builds
+Corrected some potential Scientific Python <--> SciPy ambiguities in the msgs
+
+-- __init__.py --
+Added version information and hints to pys_usercfg.ini as well as a module
+sound setting pysces.Sound=0 (models initialise with this value)
+
+-- PyscesUtils.py --
+Added showODE(mod,file) and showODEr(mod,file) that prints the ODE's
+for N and Nr+conserved (I'm still refining these and will probably move them to the
+model class at some point ?or all the showXXX methods here?)
+
+-- PyscesModel.py --
+Added some irritating beeping: audio on win32 and graphic on posix
+default is off (.Sound=0)
+
+Added configurable options for solver: mod.hybrd_xxx and 
+integrator: mod.lsoda_xxx
+
+Renamed simulation attributes so they are now mod.sim_xxx where 
+xxx = start, end, points, sinit, time, res and changed .setSim() to .SimSet()
+
+Added userinit= argument to Simulate() that allows you to skip the initialisation
+of .s_init from .sXi and sim_time (from sim_end/points) which is the default behaviour.
+userinit=0:
+	run .SimSet() to initialise the time array and
+	initialise .sim_sinit from .sXi
+userinit=1:
+	initialise .sim_sinit from .sXi
+	skip .SimSet() to allow user defined time such as "logtime"
+userinit=2:
+	allow user defined .sim_sinit to be used directly (range check only, sXi used if failed)
+	(useful if you want to initialise a simulation with a steady-state ... eg watching one
+	state move to another)
+	this only makes sense with SetSim=0 (default: init from .sim_sinit)
+	user should call SimSet() manually to use sim_points/end etc
+	skip .SimSet() to allow user defined time such as "logtime"
+
+Refactored scan attributes to mod.scan_xxx where xxx = in, out and
+.scan1/plotscan1 methods are now .Scan1(), .PlotScan1()
+
+.basicplot() is now .PlotAll() -- accepts an array and plots array[:,0] vs array[:,1:]
+
+=============================================================================
+
+
+Brett Olivier (7 May 2004)

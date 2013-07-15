@@ -1,0 +1,57 @@
+# prototype parallel PySCeS parameter scan with IPython
+# a.k.a. "how to parallelize your scan in 5 lines of code" :-)
+# --jr20101218
+
+import os
+curDir = os.getcwd()
+
+import numpy as np
+import scipy as sp
+import pysces
+
+from timeit import default_timer as clock
+
+from IPython.parallel import Client
+rc=Client()
+dv=rc[:]
+
+m=pysces.model('isola2a')
+m.scan_in='V4'
+m.scan_out=['J_R1', 'ccJR1_R4']
+m.SetQuiet()
+
+with dv.sync_imports():
+    import pysces
+    import numpy as np
+
+%px m=pysces.model('isola2a')
+%px m.scan_in='V4'
+%px m.scan_out=['J_R1', 'ccJR1_R4']
+%px m.SetQuiet()
+
+scan_range=np.logspace(0.5,1.2,1000)
+
+print "Serial execution with Scan1..."
+t1=clock()
+m.Scan1(scan_range)
+ser_res = m.scan_res
+t2=clock()
+print "Time taken with Scan1:", t2-t1, "s"
+
+print "Parallel execution direct code with scatter..."
+print "... is really easy and only requires 4 lines of code :-)"
+t3=clock()
+dv.scatter('scan_range', np.logspace(0.5,1.2,1000))
+%px m.Scan1(scan_range)
+%px y=m.scan_res
+par_res=dv.gather('y')
+par_res.get()
+t4=clock()
+print "Time taken for direct parallel execution:", t4-t3, "s"
+print "Number of engines:", len(dv)
+print "Speedup:", (t2-t1)/(t4-t3)
+
+print "Checking results:"
+print "serial vs parallel:                  ", np.alltrue(np.equal(ser_res,par_res.get()))
+
+os.chdir(curDir)

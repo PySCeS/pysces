@@ -1,0 +1,25 @@
+
+include CONTRIBUTORS.txt
+include INSTALL.txt
+include LATEST.txt
+include setupegg.py
+include pysces/*
+include pysces/contrib/*
+include pysces/contrib/demo/*
+include pysces/core2/*
+include pysces/docs/*
+include pysces/examples/*
+include pysces/nleq2/*
+include pysces/kraken/*
+include pysces/kraken/controllers/*
+include pysces/lib/*
+include pysces/metatool/*
+include pysces/sandbox/*
+include pysces/pitcon/*
+include pysces/pscmodels/*
+include pysces/tests/*
+include pysces/pysces.pth
+include pysces/win32/libgfortran-3.dll
+include pysces/win32/libquadmath-0.dll
+recursive-include documentation *
+

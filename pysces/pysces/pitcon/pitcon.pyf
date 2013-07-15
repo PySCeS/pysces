@@ -1,0 +1,59 @@
+!    -*- f90 -*-
+
+! PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
+! 
+! Copyright (C) 2004-2009 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+! 
+! Brett G. Olivier (bgoli@users.sourceforge.net)
+! Triple-J Group for Molecular Cell Physiology
+! Stellenbosch University, South Africa.
+! 
+! Permission to use, modify, and distribute this software is given under the
+! terms of the PySceS (BSD style) license. See LICENSE.txt that came with
+! this distribution for specifics.
+! 
+! NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
+! Brett G. Olivier
+
+python module pitcon1__user__routines
+    interface pitcon1_user_interface
+        subroutine df(nvar,fpar,ipar,x,fjac,ierror) ! in :dpcon61.f:dpcon61w.f:pitcon1:unknown_interface
+            integer optional,check(len(xr)>=nvar),depend(xr) :: nvar=len(xr)
+            double precision dimension(nvar),intent(hide),depend(nvar) :: fpar
+            integer dimension(nvar),intent(hide),depend(nvar) :: ipar
+            double precision dimension(nvar),depend(nvar) :: x
+            double precision dimension(nvar,nvar),intent(out),depend(nvar,nvar) :: fjac
+            integer intent(out) :: ierror
+        end subroutine df
+        subroutine fx(nvar,fpar,ipar,x,fvec,ierror) ! in :dpcon61.f:dpcon61w.f:pitcon1:unknown_interface
+            integer optional,check(len(xr)>=nvar),depend(xr) :: nvar=len(xr)
+            double precision dimension(nvar),intent(hide),depend(nvar) :: fpar
+            integer dimension(nvar),intent(hide),depend(nvar) :: ipar
+            double precision dimension(nvar),depend(nvar) :: x
+            double precision dimension(nvar),intent(out),depend(nvar) :: fvec
+            integer intent(out) :: ierror
+        end subroutine fx
+    end interface pitcon1_user_interface
+end python module pitcon1__user__routines
+python module pitcon ! in
+    interface  ! in :dpcon61.f
+        subroutine pitcon1(df,fpar,fx,ierror,ipar,iwork,liw,nvar,rwork,lrw,xr,imth) ! in :dpcon61.f:dpcon61w.f
+            use pitcon1__user__routines
+            external df
+            double precision dimension(*) :: fpar
+            external fx
+            integer intent(out) :: ierror
+            integer dimension(*),intent(in) :: ipar
+            integer dimension(liw),intent(in,out,copy) :: iwork
+            integer optional,check(len(iwork)>=liw),depend(iwork) :: liw=len(iwork)
+            integer optional,check(len(xr)>=nvar),depend(xr) :: nvar=len(xr)
+            double precision dimension(lrw),intent(in,out,copy) :: rwork
+            integer optional,check(len(rwork)>=lrw),depend(rwork) :: lrw=len(rwork)
+            double precision dimension(nvar),intent(in,out,copy) :: xr
+            integer optional :: imth=1
+        end subroutine pitcon1
+    end interface
+end python module pitcon
+
+! This file was generated with f2py
+! See http://cens.ioc.ee/projects/f2py2e/

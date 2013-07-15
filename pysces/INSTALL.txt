@@ -1,0 +1,103 @@
+PySCeS (http://pysces.sourceforge.net) installation
+===================================================
+
+Please see README.txt and LICENCE.txt for licence/distribution information.
+
+PySCeS is developed primarily in Python and has been designed to
+operate on both the Linux and Microsoft Windows operating systems.
+
+PySCeS makes use of SciPy with NumPy for a number of functions
+and needs a working NumPy/SciPy installation to install and run.
+
+Additional PySCeS modules
+-------------------------
+
+PySCeS functionality has been modularised it is highly recommended that
+the following packages/modules are also installed.
+
+- *PySundials* Windows users should install the pysces_pysundials (win32 only) package to enable CVODE support. 
+
+Linux users should install the Sundials libraries and the PySundials package
+(pysundials.sourceforge.net)
+
+- *pysces_metatool* this adds elementary mode support to PySCeS
+
+General requirements
+--------------------
+
+- Python 2.5+
+- Numpy 1.2.1+
+- SciPy 0.7.0+
+- Matplotlib (with TKagg backend,)
+- GnuPlot (optional)
+- IPython (optional)
+- libSBML (optional)
+
+Win32 build
+-----------
+
+Most requirements for building are incuded in the Enthought Python Distribution
+
+MinGW (http://www.mingw.org) with, minimun GCC 3.4.5 is recommended with mingw\bin in path
+
+Once MinGW is set up, change to the PySCeS install directory and do a:
+
+- `python setup.py config --compiler=mingw32 build --compiler=mingw32 install`
+
+This should install PySCeS into the site-packages directory.
+
+Linux build
+-----------
+
+gcc 3.4.x (with g77 and g++) or
+gcc 4.1+ (with gfortran and g++)
+
+cd to the PySCeS source and run:
+
+- `python setup.py install`
+
+Apple Macbuild
+--------------
+
+- install the Enthought Python Distribution (EPD 6)
+- install XCode 3.2.2+ (with GCC 4.2.1+)
+- `python setup.py install`
+
+Make sure the `python` command you call to build is the EPD one and not some
+system Python.
+
+Cross platform compatibility
+----------------------------
+
+PySCeS has been successfully used on (as far as we know), the following systems:
+
+Linux
+~~~~~
+Ubuntu 9.04, 10.04, 10.10, 11.04 (32 and 64 bit editions)
+Mandriva 2005LE, 2006, 2007, 2007.1, 2008, 2008.1, 2009, 2010
+Mandrake 9.2, 10.0, 10.1
+RedHat 9.0
+Debian Stable
+Gentoo 4+
+
+Win32
+~~~~~
+
+Microsoft Windows 2000
+Microsoft Windows XP SP2
+Microsoft Windows 7 Ultimate SP1
+
+Apple
+~~~~~
+
+MAC OS X 10.6.3
+
+Support
+-------
+
+If you have any problems installing or using PySCeS try the PySCeS Sourceforge.Net pages
+where you will find help forums, email links to the developers and the latest
+announcements.
+
+
+Brett G. Olivier, 4 May 2011

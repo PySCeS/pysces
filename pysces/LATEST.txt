@@ -1,0 +1,9 @@
+The Subversion tree for this distribution contains the latest code.
+It can be downloaded using a subversion client as
+
+  svn co https://pysces.svn.sourceforge.net/svnroot/pysces/trunk/pysces pysces
+
+which will create a directory named pysces in your current directory
+and fill it with the latest development version of PySCeS.
+
+

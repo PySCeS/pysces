@@ -1,0 +1,4 @@
+The PySCeS user guide is also available in HTML on the PySCeS
+web-site. As the documentation is a work in progress the
+absolute latest will always be available from the PySCeS
+Subversion repository on SourceForge.net.
