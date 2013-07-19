@@ -1,0 +1,809 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The PySCeS Model Description Language &mdash; PySCeS User Guide v0.9</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PySCeS User Guide v0.9" href="index.html" />
+    <link rel="next" title="PySCeS Module documentation" href="modules_doc.html" />
+    <link rel="prev" title="Introduction" href="userguide_doc.html" /> 
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<img src="_static/pysces_header.gif" alt="Sphinx logo" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules_doc.html" title="PySCeS Module documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="userguide_doc.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="userguide.html">PySCeS User Guide v0.9</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="userguide.html">
+              <img class="logo" src="_static/pysces_logo_2.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="userguide.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The PySCeS Model Description Language</a><ul>
+<li><a class="reference internal" href="#defining-a-pysces-model">Defining a PySCeS model</a><ul>
+<li><a class="reference internal" href="#a-kinetic-model">A kinetic model</a></li>
+<li><a class="reference internal" href="#model-keywords">Model keywords</a></li>
+<li><a class="reference internal" href="#global-unit-definition">Global unit definition</a></li>
+<li><a class="reference internal" href="#symbol-names-and-comments">Symbol names and comments</a></li>
+<li><a class="reference internal" href="#compartment-definition">Compartment definition</a></li>
+<li><a class="reference internal" href="#function-definitions">Function definitions</a></li>
+<li><a class="reference internal" href="#defining-fixed-species">Defining fixed species</a></li>
+<li><a class="reference internal" href="#reaction-stoichiometry-and-rate-equations">Reaction stoichiometry and rate equations</a></li>
+<li><a class="reference internal" href="#species-and-parameter-initialisation">Species and parameter initialisation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-model-construction">Advanced model construction</a><ul>
+<li><a class="reference internal" href="#assignment-rules">Assignment rules</a></li>
+<li><a class="reference internal" href="#rate-rules">Rate rules</a></li>
+<li><a class="reference internal" href="#events">Events</a></li>
+<li><a class="reference internal" href="#piecewise">Piecewise</a></li>
+<li><a class="reference internal" href="#reagent-placeholder">Reagent placeholder</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-pysces-input-files">Example PySCeS input files</a><ul>
+<li><a class="reference internal" href="#basic-model-definition">Basic model definition</a></li>
+<li><a class="reference internal" href="#advanced-example">Advanced example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="userguide_doc.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules_doc.html"
+                        title="next chapter">PySCeS Module documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/inputfile_doc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-pysces-model-description-language">
+<span id="pysces-inputfile"></span><h1>The PySCeS Model Description Language<a class="headerlink" href="#the-pysces-model-description-language" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div>PySCeS: the Python Simulator for Cellular Systems is an
+extendable toolkit for the analysis and investigation of cellular
+systems. It is available for download from: <a class="reference external" href="http://pysces.sf.net">http://pysces.sf.net</a></div></blockquote>
+<p>PySCeS uses an ASCII text based <em>input file</em> to describe a
+cellular system in terms of it&#8217;s stoichiometry, kinetics,
+compartments and parameters. Input files may have any filename
+with the single restriction that, for cross platform
+compatibility, they must end with the extension <em>.psc</em>. In this
+document we describe the PySCeS Model Description Language
+(MDL) which has been updated and extended for the PySCeS 0.7.x
+release.</p>
+<blockquote>
+<div>PySCeS is distributed under the PySCeS (BSD style) license and is made
+freely available as Open Source software. See LICENCE.txt for details.</div></blockquote>
+<p>We hope that you will enjoy using our software. If, however,
+you find any unexpected features (i.e. bugs) or have any
+suggestions on how we can improve PySCeS and specifically the
+PySCeS MDL please let us know.</p>
+<div class="section" id="defining-a-pysces-model">
+<span id="pysces-inputfile-detailed"></span><h2>Defining a PySCeS model<a class="headerlink" href="#defining-a-pysces-model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="a-kinetic-model">
+<span id="pysces-inputfile-basic"></span><h3>A kinetic model<a class="headerlink" href="#a-kinetic-model" title="Permalink to this headline">¶</a></h3>
+<p>The basic description of a kinetic model in the PySCeS MDL contains
+the following information:</p>
+<ul class="simple">
+<li>whether any fixed (boundary) species are present</li>
+<li>the reaction network stoichiometry</li>
+<li>rate equations for each reaction step</li>
+<li>parameter and boundary species initial values</li>
+<li>the initial values of the variable species</li>
+</ul>
+<p>Although it is in principle possible to define an ODE based model
+without reactions or free species, for practical purposes PySCeS
+requires a minimum of a single reaction. Once this information is
+obtained it can be organised and written as a PySCeS input file.
+While this list is the minimum information required for a PySCeS input
+file the MDL allows the definition of advanced models that contain
+compartments, global units, functions, rate and assignment rules.</p>
+</div>
+<div class="section" id="model-keywords">
+<span id="pysces-inputfile-detailed-keywords"></span><h3>Model keywords<a class="headerlink" href="#model-keywords" title="Permalink to this headline">¶</a></h3>
+<p>In PySCeS 0.7.x it is now possible to define keywords that
+specify model information. Keywords have the general form</p>
+<p><tt class="docutils literal"><span class="pre">&lt;keyword&gt;:</span> <span class="pre">&lt;value&gt;</span></tt></p>
+<p>The <em>Modelname</em> (optional) keyword, containing only
+alphanumeric characters (or _), describes the model filename
+(typically used when the model is exported via the PySCeS
+interface module) while the <em>Description</em> keyword is a (short)
+single line model description.</p>
+<div class="highlight-python"><pre>Modelname: rohwer_sucrose1
+Description: Sucrose metabolism in sugar cane (Johann M. Rohwer)</pre>
+</div>
+<p>Two keywords are available for use (optional) with models that have one or
+more compartments defined. Both take a boolean (True/False) as
+their value:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>Species_In_Conc</em> specifies whether the species symbols used in the rate equations represent a concentration (True, default) or an amount (False).</li>
+<li><em>Output_In_Conc</em> tells PySCeS to output the results of numerical operations in concentrations (True, default) or in amounts (False).</li>
+</ul>
+</div></blockquote>
+<div class="highlight-python"><pre>Species_In_Conc: True
+Output_In_Conc: False</pre>
+</div>
+<p>More information on the effect these keywords have on the analysis of a model
+can be found in the PySCeS Reference Manual.</p>
+</div>
+<div class="section" id="global-unit-definition">
+<span id="pysces-inputfile-detailed-units"></span><h3>Global unit definition<a class="headerlink" href="#global-unit-definition" title="Permalink to this headline">¶</a></h3>
+<p>PySCeS 0.7 supports the (optional) definition of a set of
+global units. In doing so we have chosen to follow the general
+approach used in the Systems Biology Modelling Language (SBML
+L2V3) specification. The general definition of a PySCeS unit
+is: <tt class="docutils literal"><span class="pre">`&lt;UnitType&gt;:</span> <span class="pre">&lt;kind&gt;,</span> <span class="pre">&lt;multiplier&gt;,</span> <span class="pre">&lt;scale&gt;,</span> <span class="pre">&lt;exponent&gt;`</span></tt>
+where <em>kind</em> is a string describing the base unit (for SBML
+compatibility this should be an SI unit) e.g. mole, litre,
+second or metre. The base unit is modified by the multiplier,
+scale and index using the following relationship:
+<em>&lt;multiplier&gt; * (&lt;kind&gt; * 10**&lt;scale&gt;)**&lt;index&gt;</em>. The
+default unit definitions are:</p>
+<div class="highlight-python"><pre>UnitSubstance: mole, 1, 0, 1
+UnitVolume: litre, 1, 0, 1
+UnitTime: second, 1, 0, 1
+UnitLength: metre, 1, 0, 1
+UnitArea: metre, 1, 0, 2</pre>
+</div>
+<p>Please note that defining these values does not affect the
+numerical analysis of the model in any way.</p>
+</div>
+<div class="section" id="symbol-names-and-comments">
+<span id="pysces-inputfile-detailed-names"></span><h3>Symbol names and comments<a class="headerlink" href="#symbol-names-and-comments" title="Permalink to this headline">¶</a></h3>
+<p>Symbol names (i.e. reaction, species, compartment, function,
+rule and parameter names etc.) must start with either an
+underscore or letter and be followed by any combination of
+alpha-numeric characters or an underscore. Like all other
+elements of the input file names are case sensitive:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">R1</span>
+<span class="n">_subA</span>
+<span class="n">par1b</span>
+<span class="n">ext_1</span>
+</pre></div>
+</div>
+<p>Explicit access to the &#8220;current&#8221; time in a time simulation is
+provided by the special symbol <tt class="docutils literal"><span class="pre">_TIME_</span></tt>. This is useful in
+the definition of events and rules (see chapter on advanced
+model construction for more details).</p>
+<p>Comments can be placed anywhere in the input file in one of two
+ways, as single line comment starting with a <em>#</em> or as a
+multi-line triple quoted comment <em>&#8220;&#8221;&#8220;&lt;comment&gt;&#8221;&#8220;&#8221;</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># everything after this is ignored</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a comment</span>
+<span class="sd">spread over a</span>
+<span class="sd">few lines.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="compartment-definition">
+<span id="pysces-inputfile-detailed-compartments"></span><h3>Compartment definition<a class="headerlink" href="#compartment-definition" title="Permalink to this headline">¶</a></h3>
+<p>By default (as is the case in all PySCeS versions &lt; 0.7) PySCeS
+assumes that the model exists in a single unit volume
+compartment. In this case it is <strong>not</strong> necessary to define a
+compartment and the ODE&#8217;s therefore describe changes in
+concentration per time. However, if a compartment is defined,
+PySCeS assumes that the ODE&#8217;s describe changes in substance amount per
+time. Doing this affects how the model is defined in the input
+file (especially with respect to the definitions of rate
+equations and species) and the user is <strong>strongly</strong> advised to
+read the Users Guide before building models in this way. The
+compartment definition is as follows <tt class="docutils literal"><span class="pre">Compartment:</span> <span class="pre">&lt;name&gt;,</span>
+<span class="pre">&lt;size&gt;,</span> <span class="pre">&lt;dimensions&gt;</span></tt>, where <em>&lt;name&gt;</em> is the unique
+compartment id, <em>&lt;size&gt;</em> is the size of the compartment (i.e.
+length, volume or area) defined by the number of <em>&lt;dimensions&gt;</em>
+(e.g. 1,2,3):</p>
+<div class="highlight-python"><pre>Compartment: Cell, 2.0, 3
+Compartment: Memb, 1.0, 2</pre>
+</div>
+</div>
+<div class="section" id="function-definitions">
+<span id="pysces-inputfile-detailed-functions"></span><h3>Function definitions<a class="headerlink" href="#function-definitions" title="Permalink to this headline">¶</a></h3>
+<p>A new addition to the PySCeS MDL is the ability to define SBML
+styled functions. Simply put these are code substitutions that
+can be used in rate equation definitions to, for example,
+simplify the kinetic law. The general syntax for a function is
+<tt class="docutils literal"><span class="pre">Function:</span> <span class="pre">&lt;name&gt;,</span> <span class="pre">&lt;args&gt;</span> <span class="pre">{&lt;formula&gt;}</span></tt> where <em>&lt;name&gt;</em> is the
+unique function id, <em>&lt;arglist&gt;</em> is one or more comma separated
+function arguments. The <em>&lt;formula&gt;</em> field, enclosed in curly
+brackets, may only make use of arguments listed in the
+<em>&lt;arglist&gt;</em> and therefore <strong>cannot</strong> reference model attributes
+directly. If this functionality is required a forcing function
+(assignment rule) may be what you are looking for.</p>
+<div class="highlight-python"><pre>Function: rmm_num, Vf, s, p, Keq {
+Vf*(s - p/Keq)
+}
+
+Function: rmm_den, s, p, Ks, Kp {
+s + Ks*(1.0 + p/Kp)
+}</pre>
+</div>
+<p>The syntax for function definitions has been adapted from Frank
+Bergmann and Herbert Sauro&#8217;s &#8220;Human Readable Model Definition
+Language&#8221; (Draft 1).</p>
+</div>
+<div class="section" id="defining-fixed-species">
+<span id="pysces-inputfile-detailed-fixed"></span><h3>Defining fixed species<a class="headerlink" href="#defining-fixed-species" title="Permalink to this headline">¶</a></h3>
+<p>Boundary species, also known as fixed or external species, are
+a special class of parameter used when modelling biological
+systems. The PySCeS MDL fixed species are declared on a single
+line as <tt class="docutils literal"><span class="pre">FIX:</span> <span class="pre">&lt;fixedlist&gt;</span></tt>. The <em>&lt;fixedlist&gt;</em> is a space
+separated list of symbol names which should be initialised like
+any other species or parameter:</p>
+<div class="highlight-python"><pre>FIX: Fru_ex Glc_ex ATP ADP UDP phos glycolysis Suc_vac</pre>
+</div>
+<p>If no fixed species are present in the model then this
+declaration should be omitted entirely.</p>
+</div>
+<div class="section" id="reaction-stoichiometry-and-rate-equations">
+<span id="pysces-inputfile-detailed-reactions"></span><h3>Reaction stoichiometry and rate equations<a class="headerlink" href="#reaction-stoichiometry-and-rate-equations" title="Permalink to this headline">¶</a></h3>
+<p>The reaction stoichiometry and rate equation are defined together
+as a single reaction step. Each step in the system is defined as
+having a name (identifier), a stoichiometry (substrates are
+converted to products) and rate equation (the catalytic activity,
+described in terms of species and parameters). All reaction
+definitions should be separated by an empty line. The general format
+of a reaction in a model with no compartments is:</p>
+<div class="highlight-python"><pre>&lt;name&gt;:
+        &lt;stoichiometry&gt;
+        &lt;rate equation&gt;</pre>
+</div>
+<p>The <em>&lt;name&gt;</em> argument follows the syntax as discussed in a
+previous section, however, when more than one compartment has
+been defined it is important to locate the reaction in its
+specific compartment. This is done using the <tt class="docutils literal"><span class="pre">&#64;</span></tt> operator:</p>
+<div class="highlight-python"><pre>&lt;name&gt;@&lt;compartment&gt;:
+                      &lt;stoichiometry&gt;
+                      &lt;rate equation&gt;</pre>
+</div>
+<p>Where <em>&lt;compartment&gt;</em> is a valid compartment name. In either
+case this then followed either directly (or on the next line)
+by the reaction stoichiometry.</p>
+<p>Each <em>&lt;stoichiometry&gt;</em> argument is defined in terms of reaction
+substrates, appearing on the left hand side and products on the
+right hand side of an identifier which labels the reaction as
+either reversible (<em>=</em>) or irreversible (<em>&gt;</em>). If required each
+reagent&#8217;s stoichiometric coefficient (PySCeS accepts both
+integer and floating point) should be included in curly braces
+<em>{}</em> immediately preceding the reagent name. If these are
+omitted a coefficient of one is assumed:</p>
+<div class="highlight-python"><pre>{2.0}Hex_P = Suc6P + UDP  # reversible reaction
+Fru_ex &gt; Fru              # irreversible reaction
+species_5 &gt; $pool         # a reaction to a sink</pre>
+</div>
+<p>The PySCeS MDL also allows the use of the <em>$pool</em> token that
+represents a placeholder reagent for reactions that have no
+net substrate or product. Reversibility of a reaction is only
+used when exporting the model to other formats (such as SBML)
+and in the calculation of elementary modes. It does not affect
+the numerical evaluation of the rate equations in any way.</p>
+<p>Central to any reaction definition is the <em>&lt;rate equation&gt;</em>
+(SBML kinetic law). This should be written as valid Python
+expression and may fall across more than one line. Standard
+Python operators <tt class="docutils literal"><span class="pre">+</span> <span class="pre">-</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">**</span></tt> are supported (note the Python
+power e.g. <em>2^4</em> is written as <em>2**4</em>). There is no shorthand
+for multiplication with a bracket so <em>-2(a+b)^h</em> would be written as
+<em>-2*(a+b)**h}</em> and normal operator precedence applies:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>+, -</td>
+<td>addition, subtraction</td>
+</tr>
+<tr class="row-even"><td>*, /</td>
+<td>multiplication, division</td>
+</tr>
+<tr class="row-odd"><td>+x,-x</td>
+<td>positive, negative</td>
+</tr>
+<tr class="row-even"><td>**</td>
+<td>exponentiation</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Operator precedence increase from top to bottom and left to
+right (adapted from the Python Reference Manual).</p>
+<p>The PySCeS MDL parser has been developed to parse and translate different
+styles of infix into Python/Numpy based expressions, the following
+functions are supported in any mathematical expression:</p>
+<blockquote>
+<div><ul class="simple">
+<li>log, log10, ln, abs</li>
+<li>pow, exp, root, sqrt</li>
+<li>sin, cos, tan, sinh, cosh, tanh</li>
+<li>arccos, arccosh, arcsin, arcsinh, arctan, arctanh</li>
+<li>floor, ceil, ceiling, piecewise</li>
+<li>notanumber, pi, infinity, exponentiale</li>
+</ul>
+</div></blockquote>
+<p>Logical operators are supported in rules, events etc but <em>not</em>
+in rate equation definitions. The PySCeS parser understands
+Python infix as well as libSBML and NumPy prefix notation.</p>
+<blockquote>
+<div><ul class="simple">
+<li>and or xor not</li>
+<li>&gt; gt(x,y) greater(x,y)</li>
+<li>&lt; lt(x,y) less(x,y)</li>
+<li>&gt;= ge(x,y) geq(x,y) greater_equal(x,y)</li>
+<li>&lt;= le(x,y) leq(x,y) less_equal(x,y)</li>
+<li>== eq(x,y) equal(x,y)</li>
+<li>!= neq(x,y) not_equal(x,y)</li>
+</ul>
+</div></blockquote>
+<p>Note that currently the MathML <em>delay and factorial</em> functions
+are not supported. Delay is handled by simply removing it from
+any expression, e.g. <em>delay(f(x), delay)</em> would be parsed as
+<em>f(x)</em>. Support for <em>piecewise</em> has been recently added
+to PySCeS and will be discussed in the <em>advanced features</em> section.</p>
+<p>A reaction definition when no compartments are defined:</p>
+<div class="highlight-python"><pre>R5: Fru + ATP = Hex_P + ADP
+    Fru/Ki5_Fru)*(Fru/Km5_Fru)*(ATP/Km5_ATP)/(1 +
+    Vmax5/(1 + Fru/Ki5_Fru)*(Fru/Km5_Fru)*(ATP/Km5_ATP)/(1 +
+    Fru/Km5_Fru + ATP/Km5_ATP + Fru*ATP/(Km5_Fru*Km5_ATP) +
+    ADP/Ki5_ADP)</pre>
+</div>
+<p>and using the previously defined functions:</p>
+<div class="highlight-python"><pre>R6:
+   A = B
+   rmm_num(V2,A,B,Keq2)/rmm_den(A,B,K2A,K2B)</pre>
+</div>
+<p>When compartments are defined note how now the reaction is now
+given a location and that because the ODE&#8217;s formed from these
+reactions must be in changes in substance per time the rate
+equation is multiplied by its compartment size. In this
+particular example the species symbols represent concentrations
+(<em>Species_In_Conc: True</em>):</p>
+<div class="highlight-python"><pre>R1@Cell:
+    s1 = s2
+    Cell*(Vf1*(s1 - s2/Keq1)/(s1 + KS1*(1 + s2/KP1)))</pre>
+</div>
+<p>If <em>Species_In_Conc: True</em> the location of the species is
+defined when it is initialised and will be explained later in
+this manual. The following example shows the species symbols
+explicitly defined as amounts (<em>Species_In_Conc: False</em>):</p>
+<div class="highlight-python"><pre>R4@Memb: s3 = s4
+    Memb*(Vf4*((s3/Memb) - (s4/Cell)/Keq4)/((s3/Memb)
+    + KS4*(1 + (s4/Cell)/KP4)))</pre>
+</div>
+<p>Please note that at this time we are not certain if this form
+of rate equation is translatable into valid SBML in a way that is
+interoperable with other software.</p>
+</div>
+<div class="section" id="species-and-parameter-initialisation">
+<span id="pysces-inputfile-detailed-initialisation"></span><h3>Species and parameter initialisation<a class="headerlink" href="#species-and-parameter-initialisation" title="Permalink to this headline">¶</a></h3>
+<p>The general form of any species (fixed, free) and parameter is
+simply:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nb">property</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>Initialisations can be written in any order anywhere in the
+input file but for human readability purposes these are usually
+placed after the reaction that uses them or grouped at the end
+of the input file. Both decimal and scientific notation is
+allowed with the following provisions that neither floating
+point <em>(1. )</em> nor scientific shorthand <em>(1.e-3)</em> syntax should
+be used, instead use the full form <em>(1.0e-3)</em>, <em>(0.001)</em> or
+<em>(1.0)</em>.</p>
+<p>Variable or free species are initialised differently depending
+on whether compartments are present in the model. While in
+essence the variables are set by the system parameters the</p>
+<p>Although the variable species concentrations are determined by
+the parameters of the system, their initial values are used in
+various places, calculating total moiety concentrations (if
+present), time simulation initial values (e.g. time=zero) and
+as initial guesses for the steady-state algorithms. If an empty
+initial species pool is required it is not recommended to
+initialise these values to zero (in order to prevent potential
+divide-by-zero errors) but rather to a small value (e.g.
+10**-8).</p>
+<p>For a model with no compartments these initial values assumed
+to be concentrations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">NADH</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">ATP</span>  <span class="o">=</span> <span class="mf">2.3e-3</span>
+<span class="n">sucrose</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>In a model with compartments it is expected that the species
+are located in a compartment (even if <em>Species_In_Conc: False</em>)
+this is done useing the <em>&#64;</em> symbol:</p>
+<div class="highlight-python"><pre>s1@Memb = 0.01
+s2@Cell = 2.0e-4</pre>
+</div>
+<p>A word of warning, the user is responsible for making sure that
+the units of the initialised species match those of the model.
+Please keep in mind that <strong>all</strong> species (and anything that
+depends on them) is defined in terms of the <em>Species_In_Conc</em>
+keyword. For example, if the preceding initialisations were for
+<em>R1</em> (see Reaction section) then they would be concentrations
+(as <em>Species_In_Conc: True</em>). However, in the next example, we
+are initialising species for <em>R4</em> and they are therefore in
+amounts (<em>Species_In_Conc: False</em>):</p>
+<div class="highlight-python"><pre>s3@Memb = 1.0
+s4@Cell = 2.0</pre>
+</div>
+<p>Fixed species are defined in a similar way and although
+technically a parameter, they should be given a location in
+compartmental models:</p>
+<div class="highlight-python"><pre># InitExt
+X0 = 10.0
+X4@Cell = 1.0</pre>
+</div>
+<p>However, fixed species are true parameters in the sense that
+their associated compartment size does not affect their value
+when it changes size. If compartment size dependent behaviour
+is required an assignment or rate rule should be considered.</p>
+<p>Finally, the parameters should be initialised. PySCeS checks if
+a parameter is defined that is not present in the rate
+equations and if such parameter initialisations are detected a
+harmless warning is generated. If, on the other hand, an
+uninitialised parameter is detected a warning is generated and
+a value of 1.0 assigned:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># InitPar</span>
+<span class="n">Vf2</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">Ks4</span> <span class="o">=</span> <span class="mf">1.0</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-model-construction">
+<span id="pysces-inputfile-advanced"></span><h2>Advanced model construction<a class="headerlink" href="#advanced-model-construction" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="assignment-rules">
+<span id="pysces-inputfile-advanced-assignment"></span><h3>Assignment rules<a class="headerlink" href="#assignment-rules" title="Permalink to this headline">¶</a></h3>
+<p>Assignment rules or forcing functions are used to set the value
+of a model attribute before the ODE&#8217;s are evaluated. This model
+attribute can either be a parameter used in the rate equations
+(this is traditionally used to describe an equilibrium block) a
+compartment or an arbitrary parameter (commonly used to define
+some sort of tracking function). Assignment rules can access
+other model attributes directly and have the generic form <tt class="docutils literal"><span class="pre">!F</span>
+<span class="pre">&lt;par&gt;</span> <span class="pre">=</span> <span class="pre">&lt;formula&gt;</span></tt>. Where <em>&lt;par&gt;</em> is the parameter assigned
+the result of <em>&lt;formula&gt;</em>. Assignment rules can be defined
+anywhere in the input file:</p>
+<div class="highlight-python"><pre>!F S_V_Ratio = Mem_Area/Vcyt
+!F sigma_test = sigma_P*Pmem + sigma_L*Lmem</pre>
+</div>
+<p>These rules would set the value of <em>&lt;par&gt;</em> which whose value
+can be followed with using the simulation and steady state
+extra_data functionality.</p>
+</div>
+<div class="section" id="rate-rules">
+<span id="pysces-inputfile-advanced-raterule"></span><h3>Rate rules<a class="headerlink" href="#rate-rules" title="Permalink to this headline">¶</a></h3>
+<p>PySCeS now includes support for rate rules which are
+essentially directly encoded ODE&#8217;s which are evaluated after
+the ODE&#8217;s defined by the model stoichiometry and rate
+equations. Unlike the SBML rate rule, PySCeS allows one to
+access a reaction symbol in the rate rules (this is
+automatically expanded when the model is exported to SBML). The
+general form of a rate rule is <tt class="docutils literal"><span class="pre">RateRule:</span> <span class="pre">&lt;par&gt;</span>
+<span class="pre">{&lt;function&gt;}</span></tt>. Where <em>&lt;name&gt;</em> is the model attribute (e.g.
+compartment or parameter) whose rate of change is described by
+the <em>&lt;formula&gt;</em>. It may also be defined anywhere in the input
+file:</p>
+<div class="highlight-python"><pre>RateRule: Mem_Area {
+(sigma_P)*(Mem_Area*k4*(P)) + (sigma_L)*(Mem_Area*k5*(L))
+}
+
+RateRule: Vcyt {(1.0/Co)*(R1()+(1-m1)*R2()+(1-m2)*R3()-R4()-R5())}</pre>
+</div>
+<p>Remember to initialise any new parameters used in the rate rules.</p>
+</div>
+<div class="section" id="events">
+<span id="pysces-inputfile-advanced-events"></span><h3>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h3>
+<p>Time dependant events may now be defined whose definition
+follows the event framework described in the SBML L2V1
+specification. The general form of an event is <em>Event: &lt;name&gt;,
+&lt;trigger&gt;, &lt;delay&gt; { &lt;assignments&gt; }</em>. As can be seen an event
+consists of essentially three parts, a conditional <em>&lt;trigger&gt;</em>,
+a set of one or more <em>&lt;assignments&gt;</em> and a <em>&lt;delay&gt;</em> between
+when the trigger is fired (and the assignments are evaluated)
+and the eventual assignment to the model. Assignments have the
+general form <em>&lt;par&gt; = &lt;formula&gt;</em>. Events have access to the
+&#8220;current&#8221; simulation time using the <em>_TIME_</em> symbol:</p>
+<div class="highlight-python"><pre>Event: event1, _TIME_ &gt; 10 and A &gt; 150.0, 0 {
+V1 = V1*vfact
+V2 = V2*vfact
+}</pre>
+</div>
+<p>The following event illustrates the use of a delay of ten time
+units as well as the prefix notation (used by libSBML) for the
+trigger (PySCeS understands both notations):</p>
+<div class="highlight-python"><pre>Event: event2, geq(_TIME_, 15.0), 10 {
+V3 = V3*vfact2
+}</pre>
+</div>
+<p><em>Note:</em> in order for PySCeS to handle events it is necessary to
+have the PySundials installed</p>
+</div>
+<div class="section" id="piecewise">
+<span id="pysces-inputfile-advanced-piecewise"></span><h3>Piecewise<a class="headerlink" href="#piecewise" title="Permalink to this headline">¶</a></h3>
+<p>Although technically an operator piecewise functions are
+sufficiently complicated to warrant their own section. A
+piecewise operator is essentially an <em>if, elif, ..., else</em>
+logical operator that can be used to conditionally &#8220;set&#8221; the
+value of some model attribute. Currently piecewise is supported
+in rule constructs and has not been tested directly in rate
+equation definitions. The piecewise function&#8217;s most basic
+incarnation is <cite>piecewise(&lt;val1&gt;, &lt;cond&gt;, &lt;val2&gt;)</cite> which is evaluated as:</p>
+<div class="highlight-python"><pre>if &lt;cond&gt;:
+    return &lt;val1&gt;
+else:
+    return &lt;val2&gt;</pre>
+</div>
+<p>alternatively, <cite>piecewise(&lt;val1&gt;, &lt;cond1&gt;, &lt;val2&gt;, &lt;cond2&gt;, &lt;val3&gt;, &lt;cond3&gt;)</cite>:</p>
+<div class="highlight-python"><pre>if &lt;cond1&gt;:
+    return &lt;val1&gt;
+elif &lt;cond2&gt;:
+    return &lt;val1&gt;
+elif &lt;cond3&gt;:
+    return &lt;val3&gt;</pre>
+</div>
+<p>or <cite>piecewise(&lt;val1&gt;, &lt;cond1&gt;, &lt;val2&gt;, &lt;cond2&gt;, &lt;val3&gt;, &lt;cond3&gt;, &lt;val4&gt;)</cite>:</p>
+<div class="highlight-python"><pre>if &lt;cond1&gt;:
+    return &lt;val1&gt;
+elif &lt;cond2&gt;:
+    return &lt;val2&gt;
+elif &lt;cond3&gt;:
+    return &lt;val3&gt;
+else:
+    return &lt;val4&gt;</pre>
+</div>
+<p>can also be used. A &#8220;real-life&#8221; example of an assignment rule
+with a piecewise function:</p>
+<div class="highlight-python"><pre>!F Ca2plus=piecewise(0.1, lt(_TIME_,60), 0.1, gt(_TIME_,66.0115), 1)</pre>
+</div>
+<p>In principle there is no limit on the amount of conditional
+statements present in a piecewise function, the condition can
+be a compound statements <em>a or b and c</em> and may include the
+<em>_TIME_</em> symbol.</p>
+</div>
+<div class="section" id="reagent-placeholder">
+<h3>Reagent placeholder<a class="headerlink" href="#reagent-placeholder" title="Permalink to this headline">¶</a></h3>
+<p>Some models contain reactions which are defined as only have substrates or
+products:</p>
+<div class="highlight-python"><pre>R1: A + B &gt;
+
+R2: &gt; C + D</pre>
+</div>
+<p>The implication is that the relevant reagents appear or disappear
+from or into a constant pool. Unfortunately the <cite>PySCeS</cite> parser does not accept
+such an unbalanced reaction definition and requires these pools to be
+represented as a <tt class="docutils literal"><span class="pre">$pool</span></tt> token:</p>
+<div class="highlight-python"><pre>R1: A + B &gt; $pool
+
+R2: $pool &gt; C + D</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">$pool</span></tt> is neither counted as a reagent nor does it ever appear in the
+stoichiometry (think of it as dev/null) and no other $&lt;str&gt; tokens are allowed.</p>
+</div>
+</div>
+<div class="section" id="example-pysces-input-files">
+<span id="pysces-inputfile-examples"></span><h2>Example PySCeS input files<a class="headerlink" href="#example-pysces-input-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-model-definition">
+<span id="pysces-inputfile-examples-basic"></span><h3>Basic model definition<a class="headerlink" href="#basic-model-definition" title="Permalink to this headline">¶</a></h3>
+<p>PySCeS test model <em>pysces_test_linear1.psc</em>:</p>
+<div class="highlight-python"><pre>FIX: x0 x3
+
+R1: x0 = s0
+    k1*x0 - k2*s0
+
+R2: s0 = s1
+    k3*s0 - k4*s1
+
+R3: s1 = s2
+    k5*s1 - k6*s2
+
+R4: s2 = x3
+    k7*s2 - k8*x3
+
+# InitExt
+x0 = 10.0
+x3 = 1.0
+# InitPar
+k1 = 10.0
+k2 = 1.0
+k3 = 5.0
+k4 = 1.0
+k5 = 3.0
+k6 = 1.0
+k7 = 2.0
+k8 = 1.0
+# InitVar
+s0 = 1.0
+s1 = 1.0
+s2 = 1.0</pre>
+</div>
+</div>
+<div class="section" id="advanced-example">
+<span id="pysces-inputfile-examples-advanced"></span><h3>Advanced example<a class="headerlink" href="#advanced-example" title="Permalink to this headline">¶</a></h3>
+<p>This model includes the use of <em>Compartments</em>, <em>KeyWords</em>,
+<em>Units</em> and <em>Rules</em>:</p>
+<div class="highlight-python"><pre>Modelname: MWC_wholecell2c
+Description: Surovtsev whole cell model using J-HS Hofmeyr's framework
+
+Species_In_Conc: True
+Output_In_Conc: True
+
+# Global unit definition
+UnitVolume: litre, 1.0, -3, 1
+UnitSubstance: mole, 1.0, -6, 1
+UnitTime: second, 60, 0, 1
+
+# Compartment definition
+Compartment: Vcyt, 1.0, 3
+Compartment: Vout, 1.0, 3
+Compartment: Mem_Area, 5.15898, 2
+
+FIX: N
+
+R1@Mem_Area: N = M
+   Mem_Area*k1*(Pmem)*(N/Vout)
+
+R2@Vcyt: {244}M = P # m1
+   Vcyt*k2*(M)
+
+R3@Vcyt: {42}M = L # m2
+   Vcyt*k3*(M)*(P)**2
+
+R4@Mem_Area: P = Pmem
+   Mem_Area*k4*(P)
+
+R5@Mem_Area: L = Lmem
+   Mem_Area*k5*(L)
+
+# Rate rule definition
+RateRule: Vcyt {(1.0/Co)*(R1()+(1-m1)*R2()+(1-m2)*R3()-R4()-R5())}
+RateRule: Mem_Area {(sigma_P)*R4() + (sigma_L)*R5()}
+
+# Rate rule initialisation
+Co = 3.07e5 # uM p_env/(R*T)
+m1 = 244
+m2 = 42
+sigma_P = 0.00069714285714285711
+sigma_L = 0.00012
+
+# Assignment rule definition
+!F S_V_Ratio = Mem_Area/Vcyt
+!F Mconc = (M)/M_init
+!F Lconc = (L)/L_init
+!F Pconc = (P)/P_init
+
+# Assignment rule initialisations
+M_init = 199693.0
+L_init = 102004
+P_init = 5303
+Mconc = 1.0
+Lconc = 1.0
+Pconc = 1.0
+
+# Species initialisations
+N@Vout = 3.07e5
+Pmem@Mem_Area = 37.38415
+Lmem@Mem_Area = 8291.2350678770199
+M@Vcyt = 199693.0
+L@Vcyt = 102004
+P@Vcyt = 5303
+
+# Parameter initialisations
+k1 = 0.00089709
+k2 = 0.000182027
+k3 = 1.7539e-010
+k4 = 5.0072346e-005
+k5 = 0.000574507164
+
+"""
+Simulate this model to 200 for maximum happiness and
+watch the surface to volume ratio and scaled concentrations.
+"""</pre>
+</div>
+<p>This example illustrates almost all the new features included
+in the PySCeS MDL. Although it may be slightly more complicated
+than the basic model described above it is still, by our
+definition, human readable.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules_doc.html" title="PySCeS Module documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="userguide_doc.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="userguide.html">PySCeS User Guide v0.9</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2013, Brett Oliver, Johann Rohwer, Jannie Hofmeyr.
+      Last updated on Jun 03, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
