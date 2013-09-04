@@ -1,7 +1,7 @@
 MAJOR = 0
-MINOR = 8
+MINOR = 9
 MICRO = 0
-STATUS = 'rc1'
+STATUS = ''
 
 def current_version():
     return '%s.%s.%s%s' % (MAJOR, MINOR, MICRO, STATUS)
