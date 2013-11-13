@@ -7336,7 +7336,7 @@ class PysMod(object):
         Results of a parameter scan can be easilly viewed with Scan1Plot().
 
         mod.scan_in - a model attribute written as in the input file (eg. P, Vmax1 etc)
-        mod.scan_out -  a list of required output ['A','T2', ...]
+        mod.scan_out -  a list of required output ['A','T2', 'ecR1_s1', 'ccJR1_R1', 'rcJR1_s1', ...]
         mod.scan_res -  the results of a parameter scan
         mod.__settings__["scan1_mca_mode"] - force the scan algorithm to evaluate the elasticities (1) and control coefficients (2)
         (this should also be auto-detected by the Scan1 method).
@@ -7385,21 +7385,34 @@ class PysMod(object):
                 self.__settings__["scan1_mca_mode"] = 1
             elif x[:2] == 'cc':
                 self.__settings__["scan1_mca_mode"] = 2
-            #elif x[:2] == 'J_' or x[-3:] == '_ss':
-            #    self.__settings__["scan1_mca_mode"] = 3
+            elif x[:2] == 'rc':
+                self.__settings__["scan1_mca_mode"] = 3
 
         if self.__settings__["scan1_mca_mode"] == 1:
             self.doElas()
         elif self.__settings__["scan1_mca_mode"] == 2:
             self.doMca()
+        elif self.__settings__["scan1_mca_mode"] == 3:
+            self.doMcaRC()
         else:
-            #elif self.__settings__["scan1_mca_mode"] == 3:
             self.doState() # we are going to run a whole bunch anyway
 
         for x in self.scan_out:
             try:
-                ##  c = eval('self.' + x)
-                c = getattr(self, x)
+                if x.startswith('ec'):
+                    getattr(self.ec, x[2:])
+                elif x.startswith('cc'):
+                    if x.startswith('ccJ'):
+                        getattr(self.cc, x[3:])
+                    else:
+                        getattr(self.cc, x[2:])
+                elif x.startswith('rc'):
+                    if x.startswith('rcJ'):
+                        getattr(self.rc, x[3:])
+                    else:
+                        getattr(self.rc, x[2:])
+                else:
+                    getattr(self, x)
             except:
                 print x + ' is not a valid attribute'
                 wrong.append(x)
@@ -7441,8 +7454,10 @@ class PysMod(object):
                 ##  exec('self.' + self.scan_in + ' = ' + `x`)
                 if self.__settings__["scan1_mca_mode"] == 1:
                     self.doElas()
-                if self.__settings__["scan1_mca_mode"] == 2:
+                elif self.__settings__["scan1_mca_mode"] == 2:
                     self.doMca()
+                elif self.__settings__["scan1_mca_mode"] == 3:
+                    self.doMcaRC()
                 else:
                     self.State()
                 rawres = [x]
@@ -7452,8 +7467,20 @@ class PysMod(object):
                 if runUF:
                     self.User_Function()
                 for res in self.scan_out:
-                    ##  rawres.append(eval('self.' + res))
-                    rawres.append(getattr(self, res))
+                    if res.startswith('ec'):
+                        rawres.append(getattr(self.ec, res[2:]))
+                    elif res.startswith('cc'):
+                        if res.startswith('ccJ'):
+                            rawres.append(getattr(self.cc, res[3:]))
+                        else:
+                            rawres.append(getattr(self.cc, res[2:]))
+                    elif res.startswith('rc'):
+                        if res.startswith('rcJ'):
+                            rawres.append(getattr(self.rc, res[3:]))
+                        else:
+                            rawres.append(getattr(self.rc, res[2:]))
+                    else:
+                        getattr(self, res)
 
                 # The following is for user friendly reporting:
                 # next we check if the state is ok : if bad report it and add it : if good add it
