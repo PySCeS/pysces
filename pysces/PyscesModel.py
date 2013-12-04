@@ -7400,7 +7400,10 @@ class PysMod(object):
         for x in self.scan_out:
             try:
                 if x.startswith('ec'):
-                    getattr(self.ec, x[2:])
+                    try:
+                        getattr(self.ec, x[2:])
+                    except AttributeError:
+                        getattr(self.ecp, x[2:])
                 elif x.startswith('cc'):
                     if x.startswith('ccJ'):
                         getattr(self.cc, x[3:])
@@ -7468,7 +7471,10 @@ class PysMod(object):
                     self.User_Function()
                 for res in self.scan_out:
                     if res.startswith('ec'):
-                        rawres.append(getattr(self.ec, res[2:]))
+                        try:
+                            rawres.append(getattr(self.ec, res[2:]))
+                        except AttributeError:
+                            rawres.append(getattr(self.ecp, res[2:]))
                     elif res.startswith('cc'):
                         if res.startswith('ccJ'):
                             rawres.append(getattr(self.cc, res[3:]))
@@ -7480,7 +7486,7 @@ class PysMod(object):
                         else:
                             rawres.append(getattr(self.rc, res[2:]))
                     else:
-                        getattr(self, res)
+                        rawres.append(getattr(self, res))
 
                 # The following is for user friendly reporting:
                 # next we check if the state is ok : if bad report it and add it : if good add it
