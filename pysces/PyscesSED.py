@@ -351,7 +351,16 @@ class SED(object):
         self.__sedscript__ = None
         print 'SED-ML archive created: %s' % sf
 
-    def writeCOMBINEArchive(self):
+    def writeCOMBINEArchive(self, vc_given='PySCeS', vc_family='Software', vc_email='bgoli@users.sourceforge.net', vc_org='<pysces.sourceforge.net>'):
+        """
+        Write a COMBINE archive using the following information:
+         
+        - vc_given
+        - vc_family
+        - vc_email
+        - vc_org
+        
+        """
         scTime = time.strftime('%Y-%m-%dT%H:%M:%S') + '%i:00' % (time.timezone/60/60)
         self.writeSedXML(sedx=True)
         sedxname = '%s.sed.omex' % (self.id)
@@ -378,12 +387,27 @@ class SED(object):
         MF.write('<?xml version="1.0" encoding="utf-8"?>\n%s\n</omexManifest>\n' % MFstr)
         MF.close()
 
+
         MD = file(os.path.join(ptmp, 'metadata.rdf'), 'w')
         MD.write('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n')
         MD.write('    xmlns:dcterms="http://purl.org/dc/terms/"\n')
         MD.write('    xmlns:vCard="http://www.w3.org/2006/vcard/ns#">\n')
         MD.write(' <rdf:Description rdf:about="./%s">\n' % os.path.split(self.__sedxml__)[-1])
         MDstr += '   <dcterms:description>\n     %s\n    </dcterms:description>\n' % self.omex_description
+        MDstr += ' <dcterms:creator>\n'
+        MDstr += ' <rdf:Bag>\n'
+        MDstr += '  <rdf:li rdf:parseType="Resource">\n'
+        MDstr += '   <vCard:hasName rdf:parseType="Resource">\n'
+        MDstr += '    <vCard:family-name>%s</vCard:family-name>\n' % vc_family
+        MDstr += '    <vCard:given-name>%s</vCard:given-name>\n' % vc_given
+        MDstr += '   </vCard:hasName>\n'
+        MDstr += '   <vCard:hasEmail rdf:resource="%s" />\n' % vc_email
+        MDstr += '   <vCard:organization-name>\n'
+        MDstr += '      %s\n' % vc_org
+        MDstr += '   </vCard:organization-name>\n'
+        MDstr += '  </rdf:li>\n'
+        MDstr += ' </rdf:Bag>\n'
+        MDstr += ' </dcterms:creator>\n'
         MDstr += '   <dcterms:created rdf:parseType="Resource">\n'
         MDstr += '    <dcterms:W3CDTF>%s</dcterms:W3CDTF>\n' % scTime
         MDstr += '   </dcterms:created>\n'

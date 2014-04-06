@@ -5853,17 +5853,19 @@ class PysMod(object):
         self.SimPlot(plot=plot, format=fmt, filename=filename)
 
 
-    def exportSimAsSedML(self, output='files', return_sed=False):
+    def exportSimAsSedML(self, output='files', return_sed=False, vc_given='PySCeS', vc_family='Software', vc_email='bgoli@users.sourceforge.net', vc_org='<pysces.sourceforge.net>'):
         """
         Exports the current simulation as SED-ML in various ways it creates and stores the SED-ML files in a folder
         generated from the model name.
 
          - *output* [default='files'] the SED-ML export type can be one or more comma separated e.g. 'files,combine'
-
-          - *files* export the plain SBML and SEDML XML files
-          - *archive* export as a SED-ML archive *<file>.sedx* containing the SBML and SEDML xml files
-          - *combine* export as a COMBINE archive *<file>.omex* containing the SBML, SEDML, manifest (XML) and metadata (RDF)
-
+         - *files* export the plain SBML and SEDML XML files
+         - *archive* export as a SED-ML archive *<file>.sedx* containing the SBML and SEDML xml files
+         - *combine* export as a COMBINE archive *<file>.omex* containing the SBML, SEDML, manifest (XML) and metadata (RDF)
+           - *vc_given* [default='PySCeS'] 
+           - *vc_family* [default='Software'] 
+           - *vc_email* [default='bgoli@users.sourceforge.net']
+           - *vc_org* [default='<pysces.sourceforge.net>']
 
         """
         sedname = self.ModelFile.replace('.psc','')
@@ -5887,7 +5889,7 @@ class PysMod(object):
             elif s_ == 'archive':
                 S.writeSedXArchive()
             elif s_ == 'combine':
-                S.writeCOMBINEArchive()
+                S.writeCOMBINEArchive(vc_given=vc_given, vc_family=vc_family, vc_email=vc_email, vc_org=vc_org)
         S._SED_CURRENT_ = False
         if return_sed:
             return S
