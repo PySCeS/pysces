@@ -7416,6 +7416,18 @@ class PysMod(object):
                         getattr(self.rc, x[3:])
                     else:
                         getattr(self.rc, x[2:])
+                elif x in self.reactions:
+                    getattr(self.data_sstate, x)
+                    print "INFO: using steady-state flux for reaction (%s --> J_%s)" % (x, x)
+                    self.scan_out[self.scan_out.index(x)] = 'J_%s' % x
+                elif x.startswith('J_'):
+                    getattr(self.data_sstate, x[2:])
+                elif x in self.species:
+                    getattr(self.data_sstate, x)
+                    print "INFO: using steady-state concentration for species (%s --> %s_ss)" % (x, x)
+                    self.scan_out[self.scan_out.index(x)] = '%s_ss' % x
+                elif x.endswith('_ss'):
+                    getattr(self.data_sstate, x[:-3])
                 else:
                     getattr(self, x)
             except:
@@ -7487,6 +7499,14 @@ class PysMod(object):
                             rawres.append(getattr(self.rc, res[3:]))
                         else:
                             rawres.append(getattr(self.rc, res[2:]))
+                    elif res in self.reactions:
+                        rawres.append(getattr(self.data_sstate, res))
+                    elif res.startswith('J_'):
+                        rawres.append(getattr(self.data_sstate, res[2:]))
+                    elif res in self.species:
+                        rawres.append(getattr(self.data_sstate, res))
+                    elif res.endswith('_ss'):
+                        rawres.append(getattr(self.data_sstate, res[:-3]))
                     else:
                         rawres.append(getattr(self, res))
 

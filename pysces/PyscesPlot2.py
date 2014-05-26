@@ -860,6 +860,8 @@ class MatplotlibUPI(PlotBase):
 
         self.pyplot.ioff()
         for yi in y:
+            #print(self.__ARRAY_DATA__.take([x],axis=1))
+            #print(self.__ARRAY_DATA__.take([yi],axis=1))
             self.pyplot.plot(self.__ARRAY_DATA__.take([x],axis=1), self.__ARRAY_DATA__.take([yi],axis=1), formats[yi], label=titles[yi])
         if self.__MODE_INTERACTIVE__: self.pyplot.ion()
         self.pyplot.legend()
