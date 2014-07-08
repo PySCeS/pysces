@@ -1,3 +1,6 @@
 /build
 /pysces/pyscfg.ini
 *.pyc
+pysces/nleq2/nleq2module.c
+pysces/pitcon/pitconmodule.c
+*.so
