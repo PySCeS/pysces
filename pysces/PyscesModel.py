@@ -3764,7 +3764,7 @@ class PysMod(object):
                 print '(nleq2) exits with ierr = %s' % ierr
         else:
             if self.__settings__['nleq2_mesg']:
-                print '(nleq2) The solution converged'
+                print '(nleq2) The solution converged.'
         if ierr > 0:
             return res, False
         else:
@@ -4285,7 +4285,10 @@ class PysMod(object):
         if not self.mode_solver_fallback == 1:
             assert self.mode_solver in available_solvers, '\nERROR: %s is not a valid (%s) solver!' % (solver, str(available_solvers))
             available_solvers = [self.mode_solver]
-
+        
+        # if solver other than HYBRD is selected move it to front of list so it is run first
+        if self.mode_solver != 'HYBRD':
+            available_solvers.insert(0, available_solvers.pop(available_solvers.index(self.mode_solver)))
 
         STATE_XOUT = False
         STATE_xdata = None
@@ -4325,6 +4328,8 @@ class PysMod(object):
             # test for negative concentrations
             if (state_species < 0.0).any():
                 self.__StateOK__ = False
+                if self.__settings__['mode_state_mesg']:
+                    print 'WARNING!! Negative concentrations detected.'
             if self.__StateOK__:
                 break
             else:
