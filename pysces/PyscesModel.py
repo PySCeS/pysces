@@ -2620,6 +2620,7 @@ class PysMod(object):
         self.__settings__["scan1_mca_mode"] = 0 # should scan1 run mca analysis 0:no,1:elas,2:cc
         self.__settings__["scan1_dropbad"] = 0  # should scan1 drop invalid steady states (rare)?
         self.__settings__["scan1_nan_on_bad"] = True  # invalid steady states are returned as NaN
+        self.__settings__["scan1_mesg"] = True  # print out progress messages for large (>20) scans
         self.__scan_errors_par__ = None # collect errors, parameters values
         self.__scan_errors_idx__ = None # collect errors, indexes
 
@@ -7464,12 +7465,14 @@ class PysMod(object):
         # reset scan error controls
         self.__scan_errors_par__ = None
         self.__scan_errors_idx__ = None
-
-        print '\nScanning ...'
+        
+        if self.__settings__['scan1_mesg']:
+            print '\nScanning ...'
         if len(self.scan_in) > 0 and run == 1:
             badList = []
             badList_idx = []
-            print len(range1)-(cntr*cntr2),
+            if self.__settings__['scan1_mesg']:
+                print len(range1)-(cntr*cntr2),
             for xi in range(len(range1)):
                 x = range1[xi]
                 setattr(self, self.scan_in, x)
@@ -7531,13 +7534,16 @@ class PysMod(object):
                 cntr += 1
                 cntr3 += 1
                 if cntr == 20:
-                    print len(range1)-(cntr*cntr2),
+                    if self.__settings__['scan1_mesg']:
+                        print len(range1)-(cntr*cntr2),
                     cntr = 0
                     cntr2 += 1
                 if cntr3 == 101:
-                    print ' '
+                    if self.__settings__['scan1_mesg']:
+                        print ' '
                     cntr3 = 0
-        print '\ndone.\n'
+        if self.__settings__['scan1_mesg']:
+            print '\ndone.\n'
         if len(badList) != 0:
             self.__scan_errors_par__ = badList
             self.__scan_errors_idx__ = badList_idx
