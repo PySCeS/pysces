@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -25,7 +25,7 @@ if int(scipy.__version__.split('.')[1]) < 12:
 else:
     myfblas = scipy.linalg.blas
     myflapack = scipy.linalg.lapack
-    
+
 import copy
 
 __doc__ = """

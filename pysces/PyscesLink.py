@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -690,9 +690,9 @@ class StomPyInterface(object):
         ##  pscmod.data_stochsim = IntegrationStochasticDataObj()
         ##  pscmod.data_stochsim.setTime(sim_dat[:,0])
         ##  pscmod.data_stochsim.setSpecies(sim_dat[:,1:-1], self.SSA_SPECIES)
-        
+
         pscmod.data_stochsim = self.SSA.data_stochsim
-        
+
         if self.STP_WAITING_TIMES:
             wtimes, wt_lbls = self.getWaitingtimesData(reactions=None,lbls=True)
             pscmod.data_stochsim.setWaitingtimes(wtimes, wt_lbls)
@@ -743,14 +743,14 @@ class StomPyInterface(object):
         ##  pscmod.data_stochsim = IntegrationStochasticDataObj()
         ##  pscmod.data_stochsim.setTime(sim_dat[:,0])
         ##  pscmod.data_stochsim.setSpecies(sim_dat[:,1:-1], self.SSA_SPECIES)
-        
+
         pscmod.data_stochsim = self.SSA.data_stochsim
-        
+
         if self.STP_WAITING_TIMES:
             wtimes, wt_lbls = self.getWaitingtimesData(reactions=None,lbls=True)
             pscmod.data_stochsim.setWaitingtimes(wtimes, wt_lbls)
         if self.STP_TRACK_PROPENSITIES:
-            pscmod.data_stochsim.setPropensities(self.SSA.SSA.propensities_output)            
+            pscmod.data_stochsim.setPropensities(self.SSA.SSA.propensities_output)
         pscmod.data_stochsim.TYPE_INFO = 'Stochastic'
 
 
@@ -871,33 +871,33 @@ class IntegrationStochasticDataObj(object):
     def setWaitingtimes(self, waiting_times, lbls=None):
         """
         Set the `waiting_times` this data structure is not an array but a nested list of: waiting time log bins per reaction per trajectory::
-         
+
         waiting_times = [traj_1, ..., traj_n]
         traj_1 = [wt_J1, ..., wt_Jn] # in order of SSA_REACTIONS
         wt_J1 = (xval, yval, nbin)
         xval =[x_1, ..., x_n]
         yval =[y_1, ..., y_n]
         nbin = n
-        
+
          - *waiting_times* a list of waiting times
          - *lbls* [default=None] a list of matching reaction names
-         
+
         """
         self.waiting_times = waiting_times
         self.HAS_WAITING_TIMES = True
         if lbls != None:
             self.waiting_time_labels = lbls
-            
+
 
     def setPropensities(self, propensities, lbls=None):
         """
         Sets an array of propensities.
-        
+
          - *propensities* a list of propensities
-         - *lbls* [default=None] a list of matching reaction names       
-         
+         - *lbls* [default=None] a list of matching reaction names
+
         """
-        
+
         if lbls == None:
             LB = copy.copy(propensities[0])
             lbls = LB[1:]
@@ -912,7 +912,7 @@ class IntegrationStochasticDataObj(object):
             self.propensities_labels = lbls
         ##  print self.propensities_labels
         ##  print self.propensities
-            
+
 
     def setXData(self, xdata, lbls=None):
         """
@@ -992,9 +992,9 @@ class IntegrationStochasticDataObj(object):
     def getPropensities(self, lbls=False):
         """
         Return time+propensity array
-        
+
          - *lbls* [default=False] return only the time+propensity array or optionally both the data array and a list of column label
-        
+
         """
         #assert self.propensities != None, "\nNo propensities"
         output = None
@@ -1194,7 +1194,7 @@ class PysMod:
         elif plot == 'waiting_times':
             dataLst, labels = self.data_stochsim.getWaitingtimes(lbls=True)
             format='points'
-            ##  data, labels = self.data_stochsim.getRates(lbls=True)            
+            ##  data, labels = self.data_stochsim.getRates(lbls=True)
         else:
             plot = [at for at in plot if at in self.__species__+[self.data_stochsim.time_label]+self.data_stochsim.propensities_labels]
             kwargs = {'lbls' : True}
@@ -1202,9 +1202,9 @@ class PysMod:
             if len(plot) > 0:
                 data, labels = self.data_stochsim.getSimData(*plot, **kwargs)
         del allowedplots
-        
+
         xu = 'Time (%(multiplier)s x %(kind)s x 10**%(scale)s)**%(exponent)s' % self.__uDict__['time']
-        
+
         if plot == 'waiting_times':
             xu = 'Inter-arrival time (%s)' % xu
 
@@ -1216,7 +1216,7 @@ class PysMod:
                 for d in range(len(dataLst[wt])):
                     D = dataLst[wt][d]
                     if plt.__USE_MATPLOTLIB__ and d > 0:
-                        plt.m.hold(True)                         
+                        plt.m.hold(True)
                     if D != None and len(D[0]) > 0 and len(D[1]) > 0:
                         data = numpy.vstack([D[0], D[1]]).transpose()
                         if min(D[0]) < xrng_start and min(D[0]) > 0.0:
@@ -1226,7 +1226,7 @@ class PysMod:
                         if min(D[1]) < yrng_start and min(D[1]) > 0.0:
                             yrng_start = min(D[1])
                         if max(D[1]) > yrng_end:
-                            yrng_end = max(D[1])                    
+                            yrng_end = max(D[1])
                         plt.plotLines(data, 0, [1], titles=['Time']+[labels[d]], formats=[format])
             plt.setRange('x', xrng_start*0.8, xrng_end*1.2)
             plt.setRange('y', yrng_start*0.8, yrng_end*1.2)
@@ -1241,7 +1241,7 @@ class PysMod:
             end = RngTime[-1] + 0.2*RngTime[-1]
             plt.setRange('x', RngTime[0], end)
             del RngTime
-        
+
         # For now StochPy results are plotted as Amounts directly from StochPy
         M = 'Amount'
         ##  if self.__KeyWords__['Output_In_Conc']:
@@ -1349,7 +1349,7 @@ class PysMod:
         - *fmt* [default='lines'] use UPI or backend specific keys
 
         """
-        
+
         self.doStochSim(end=end, mode=mode, method=method,trajectories=1)
         self.StochSimPlot(plot='species', filename=filename, log=log, format=fmt)
 

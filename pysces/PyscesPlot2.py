@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -731,7 +731,7 @@ class MatplotlibUPI(PlotBase):
 
     __INTERACTIVE_BACKENDS__ = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg',\
                                 'CocoaAgg']
-    
+
     __BACKEND__ = None
 
     def __init__(self, work_dir=None, backend='TkAgg'):
@@ -753,7 +753,7 @@ class MatplotlibUPI(PlotBase):
                     matplotlib.use('TkAgg', warn=False)
                     self.__BACKEND__ = 'TkAgg'
                     print('Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(backend, 'TkAgg'))
-                    
+
             #if self.__ENABLE_HTML5__:
                 #matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
             #else:
@@ -761,7 +761,7 @@ class MatplotlibUPI(PlotBase):
         except Exception, ex:
             print ex
             print "\nPySCeS defaults to matplotlib's TKagg backend if not specified in the user conficuration file, set \"matplotlib_backend = <backend>\" "
-            
+
         from matplotlib import pyplot
         from matplotlib import pylab
         ##  self.pyplot = pyplot

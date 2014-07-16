@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -72,7 +72,7 @@ class MyInfixLexer:
 
     MathmlToInfix = {
         'and' : 'and', 'or' : 'or', 'true' : 'True', 'false' : 'False', 'xor' : 'xor'
-        }
+    }
 
     precedence = (
         ('left','ANDOR'),
@@ -81,7 +81,7 @@ class MyInfixLexer:
         ('left',  'TIMES', 'DIVIDE'),
         ('left',  'POWER'),
         ('right', 'UMINUS')
-        )
+    )
 
     # List of token names
     tokens = ('REAL',
@@ -184,9 +184,9 @@ class MyInfixLexer:
     def testlexer(self,data):
         self.lexer.input(data)
         while 1:
-             tok = self.lexer.token()
-             if not tok: break
-             print tok
+            tok = self.lexer.token()
+            if not tok: break
+            print tok
 
 class MyInfixParser(MyInfixLexer):
     ParseOK = True
@@ -319,7 +319,7 @@ class MyInfixParser(MyInfixLexer):
                     if t[1] != 'xor':
                         t[0] += ' %s ' % t[1]
                     else:
-                         t[0] += ' %s ' % '!='
+                        t[0] += ' %s ' % '!='
                 else:
                     t[0] += '%s' % t[tt]
 
@@ -335,9 +335,9 @@ class MyInfixParser(MyInfixLexer):
         if len(pw) == 3:
             self.__pwcntr__ += 1
             self.piecewises.update({name : {
-                                          0 : [pw[1], pw[0]],
-                                          'other' : pw[2]
-                                          }})
+                0 : [pw[1], pw[0]],
+                'other' : pw[2]
+            }})
         else:
             self.__pwcntr__ += 1
             self.piecewises.update({name : {}})
@@ -353,8 +353,9 @@ class MyInfixParser(MyInfixLexer):
         '''Delay : DELAY LPAREN Expression COMMA Expression RPAREN'''
 
         # for now we just remove the delay on the expression
+        # updated 201428 now requires a function delayFunc(var, delay) to deal with it
         self.DelayRemoved = True
-        t[0] = t[3]
+        t[0] = '__delayFunc__(%s, %s)' % (t[3], t[5])
 
     def p_function(self,t):
         '''Func : LPAREN ArgList RPAREN

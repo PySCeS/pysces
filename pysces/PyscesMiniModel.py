@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -36,7 +36,7 @@ class PyscesInputFileParser(object):
     ModelOutput = None
     __settings__ = None
     N = None
-    
+
     def __init__(self, model_file, directory, output_dir=None):
         self.ModelDir = directory
         self.ModelFile = model_file
@@ -52,7 +52,7 @@ class PyscesInputFileParser(object):
         self.__settings__['enable_deprecated_attr'] = False
         self.InitialiseInputFile()
         self.N = self.buildN()
-    
+
     def InitialiseInputFile(self):
         """
         InitialiseInputFile()
@@ -367,9 +367,9 @@ class PyscesInputFileParser(object):
             self.Consmatrix = None
         self.__StoichOK = 1
         print ' '
-        
+
 if __name__ == '__main__':
-    ModelFile = 'pysces_test_linear1.psc' 
+    ModelFile = 'pysces_test_linear1.psc'
     ModelDir =  '/home/bgoli/Pysces/psc'
     mod = PyscesInputFileParser(ModelFile, ModelDir)
     #~ mod.Stoichiometry_Analyse()

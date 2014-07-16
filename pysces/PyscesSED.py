@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -335,7 +335,7 @@ class SED(object):
         ptmp = os.path.join(self.sedpath, 'sedxtmp')
         sf = os.path.join(self.sedpath, sedxname)
         self.__sedarchive__ = sf
-        zf = zipfile.ZipFile(sf, mode='w', compression=zipfile.ZIP_STORED)
+        zf = zipfile.ZipFile(sf, mode='w', compression=zipfile.ZIP_DEFLATED)
         zf.write(self.__sedxml__, arcname=os.path.split(self.__sedxml__)[-1])
         for m_ in self.models:
             modname = '%s-%s.xml' % (self.id, m_)
@@ -351,15 +351,15 @@ class SED(object):
         self.__sedscript__ = None
         print 'SED-ML archive created: %s' % sf
 
-    def writeCOMBINEArchive(self, vc_given='PySCeS', vc_family='Software', vc_email='bgoli@users.sourceforge.net', vc_org='<pysces.sourceforge.net>'):
+    def writeCOMBINEArchive(self, vc_given='PySCeS', vc_family='Software', vc_email='', vc_org='pysces.sourceforge.net'):
         """
         Write a COMBINE archive using the following information:
-         
+
         - vc_given
         - vc_family
         - vc_email
         - vc_org
-        
+
         """
         scTime = time.strftime('%Y-%m-%dT%H:%M:%S') + '%i:00' % (time.timezone/60/60)
         self.writeSedXML(sedx=True)

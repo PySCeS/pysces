@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -138,7 +138,7 @@ class Scanner(object):
             for el in self.GenOrder:
                 if self.GenDict[el][4] == False:           # test if not slave
                     offset = offset * self.GenDict[el][2]  # increment offset
-            if slave == True:                              
+            if slave == True:
                 prevpar = self.GenOrder[-1]                # previous parameter, i.e. master
                 offset = self.GenDict[prevpar][5]          # don't increment for slave
                 if points != self.GenDict[prevpar][2]:
@@ -402,7 +402,7 @@ class PITCONScanUtils(object):
         - density = int(the number of initial points)
         - par3d = float(extra 3d parameter to insert into the output array) this parameter is not set ONLY used in output
         - logrange = boolean [default = True], if True generate the result using logspace(log10(low), log10(high), density) otherwise use a linear range
-        - runQuiet = boolean [default = True], if True do not display intermediate results to screen, disable for debugging 
+        - runQuiet = boolean [default = True], if True do not display intermediate results to screen, disable for debugging
 
         After running the continuation the results are stored in numpy arrays
 
@@ -411,7 +411,7 @@ class PITCONScanUtils(object):
         - mod.res_flux = steady-state flux values
 
         """
-        
+
         self.pitcon_scan_density = density
         self.pitcon_scan_parameter = parameter
         self.pitcon_scan_parameter_3d = par3d
@@ -422,14 +422,14 @@ class PITCONScanUtils(object):
         else:
             self.pitcon_range_low = low
             self.pitcon_range_high = high
-            self.model.pitcon_par_space = scipy.linspace(self.pitcon_range_low,self.pitcon_range_high,self.pitcon_scan_density)            
+            self.model.pitcon_par_space = scipy.linspace(self.pitcon_range_low,self.pitcon_range_high,self.pitcon_scan_density)
 
         self.model.pitcon_flux_gen = 1
         if runQuiet:
             self.model.SetQuiet()
         else:
             self.model.SetLoud()
-            
+
         if self.pitcon_scan_parameter_3d != None:
             self.pitcon_res = self.model.PITCON(self.pitcon_scan_parameter, self.pitcon_scan_parameter_3d)
             self.res_idx = self.pitcon_res[:,:2]

@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -1446,7 +1446,7 @@ class SbmlToCore(object):
         if len(Punits) > 0:
             self.__Errors__.update({self._ecount.next() : 'Parameter units ignored for (local) parameters:\n%s' % Punits})
         if len(delayignore) > 0:
-            self.__Errors__.update({self._ecount.next() : 'delay fucntion removed in reactions:\n%s' % delayignore})
+            self.__Errors__.update({self._ecount.next() : 'delay function removed in reactions:\n%s' % delayignore})
 
         del hasFast, Punits, delayignore
 

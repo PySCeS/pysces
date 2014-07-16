@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2013 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -390,7 +390,7 @@ if not __SILENT_START__:
     print '* Welcome to PySCeS (' + __version__ + ') - Python Simulator for Cellular Systems   *'
     print '*                http://pysces.sourceforge.net                        *'
     ##  print '*                       Somewhere In Time                             *'
-    print '* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2013  *'
+    print '* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2014  *'
     print '* Triple-J Group for Molecular Cell Physiology                        *'
     print '* Stellenbosch University, ZA and VU University Amsterdam, NL         *'
     print '* PySCeS is distributed under the PySCeS (BSD style) licence, see     *'
