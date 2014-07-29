@@ -1,4 +1,4 @@
-Copyright (c) 2004-2013, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
+Copyright (c) 2004-2014, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
