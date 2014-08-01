@@ -190,7 +190,7 @@ class WriteOutput(object):
 
     Author: Brett G. Olivier
     Contact email: bgoli@users.sourceforge.net
-    Last edit: $Author: bgoli $ ($Id: PyscesUtils.py 1265 2014-06-26 11:35:20Z bgoli $)
+    Last edit: $Author: bgoli $ ($Id: PyscesUtils.py 1267 2014-07-28 20:53:52Z bgoli $)
 
     """
 
