@@ -374,7 +374,7 @@ class SED(object):
         MFstr = ''
         MDstr = ''
         MFstr += '<omexManifest xmlns="http://identifiers.org/combine.specifications/omex-manifest">\n'
-        MFstr += ' <content location="./manifest.xml" format="http://identifiers.org/combine.specifications/omex-manifest"/>\n'
+        MFstr += ' <content location="." format="http://identifiers.org/combine.specifications/omex"/>\n'
         MFstr += ' <content location="./%s" format="http://identifiers.org/combine.specifications/sedml"/>\n' % os.path.split(self.__sedxml__)[-1]
         for m_ in self.models:
             modname = '%s-%s.xml' % (self.id, m_)
@@ -387,34 +387,35 @@ class SED(object):
         MF.write('<?xml version="1.0" encoding="utf-8"?>\n%s\n</omexManifest>\n' % MFstr)
         MF.close()
 
-
         MD = file(os.path.join(ptmp, 'metadata.rdf'), 'w')
+        MD.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         MD.write('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n')
         MD.write('    xmlns:dcterms="http://purl.org/dc/terms/"\n')
-        MD.write('    xmlns:vCard="http://www.w3.org/2006/vcard/ns#">\n')
-        MD.write(' <rdf:Description rdf:about="./%s">\n' % os.path.split(self.__sedxml__)[-1])
-        MDstr += '   <dcterms:description>\n     %s\n    </dcterms:description>\n' % self.omex_description
+        MD.write('    xmlns:vCard="http://www.w3.org/2006/vcard/ns#"\n')
+        MD.write('    xmlns:bqmodel="http://biomodels.net/models-qualifiers">\n')
+        MD.write(' <rdf:Description rdf:about=".">\n')
+        #MDstr += '   <dcterms:description>\n     %s\n    </dcterms:description>\n' % self.omex_description
         MDstr += ' <dcterms:creator>\n'
         MDstr += ' <rdf:Bag>\n'
         MDstr += '  <rdf:li rdf:parseType="Resource">\n'
         MDstr += '   <vCard:hasName rdf:parseType="Resource">\n'
-        MDstr += '    <vCard:family-name>%s</vCard:family-name>\n' % vc_family
-        MDstr += '    <vCard:given-name>%s</vCard:given-name>\n' % vc_given
+        MDstr += '    <vCard:family-name>{}</vCard:family-name>\n'.format(vc_family)
+        MDstr += '    <vCard:given-name>{}</vCard:given-name>\n'.format(vc_given)
         MDstr += '   </vCard:hasName>\n'
-        MDstr += '   <vCard:hasEmail rdf:resource="%s" />\n' % vc_email
+        MDstr += '   <vCard:hasEmail rdf:resource="{}" />\n'.format(vc_email)
         MDstr += '   <vCard:organization-name>\n'
-        MDstr += '      %s\n' % vc_org
+        MDstr += '      {}\n'.format(vc_org)
         MDstr += '   </vCard:organization-name>\n'
         MDstr += '  </rdf:li>\n'
         MDstr += ' </rdf:Bag>\n'
         MDstr += ' </dcterms:creator>\n'
         MDstr += '   <dcterms:created rdf:parseType="Resource">\n'
-        MDstr += '    <dcterms:W3CDTF>%s</dcterms:W3CDTF>\n' % scTime
+        MDstr += '    <dcterms:W3CDTF>{}</dcterms:W3CDTF>\n'.format(scTime)
         MDstr += '   </dcterms:created>\n'
         MDstr += '   <dcterms:modified rdf:parseType="Resource">\n'
-        MDstr += '    <dcterms:W3CDTF>%s</dcterms:W3CDTF>\n' % scTime
+        MDstr += '    <dcterms:W3CDTF>{}</dcterms:W3CDTF>\n'.format(scTime)
         MDstr += '   </dcterms:modified>\n'
-        MD.write('%s' % MDstr)
+        MD.write('{}'.format(MDstr))
         MD.write(' </rdf:Description>\n')
         MD.write('</rdf:RDF> \n')
         MD.close()
