@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -173,7 +173,7 @@ class WriteOutput(object):
     CBMPy: CBTools module
     =====================
     Constraint Based Modelling in Python (http://cbmpy.sourceforge.net)
-    Copyright (C) 2009-2014 Brett G. Olivier, VU University Amsterdam, Amsterdam, The Netherlands
+    Copyright (C) 2009-2015 Brett G. Olivier, VU University Amsterdam, Amsterdam, The Netherlands
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -190,7 +190,7 @@ class WriteOutput(object):
 
     Author: Brett G. Olivier
     Contact email: bgoli@users.sourceforge.net
-    Last edit: $Author: bgoli $ ($Id: PyscesUtils.py 1265 2014-06-26 11:35:20Z bgoli $)
+    Last edit: $Author: bgoli $ ($Id: PyscesUtils.py 1265 2015-06-26 11:35:20Z bgoli $)
 
     """
 
