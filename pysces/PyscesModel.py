@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -4286,7 +4286,7 @@ class PysMod(object):
         if not self.mode_solver_fallback == 1:
             assert self.mode_solver in available_solvers, '\nERROR: %s is not a valid (%s) solver!' % (solver, str(available_solvers))
             available_solvers = [self.mode_solver]
-        
+
         # if solver other than HYBRD is selected move it to front of list so it is run first
         if self.mode_solver != 'HYBRD':
             available_solvers.insert(0, available_solvers.pop(available_solvers.index(self.mode_solver)))
@@ -5859,7 +5859,7 @@ class PysMod(object):
         self.SimPlot(plot=plot, format=fmt, filename=filename)
 
 
-    def exportSimAsSedML(self, output='files', return_sed=False, vc_given='PySCeS', vc_family='Software', vc_email='bgoli@users.sourceforge.net', vc_org='<pysces.sourceforge.net>'):
+    def exportSimAsSedML(self, output='files', return_sed=False, vc_given='PySCeS', vc_family='Software', vc_email='', vc_org='pysces.sourceforge.net'):
         """
         Exports the current simulation as SED-ML in various ways it creates and stores the SED-ML files in a folder
         generated from the model name.
@@ -5868,8 +5868,8 @@ class PysMod(object):
          - *files* export the plain SBML and SEDML XML files
          - *archive* export as a SED-ML archive *<file>.sedx* containing the SBML and SEDML xml files
          - *combine* export as a COMBINE archive *<file>.omex* containing the SBML, SEDML, manifest (XML) and metadata (RDF)
-           - *vc_given* [default='PySCeS'] 
-           - *vc_family* [default='Software'] 
+           - *vc_given* [default='PySCeS']
+           - *vc_family* [default='Software']
            - *vc_email* [default='bgoli@users.sourceforge.net']
            - *vc_org* [default='<pysces.sourceforge.net>']
 
@@ -7465,7 +7465,7 @@ class PysMod(object):
         # reset scan error controls
         self.__scan_errors_par__ = None
         self.__scan_errors_idx__ = None
-        
+
         if self.__settings__['scan1_mesg']:
             print '\nScanning ...'
         if len(self.scan_in) > 0 and run == 1:

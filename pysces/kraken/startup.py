@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2014 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -38,7 +38,7 @@ squidy =\
                     #MMMMMMMMMMM@@#MMMMMMMM@@WEU7
 
 Welcome to the Kraken distributed modelling environment
-(c) Brett G. Olivier, Stellenbosch 2007-2014.
+(c) Brett G. Olivier, Stellenbosch 2007-2015.
 """
 octopussy =\
 """
@@ -71,5 +71,5 @@ E#MM;  6M@B$M    XM$#BE60bZbEb98QWZ9B06Q@@MMM#M#E6IM. .8MM#..MMMMQ;CQ#
   .MMMMWZ6WZ.#M@W@W:E;                               :#i
   7MBW@@$@@  ZMZt9
 Welcome to the Kraken distributed modelling environment
-(c) Brett G. Olivier, Stellenbosch 2007-2014.
+(c) Brett G. Olivier, Stellenbosch 2007-2015.
 """
