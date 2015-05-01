@@ -5145,7 +5145,7 @@ class PysMod(object):
         # Scale L matrix
         lmat = copy.copy(self.__lmatrix__)
 
-        if input == None or input2 == None:
+        if type(input) == type(None) or type(input2) == type(None):
             input = self.state_species
             input2 = self.state_flux
             #print 'INFO: Using state_species and state_flux as input'
