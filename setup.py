@@ -195,8 +195,9 @@ mydata_files.append((os.path.join('pysces'), [os.path.join(local_path,'pysces','
 mydata_files.append(('',[os.path.join(local_path,'pysces','pysces.pth')]))
 mydata_files.append((os.path.join('pysces','docs'), [os.path.join(local_path,'pysces','docs','userguide.pdf')]))
 mydata_files.append((os.path.join('pysces','examples'), [os.path.join(local_path,'pysces','examples',examplefile) for examplefile in os.listdir(os.path.join(local_path,'pysces','examples'))]))
-if os.sys.platform == 'win32':
-    mydata_files.append((os.path.join('pysces','win32'), [os.path.join(local_path,'pysces','win32','libquadmath-0.dll'), os.path.join(local_path,'pysces','win32','libgfortran-3.dll')]))
+##not sure if this is necessary anymore, removed to test
+#if os.sys.platform == 'win32':
+#    mydata_files.append((os.path.join('pysces','win32'), [os.path.join(local_path,'pysces','win32','libquadmath-0.dll'), os.path.join(local_path,'pysces','win32','libgfortran-3.dll')]))
 
 os.chdir(local_path)
 # Install packages and the metatool binaries as "data"

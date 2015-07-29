@@ -4,3 +4,6 @@
 pysces/nleq2/nleq2module.c
 pysces/pitcon/pitconmodule.c
 *.so
+dist/pysces-0.9.1.win-amd64-py2.7.exe
+dist/pysces-0.9.1.zip
+dist/pysces-0.9.1-(test).win-amd64-py2.7.exe

@@ -1326,9 +1326,9 @@ class PysMod(object):
         self.InitialiseCompartments()
         self.InitialiseRules()
         self.InitialiseEvents()
-        self.InitialiseOldFunctions() # TODO replace this with initialisation functions
         self.InitialiseModel()
         self.InitialiseRuleChecks()
+        self.InitialiseOldFunctions() # TODO replace this with initialisation functions
 
     def doLoad(self,stoich_load=0):
         """
@@ -2668,6 +2668,7 @@ class PysMod(object):
 
         #print '\nInitializing init function ...'
         #print self._Function_init
+        
         try:
             self.ReloadInitFunc()
         except Exception, e:
@@ -2698,26 +2699,119 @@ class PysMod(object):
         ReloadInitFunc()
 
         Recompile and execute the user initialisations (!I) as defined in the PSC input file.
-        and in mod.__InitFuncs__
+        and in mod.__InitFuncs__.
+        
+        UPDATE 2015: can now be used to define InitialAssignments (no need for self.* prefix in input file)
 
         Arguments:
         None
 
         """
-        ##  print "User functions disabled"
+        
+        def topolgical_sort(graph_unsorted):
+            """
+            Repeatedly go through all of the nodes in the graph, moving each of
+            the nodes that has all its edges resolved, onto a sequence that
+            forms our sorted graph. A node has all of its edges resolved and
+            can be moved once all the nodes its edges point to, have been moved
+            from the unsorted graph onto the sorted one.
+            """
+        
+            # This is the list we'll return, that stores each node/edges pair
+            # in topological order.
+            graph_sorted = []
+        
+            # Convert the unsorted graph into a hash table. This gives us
+            # constant-time lookup for checking if edges are unresolved, and
+            # for removing nodes from the unsorted graph.
+            graph_unsorted = dict(graph_unsorted)
+        
+            # Run until the unsorted graph is empty.
+            while graph_unsorted:
+        
+                # Go through each of the node/edges pairs in the unsorted
+                # graph. If a set of edges doesn't contain any nodes that
+                # haven't been resolved, that is, that are still in the
+                # unsorted graph, remove the pair from the unsorted graph,
+                # and append it to the sorted graph. Note here that by using
+                # using the items() method for iterating, a copy of the
+                # unsorted graph is used, allowing us to modify the unsorted
+                # graph as we move through it. We also keep a flag for
+                # checking that that graph is acyclic, which is true if any
+                # nodes are resolved during each pass through the graph. If
+                # not, we need to bail out as the graph therefore can't be
+                # sorted.
+                acyclic = False
+                for node, edges in graph_unsorted.items():
+                    for edge in edges:
+                        if edge in graph_unsorted:
+                            break
+                    else:
+                        acyclic = True
+                        del graph_unsorted[node]
+                        graph_sorted.append((node, edges))
+        
+                if not acyclic:
+                    # Uh oh, we've passed through all the unsorted nodes and
+                    # weren't able to resolve any of them, which means there
+                    # are nodes with cyclic edges that will never be resolved,
+                    # so we bail out with an error.
+                    raise RuntimeError("A cyclic dependency occurred")
+        
+            return graph_sorted        
+        
+        simpleAss = []
+        exprsAss = []
+        symbolsX = []
         for init in self.__InitFuncs__:
             if hasattr(self, init):
+                print(init, self.__InitFuncs__[init])
                 if type(self.__InitFuncs__[init]) == str:
                     if self.__InitFuncs__[init].isdigit():
-                        self.__InitFuncs__[init] = eval(self.__InitFuncs__[init])
-                        setattr(self, init, self.__InitFuncs__[init])
+                        #self.__InitFuncs__[init] = eval(self.__InitFuncs__[init])
+                        #setattr(self, init, self.__InitFuncs__[init])
+                        #self.__InitFuncs__[init] = compile(self.__InitFuncs__[init], '_InitFunc_', 'single')
+                        simpleAss.append((init, eval(self.__InitFuncs__[init])))
+                        #setattr(self, init, eval(self.__InitFuncs__[init]))
                     else:
-                        setattr(self, init, self.__InitFuncs__[init])
+                        InfixParser.setNameStr('self.', '')
+                        #InfixParser.SymbolReplacements = {'_TIME_':'mod._TIME_'}
+                        InfixParser.parse(str(self.__InitFuncs__[init]))
+                        piecewises = InfixParser.piecewises
+                        symbols = InfixParser.names
+                        for s_ in symbols:
+                            if s_ not in symbolsX:
+                                symbolsX.append(s_)
+                        if init not in symbolsX:
+                            symbolsX.append(init)                                
+                        functions = InfixParser.functions
+                        code_string = 'self.%s = %s' % (init, InfixParser.output)
+                        xcode = compile(code_string, '_InitAss_', 'exec')
+                        exprsAss.append((init, xcode, symbols))
+                        #setattr(self, init, eval(xcode))
+                    #else:
+                        ##setattr(self, init, self.__InitFuncs__[init])
+                        #self.__InitFuncs__[init] = compile(self.__InitFuncs__[init], '_InitFunc_', 'single')
+                        #setattr(self, init, eval(self.__InitFuncs__[init]))
                 else:
                     setattr(self, init, self.__InitFuncs__[init])
             else:
                 assert hasattr(self, init), '\nModelInit error'
-
+        print('symbolsX', symbolsX)
+        for init,val in simpleAss:
+            print('s', init,val)
+            setattr(self, init, val)
+        execOrder = []
+        for init,xcode,symbols in exprsAss:
+            symbols = [symbolsX.index(s_) for s_ in symbols]
+            execOrder.append((symbolsX.index(init), symbols))
+            print('x', symbols)
+            
+            
+            print('e', init,code_string)
+            eval(xcode)
+        print(execOrder)
+        print(topolgical_sort(execOrder))
 
     def __initREQ__(self):
         """
@@ -5051,7 +5145,7 @@ class PysMod(object):
         # Scale L matrix
         lmat = copy.copy(self.__lmatrix__)
 
-        if input == None or input2 == None:
+        if type(input) == type(None) or type(input2) == type(None):
             input = self.state_species
             input2 = self.state_flux
             #print 'INFO: Using state_species and state_flux as input'
