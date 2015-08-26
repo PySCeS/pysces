@@ -727,10 +727,10 @@ class MatplotlibUPI(PlotBase):
                        'lines' :  '-'
                       }
     __BACKENDS__ = ('GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',\
-                     'agg', 'cairo', 'emf', 'gdk', 'pdf', 'ps', 'svg', 'template')
+                     'agg', 'nbagg', 'cairo', 'emf', 'gdk', 'pdf', 'ps', 'svg', 'template')
 
     __INTERACTIVE_BACKENDS__ = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg',\
-                                'CocoaAgg']
+                                'CocoaAgg', 'nbagg']
 
     __BACKEND__ = None
 
