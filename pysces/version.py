@@ -1,6 +1,6 @@
 MAJOR = 0
 MINOR = 9
-MICRO = 1
+MICRO = 2
 STATUS = ''
 
 def current_version():

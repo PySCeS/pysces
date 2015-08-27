@@ -2765,7 +2765,8 @@ class PysMod(object):
         symbolsX = []
         for init in self.__InitFuncs__:
             if hasattr(self, init):
-                print(init, self.__InitFuncs__[init])
+                #TODO: to be continued by brett
+                #print(init, self.__InitFuncs__[init])
                 if type(self.__InitFuncs__[init]) == str:
                     if self.__InitFuncs__[init].isdigit():
                         #self.__InitFuncs__[init] = eval(self.__InitFuncs__[init])
@@ -2797,21 +2798,23 @@ class PysMod(object):
                     setattr(self, init, self.__InitFuncs__[init])
             else:
                 assert hasattr(self, init), '\nModelInit error'
-        print('symbolsX', symbolsX)
+        #TODO: to be continued by brett
+        #print('symbolsX', symbolsX)
         for init,val in simpleAss:
-            print('s', init,val)
+            #print('s', init,val)
             setattr(self, init, val)
         execOrder = []
-        for init,xcode,symbols in exprsAss:
-            symbols = [symbolsX.index(s_) for s_ in symbols]
-            execOrder.append((symbolsX.index(init), symbols))
-            print('x', symbols)
-            
-            
-            print('e', init,code_string)
+        for init, xcode, symbols2 in exprsAss:
+            symbols2 = [symbolsX.index(s_) for s_ in symbols2]
+            execOrder.append((symbolsX.index(init), symbols2))
+            #TODO: to be continued by brett
+            #print('x', symbols2)
+            #print('e', init,code_string)
             eval(xcode)
-        print(execOrder)
-        print(topolgical_sort(execOrder))
+        #TODO: to be continued by brett
+        #print(execOrder)
+        #print(topolgical_sort(execOrder))
+        #print(symbolsX)
 
     def __initREQ__(self):
         """
