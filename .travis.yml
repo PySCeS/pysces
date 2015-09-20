@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 before_install:
- - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
+ - sudo apt-get install -qq gfortran python-numpy python-scipy python-matplotlib
 virtualenv:
   system_site_packages: true
 # command to install dependencies
