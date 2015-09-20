@@ -1,0 +1,1 @@
+python -c "import pysces;pysces.test(3)"
