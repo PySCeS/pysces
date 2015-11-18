@@ -1178,7 +1178,8 @@ class Stoich(MathArrayFunc):
             row_vector_dependent = column_vector[:pos_holder + 1]
             row_vector_independent = column_vector[pos_holder + 1:]
 
-            row_vector = scipy.concatenate((row_vector_independent,row_vector_dependent),1)
+            #row_vector = scipy.concatenate((row_vector_independent,row_vector_dependent),1)
+            row_vector = scipy.hstack((row_vector_independent,row_vector_dependent))  # numpy 0.10
             column_vector = column_vector[pos_holder + 1:]
             K_switch = 1
         else:
@@ -1245,9 +1246,11 @@ class Stoich(MathArrayFunc):
 
             col_vector_dependent = column_vector[pos_holder + 1:]
             col_vector_independent = column_vector[:pos_holder + 1]
-            cons_col_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
+            #cons_col_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
+            cons_col_vector = scipy.hstack((col_vector_independent,col_vector_dependent)) # numpy 0.10
             cons_row_vector = col_vector_dependent
-            lmatrix_row_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
+            #lmatrix_row_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
+            lmatrix_row_vector = scipy.hstack((col_vector_independent,col_vector_dependent))  # numpy 0.10
             lmatrix_col_vector = col_vector_independent
             lomatrix_row_vector = col_vector_dependent
             lomatrix_col_vector = col_vector_independent
@@ -1284,7 +1287,8 @@ class Stoich(MathArrayFunc):
             row,col = r_fpart.shape
 
             id = scipy.identity(row).astype(t)
-            consmatrix = scipy.concatenate((-r_fpart,id),1).astype(t)
+            #consmatrix = scipy.concatenate((-r_fpart,id),1).astype(t)
+            consmatrix = scipy.hstack((-r_fpart,id)).astype(t)  # numpy 0.10
 
             id = scipy.identity(col).astype(t)
             lmatrix = scipy.concatenate((id,r_fpart),0).astype(t)
