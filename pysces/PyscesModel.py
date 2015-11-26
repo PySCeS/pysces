@@ -2616,6 +2616,7 @@ class PysMod(object):
         # scan option - removed from initsimscan
         self.scan_in = ''
         self.scan_out = []
+        self._scan = None
         self.scan_res = None
         self.__settings__["scan1_mca_mode"] = 0 # should scan1 run mca analysis 0:no,1:elas,2:cc
         self.__settings__["scan1_dropbad"] = 0  # should scan1 drop invalid steady states (rare)?
@@ -7555,6 +7556,7 @@ class PysMod(object):
 
         #print run, self.scan_in, self.scan_out
 
+        self._scan = None
         result = []
         cntr = 0
         cntr2 = 1
@@ -7651,7 +7653,12 @@ class PysMod(object):
             self.scan_res = numpy.zeros((len(range1),len(self.scan_out)+1))
         else:
             self.scan_res = numpy.array(result)
-            self.scan = numpy.rec.fromrecords(self.scan_res, names=[self.scan_in]+self.scan_out)
+    
+    @property
+    def scan(self):
+        if self._scan is None and self.scan_res is not None:
+            self._scan = numpy.rec.fromrecords(self.scan_res, names=[self.scan_in]+self.scan_out)
+        return self._scan
 
     def Scan1Plot(self, plot=[], title=None, log=None, format='lines', filename=None):
         """
