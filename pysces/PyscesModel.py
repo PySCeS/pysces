@@ -2616,6 +2616,7 @@ class PysMod(object):
         # scan option - removed from initsimscan
         self.scan_in = ''
         self.scan_out = []
+        self._scan = None
         self.scan_res = None
         self.__settings__["scan1_mca_mode"] = 0 # should scan1 run mca analysis 0:no,1:elas,2:cc
         self.__settings__["scan1_dropbad"] = 0  # should scan1 drop invalid steady states (rare)?
@@ -7443,6 +7444,7 @@ class PysMod(object):
         mod.scan_in - a model attribute written as in the input file (eg. P, Vmax1 etc)
         mod.scan_out -  a list of required output ['A','T2', 'ecR1_s1', 'ccJR1_R1', 'rcJR1_s1', ...]
         mod.scan_res -  the results of a parameter scan
+        mod.scan - numpy record array with the scan results (scan_in and scan_out), call as mod.scan.Vmax, mod.scan.A_ss, mod.scan.J_R1, etc.
         mod.__settings__["scan1_mca_mode"] - force the scan algorithm to evaluate the elasticities (1) and control coefficients (2)
         (this should also be auto-detected by the Scan1 method).
 
@@ -7554,6 +7556,7 @@ class PysMod(object):
 
         #print run, self.scan_in, self.scan_out
 
+        self._scan = None
         result = []
         cntr = 0
         cntr2 = 1
@@ -7650,6 +7653,12 @@ class PysMod(object):
             self.scan_res = numpy.zeros((len(range1),len(self.scan_out)+1))
         else:
             self.scan_res = numpy.array(result)
+    
+    @property
+    def scan(self):
+        if self._scan is None and self.scan_res is not None:
+            self._scan = numpy.rec.fromrecords(self.scan_res, names=[self.scan_in]+self.scan_out)
+        return self._scan
 
     def Scan1Plot(self, plot=[], title=None, log=None, format='lines', filename=None):
         """
