@@ -340,12 +340,17 @@ class CoreToPsc(object):
     def setAssignmentRules(self):
         out = ''
         start = True
+        rids = [r.name for r in self.core.reactions]
         for p in self.core.global_parameters + self.core.species:
             if hasattr(p, 'type') and getattr(p, 'type') == 'assignment':
                 if start:
                     out = '# Assignment rules\n'
                     start = False
-
+                # add support for reaction names, symbol repalce R --> R()
+                for n_ in  p._names:
+                    if n_ in rids:
+                        formula = formula.replace(n_, '{}()'.format(n_))
+          
                 # if we have piecewise symbols test if they are in the formula
                 # and replace them with the piecewise expression
                 formula = p.formula
