@@ -347,13 +347,13 @@ class CoreToPsc(object):
                     out = '# Assignment rules\n'
                     start = False
                 # add support for reaction names, symbol repalce R --> R()
+                formula = p.formula
                 for n_ in  p._names:
                     if n_ in rids:
                         formula = formula.replace(n_, '{}()'.format(n_))
           
                 # if we have piecewise symbols test if they are in the formula
                 # and replace them with the piecewise expression
-                formula = p.formula
                 if len(self.pw_symbols) > 0:
                     pwreplace = ' piecewise('
                     for pwd in self.pw_symbols:

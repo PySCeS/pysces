@@ -1299,7 +1299,7 @@ class PysMod(object):
             self.LoadFromFile(File,dir)
         # stuff that needs to be done before initmodel
         self.__settings__['mode_substitute_assignment_rules'] = False
-        self.__settings__['display_compartment_warnings'] = True
+        self.__settings__['display_compartment_warnings'] = False
         self._TIME_ = 0.0 # this will be the built-in time
         self.piecewise_functions = []
         self.__piecewises__ = {}
@@ -2517,12 +2517,13 @@ class PysMod(object):
                 print 'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
                 print 'For other OS\'s see pysundials.sf.net for installation details\n'
                 self.__events__ = []
-        if self.__HAS_RATE_RULES__ or self.__HAS_COMPARTMENTS__:
+        #if self.__HAS_RATE_RULES__ or self.__HAS_COMPARTMENTS__:
+        if self.__HAS_RATE_RULES__:
             if _HAVE_PYSUNDIALS:
-                print 'INFO: Compartments andor RateRules detected and PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
+                print 'INFO: RateRules detected and PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
                 self.mode_integrator = 'CVODE'
             else:
-                print '\nWARNING: Compartments and or RateRules detected! PySCeS prefers CVODE but will continue with LSODA (NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)'
+                print '\nWARNING: RateRules detected! PySCeS prefers CVODE but will continue with LSODA (NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)'
                 print 'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
                 print 'For other OS\'s see pysundials.sf.net for installation details\n'
 
