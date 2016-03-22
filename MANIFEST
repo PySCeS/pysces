@@ -32,6 +32,10 @@ D:\code-git\pysces\pysces\pscmodels\pysces_test_branch1.psc
 D:\code-git\pysces\pysces\pscmodels\pysces_test_linear1.psc
 D:\code-git\pysces\pysces\pscmodels\pysces_test_moiety1.psc
 D:\code-git\pysces\pysces\pscmodels\pysces_test_pitcon.psc
+D:\code-git\pysces\pysces\win32\libgcc_s_seh-1.dll
+D:\code-git\pysces\pysces\win32\libgfortran-3.dll
+D:\code-git\pysces\pysces\win32\libquadmath-0.dll
+D:\code-git\pysces\pysces\win32\libwinpthread-1.dll
 pysces\PyscesConfig.py
 pysces\PyscesContrib.py
 pysces\PyscesContribUser.py

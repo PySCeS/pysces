@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2016 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -351,7 +351,7 @@ class CoreToPsc(object):
                 for n_ in  p._names:
                     if n_ in rids:
                         formula = formula.replace(n_, '{}()'.format(n_))
-          
+
                 # if we have piecewise symbols test if they are in the formula
                 # and replace them with the piecewise expression
                 if len(self.pw_symbols) > 0:

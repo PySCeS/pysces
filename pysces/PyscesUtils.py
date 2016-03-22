@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2016 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -154,7 +154,7 @@ def ConvertFileD2U(Filelist):
 def ConvertFileU2D(Filelist):
     """
     Converts a [Filename] from n to rn inplace no effect if the line termination is correct:
-    
+
     - *Filelist* a file or list of files to convert
 
     """
@@ -174,7 +174,7 @@ class WriteOutput(object):
     CBMPy: CBTools module
 
     Constraint Based Modelling in Python (http://cbmpy.sourceforge.net)
-    Copyright (C) 2009-2015 Brett G. Olivier, VU University Amsterdam, Amsterdam, The Netherlands
+    Copyright (C) 2009-2016 Brett G. Olivier, VU University Amsterdam, Amsterdam, The Netherlands
 
     """
 

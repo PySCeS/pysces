@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2015 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2016 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -2670,7 +2670,7 @@ class PysMod(object):
 
         #print '\nInitializing init function ...'
         #print self._Function_init
-        
+
         try:
             self.ReloadInitFunc()
         except Exception, e:
@@ -2702,14 +2702,14 @@ class PysMod(object):
 
         Recompile and execute the user initialisations (!I) as defined in the PSC input file.
         and in mod.__InitFuncs__.
-        
+
         UPDATE 2015: can now be used to define InitialAssignments (no need for self.* prefix in input file)
 
         Arguments:
         None
 
         """
-        
+
         def topolgical_sort(graph_unsorted):
             """
             Repeatedly go through all of the nodes in the graph, moving each of
@@ -2718,19 +2718,19 @@ class PysMod(object):
             can be moved once all the nodes its edges point to, have been moved
             from the unsorted graph onto the sorted one.
             """
-        
+
             # This is the list we'll return, that stores each node/edges pair
             # in topological order.
             graph_sorted = []
-        
+
             # Convert the unsorted graph into a hash table. This gives us
             # constant-time lookup for checking if edges are unresolved, and
             # for removing nodes from the unsorted graph.
             graph_unsorted = dict(graph_unsorted)
-        
+
             # Run until the unsorted graph is empty.
             while graph_unsorted:
-        
+
                 # Go through each of the node/edges pairs in the unsorted
                 # graph. If a set of edges doesn't contain any nodes that
                 # haven't been resolved, that is, that are still in the
@@ -2752,16 +2752,16 @@ class PysMod(object):
                         acyclic = True
                         del graph_unsorted[node]
                         graph_sorted.append((node, edges))
-        
+
                 if not acyclic:
                     # Uh oh, we've passed through all the unsorted nodes and
                     # weren't able to resolve any of them, which means there
                     # are nodes with cyclic edges that will never be resolved,
                     # so we bail out with an error.
                     raise RuntimeError("A cyclic dependency occurred")
-        
-            return graph_sorted        
-        
+
+            return graph_sorted
+
         simpleAss = []
         exprsAss = []
         symbolsX = []
@@ -2786,7 +2786,7 @@ class PysMod(object):
                             if s_ not in symbolsX:
                                 symbolsX.append(s_)
                         if init not in symbolsX:
-                            symbolsX.append(init)                                
+                            symbolsX.append(init)
                         functions = InfixParser.functions
                         code_string = 'self.%s = %s' % (init, InfixParser.output)
                         xcode = compile(code_string, '_InitAss_', 'exec')
@@ -7654,7 +7654,7 @@ class PysMod(object):
             self.scan_res = numpy.zeros((len(range1),len(self.scan_out)+1))
         else:
             self.scan_res = numpy.array(result)
-    
+
     @property
     def scan(self):
         if self._scan is None and self.scan_res is not None:
