@@ -18,7 +18,7 @@ Brett G. Olivier
 """
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.3'
+__version__ = '0.9.4'
 
 import os, re
 import fileinput
@@ -86,7 +86,6 @@ mydata_files.append((os.path.join('pysces','pscmodels'), alist))
 
 # Default configurations for the pyscfg.ini files
 if os.sys.platform == 'win32':
-    #pysces-0.6.8-py2.5-win32.egg
     if FRYING_EGGS:
         eggdir = 'pysces-%s-py%s.%s-%s.egg' %(__version__, os.sys.version_info[0],\
         os.sys.version_info[1], os.sys.platform)

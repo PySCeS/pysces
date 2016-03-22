@@ -1,6 +1,6 @@
 MAJOR = 0
 MINOR = 9
-MICRO = 0
+MICRO = 4
 STATUS = ''
 
 def current_version():
@@ -9,4 +9,4 @@ def current_version():
 def current_version_tuple():
     return (MAJOR, MINOR, MICRO)
 
-__version__ = current_version() 
+__version__ = current_version()

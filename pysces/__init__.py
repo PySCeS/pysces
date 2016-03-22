@@ -396,7 +396,7 @@ if not __SILENT_START__:
     print '* PySCeS is distributed under the PySCeS (BSD style) licence, see     *'
     print '* LICENCE.txt (supplied with this release) for details                *'
     ##  print '*                 ** Read about PySCeS **                             *'
-    ##  print '* http://bioinformatics.oupjournals.org/cgi/content/short/21/4/560    *'
+    print '* Please cite PySCeS with: doi:10.1093/bioinformatics/bti046          *'
     print '***********************************************************************'
 
 try:

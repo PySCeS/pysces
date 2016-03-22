@@ -1,6 +1,6 @@
 PySCeS - Python Simulator for Cellular Systems
 ----------------------------------------------
-The official code repository (http://github.com/PySCeS/pysces) of The Python Simulator for Cellular Systems: PySCeS project: http://pysces.sourceforge.net release code will be mirrored on SF SVN and all official source archives and binary releases made available from SourceForge.
+The official code repository (http://github.com/PySCeS) of The Python Simulator for Cellular Systems: PySCeS project: http://pysces.sourceforge.net release code will be mirrored on SF SVN and all official source archives and binary releases made available from SourceForge.
 
 [![Research software impact](http://depsy.org/api/package/pypi/PySCeS/badge.svg)](http://depsy.org/package/python/PySCeS)
 
@@ -77,5 +77,5 @@ unchanged and consists of two files lex.py and yacc.py in the lib/ and core2/
 modules.
 
 
-Brett G. Olivier, 6 January 2016
+Brett G. Olivier, 22 March 2016
 
