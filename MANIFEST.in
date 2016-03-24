@@ -21,5 +21,7 @@ include pysces/tests/*
 include pysces/pysces.pth
 include pysces/win32/libgfortran-3.dll
 include pysces/win32/libquadmath-0.dll
+include pysces/win32/libgcc_s_seh-1.dll
+include pysces/win32/libwinpthread-1.dll
 recursive-include documentation *
 
