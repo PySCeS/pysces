@@ -123,7 +123,7 @@ class MyInfixLexer:
         self.t_NOTEQUALS = r'!='
 
     def t_NAME(self,t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
+        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
 
         # names are defined as anything starting with a letter OR numpy. math. or operator.
         t.type = 'NAME'

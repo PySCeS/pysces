@@ -29,7 +29,7 @@ __doc__ = '''
             create the model and associated data objects
 
             '''
-import os, copy, gc, time
+import os, copy, gc, time, random
 import math, operator, re
 import pprint, cPickle, cStringIO
 import numpy
@@ -1266,6 +1266,7 @@ class PysMod(object):
     __version__ = __version__
     __pysces_directory__ = INSTALL_DIR
     __settings__ = None
+    random = random
     #__STOMPY__ = None
 
 

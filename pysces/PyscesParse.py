@@ -301,7 +301,8 @@ class PySCeSParser:
               'KEYWORD',
               'KEYWORDB',
               'UNIT',
-              'MULTICOMMENT')
+              'MULTICOMMENT',
+              'RANDOMFUNC')
 
     ReservedTerms = RESERVEDTERMS
 
@@ -537,7 +538,7 @@ class PySCeSParser:
         return t
 
     def t_NAME(self,t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|[a-zA-Z_][\w@]*'
+        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
         SciCons = False
         if '@' in t.value:
             ts = t.value.split('@')
@@ -561,7 +562,7 @@ class PySCeSParser:
             t.value = gt
         elif t.value not in self.Names and t.value != '_TIME_': # Only add to list if absent in list
             self.Names.append('self.' + t.value)
-        if t.value[:6] == 'numpy.' or t.value[:5] == 'math.' or t.value[:9] == 'operator.':
+        if t.value[:6] == 'numpy.' or t.value[:5] == 'math.' or t.value[:9] == 'operator.' or t.value[:7] == 'random.':
             pass
         elif t.value not in self.MathmlToNumpy_funcs and not SciCons: # make class attributes, ignore function names
             gt = 'self.' + t.value

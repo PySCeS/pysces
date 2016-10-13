@@ -18,7 +18,7 @@ Brett G. Olivier
 """
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.4'
+__version__ = '0.9.5'
 
 import os, re
 import fileinput
