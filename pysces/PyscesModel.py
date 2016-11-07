@@ -4215,6 +4215,9 @@ class PysMod(object):
         if self.__HAS_RATE_RULES__:
             s0_sim_init = numpy.concatenate([s0_sim_init, self.__rrule__])
 
+        # re-set self._sim recarray (otherwise self.sim is not updated)
+        self._sim = None
+        
         # real pluggable integration routines - brett 2007
         # the array copy is important ... brett leave it alone!
         Tsim0 = time.time()
