@@ -2490,6 +2490,7 @@ class PysMod(object):
         self.__StateOK__ = True
 
         self.data_sstate = None
+        self._sim = None            # new object for recarray with simulation results
         self.data_sim = None        # the new integration results data object
         self.data_stochsim = None        # the new stochastic integration results data object
         self.__scan2d_results__ = None # yaaaay gnuplot is back
@@ -4242,6 +4243,11 @@ class PysMod(object):
             print 'Simulation failure'
         del sim_res
 
+    @property
+    def sim(self):
+        if self._sim is None and self.data_sim is not None:
+            self._sim = numpy.rec.fromrecords(self.data_sim.getAllSimData(lbls=True)[0], names=self.data_sim.getAllSimData(lbls=True)[1])
+        return self._sim
 
     def State(self):
         """
