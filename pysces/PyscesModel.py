@@ -4249,7 +4249,8 @@ class PysMod(object):
     @property
     def sim(self):
         if self._sim is None and self.data_sim is not None:
-            self._sim = numpy.rec.fromrecords(self.data_sim.getAllSimData(lbls=True)[0], names=self.data_sim.getAllSimData(lbls=True)[1])
+            data = self.data_sim.getAllSimData(lbls=True)
+            self._sim = numpy.rec.fromrecords(data[0], names=data[1])
         return self._sim
 
     def State(self):
