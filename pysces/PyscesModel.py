@@ -2490,6 +2490,7 @@ class PysMod(object):
         self.__StateOK__ = True
 
         self.data_sstate = None
+        self._sim = None            # new object for recarray with simulation results
         self.data_sim = None        # the new integration results data object
         self.data_stochsim = None        # the new stochastic integration results data object
         self.__scan2d_results__ = None # yaaaay gnuplot is back
@@ -4214,6 +4215,9 @@ class PysMod(object):
         if self.__HAS_RATE_RULES__:
             s0_sim_init = numpy.concatenate([s0_sim_init, self.__rrule__])
 
+        # re-set self._sim recarray (otherwise self.sim is not updated)
+        self._sim = None
+        
         # real pluggable integration routines - brett 2007
         # the array copy is important ... brett leave it alone!
         Tsim0 = time.time()
@@ -4242,6 +4246,12 @@ class PysMod(object):
             print 'Simulation failure'
         del sim_res
 
+    @property
+    def sim(self):
+        if self._sim is None and self.data_sim is not None:
+            data = self.data_sim.getAllSimData(lbls=True)
+            self._sim = numpy.rec.fromrecords(data[0], names=data[1])
+        return self._sim
 
     def State(self):
         """
