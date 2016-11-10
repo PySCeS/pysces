@@ -50,6 +50,12 @@ except AttributeError:
 if not HAVE_SCIPY_DERIV:
     raise RuntimeError, '\nSciPy derivative function not available'
 
+# this is incredibly crude but effectively masks off unsupported random functions
+del random.setstate, random.division, random.getstate, random.NV_MAGICCONST
+del random.randrange, random.SG_MAGICCONST, random.Random, random.choice
+del random.sample, random.BPF, random.RECIP_BPF, random.shuffle, random.jumpahead
+del random.SystemRandom, random.WichmannHill, random.triangular
+
 from getpass import getuser
 
 from pysces import model_dir as MODEL_DIR

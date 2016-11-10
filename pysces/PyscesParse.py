@@ -301,8 +301,7 @@ class PySCeSParser:
               'KEYWORD',
               'KEYWORDB',
               'UNIT',
-              'MULTICOMMENT',
-              'RANDOMFUNC')
+              'MULTICOMMENT')
 
     ReservedTerms = RESERVEDTERMS
 
