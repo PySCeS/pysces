@@ -112,7 +112,7 @@ class SED(object):
     _SED_XML_ = None
     sbwsedclient = None
 
-    def __init__(self, id, sedpath, libSEDMLpath=None, sbwsedmluri=None):
+    def __init__(self, mid, sedpath, libSEDMLpath=None, sbwsedmluri=None):
         """
         Try to establish whether we have access to libSEDML locally installed or the SBW SEDML webservices
 
@@ -140,32 +140,32 @@ class SED(object):
         self.tasks = {}
         self.datagens = {}
         self.plots2d = {}
-        self.id = id
-        self.sedpath = os.path.join(sedpath, id)
+        self.id = mid
+        self.sedpath = os.path.join(sedpath, mid)
         self.cntr = itertools.count()
 
-    def addModel(self, id, model):
-        try:
-            if not self.models.has_key(id):
-                self.models[id] = model.clone()
-            else:
-                self.models[id] = model.clone()
-        except:
-            print('\nWARNING: model clone failed, using more than one model per SED is not recomended!\n')
-            self.models[id] = model
+    def addModel(self, mid, model):
+        if not self.models.has_key(mid):
+            try:
+                self.models[mid] = model.clone()
+            except:
+                print('\nWARNING: model clone failed, using more than one model per SED is not recomended!\n')
+                self.models[mid] = model
+        else:
+            print('Model ID {} already exists'.format(mid))
 
-    def addModelAlt(self, id, model):
+    def addModelAlt(self, mid, model):
         mid = str(time.time()).split('.')[0]
         storeObj(model, os.path.join(self.sedpath, mid))
         del model
         model = loadObj(os.path.join(self.sedpath, mid)+'.dat')
-        if not self.models.has_key(id):
-            self.models[id] = model
+        if not self.models.has_key(mid):
+            self.models[mid] = model
         else:
-            self.models[id] = model
+            self.models[mid] = model
         os.remove(os.path.join(self.sedpath, mid)+'.dat')
 
-    def addSimulation(self, id, start, end, steps, output, initial=None, algorithm='KISAO:0000019'):
+    def addSimulation(self, mid, start, end, steps, output, initial=None, algorithm='KISAO:0000019'):
         if initial == None:
             initial = start
         S = {'start' : start,
@@ -174,12 +174,12 @@ class SED(object):
              'steps' : steps,
              'algorithm' : algorithm,
              'output' : output}
-        self.sims[id] = S
+        self.sims[mid] = S
 
-    def addTask(self, id, sim_id, model_id):
+    def addTask(self, mid, sim_id, model_id):
         assert self.sims.has_key(sim_id), '\nBad simId'
         assert self.models.has_key(model_id), '\nBad modelId'
-        self.tasks[id] = {'sim' : sim_id, 'model' : model_id}
+        self.tasks[mid] = {'sim' : sim_id, 'model' : model_id}
 
     def addDataGenerator(self, var, task_id):
         if var.lower() == 'time':
