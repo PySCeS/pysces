@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2016 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2017 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -4225,7 +4225,7 @@ class PysMod(object):
 
         # re-set self._sim recarray (otherwise self.sim is not updated)
         self._sim = None
-        
+
         # real pluggable integration routines - brett 2007
         # the array copy is important ... brett leave it alone!
         Tsim0 = time.time()

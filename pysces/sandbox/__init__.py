@@ -2,7 +2,7 @@
 PySCeS/Core2 - the Next Generation Python Simulator for Cellular Systems
            (http://pysces.sourceforge.net)
 Copyright (C) B.G. Olivier
-Stellenbosch, 2007-2016.
+Stellenbosch, 2007-2017.
 Triple-J Group for Molecular Cell Physiology
 Stellenbosch University, South Africa
 Author: Brett G. Olivier
