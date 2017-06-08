@@ -29,7 +29,7 @@ __doc__ = '''
             create the model and associated data objects
 
             '''
-import os, copy, gc, time
+import os, copy, gc, time, random
 import math, operator, re
 import pprint, cPickle, cStringIO
 import numpy
@@ -49,6 +49,13 @@ except AttributeError:
         pass
 if not HAVE_SCIPY_DERIV:
     raise RuntimeError, '\nSciPy derivative function not available'
+
+# this is incredibly crude but effectively masks off unsupported random functions
+del random.setstate, random.division, random.getstate,
+del random.randrange, random.Random, random.choice
+del random.sample, random.shuffle, random.jumpahead
+del random.SystemRandom, random.WichmannHill, random.triangular
+# used by functions random.NV_MAGICCONST, random.SG_MAGICCONST, random.BPF, random.RECIP_BPF
 
 from getpass import getuser
 
@@ -1266,6 +1273,7 @@ class PysMod(object):
     __version__ = __version__
     __pysces_directory__ = INSTALL_DIR
     __settings__ = None
+    random = random
     #__STOMPY__ = None
 
 
