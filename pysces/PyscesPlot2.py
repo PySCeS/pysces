@@ -16,6 +16,7 @@ Brett G. Olivier
 """
 
 from pysces.version import __version__
+from pysces import __SILENT_START__
 import subprocess, os, shutil, time, math, itertools, copy
 from getpass import getuser
 import numpy, scipy
@@ -744,7 +745,8 @@ class MatplotlibUPI(PlotBase):
             if backend in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend, warn=False)
                 self.__BACKEND__ = backend
-                print('Matplotlib backend set to: \"{}\"'.format(backend))
+                if not __SILENT_START__:
+                    print('Matplotlib backend set to: \"{}\"'.format(backend))
             else:
                 if backend in [None, 'None', 'none']:
                     print('Matplotlib backend not set, using: \"{}\"'.format(matplotlib.get_backend()))

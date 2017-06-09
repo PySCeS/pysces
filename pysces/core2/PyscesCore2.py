@@ -29,8 +29,8 @@ from pysces import output_dir as CurrentDirectory
 from InfixParser import MyInfixParser
 InfixParser = MyInfixParser()
 InfixParser.buildlexer()
-InfixParser.buildparser(debug=0, debugfile=os.path.join(CurrentDirectory, 'infix.dbg'),
-	tabmodule=os.path.join(CurrentDirectory, 'infix_tabmodule'))
+InfixParser.buildparser(debug=0, debugfile='infix.dbg',
+	tabmodule='infix_tabmodule', outputdir=CurrentDirectory)
 InfixParser.setNameStr('self.', '()')
 
 #print 'CurrentDirectory', CurrentDirectory

@@ -85,7 +85,8 @@ _HAVE_PYSUNDIALS = False
 _PYSUNDIALS_LOAD_ERROR = ''
 try:
     from pysundials import cvode
-    print 'PySundials available'
+    if not __SILENT_START__:
+        print 'PySundials available'
     _HAVE_PYSUNDIALS = True
 except Exception, ex:
     _PYSUNDIALS_LOAD_ERROR = '%s' % ex
@@ -1007,8 +1008,8 @@ class ReactionObj(NewCoreBase):
 
 InfixParser = MyInfixParser()
 InfixParser.buildlexer()
-InfixParser.buildparser(debug=0, debugfile=os.path.join(OUTPUT_DIR, 'infix.dbg'),\
-		tabmodule=os.path.join(OUTPUT_DIR, 'infix_tabmodule'))
+InfixParser.buildparser(debug=0, debugfile='infix.dbg',\
+		tabmodule='infix_tabmodule', outputdir=OUTPUT_DIR)
 InfixParser.setNameStr('self.', '')
 os.chdir(OUTPUT_DIR)
 
