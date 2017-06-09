@@ -29,7 +29,7 @@ __doc__ = '''
             create the model and associated data objects
 
             '''
-import os, copy, gc, time, random
+import os, copy, gc, time
 import math, operator, re
 import pprint, cPickle, cStringIO
 import numpy
@@ -50,13 +50,6 @@ except AttributeError:
 if not HAVE_SCIPY_DERIV:
     raise RuntimeError, '\nSciPy derivative function not available'
 
-# this is incredibly crude but effectively masks off unsupported random functions
-#del random.setstate, random.division, random.getstate,
-#del random.randrange, random.Random, random.choice
-#del random.sample, random.shuffle, random.jumpahead
-#del random.SystemRandom, random.WichmannHill, random.triangular
-# used by functions random.NV_MAGICCONST, random.SG_MAGICCONST, random.BPF, random.RECIP_BPF
-
 from getpass import getuser
 
 from pysces import model_dir as MODEL_DIR
@@ -68,11 +61,20 @@ from pysces import pitcon
 from pysces import plt, gplt
 from pysces import PyscesStoich
 from pysces import PyscesParse
+from pysces import PyscesRandom as random
 from pysces import __SILENT_START__
 from pysces.PyscesScan import Scanner
 from pysces.core2.InfixParser import MyInfixParser
 from pysces import SED
 interface = None
+
+# this is incredibly crude but effectively masks off unsupported random functions
+del random.setstate, random.division, random.getstate,
+del random.randrange, random.Random, random.choice
+del random.sample, random.shuffle, random.jumpahead
+del random.SystemRandom, random.WichmannHill, random.triangular
+# used by functions random.NV_MAGICCONST, random.SG_MAGICCONST, random.BPF, random.RECIP_BPF
+
 
 # Scipy version check
 if int(scipy.version.version.split('.')[1]) < 6:
