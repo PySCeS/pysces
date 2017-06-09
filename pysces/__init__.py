@@ -166,6 +166,16 @@ for key in __userdict:
 assert output_dir != None, '\nNo output directory defined'
 assert model_dir != None, '\nNo output directory defined'
 
+# following is to get the full path when .pys_usercfg.ini specifies CWD as follows:
+# output_dir = ./
+backup_dir = os.getcwd()
+os.chdir(output_dir)
+output_dir = os.getcwd()
+os.chdir(backup_dir)
+os.chdir(model_dir)
+model_dir = os.getcwd()
+os.chdir(backup_dir)
+
 del PyscesConfig
 
 if DEBUG: print time.strftime('4-%H:%M:%S')
