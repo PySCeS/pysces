@@ -4237,7 +4237,8 @@ class PysMod(object):
         elif self.mode_integrator == 'CVODE':
             sim_res, rates, simOK = self.CVODE(copy.copy(s0_sim_init))
         Tsim1 = time.time()
-        print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
+        if self.__settings__['lsoda_mesg']:
+            print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
 
         if self.__HAS_RATE_RULES__:
             sim_res, rrules = numpy.split(sim_res,[len(self.__species__)],axis=1)
