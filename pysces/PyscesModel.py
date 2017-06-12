@@ -87,7 +87,8 @@ _HAVE_PYSUNDIALS = False
 _PYSUNDIALS_LOAD_ERROR = ''
 try:
     from pysundials import cvode
-    print 'PySundials available'
+    if not __SILENT_START__:
+        print 'PySundials available'
     _HAVE_PYSUNDIALS = True
 except Exception, ex:
     _PYSUNDIALS_LOAD_ERROR = '%s' % ex
@@ -1009,8 +1010,8 @@ class ReactionObj(NewCoreBase):
 
 InfixParser = MyInfixParser()
 InfixParser.buildlexer()
-InfixParser.buildparser(debug=0, debugfile=os.path.join(OUTPUT_DIR, 'infix.dbg'),\
-		tabmodule=os.path.join(OUTPUT_DIR, 'infix_tabmodule'))
+InfixParser.buildparser(debug=0, debugfile='infix.dbg',\
+		tabmodule='infix_tabmodule', outputdir=OUTPUT_DIR)
 InfixParser.setNameStr('self.', '')
 os.chdir(OUTPUT_DIR)
 
@@ -4236,7 +4237,8 @@ class PysMod(object):
         elif self.mode_integrator == 'CVODE':
             sim_res, rates, simOK = self.CVODE(copy.copy(s0_sim_init))
         Tsim1 = time.time()
-        print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
+        if self.__settings__['lsoda_mesg']:
+            print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
 
         if self.__HAS_RATE_RULES__:
             sim_res, rrules = numpy.split(sim_res,[len(self.__species__)],axis=1)
