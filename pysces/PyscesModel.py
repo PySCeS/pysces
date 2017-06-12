@@ -1352,9 +1352,16 @@ class PysMod(object):
         if not self.__PSC_auto_load:
             self.ModelLoad(stoich_load=stoich_load)
         else:
-            print 'PySCeS now automatically loads the model on model object instantiation. If you do not want this behaviour pass the autoload=False argument to the constructor, if you really want to reload the model, run doLoad() again.\n'
-            print 'Further calls to doLoad() will work as normal.'
-        self.__PSC_auto_load = False
+            print 'PySCeS now automatically loads the model on model object instantiation. If you do not want this behaviour pass the autoload=False argument to the constructor, if you really want to reload the model, run reLoad().'
+
+    def reLoad(self,stoich_load=0):
+        """
+        Re-load and instantiate a PySCeS model so that it can be used for further analyses. This is just a convenience call to the ModelLoad() method.
+
+        - *stoich_load* try to load a structural analysis saved with Stoichiometry_Save_Serial() (default=0)
+
+        """
+        self.ModelLoad(stoich_load=stoich_load)
 
     def LoadFromString(self,File=None,fString=None):
         """
