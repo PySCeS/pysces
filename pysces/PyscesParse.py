@@ -1258,7 +1258,7 @@ class PySCeSParser:
             tempDir = modeloutput
         else:
             tempDir = os.getcwd()
-
+        
         os.chdir(tempDir)
 
         # fix filenames for intermediary files - brett
@@ -1274,16 +1274,18 @@ class PySCeSParser:
             self.debugfile = '_pys' + modelfile[:-4] + ".dbg"
             self.tabmodule = '_pys' + modelfile[:-4] + "_" + "parsetab"
 
-        if self.Debug:
+        if self.display_debug:
             print self.tabmodule
             print self.debugfile
+            print 'cwd: ', os.getcwd()
 
-        self.__lexer = pysces.lib.lex.lex(module=self, debug=self.Debug)
+        self.__lexer = pysces.lib.lex.lex(module=self, debug=self.display_debug)
         self.__lexer.input(self.__Model)
         self.__parser = pysces.lib.yacc.yacc(module=self,
-                debug=self.Debug,
+                debug=self.display_debug,
                 debugfile=self.debugfile,
-                tabmodule=self.tabmodule)
+                tabmodule=self.tabmodule,
+                outputdir=tempDir)
 
         while 1:
             tok = self.__lexer.token()
