@@ -7794,6 +7794,7 @@ class PysMod(object):
         mod.__settings__['nleq2_mesg'] = 0
         mod.__settings__["lsoda_mesg"] = 0
         mod.__settings__['mode_state_mesg'] = 0
+        mod.__settings__['scan1_mesg'] = 0
         mod.__settings__['solver_switch_warning'] = False
 
         Arguments:
@@ -7804,6 +7805,7 @@ class PysMod(object):
         self.__settings__['nleq2_mesg'] = 0
         self.__settings__["lsoda_mesg"] = 0
         self.__settings__['mode_state_mesg'] = 0
+        self.__settings__['scan1_mesg'] = 0
         self.__settings__['solver_switch_warning'] = False
 
     def SetLoud(self):
@@ -7815,6 +7817,7 @@ class PysMod(object):
         mod.__settings__['nleq2_mesg'] = 1
         mod.__settings__["lsoda_mesg"] = 1
         mod.__settings__['mode_state_mesg'] = 1
+        mod.__settings__['scan1_mesg'] = 1
         mod.__settings__['solver_switch_warning'] = True
 
         Arguments:
@@ -7825,6 +7828,7 @@ class PysMod(object):
         self.__settings__['nleq2_mesg'] = 1
         self.__settings__["lsoda_mesg"] = 1
         self.__settings__['mode_state_mesg'] = 1
+        self.__settings__['scan1_mesg'] = 1
         self.__settings__['solver_switch_warning'] = True
 
     def clone(self):
