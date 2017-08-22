@@ -88,6 +88,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# PyCharm project settings
+.idea/
+
 # pysces stuff
 /pysces/pyscfg.ini
 pysces/nleq2/nleq2module.c
