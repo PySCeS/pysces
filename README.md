@@ -4,7 +4,13 @@ The official code repository (http://github.com/PySCeS) of The Python Simulator 
 
 [![Research software impact](http://depsy.org/api/package/pypi/PySCeS/badge.svg)](http://depsy.org/package/python/PySCeS)
 
-Copyright (c) 2004 - 2016, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
+**NEW** PySCeS is now available as an Anaconda package for 64 bit Windows and Linux:
+
+```
+conda install -c bgoli -c sbmlteam pysces
+```
+
+Copyright (c) 2004 - 2017, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
 All rights reserved.
 
 PySCeS is distributed under a BSD style licence, please see LICENCE.txt for details
@@ -31,7 +37,6 @@ Private Bag X1
 Matieland
 7602
 
-
 email: bgoli@users.sourceforge.net
 web:   http://pysces.sourceforge.net
 
@@ -39,6 +44,12 @@ Installation
 ------------
 
 Please see INSTALL.txt for information on building PySCeS an its modules.
+
+**NEW** PySCeS is now available as an Anaconda package for 64 bit Windows and Linux:
+
+```
+conda install -c bgoli -c sbmlteam pysces
+```
 
 
 Additional licence information

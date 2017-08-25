@@ -7,10 +7,14 @@ Optional: update build version and SVN information in meta.yaml
  conda update conda-build
 
 Run to build (note the upload command path e.g. anaconda upload C:\Anaconda\conda-bld\win-64\pysces-0.9.5-py27hd5793fb_1.tar.bz2): 
- conda build .
+ conda build -c sbmlteam .
  
 Run to install locally:
  conda install --use-local pysces
 
-NOTES: To get this to compile under windows requires one to copy python27.dll into the lib directory while the environment is being created. 
-otherwise the build fails
+NOTES: 
+* To get this to compile under windows requires one to copy python27.dll into the lib directory while the environment is being created. 
+otherwise the build fails.
+* Under linux/mac remove the libpython build dependency (it does not exist)
+
+(C) Brett 2017
