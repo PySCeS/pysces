@@ -37,6 +37,14 @@ except Exception, ex:
     print "PySCeS requires NumPy and SciPy 0.6x+\n"
     os.sys.exit(-1)
 
+try:
+    import distutils.command.bdist_conda
+    print('bdist_conda is available.')
+except Exception as ex:
+    print('bdist_conda not available.')
+    
+
+
 ########## User configuration section ##########
 
 # Install extension modules (zero for skip module) - brett 20040310
