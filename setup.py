@@ -137,7 +137,11 @@ def writeConfig(local_path, config={}):
     #add configuration data
     cp.add_section('PyscesConfig')
     cp.set('PyscesConfig','matplotlib', True)
-    cp.set('PyscesConfig','matplotlib_backend', 'TkAgg')
+    # OSX patch thanks to AF
+    if os.sys.platform == 'darwin':
+        cp.set('PyscesConfig','matplotlib_backend', 'MacOSX')
+    else:
+        cp.set('PyscesConfig','matplotlib_backend', 'TkAgg')
     cp.set('PyscesConfig','gnuplot', False)
     # Built in modules
     cp.add_section('PyscesModules')

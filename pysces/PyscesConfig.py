@@ -70,6 +70,9 @@ else:
         "output_dir"   : os.path.join(os.path.expanduser('~'),'Pysces'),
         "silentstart"  : False
         }
+    # OSX patch by AF
+    if os.sys.platform == 'darwin':
+        __DefaultPosix["matplotlib_backend"] = 'MacOSX'
 
 def ReadConfig(file_path, config={}):
     """
