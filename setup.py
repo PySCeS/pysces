@@ -18,7 +18,7 @@ Brett G. Olivier
 """
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.5'
+__version__ = '0.9.6'
 
 import os, re
 import fileinput
@@ -29,6 +29,12 @@ try:
     print 'Building an egg? %s.' % FRYING_EGGS
 except:
     FRYING_EGGS = False
+
+try:
+    import setuptools
+    print('setuptools is available.')
+except Exception as ex:
+    print('setuptools not available.')
 
 try:
     from numpy.distutils.core import setup, Extension
@@ -240,7 +246,8 @@ setup(name="pysces",
     requires = ['numpy','scipy','matplotlib'],
     platforms = ["Windows", "Linux"],#, "Solaris", "Mac OS-X", "Unix"],
     classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
+    'Development Status :: 6 - Mature',
     'Environment :: Console',
     'Intended Audience :: End Users/Desktop',
     'Intended Audience :: Science/Research',
