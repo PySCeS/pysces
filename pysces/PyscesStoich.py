@@ -19,7 +19,10 @@ from pysces.version import __version__
 import time,os
 import scipy
 import scipy.linalg
-if int(scipy.__version__.split('.')[1]) < 12:
+
+# if int(scipy.__version__.split('.')[1]) < 12:
+# thanks scipy
+if int(scipy.__version__.split('.')[0]) < 1 and int(scipy.__version__.split('.')[1]) < 12:
     myfblas = scipy.linalg.fblas
     myflapack = scipy.linalg.flapack
 else:
