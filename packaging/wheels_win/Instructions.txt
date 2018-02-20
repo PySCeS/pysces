@@ -1,0 +1,30 @@
+**Building PySCeS Windows binaries for distribution**
+
+This requires a Python 2.7 environment with the following 
+packages installed:
+	certifi 
+	icc_rt 
+	intel-openmp 
+	libpython 
+	mkl 
+	numpy=1.11.3 
+	pip 
+	setuptools 
+	vc 
+	vs2008_runtime 
+	wheel 
+	wincertstore
+
+A batch file that does this automatically for the Anaconda 
+Python distribution is included (create_environment.bat).
+
+For Anaconda specifically, the environment has to be fixed 
+by copying two library files. Activate the newly created
+environment, and then execute the batch file
+fix_environment.bat.
+
+Then cd to the root folder of the PySCeS source repository
+and execute winbuild_mingw.bat
+
+This will build a source tarball, a Windows binary executable
+installer, as well as a Python Wheel in the "dist" folder.
