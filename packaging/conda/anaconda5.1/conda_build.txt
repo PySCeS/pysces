@@ -1,15 +1,16 @@
+# build instructions for Anaconda 5.1
+
 Open an anaconda prompt
 
 cd to conda build files
 
 Optional: update build version and SVN information in meta.yaml
- conda update conda
  conda update conda-build
 
-Run to build (note the upload command path e.g. anaconda upload C:\Anaconda\conda-bld\win-64\pysces-0.9.5-py27hd5793fb_1.tar.bz2): 
+Run to build (note the upload command path e.g. anaconda upload C:\Anaconda\conda-bld\win-64\pysces-0.9.6-py27_2.tar.bz2): 
  conda build -c sbmlteam .
  
 NOTES: 
 * Under linux/mac remove the libpython build dependency (it does not exist)
 
-(C) Brett 2017
+(C) Brett 2018
