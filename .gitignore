@@ -23,7 +23,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-packaging/many_linux/wheelhouse/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
