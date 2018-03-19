@@ -63,6 +63,10 @@ __MATPLOTLIB_BACKEND__ = 'TKagg'
 __USE_GNUPLOT__ = False
 __SILENT_START__ = False
 
+extra_dll_dir = os.path.join(os.path.dirname(__file__), '.libs')
+if os.path.isdir(extra_dll_dir):
+    os.environ["PATH"] += os.pathsep + extra_dll_dir
+
 if os.sys.platform == 'win32':
     __PyscesConfigDefault = PyscesConfig.__DefaultWin
 else:
