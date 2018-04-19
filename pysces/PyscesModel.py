@@ -77,8 +77,8 @@ del random.SystemRandom, random.WichmannHill, random.triangular
 
 
 # Scipy version check
-if int(scipy.version.version.split('.')[0]) < 1 and int(scipy.version.version.split('.')[1]) < 6:
-    print '\nINFO: Your version of SciPy (' +  scipy.version.version + ') might be too old\n\tVersion 0.3.x or newer is strongly recommended\n'
+if int(scipy.__version__.split('.')[0]) < 1 and int(scipy.__version__.split('.')[1]) < 6:
+    print '\nINFO: Your version of SciPy (' +  scipy.version.version + ') might be too old\n\tVersion 0.6.x or newer is strongly recommended\n'
 else:
     if not __SILENT_START__:
         print 'You are using NumPy (%s) with SciPy (%s)' % (numpy.__version__, scipy.__version__)
