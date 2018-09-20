@@ -242,7 +242,8 @@ class PySCeSParser:
         'less' : 'operator.lt', 'less_equal' : 'operator.le', # numpy2numpy aliases
         'ne' : 'operator.ne', 'ge' : 'operator.ge', 'le' : 'operator.le', # operator2operator
         'xor' : 'operator.xor', 'piecewise' : 'self._piecewise_', '_piecewise_' : 'self._piecewise_',
-        'not' : 'operator.not_', 'not_' : 'operator.not_'
+        'not' : 'operator.not_', 'not_' : 'operator.not_', 
+        'max':'max', 'min' : 'min'
     }
 
     MathmlToNumpy_symb = {
