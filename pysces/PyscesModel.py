@@ -69,7 +69,7 @@ from pysces import SED
 interface = None
 
 # this is incredibly crude but effectively masks off unsupported random functions
-del random.setstate, random.division, random.getstate,
+del random.setstate, random.getstate, # random.division, 
 del random.randrange, random.Random, random.choice
 del random.sample, random.shuffle, random.jumpahead
 del random.SystemRandom, random.WichmannHill, random.triangular

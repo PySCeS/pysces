@@ -1736,7 +1736,8 @@ class Grammar(object):
     def undefined_symbols(self):
         result = []
         for p in self.Productions:
-            if not p:
+            #if not p:
+            if p is not None:
                 continue
 
             for s in p.prod:

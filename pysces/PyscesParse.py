@@ -24,6 +24,7 @@ import pysces.lib.lex
 import pysces.lib.yacc
 from getpass import getuser
 from time import sleep, strftime
+from importlib import reload
 
 # use net stoichiometry, disable for StomPy
 __USE_NET_STOICH__ = True
@@ -1523,7 +1524,9 @@ class PySCeSParser:
 
         """
         F = open(name,'r+')
-        F.seek(-1,2)
+        #F.seek(-1,2)
+        F.seek(0, os.SEEK_END)
+        F.seek(F.tell() - 1, os.SEEK_SET) 
         if F.read() != '\n':
             if os.sys.platform == 'win32':
                 F.read()
