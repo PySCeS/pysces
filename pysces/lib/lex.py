@@ -44,7 +44,7 @@ import inspect
 # This tuple contains known string types
 try:
     # Python 2.6
-    StringTypes = (types.StringType, types.UnicodeType)
+    StringTypes = (bytes, str)
 except AttributeError:
     # Python 3.0
     StringTypes = (str, bytes)
@@ -150,7 +150,7 @@ class Lexer:
 
         if object:
             newtab = {}
-            for key, ritem in self.lexstatere.items():
+            for key, ritem in list(self.lexstatere.items()):
                 newre = []
                 for cre, findex in ritem:
                     newfindex = []
@@ -163,7 +163,7 @@ class Lexer:
                 newtab[key] = newre
             c.lexstatere = newtab
             c.lexstateerrorf = {}
-            for key, ef in self.lexstateerrorf.items():
+            for key, ef in list(self.lexstateerrorf.items()):
                 c.lexstateerrorf[key] = getattr(object, ef.__name__)
             c.lexmodule = object
         return c
@@ -186,7 +186,7 @@ class Lexer:
 
             # Rewrite the lexstatere table, replacing function objects with function names 
             tabre = {}
-            for statename, lre in self.lexstatere.items():
+            for statename, lre in list(self.lexstatere.items()):
                 titem = []
                 for (pat, func), retext, renames in zip(lre, self.lexstateretext[statename], self.lexstaterenames[statename]):
                     titem.append((retext, _funcs_to_names(func, renames)))
@@ -196,12 +196,12 @@ class Lexer:
             tf.write('_lexstateignore = %s\n' % repr(self.lexstateignore))
 
             taberr = {}
-            for statename, ef in self.lexstateerrorf.items():
+            for statename, ef in list(self.lexstateerrorf.items()):
                 taberr[statename] = ef.__name__ if ef else None
             tf.write('_lexstateerrorf = %s\n' % repr(taberr))
 
             tabeof = {}
-            for statename, ef in self.lexstateeoff.items():
+            for statename, ef in list(self.lexstateeoff.items()):
                 tabeof[statename] = ef.__name__ if ef else None
             tf.write('_lexstateeoff = %s\n' % repr(tabeof))
 
@@ -226,7 +226,7 @@ class Lexer:
         self.lexstateignore = lextab._lexstateignore
         self.lexstatere     = {}
         self.lexstateretext = {}
-        for statename, lre in lextab._lexstatere.items():
+        for statename, lre in list(lextab._lexstatere.items()):
             titem = []
             txtitem = []
             for pat, func_name in lre:
@@ -236,11 +236,11 @@ class Lexer:
             self.lexstateretext[statename] = txtitem
 
         self.lexstateerrorf = {}
-        for statename, ef in lextab._lexstateerrorf.items():
+        for statename, ef in list(lextab._lexstateerrorf.items()):
             self.lexstateerrorf[statename] = fdict[ef]
 
         self.lexstateeoff = {}
-        for statename, ef in lextab._lexstateeoff.items():
+        for statename, ef in list(lextab._lexstateeoff.items()):
             self.lexstateeoff[statename] = fdict[ef]
 
         self.begin('INITIAL')
@@ -415,7 +415,7 @@ class Lexer:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         t = self.token()
         if t is None:
             raise StopIteration
@@ -501,7 +501,7 @@ def _form_master_re(relist, reflags, ldict, toknames):
         lexindexfunc = [None] * (max(lexre.groupindex.values()) + 1)
         lexindexnames = lexindexfunc[:]
 
-        for f, i in lexre.groupindex.items():
+        for f, i in list(lexre.groupindex.items()):
             handle = ldict.get(f, None)
             if type(handle) in (types.FunctionType, types.MethodType):
                 lexindexfunc[i] = (handle, toknames[f])
@@ -718,11 +718,11 @@ class LexerReflect(object):
                 self.error = True
 
         # Sort the functions by line number
-        for f in self.funcsym.values():
+        for f in list(self.funcsym.values()):
             f.sort(key=lambda x: x[1].__code__.co_firstlineno)
 
         # Sort the strings by regular expression length
-        for s in self.strsym.values():
+        for s in list(self.strsym.values()):
             s.sort(key=lambda x: len(x[1]), reverse=True)
 
     # Validate all of the t_rules collected
@@ -978,7 +978,7 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
                 debuglog.info("lex: state '%s' : regex[%d] = '%s'", state, i, text)
 
     # For inclusive states, we need to add the regular expressions from the INITIAL state
-    for state, stype in stateinfo.items():
+    for state, stype in list(stateinfo.items()):
         if state != 'INITIAL' and stype == 'inclusive':
             lexobj.lexstatere[state].extend(lexobj.lexstatere['INITIAL'])
             lexobj.lexstateretext[state].extend(lexobj.lexstateretext['INITIAL'])
@@ -1004,7 +1004,7 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
     lexobj.lexeoff = linfo.eoff.get('INITIAL', None)
 
     # Check state information for ignore and error rules
-    for s, stype in stateinfo.items():
+    for s, stype in list(stateinfo.items()):
         if stype == 'exclusive':
             if s not in linfo.errorf:
                 errorlog.warning("No error rule is defined for exclusive state '%s'", s)

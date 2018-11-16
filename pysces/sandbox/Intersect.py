@@ -55,7 +55,7 @@ class Intersect:
         raw_file = file(os.path.join(self.data_dir,raw_data_file))
         self.data_raw = scipy.io.read_array(raw_file)
         raw_file.close()
-        print '\nData file load complete.\n'
+        print('\nData file load complete.\n')
 
     def D2_generate_raw_data(self,input,output,raw_data_file):
         assert len(input) == 2
@@ -74,7 +74,7 @@ class Intersect:
             setattr(self.mod, input[0], self.P1range[P1])
             flush += 1
             #print ' '
-            print self.P1range[P1]
+            print(self.P1range[P1])
             #print input[1], 
             for P2 in range(len(self.P2range)):
                 #print "%2.2f" % self.P2range[P2],
@@ -98,7 +98,7 @@ class Intersect:
         assert len(surfaces) == 2
         self.surfP = surfaces
         surfidx = [self._output.index(el)+2 for el in surfaces]
-        print surfidx
+        print(surfidx)
 
         isect = []
         isectCount = 0
@@ -113,20 +113,20 @@ class Intersect:
         scipy.io.write_array(os.path.join(self.data_dir,isect_data_file), self.isect_data,keep_open=0)
 
     def output_intersection_metrics(self,filename=None):
-        print '\n**********\nIntersection metrics'
-        print 'Raw data space : ', self.data_raw.shape
-        print 'Intersect space: ', self.isect_data.shape
-        print 'Intersect tol  : ', self.isect_tol
-        print 'Sparsity %     : ', '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0]*self.data_raw.shape[1])*100.0)
-        print 'Efficiency %   : ', '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0])*100.0)
-        print pysces.session_time()
+        print('\n**********\nIntersection metrics')
+        print('Raw data space : ', self.data_raw.shape)
+        print('Intersect space: ', self.isect_data.shape)
+        print('Intersect tol  : ', self.isect_tol)
+        print('Sparsity %     : ', '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0]*self.data_raw.shape[1])*100.0))
+        print('Efficiency %   : ', '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0])*100.0))
+        print(pysces.session_time())
 
         if filename != None:
             CC = file(os.path.join(self.data_dir,filename),'w')
             CC.write('\n**********\nIntersection metrics\n**********\n')
-            CC.write('Raw data space : ' + `self.data_raw.shape` + '\n')
-            CC.write('Intersect space: ' + `self.isect_data.shape` + '\n')
-            CC.write('Intersect tol  : ' + `self.isect_tol` + '\n')
+            CC.write('Raw data space : ' + repr(self.data_raw.shape) + '\n')
+            CC.write('Intersect space: ' + repr(self.isect_data.shape) + '\n')
+            CC.write('Intersect tol  : ' + repr(self.isect_tol) + '\n')
             CC.write('Sparsity %     : ' + '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0]*self.data_raw.shape[1])*100.0) + '\n')
             CC.write('Efficiency %   : ' + '%2.1e' % (float(self.isect_data.shape[0])/float(self.data_raw.shape[0])*100.0) + '\n')
             CC.write('\n'+pysces.session_time()+'\n')
@@ -236,7 +236,7 @@ class IntersectD3(Intersect):
         assert len(surfaces) == 2
         self.surfP = surfaces
         surfidx = [self._output.index(el)+3 for el in surfaces]
-        print surfidx
+        print(surfidx)
 
         isect = []
         isectCount = 0

@@ -15,7 +15,7 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
-import os, time, numpy, itertools, cStringIO, subprocess, zipfile, cPickle
+import os, time, numpy, itertools, io, subprocess, zipfile, pickle
 import pysces
 
 class SBWSEDMLWebApps:
@@ -50,7 +50,7 @@ class SBWSEDMLWebApps:
             self.Kclient = suds.client.Client(url)
             self.SBWSEDMLURI = url
         except:
-            print('\nERROR: Error connecting to SBW SED-ML web-services \"{}\" please check your internet connection\n'.format(url))
+            print(('\nERROR: Error connecting to SBW SED-ML web-services \"{}\" please check your internet connection\n'.format(url)))
             self.HAVE_SUDS = False
 
     def GetVersion(self):
@@ -65,9 +65,9 @@ class SBWSEDMLWebApps:
             print('Connecting ...')
             g = self.Kclient.service.GetVersion()
             print('done.')
-        except Exception, ex:
+        except Exception as ex:
             print('\nERROR: GetVersion() exception\n')
-            print ex
+            print(ex)
         return g
 
     def ConvertScriptToSedML(self, sedscript):
@@ -85,9 +85,9 @@ class SBWSEDMLWebApps:
             print('Connecting ...')
             g = self.Kclient.service.ConvertScriptToSedML(sedscript)
             print('done.')
-        except Exception, ex:
+        except Exception as ex:
             print('\nERROR: ConvertScriptToSedML() exception\n')
-            print ex
+            print(ex)
         return g
 
 class SED(object):
@@ -145,21 +145,21 @@ class SED(object):
         self.cntr = itertools.count()
 
     def addModel(self, mid, model):
-        if not self.models.has_key(mid):
+        if mid not in self.models:
             try:
                 self.models[mid] = model.clone()
             except:
                 print('\nWARNING: model clone failed, using more than one model per SED is not recomended!\n')
                 self.models[mid] = model
         else:
-            print('Model ID {} already exists'.format(mid))
+            print(('Model ID {} already exists'.format(mid)))
 
     def addModelAlt(self, mid, model):
         mid = str(time.time()).split('.')[0]
         storeObj(model, os.path.join(self.sedpath, mid))
         del model
         model = loadObj(os.path.join(self.sedpath, mid)+'.dat')
-        if not self.models.has_key(mid):
+        if mid not in self.models:
             self.models[mid] = model
         else:
             self.models[mid] = model
@@ -177,8 +177,8 @@ class SED(object):
         self.sims[mid] = S
 
     def addTask(self, mid, sim_id, model_id):
-        assert self.sims.has_key(sim_id), '\nBad simId'
-        assert self.models.has_key(model_id), '\nBad modelId'
+        assert sim_id in self.sims, '\nBad simId'
+        assert model_id in self.models, '\nBad modelId'
         self.tasks[mid] = {'sim' : sim_id, 'model' : model_id}
 
     def addDataGenerator(self, var, task_id):
@@ -186,12 +186,12 @@ class SED(object):
             var = 'time'
         dgId = 'dg_%s_%s' % (task_id, var)
         # dgId = '%s' % (var)
-        varId = '%s_%s' % (var, self.cntr.next())
+        varId = '%s_%s' % (var, next(self.cntr))
         self.datagens[dgId] = {'varId' : varId, 'taskId' : task_id, 'var' : var}
 
     def addTaskDataGenerators(self, taskId):
-        assert self.tasks.has_key(taskId), '\nBad taskId'
-        print self.tasks
+        assert taskId in self.tasks, '\nBad taskId'
+        print(self.tasks)
         for o_ in self.sims[self.tasks[taskId]['sim']]['output']:
             self.addDataGenerator(o_, taskId)
 
@@ -210,7 +210,7 @@ class SED(object):
         self.addPlot(plotId, name, curves)
 
     def writeSedScript(self, sedx=False):
-        sedscr = cStringIO.StringIO()
+        sedscr = io.StringIO()
         if not os.path.exists(self.sedpath):
             os.makedirs(self.sedpath)
         for m_ in self.models:
@@ -252,9 +252,9 @@ class SED(object):
             sedscr.write("])\n")
         sedscr.write('\n')
 
-        print '\nThe SED\n++++++\n'
+        print('\nThe SED\n++++++\n')
         sedscr.seek(0)
-        print sedscr.read()
+        print(sedscr.read())
         sedscr.seek(0)
         if not sedx:
             sf = os.path.join(self.sedpath, '%s.txt' % (self.id))
@@ -265,7 +265,7 @@ class SED(object):
         F.flush()
         F.close()
         self.__sedscript__ = sf
-        print '\nSED-ML script files written to:', sf
+        print('\nSED-ML script files written to:', sf)
 
     def writeSedXML(self, sedx=False):
         sedname = '%s.sed.xml' % (self.id)
@@ -276,7 +276,7 @@ class SED(object):
             sf = os.path.join(self.sedpath, 'sedxtmp', sedname)
 
         if self._SED_CURRENT_:
-            print '\nBypass active: SED-ML files written to: %s' % self.sedpath
+            print('\nBypass active: SED-ML files written to: %s' % self.sedpath)
         elif self.HAVE_LIBSEDML:
             assert os.path.exists(self.libSEDMLpath)
             #sedname = '%s.sed.xml' % (self.id)
@@ -286,17 +286,17 @@ class SED(object):
             #else:
                 #sf = os.path.join(self.sedpath, 'sedxtmp', sedname)
             cmd = ['%s' % str(self.libSEDMLpath), '--fromScript', '%s' % str(self.__sedscript__), '%s' % str(sf)]
-            print cmd
+            print(cmd)
             try:
                 a = subprocess.call(cmd)
-            except Exception, ex:
-                print '\nOops no SED: %s' % ex
+            except Exception as ex:
+                print('\nOops no SED: %s' % ex)
             self.__sedxml__ = sf
             F = file(sf, 'r')
             self._SED_XML_ = F.read()
             F.close()
             del F
-            print 'SED-ML files written to: %s' % self.sedpath
+            print('SED-ML files written to: %s' % self.sedpath)
             self.__sedarchive__ = None
         elif self.HAVE_SBWSEDSOAP:
             print('\nINFO: PySCeS will now try to connect via internet to: http://sysbioapps.dyndns.org ...\n(press <ctrl>+<c> to abort)')
@@ -318,10 +318,10 @@ class SED(object):
             F.close()
 
             self.__sedxml__ = sf
-            print 'SED-ML files written to: %s' % self.sedpath
+            print('SED-ML files written to: %s' % self.sedpath)
             self.__sedarchive__ = None
         else:
-            raise RuntimeError, '\n'
+            raise RuntimeError('\n')
         if self._SED_CURRENT_:
             F = file(self.__sedxml__, 'w')
             F.write(self._SED_XML_)
@@ -349,7 +349,7 @@ class SED(object):
         if not self._SED_CURRENT_:
             self.__sedxml__ = None
         self.__sedscript__ = None
-        print 'SED-ML archive created: %s' % sf
+        print('SED-ML archive created: %s' % sf)
 
     def writeCOMBINEArchive(self, vc_given='PySCeS', vc_family='Software', vc_email='', vc_org='pysces.sourceforge.net'):
         """
@@ -430,7 +430,7 @@ class SED(object):
         if not self._SED_CURRENT_:
             self.__sedxml__ = None
         self.__sedscript__ = None
-        print 'COMBINE archive created: %s' % sf
+        print('COMBINE archive created: %s' % sf)
 
 def storeObj(obj, filename):
     """
@@ -439,8 +439,8 @@ def storeObj(obj, filename):
     """
     filename = filename+'.dat'
     F = file(filename, 'wb')
-    cPickle.dump(obj, F, protocol=2)
-    print 'Object serialised as %s' % filename
+    pickle.dump(obj, F, protocol=2)
+    print('Object serialised as %s' % filename)
     F.close()
 
 def loadObj(filename):
@@ -450,6 +450,6 @@ def loadObj(filename):
     """
     assert os.path.exists(filename), '\nTry again mate!'
     F = file(filename, 'rb')
-    obj = cPickle.load(F)
+    obj = pickle.load(F)
     F.close()
     return obj

@@ -15,15 +15,15 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
-from version import __version__
+from .version import __version__
 
 # NOTE when you do this PLY adds a module name self. to all tokens
 # not sure if this is an unexpected feature or not. It can be worked around
 # but for now direct import seems the safest
 ##  import pysces.lib.lex as lex
 ##  import pysces.lib.yacc as yacc
-import lex
-import yacc
+from . import lex
+from . import yacc
 import os
 import math
 
@@ -163,7 +163,7 @@ class MyInfixLexer:
 
     # Error handling rule
     def t_error(self,t):
-        print "Illegal character '%s'" % t.value[0]
+        print("Illegal character '%s'" % t.value[0])
         self.LexErrors.append(t.value[0])
         self.LexOK = False
         t.lexer.skip(1)
@@ -171,9 +171,9 @@ class MyInfixLexer:
     # Build the lexer
     def buildlexer(self,**kwargs):
         # try and find a temporary workspace
-        if os.environ.has_key('TMP'):
+        if 'TMP' in os.environ:
             tempDir = os.environ['TMP']
-        elif os.environ.has_key('TEMP'):
+        elif 'TEMP' in os.environ:
             tempDir = os.environ['TEMP']
         else:
             tempDir = os.getcwd()
@@ -186,7 +186,7 @@ class MyInfixLexer:
         while 1:
             tok = self.lexer.token()
             if not tok: break
-            print tok
+            print(tok)
 
 class MyInfixParser(MyInfixLexer):
     ParseOK = True
@@ -220,7 +220,7 @@ class MyInfixParser(MyInfixLexer):
         try:
             self.ParseErrors.append(t)
         except:
-            print 'p_error generated a parsing error'
+            print('p_error generated a parsing error')
         tok = yacc.token()
         return tok
 
@@ -266,7 +266,7 @@ class MyInfixParser(MyInfixLexer):
             if t[1].strip() in self.MathmlToNumpy_symb:
                 if self.MathmlToNumpy_symb[t[1]] == None:
                     self.SymbolErrors.append(t[1])
-                    print '\nSymbol \"%s\" not yet supported by PySCeS.' % t[1]
+                    print('\nSymbol \"%s\" not yet supported by PySCeS.' % t[1])
                     t[0] = 'unknown_symbol_' + t[1]
                 else:
                     t[0] = self.MathmlToNumpy_symb[t[1]]
@@ -312,7 +312,7 @@ class MyInfixParser(MyInfixLexer):
         # and not(b) into self._not_(b)
         ##  print 'equivalence', len(t), t[:]
         t[1] = t[1].strip()
-        if self.MathmlToInfix.has_key(t[1]):
+        if t[1] in self.MathmlToInfix:
             t[0] = t[2]
             for tt in range(3, len(t)):
                 if t[tt] == ',':
@@ -379,13 +379,13 @@ class MyInfixParser(MyInfixLexer):
         elif t[1].strip() in self.MathmlToNumpy_funcs:
             if self.MathmlToNumpy_funcs[t[1]] == None:
                 self.SymbolErrors.append(t[1])
-                print '\nFunction \"%s\" not supported by PySCeS' % t[1]
+                print('\nFunction \"%s\" not supported by PySCeS' % t[1])
                 t[0] = 'unknown_function_'+t[1] + t[2] + t[3] + t[4]
             else:
                 try:
                     t[0] = self.MathmlToNumpy_funcs[t[1]] + t[2] + t[3] + t[4]
-                except Exception, EX:
-                    print 'Function Parse error 1 (please report!)\n', EX
+                except Exception as EX:
+                    print('Function Parse error 1 (please report!)\n', EX)
             self.ModelUsesNumpyFuncs = True
         else:
             # t[0] = t[1] + t[2] + t[3]
@@ -409,8 +409,8 @@ class MyInfixParser(MyInfixLexer):
                 t[0] = t[1]
             elif len(t) == 4:
                 t[0] = t[1] + t[2] + t[3]
-        except Exception, EX:
-            print 'Function ArgList error (please report!)\n', EX
+        except Exception as EX:
+            print('Function ArgList error (please report!)\n', EX)
 
     # expression list f(g(x,y); g(a,b))
     def p_arglist_semicol(self,t):
@@ -421,8 +421,8 @@ class MyInfixParser(MyInfixLexer):
                 t[0] = t[1]
             elif len(t) == 4:
                 t[0] = t[1] + '; ' + t[3]
-        except Exception, EX:
-            print 'Function ArgList error (please report!)\n', EX
+        except Exception as EX:
+            print('Function ArgList error (please report!)\n', EX)
 
     def buildparser(self, **kwargs):
         self.parser = yacc.yacc(module=self, **kwargs)

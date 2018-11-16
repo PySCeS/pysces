@@ -48,7 +48,7 @@ pysces.plt.export('%s_par_set_1_stochastic_endtime' % MODEL_NAME, CDIR)
 mod.doStochSimPlot(end=ENDSTEPS, mode='steps', method='Direct')
 pysces.plt.export('%s_par_set_1_stochastic_maxsteps' % MODEL_NAME, CDIR)
 
-raw_input('\npress <enter> to continue\n')
+input('\npress <enter> to continue\n')
 
 # a cool feature of PySCeS is a totally encapsulated model object which means
 # we can create an independent object from the same file, let's instantiate mod2
@@ -83,7 +83,7 @@ mod2.doMca()
 mod2.showElas()
 mod2.showCC()
 
-raw_input('\npress <enter> to continue\n')
+input('\npress <enter> to continue\n')
 
 # now lets switch back to a discrete simulation using the Direct method
 mod2.doStochSimPlot(end=ENDTIME, mode='time', method='Direct')
@@ -106,4 +106,4 @@ pysces.plt.setGraphTitle('My new plot')
 pysces.plt.setRange('x',40,60)
 pysces.plt.export('%s_par_set_2_stochastic_selected' % MODEL_NAME, CDIR)
 
-raw_input('\npress <enter> to exit')
+input('\npress <enter> to exit')

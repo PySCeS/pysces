@@ -18,7 +18,7 @@ import types
 try:
     import copyreg  # Py 3
 except ImportError:
-    import copy_reg as copyreg  # Py 2
+    import copyreg as copyreg  # Py 2
 
 def code_ctor(*args):
     return types.CodeType(*args)

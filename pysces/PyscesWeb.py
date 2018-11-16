@@ -161,7 +161,7 @@ class PyscesHTML:
                     cntr = max_str_len
                     seeker_active = 0
             if cntr >= max_str_len:
-                print str[x]
+                print(str[x])
                 if str[x] == ' ' or str[x] == '.' or str[x] == ',':
                     strout += '\n '
                 else:
@@ -214,7 +214,7 @@ class PyscesHTML:
                     cntr = max_str_len
                     seeker_active = 0
             if cntr >= max_str_len:
-                print str[x]
+                print(str[x])
                 if str[x] == ' ' or str[x] == '.' or str[x] == ',':
                     strout += '\n '
                 else:
@@ -267,7 +267,7 @@ class PyscesHTML:
                     cntr = max_str_len
                     seeker_active = 0
             if cntr >= max_str_len:
-                print str[x]
+                print(str[x])
                 if str[x] == ' ' or str[x] == '.' or str[x] == ',':
                     strout += '\n'
                 else:
@@ -284,14 +284,14 @@ class PyscesHTML:
 
 
 import email
-import email.MIMEBase
-import email.Encoders
-import email.MIMEMultipart
-import email.Utils
+#import email.mime.base.MIMEBase
+#import email.encoders
+#import email.mime.multipart.MIMEMultipart
+import email.utils
 import mimetypes
 
 import smtplib
-from email.MIMEText import MIMEText
+from email.mime.text import MIMEText
 
 from time import sleep, strftime
 from getpass import getuser
@@ -345,13 +345,13 @@ class PyscesSMTP:
         if self.CheckGo():
             try:
                 self.__SMTPserver.sendmail(self.fromhead,toadd,outer.as_string())
-            except SMTPServerDisconnected, e:
-                print e
+            except SMTPServerDisconnected as e:
+                print(e)
                 self.SMTPOpen()
                 self.__SMTPserver.sendmail(self.fromhead,toadd,outer.as_string())
             sleep(0.2)
         else:
-            print '\nEmail send aborted'
+            print('\nEmail send aborted')
 
     def CheckGo(self):
         """
@@ -366,17 +366,17 @@ class PyscesSMTP:
         """
         GO = 1
         while GO:
-            resp = raw_input('\nDo you want to continue (yes/no): ')
+            resp = input('\nDo you want to continue (yes/no): ')
             if resp.lower() == 'yes':
-                print 'OK.'
+                print('OK.')
                 GO = 0
                 return 1
             elif resp.lower() == 'no':
-                print 'Skipped.'
+                print('Skipped.')
                 GO = 0
                 return 0
             else:
-                print '\nyes to continue, no to exit'
+                print('\nyes to continue, no to exit')
 
 ##	def GenericMailHTML(self, toadd, msgtxt, htmltxt, subj='PySCeS generated email'):
 ##        """
@@ -439,7 +439,7 @@ class PyscesSMTP:
         """
         self.__SMTPserver = smtplib.SMTP(self.server)
         self.__smtp_active = 1
-        print '\nSMTP server connection opened\n'
+        print('\nSMTP server connection opened\n')
 
     def SMTPClose(self):
         """
@@ -453,13 +453,13 @@ class PyscesSMTP:
         """
         self.__SMTPserver.close()
         self.__smtp_active = 0
-        print '\nSMTP server connection closed\n'
+        print('\nSMTP server connection closed\n')
 
 if __name__ == '__main__':
     replyTo = 'bgoli@sun.ac.za'
     server = 'mail.sun.ac.za'
-    print 'Reply to:', replyTo
-    print 'SMTP server:',server
+    print('Reply to:', replyTo)
+    print('SMTP server:',server)
     smtp = PyscesSMTP(replyTo,server)
     smtp.GenericMail('bgoli@sun.ac.za','This test message created: '+ strftime("%a, %d %b %Y %H:%M:%S"))
     #smtp.GenericMail('jr@sun.ac.za','This test message created: '+ strftime("%a, %d %b %Y %H:%M:%S"))

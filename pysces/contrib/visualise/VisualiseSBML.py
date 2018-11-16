@@ -5,7 +5,7 @@ Last modified: 4/4/05
 The access point to the visualisation stuff
 '''
 
-from VisualiseClasses import VisualiseSpecies, VisualiseReaction, VisualiseModel
+from .VisualiseClasses import VisualiseSpecies, VisualiseReaction, VisualiseModel
 
 class VisualiseFormat:
 	'''Static returns a single value
@@ -23,7 +23,7 @@ class VisualiseFormat:
 	def web(self, frmt='gif'):
 		'''Returns a base64 encoded graph and an image map'''
 		if frmt not in self.formats:
-			raise 'Format not recognised.'
+			raise ValueError('Format not recognised.')
 		graph = self.pyGraph.create(format=frmt)
 		cmap = self.pyGraph.create(format='cmap')
 		return graph, cmap
@@ -31,7 +31,7 @@ class VisualiseFormat:
 	def static(self, frmt='dot'):
 		'''returns just one value'''
 		if frmt not in self.formats:
-			raise 'Format not recognised.'
+			raise ValueError('Format not recognised.')
 		return self.pyGraph.create(format=frmt)
 		
 class VisualiseSBML:
@@ -69,27 +69,27 @@ if __name__ == "__main__":
 	sbml1 = BasisTools(sbml = sbml_file)
 	sbml =  sbml1.m
 
-	print 'model visualise'
-	print VisualiseSBML(sbml).visualiseModel().static('dot')
+	print('model visualise')
+	print(VisualiseSBML(sbml).visualiseModel().static('dot'))
 
-	print 'Specie visualise'
-	print VisualiseSBML(sbml).visualiseSpecies(1).static('dot')
+	print('Specie visualise')
+	print(VisualiseSBML(sbml).visualiseSpecies(1).static('dot'))
 
-	print 'Reaction visualise'
-	print VisualiseSBML(sbml).visualiseReaction(2).static('dot')
+	print('Reaction visualise')
+	print(VisualiseSBML(sbml).visualiseReaction(2).static('dot'))
 	
-	print 'Empty Model'
+	print('Empty Model')
 	sbml1 = BasisTools()
 	sbml = sbml1.m
-	print VisualiseSBML(sbml).visualiseModel().static('dot')
+	print(VisualiseSBML(sbml).visualiseModel().static('dot'))
 	
-	print 'One Compartment 1 Species'
+	print('One Compartment 1 Species')
 	sbml1 = BasisTools()
 	sbml1.add(Compartments={'Id':'Cell'})
 	sbml1.add(Species={'Id':'sp1', 'Compartment':'Cell'})
 	sbml = sbml1.m
-	print VisualiseSBML(sbml).visualiseModel().static('dot')
+	print(VisualiseSBML(sbml).visualiseModel().static('dot'))
 	
 	sbml =  sbml1.m
-	print 'EOF'
+	print('EOF')
 	

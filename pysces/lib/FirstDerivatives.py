@@ -66,9 +66,9 @@ but this result is meaningless.
 # import Numeric
 try:
     import numpy
-except Exception, ex:
-    print ex
-    print 'numpy import failed trying to import numeric (this is not ideal) ... '
+except Exception as ex:
+    print(ex)
+    print('numpy import failed trying to import numeric (this is not ideal) ... ')
     import Numeric as numpy
 
 # The following class represents variables with derivatives:
@@ -94,7 +94,7 @@ class DerivVar:
 
     def __init__(self, value, index=0, order=1):
         if order > 1:
-            raise ValueError, 'Only first-order derivatives'
+            raise ValueError('Only first-order derivatives')
         self.value = value
         if order == 0:
             self.deriv = []
@@ -105,14 +105,14 @@ class DerivVar:
 
     def __getitem__(self, item):
         if item < 0 or item > 1:
-            raise ValueError, 'Index out of range'
+            raise ValueError('Index out of range')
         if item == 0:
             return self.value
         else:
             return self.deriv
 
     def __repr__(self):
-        return `(self.value, self.deriv)`
+        return repr((self.value, self.deriv))
 
     def __str__(self):
         return str((self.value, self.deriv))
@@ -127,16 +127,16 @@ class DerivVar:
         return cmp(self.value, other.value)
 
     def __neg__(self):
-        return DerivVar(-self.value,map(lambda a: -a, self.deriv))
+        return DerivVar(-self.value,[-a for a in self.deriv])
 
     def __pos__(self):
         return self
 
     def __abs__(self): # cf maple signum # derivate of abs
         absvalue = abs(self.value)
-        return DerivVar(absvalue, map(lambda a, d=self.value/absvalue:
-                                      d*a, self.deriv))
-    def __nonzero__(self):
+        return DerivVar(absvalue, list(map(lambda a, d=self.value/absvalue:
+                                      d*a, self.deriv)))
+    def __bool__(self):
         return self.value != 0
 
     def __add__(self, other):
@@ -156,33 +156,33 @@ class DerivVar:
     def __mul__(self, other):
         return DerivVar(self.value*other.value,
             _mapderiv(lambda a,b: a+b,
-                  map(lambda x,f=other.value:f*x, self.deriv),
-                  map(lambda x,f=self.value:f*x, other.deriv)))
+                  list(map(lambda x,f=other.value:f*x, self.deriv)),
+                  list(map(lambda x,f=self.value:f*x, other.deriv))))
 
     __rmul__ = __mul__
 
     def __div__(self, other):
         if not other.value:
-            raise ZeroDivisionError, 'DerivVar division'
+            raise ZeroDivisionError('DerivVar division')
         inv = 1./other.value
         return DerivVar(self.value*inv,
                 _mapderiv(lambda a,b: a-b,
-                      map(lambda x,f=inv: f*x, self.deriv),
-                      map(lambda x,f=self.value*inv*inv: f*x,
-                          other.deriv)))
+                      list(map(lambda x,f=inv: f*x, self.deriv)),
+                      list(map(lambda x,f=self.value*inv*inv: f*x,
+                          other.deriv))))
 
     def __rdiv__(self, other):
         return other/self
 
     def __pow__(self, other, z=None):
         if z is not None:
-            raise TypeError, 'DerivVar does not support ternary pow()'
+            raise TypeError('DerivVar does not support ternary pow()')
         val1 = pow(self.value, other.value-1)
         val = val1*self.value
-        deriv1 = map(lambda x,f=val1*other.value: f*x, self.deriv)
+        deriv1 = list(map(lambda x,f=val1*other.value: f*x, self.deriv))
         if isDerivVar(other) and len(other.deriv) > 0:
-            deriv2 = map(lambda x, f=val*numpy.log(self.value): f*x,
-                             other.deriv)
+            deriv2 = list(map(lambda x, f=val*numpy.log(self.value): f*x,
+                             other.deriv))
             return DerivVar(val,_mapderiv(lambda a,b: a+b, deriv1, deriv2))
         else:
             return DerivVar(val,deriv1)
@@ -192,72 +192,72 @@ class DerivVar:
 
     def exp(self):
         v = numpy.exp(self.value)
-        return DerivVar(v, map(lambda x,f=v: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=v: f*x, self.deriv)))
 
     def log(self):
         v = numpy.log(self.value)
         d = 1./self.value
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def log10(self):
         v = numpy.log10(self.value)
         d = 1./(self.value * numpy.log(10))
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def sqrt(self):
         v = numpy.sqrt(self.value)
         d = 0.5/v
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def sign(self):
         if self.value == 0:
-            raise ValueError, "can't differentiate sign() at zero"
+            raise ValueError("can't differentiate sign() at zero")
         return DerivVar(numpy.sign(self.value), 0)
 
     def sin(self):
         v = numpy.sin(self.value)
         d = numpy.cos(self.value)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def cos(self):
         v = numpy.cos(self.value)
         d = -numpy.sin(self.value)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def tan(self):
         v = numpy.tan(self.value)
         d = 1.+pow(v,2)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def sinh(self):
         v = numpy.sinh(self.value)
         d = numpy.cosh(self.value)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def cosh(self):
         v = numpy.cosh(self.value)
         d = numpy.sinh(self.value)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def tanh(self):
         v = numpy.tanh(self.value)
         d = 1./pow(numpy.cosh(self.value),2)
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def arcsin(self):
         v = numpy.arcsin(self.value)
         d = 1./numpy.sqrt(1.-pow(self.value,2))
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def arccos(self):
         v = numpy.arccos(self.value)
         d = -1./numpy.sqrt(1.-pow(self.value,2))
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def arctan(self):
         v = numpy.arctan(self.value)
         d = 1./(1.+pow(self.value,2))
-        return DerivVar(v, map(lambda x,f=d: f*x, self.deriv))
+        return DerivVar(v, list(map(lambda x,f=d: f*x, self.deriv)))
 
     def arctan2(self, other):
         den = self.value*self.value+other.value*other.value
@@ -265,8 +265,8 @@ class DerivVar:
         o = other.value/den
         return DerivVar(numpy.arctan2(self.value, other.value),
                 _mapderiv(lambda a,b: a-b,
-                      map(lambda x,f=o: f*x, self.deriv),
-                      map(lambda x,f=s: f*x, other.deriv)))
+                      list(map(lambda x,f=o: f*x, self.deriv)),
+                      list(map(lambda x,f=s: f*x, other.deriv))))
 
 # Don't know if this will work - bgoli
     ##  def gamma(self):
@@ -287,7 +287,7 @@ def _mapderiv(func, a, b):
     nvars = max(len(a), len(b))
     a = a + (nvars-len(a))*[0]
     b = b + (nvars-len(b))*[0]
-    return map(func, a, b)
+    return list(map(func, a, b))
 
 
 # Don't use this - bgoli

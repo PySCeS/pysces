@@ -402,7 +402,7 @@ class PySCeSParser:
     def t_SYMBEQUI(self,t):
         r'!=|<'
         t.type = 'SYMBEQUI'
-        print 't', t
+        print('t', t)
         return t
 
     def t_FIXDEC(self,t):
@@ -547,7 +547,7 @@ class PySCeSParser:
         if t.value in self.MathmlToNumpy_symb:
             if self.MathmlToNumpy_symb[t.value] == None:
                 self.SymbolErrors.append(t.value)
-                print '\nSymbol \"%s\" not yet supported by PySCeS.' % t.value
+                print('\nSymbol \"%s\" not yet supported by PySCeS.' % t.value)
                 gt = 'unknown_symbol_' + t.value
                 t.value = gt
             else:
@@ -578,7 +578,7 @@ class PySCeSParser:
         ##  #print 'Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0])
         ##  t.skip(1)
 
-        print "Illegal character '%s'" % t.value[0]
+        print("Illegal character '%s'" % t.value[0])
         self.LexErrors.append(t.value[0])
         self.LexOK = False
         t.lexer.skip(1)
@@ -589,14 +589,14 @@ class PySCeSParser:
 
     def Show(self,name,tok):
         if self.Debug:
-            print name,tok
+            print(name,tok)
 
     def p_error(self,t):
         try:
             ##  self.ParseErrors.append(('Syntax error ', t.lineno, t.value, t.type))
             self.ParseErrors.append(t)
         except:
-            print 'p_error generated a parsing error'
+            print('p_error generated a parsing error')
         tok = pysces.lib.yacc.token()
         while tok and tok.type != 'REACTION_ID':
             tok = pysces.lib.yacc.token()
@@ -634,11 +634,11 @@ class PySCeSParser:
 
     def p_nameinname(self, t):
         '''NameInName : NAME IN NAME'''
-        print 'This should never fire, what we need to do is ...'
+        print('This should never fire, what we need to do is ...')
 
     def p_inequalities_symb(self, t):
         '''SymbEqui : SYMBEQUI'''
-        print 'p_inequalities_symb', t[:]
+        print('p_inequalities_symb', t[:])
         t[0] = t[1]
 
     def p_multicomment(self, t):
@@ -754,8 +754,8 @@ class PySCeSParser:
         rawf = [r.strip() for r in rawf[rawf.find('{')+1:rawf.find('}')].split('\n')]
         objectives = {}
         for oo in rawf:
-            print rawf
-            print oo
+            print(rawf)
+            print(oo)
             if len(oo.strip()) > 0:
                 oS = [t.strip() for t in oo.split(':')]
                 active = False
@@ -927,9 +927,9 @@ class PySCeSParser:
             # 20090402 we need to keep track of species parameter initialisations and then
             # perform a lookup or implement a proxy class that can store
             # evaluated assignments
-        except Exception, ex:
-            print 'Initialisation error: %s' % t[3]
-            print ex
+        except Exception as ex:
+            print('Initialisation error: %s' % t[3])
+            print(ex)
 
         self.sDict.update({name : {'name' : name,
                                     'initial' : value
@@ -947,7 +947,7 @@ class PySCeSParser:
 
         #global AllRateEqsGiven, self.ReacParams
         ReacID = t[1]
-        if self.nDict.has_key(ReacID):
+        if ReacID in self.nDict:
             self.ParseErrors.append(('Duplicate Reaction ', t.lineno, ReacID, None))
         self.nDict[ReacID] = {} # Reaction dictionary for ReacID
         ##  self.nDict[ReacID]['Reagents'] = {} # Reagent dictionary within ReacID
@@ -958,7 +958,7 @@ class PySCeSParser:
         # brett: if an index exists sum the coefficients instead of adding a new one
         # this seems to deal with multiple definitions like X + X > Y and 2{X} + Y > Z + X
         for i in t[2][0]: # First tuple member of ReactionEq contains list of (name,stoichcoef)
-            if self.nDict[ReacID]['Reagents'].has_key(i[0]):
+            if i[0] in self.nDict[ReacID]['Reagents']:
                 self.nDict[ReacID]['Reagents'][i[0]] = self.nDict[ReacID]['Reagents'][i[0]] + i[1]
             else:
                 self.nDict[ReacID]['Reagents'][i[0]] = i[1] # Key for reagent with stoichcoef value
@@ -1107,7 +1107,7 @@ class PySCeSParser:
         try:
             tx = float(t[1])
             ttype = 'float'
-        except ValueError, v:
+        except ValueError as v:
             pass
             ##  try:
                 ##  t[1] = complex(t[1])
@@ -1138,13 +1138,13 @@ class PySCeSParser:
         elif t[1] in self.MathmlToNumpy_funcs:
             if self.MathmlToNumpy_funcs[t[1]] == None:
                 self.SymbolErrors.append(t[1])
-                print '\nFunction \"%s\" not supported by PySCeS' % t[1]
+                print('\nFunction \"%s\" not supported by PySCeS' % t[1])
                 t[0] = 'unknown_function_'+t[1] + t[2] + t[3] + t[4]
             else:
                 try:
                     t[0] = self.MathmlToNumpy_funcs[t[1]] + t[2] + t[3] + t[4]
-                except Exception, EX:
-                    print 'Function Parse error 1 (please report!)\n', EX
+                except Exception as EX:
+                    print('Function Parse error 1 (please report!)\n', EX)
             self.ModelUsesNumpyFuncs = True
         # differentiate between bracketed functions and expressions:
         # func( S1 ) and ( S/S05 )
@@ -1170,8 +1170,8 @@ class PySCeSParser:
                 t[0] = t[1] + ',' + t[3]
             else:
                 pass
-        except Exception, EX:
-            print 'Function ArgList error (please report!)\n', EX
+        except Exception as EX:
+            print('Function ArgList error (please report!)\n', EX)
 
 ###################################################################
 ###################################################################
@@ -1251,9 +1251,9 @@ class PySCeSParser:
         Data.close()
 
         # try and find a temporary workspace or use ModelOutput
-        if os.environ.has_key('TMP'):
+        if 'TMP' in os.environ:
             tempDir = os.environ['TMP']
-        elif os.environ.has_key('TEMP'):
+        elif 'TEMP' in os.environ:
             tempDir = os.environ['TEMP']
         elif os.path.isdir(modeloutput):
             tempDir = modeloutput
@@ -1276,9 +1276,9 @@ class PySCeSParser:
             self.tabmodule = '_pys' + modelfile[:-4] + "_" + "parsetab"
 
         if self.display_debug:
-            print self.tabmodule
-            print self.debugfile
-            print 'cwd: ', os.getcwd()
+            print(self.tabmodule)
+            print(self.debugfile)
+            print('cwd: ', os.getcwd())
 
         self.__lexer = pysces.lib.lex.lex(module=self, debug=self.display_debug)
         self.__lexer.input(self.__Model)
@@ -1341,14 +1341,14 @@ class PySCeSParser:
 
         # Warn if no reagents have been fixed
         if self.FixedReagents == []:
-            print 'Info: No reagents have been fixed'
+            print('Info: No reagents have been fixed')
         else: # Warn if a fixed reagent does not occur in a reaction equation
             for reag in self.FixedReagents:
                 if reag not in self.Reagents:
-                    print 'Warning: species "%s" (fixed) does not occur in any reaction' % reag.replace('self.','')
+                    print('Warning: species "%s" (fixed) does not occur in any reaction' % reag.replace('self.',''))
 
         # for the initialised ones
-        for s in self.sDict.keys():
+        for s in list(self.sDict.keys()):
             if 'self.'+s in self.FixedReagents+self.Reagents:
                 fixed = False
                 compartment = None
@@ -1358,7 +1358,7 @@ class PySCeSParser:
 
                 if 'self.'+s in self.FixedReagents:
                     fixed = True
-                if s in self.InDict.keys():
+                if s in list(self.InDict.keys()):
                     compartment = self.InDict[s]
                 self.sDict.update({s : {'name' : name,
                                         'initial' : initial,
@@ -1373,7 +1373,7 @@ class PySCeSParser:
         # for the uninitialised ones
         ##  print self.FixedReagents, self.Reagents, self.Inits
         for s in self.species+self.FixedReagents:
-            if not self.sDict.has_key(s.replace('self.','')):
+            if s.replace('self.','') not in self.sDict:
                 fixed = False
                 compartment = None
                 isamount = False
@@ -1382,7 +1382,7 @@ class PySCeSParser:
 
                 if s in self.FixedReagents:
                     fixed = True
-                if name in self.InDict.keys():
+                if name in list(self.InDict.keys()):
                     compartment = self.InDict[name]
                 self.sDict.update({name : {'name' : name,
                                         'initial' : initial,
@@ -1403,17 +1403,17 @@ class PySCeSParser:
                 self.InitParams.append(elem)
 
         # In self.nDict, clean rate equation pameter list of variables that occur in that reaction
-        for id in self.nDict.keys():
+        for id in list(self.nDict.keys()):
             # create 'Modifiers' key for each reaction - brett 20050606
             self.nDict[id].update({'Modifiers':[]})
             reagcomp = None
-            if id in self.InDict.keys():
+            if id in list(self.InDict.keys()):
                 reagcomp = self.InDict[id]
             self.nDict[id].update({'compartment' : reagcomp})
             for reag in self.species:
                 if reag in self.nDict[id]['Params']:
                     # if the reagent is a reaction reagent delete - brett 20050606
-                    if self.nDict[id]['Reagents'].has_key(reag):
+                    if reag in self.nDict[id]['Reagents']:
                         self.nDict[id]['Params'].remove(reag)
                     # if not it is a modifier ... add to modifiers and delete - brett 20050606
                     else:
@@ -1422,14 +1422,14 @@ class PySCeSParser:
                         self.nDict[id]['Params'].remove(reag)
 
         # Check whether all parameters have been initialised and if not add to dictionary
-        for id in self.nDict.keys():
+        for id in list(self.nDict.keys()):
             cnames = [self.compartments[s]['name'] for s in self.compartments]
             for param in self.nDict[id]['Params']:
                 ##  print param
                 ##  print self.InitParams
                 if param not in self.InitParams and param.replace('self.','') not in cnames:
                     ##  print param, self.InitParams, self.pDict
-                    print 'Warning: %s parameter "%s"  has not been initialised' % (id, param.replace('self.',''))
+                    print('Warning: %s parameter "%s"  has not been initialised' % (id, param.replace('self.','')))
                     pname = param.replace('self.','')
                     self.pDict.update({pname : {'name':pname, 'initial':None}})
                     self.InitParams.append(param)
@@ -1437,26 +1437,26 @@ class PySCeSParser:
         # Check whether all variable reagents have been initialised
         for reag in self.species+self.FixedReagents:
             if reag not in self.Inits and reag in self.species:
-                print 'Warning: species "%s" has not been initialised' % reag.replace('self.','')
+                print('Warning: species "%s" has not been initialised' % reag.replace('self.',''))
             if reag not in self.Inits and reag in self.FixedReagents:
-                print 'Warning: species "%s" (fixed) has not been initialised' % reag.replace('self.','')
+                print('Warning: species "%s" (fixed) has not been initialised' % reag.replace('self.',''))
 
         # Check that all initialised parameters actually occur in self.Inits
         known = 0
         for param in self.InitParams:
-            for id in self.nDict.keys():
+            for id in list(self.nDict.keys()):
                 if param in self.nDict[id]['Params']:
                     known = 1
                     break
                 else:
                     known = 0
-            if not known: print 'Info: "%s" has been initialised but does not occur in a rate equation' % param.replace('self.','')
+            if not known: print('Info: "%s" has been initialised but does not occur in a rate equation' % param.replace('self.',''))
 
         # find modifiers for each reaction - brett 20050606
         self.modifiers = []
         for i in self.nDict:
             for j in self.nDict[i]['Params']:
-                if j in self.FixedReagents and not self.nDict[i]['Reagents'].has_key(j):
+                if j in self.FixedReagents and j not in self.nDict[i]['Reagents']:
                     self.nDict[i]['Modifiers'].append(j)
             self.modifiers.append((i,tuple([j.replace('self.','') for j in self.nDict[i]['Modifiers']])))
 
@@ -1472,26 +1472,26 @@ class PySCeSParser:
             self.parameters[x] = self.parameters[x].replace('self.','')
 
         if self.display_debug == 1:
-            print self.fixed_species
-            print self.species
-            print self.parameters
-            print self.reactions
+            print(self.fixed_species)
+            print(self.species)
+            print(self.parameters)
+            print(self.reactions)
 
         if self.display_debug == 1:
-            print '\nDebugging Part 1'
-            print '\nFixedReagents'
-            print self.FixedReagents
-            print '\nInitStrings'
-            print self.InitStrings
-            print '\nInitParams'
-            print self.InitParams
-            print '\nReactionIDs'
-            print self.ReactionIDs
-            print '\nspecies'
-            print self.species
-            print '\nNetworkDict'
-            print self.nDict
-            print '\n\n'
+            print('\nDebugging Part 1')
+            print('\nFixedReagents')
+            print(self.FixedReagents)
+            print('\nInitStrings')
+            print(self.InitStrings)
+            print('\nInitParams')
+            print(self.InitParams)
+            print('\nReactionIDs')
+            print(self.ReactionIDs)
+            print('\nspecies')
+            print(self.species)
+            print('\nNetworkDict')
+            print(self.nDict)
+            print('\n\n')
 
     def KeywordCheck(self,inputarr,bad=[]):
         """
@@ -1508,7 +1508,7 @@ class PySCeSParser:
         for x in inputarr:
             if x.replace('self.','') in self.ReservedTerms:
                 bad.append(x.replace('self.',''))
-                print x.replace('self.',''), '\t\tERROR: keyword'
+                print(x.replace('self.',''), '\t\tERROR: keyword')
         return bad
 
     def CheckLastLine(self,name):
@@ -1529,9 +1529,9 @@ class PySCeSParser:
                 F.read()
             try:
                 F.write('\n')
-            except Exception, e:
-                print 'EOL add error', e
-            print 'Adding \\n to input file'
+            except Exception as e:
+                print('EOL add error', e)
+            print('Adding \\n to input file')
         F.close()
 
 ##      # you REALLY do NOT want to know what this was for! - brett

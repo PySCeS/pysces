@@ -58,8 +58,8 @@ class Scanner(object):
     def __init__(self, mod):
         try:
             N = mod.nmatrix
-        except Exception, ex:
-            print '\nSCANNER: Please load a model <i.e. mod. doLoad()> before trying to use it.'
+        except Exception as ex:
+            print('\nSCANNER: Please load a model <i.e. mod. doLoad()> before trying to use it.')
 
         self.GenDict = {}
         self.GenOrder = []
@@ -115,7 +115,7 @@ class Scanner(object):
                 if  cM > MaxMode:
                     self._MODE_ = 'stability'
                     MaxMode = cM
-        print 'MaxMode', MaxMode
+        print('MaxMode', MaxMode)
         self.UserOutputList = output
 
     def addScanParameter(self,name,start,end,points,log=False,slave=False):
@@ -142,12 +142,12 @@ class Scanner(object):
                 prevpar = self.GenOrder[-1]                # previous parameter, i.e. master
                 offset = self.GenDict[prevpar][5]          # don't increment for slave
                 if points != self.GenDict[prevpar][2]:
-                    print 'SCANNER: Slave parameter needs to iterate over same number of\npoints as master...resetting points.'
+                    print('SCANNER: Slave parameter needs to iterate over same number of\npoints as master...resetting points.')
                     points = self.GenDict[prevpar][2]
         else:
             if slave == True:
                 slave = False
-                print 'SCANNER: Inner range cannot be a slave ... resetting to master'
+                print('SCANNER: Inner range cannot be a slave ... resetting to master')
         self.GenDict.setdefault(name,(start,end,points,log,slave,offset,getattr(self.mod,name)))
         setattr(self,name+'_test',self.stepGen(offset))
         setattr(self,name,self.rangeGen(name,start,end,points,log))
@@ -183,7 +183,7 @@ class Scanner(object):
         range = self.makeRange(start,end,points,log)
         cnt = 0
         while self.genOn:
-            if getattr(self,name+'_test').next():
+            if next(getattr(self,name+'_test')):
                 if cnt >= len(range)-1:
                     cnt = 0
                 else:
@@ -211,13 +211,13 @@ class Scanner(object):
         """
         Fire all step generators
         """
-        return [getattr(self,genN+'_test').next() for genN in self.GenOrder]
+        return [next(getattr(self,genN+'_test')) for genN in self.GenOrder]
 
     def __nextValue__(self):
         """
         Fire all range generators
         """
-        return [getattr(self,genN).next() for genN in self.GenOrder]
+        return [next(getattr(self,genN)) for genN in self.GenOrder]
 
     def setModValue(self,name,value):
         """
@@ -259,9 +259,9 @@ class Scanner(object):
         for gen in self.GenOrder:
             if self.GenDict[gen][4] == False:      # don't increase Tsteps for slaves
                 Tsteps *= self.GenDict[gen][2]
-        print self.scanT.RUN.next()
+        print(next(self.scanT.RUN))
         analysis_counter = 0
-        print 'SCANNER: Tsteps', Tsteps
+        print('SCANNER: Tsteps', Tsteps)
         pcntr = 0
         for step in range(Tsteps):
             pars = self.__nextValue__()
@@ -277,7 +277,7 @@ class Scanner(object):
             self.StoreData()
             pcntr += 1
             if pcntr >= self.MSG_PRINT_INTERVAL:
-                print '\t', analysis_counter, self.scanT.RUN.next()
+                print('\t', analysis_counter, next(self.scanT.RUN))
                 pcntr = 0
         self.ScanSpace = scipy.array(self.ScanSpace)
         self.SteadyStateResults = scipy.array(self.SteadyStateResults)
@@ -285,11 +285,11 @@ class Scanner(object):
         self.resetInputParameters()
         if self.nan_on_bad_state:
             self.mod.mode_state_nan_on_fail = False
-        print "\nSCANNER: %s states analysed\n" % analysis_counter
+        print("\nSCANNER: %s states analysed\n" % analysis_counter)
         if len(self.invalid_state_list) > 0:
-            print 'Bad steady states encountered at:\n'
-            print self.invalid_state_list
-            print self.invalid_state_list_idx
+            print('Bad steady states encountered at:\n')
+            print(self.invalid_state_list)
+            print(self.invalid_state_list_idx)
 
     def Analyze(self):
         """
@@ -442,7 +442,7 @@ class PITCONScanUtils(object):
             self.res_metab = self.pitcon_res[:,1:len(self.model.species)+1]
             self.res_flux = self.pitcon_res[:,len(self.model.species)+1:]
 
-        print '\n\tContinuation complete\n'
+        print('\n\tContinuation complete\n')
 
 
     def analyseData(self, analysis='elas'):
@@ -471,7 +471,7 @@ class PITCONScanUtils(object):
             self.timer.st1_cstep += 1
             step_cntr += 1
             if self.timer.st1_cstep == 1 or step_cntr == 200:
-                print '\n', self.timer.st1.next()
+                print('\n', next(self.timer.st1))
                 step_cntr = 0
 
             PitParVal = self.res_idx[row,-1]
@@ -498,11 +498,11 @@ class PITCONScanUtils(object):
                 for attr in self.user_output:
                     try:
                         state_out.append(getattr(self.model, attr))
-                    except Exception, ex:
-                        print ex
+                    except Exception as ex:
+                        print(ex)
                 self.res_user.append(state_out)
         self.res_user = scipy.array(self.res_user)
-        print '\n\t%s evaluation complete\n' % analysis
+        print('\n\t%s evaluation complete\n' % analysis)
 
 
     def getArrayListAsArray(self, array_list):

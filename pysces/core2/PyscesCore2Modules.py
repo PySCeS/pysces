@@ -15,11 +15,11 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
-from version import __version__
+from .version import __version__
 
 # Structural Analysis module
 from pysces.PyscesStoich import Stoich
-from PyscesCore2 import StructMatrix
+from .PyscesCore2 import StructMatrix
 
 class PyscesEnhancedStoich(Stoich):
     """PySCeS stoichiometry class for use with core2"""
@@ -82,7 +82,7 @@ class StructuralModule(object):
         self.core = core
         self.struct = None
         if self.core.stoichiometric_matrix == None:
-            print "StructuralModule building stoichiometric matrix ..."
+            print("StructuralModule building stoichiometric matrix ...")
             self.core.setStoichiometricMatrix()
 
     def getCore(self):
@@ -293,7 +293,7 @@ class StateDataObj(object):
         will return an array of [time, sp1, r1, ....]
         """
 
-        if kwargs.has_key('lbls'):
+        if 'lbls' in kwargs:
             lbls = kwargs['lbls']
         else:
             lbls = False
@@ -313,7 +313,7 @@ class StateDataObj(object):
                 lout.append(roc)
                 output.append(self.xdata[self.xdata_labels.index(roc)])
             else:
-                print 'I don\'t have an attribute %s ... ignoring.' % roc
+                print('I don\'t have an attribute %s ... ignoring.' % roc)
         if not lbls:
             return output
         else:
@@ -628,7 +628,7 @@ class IntegrationDataObj(object):
             bounds = temp_t[1] - temp_t[0]
         c1 = (temp_t >= time-bounds)
         c2 = (temp_t <= time+bounds)
-        print 'Searching (%s:%s:%s)' % (time-bounds, time, time+bounds)
+        print('Searching (%s:%s:%s)' % (time-bounds, time, time+bounds))
 
         t = []
         sp = None
@@ -688,7 +688,7 @@ class IntegrationDataObj(object):
         """
         output = self.time
         ##  print argimrgs
-        if kwargs.has_key('lbls'):
+        if 'lbls' in kwargs:
             lbls = kwargs['lbls']
         else:
             lbls = False

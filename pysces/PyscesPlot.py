@@ -220,7 +220,7 @@ class PyscesGPlot:
         try:
             if filename[-4:] != '.png':
                 filename += '.png'
-                print 'File saved as: ' + filename
+                print('File saved as: ' + filename)
         except:
             pass
 
@@ -254,7 +254,7 @@ class PyscesGPlot:
         try:
             if imagename[-4:] != '.png':
                 imagename += '.png'
-                print 'File saved as: ' + imagename
+                print('File saved as: ' + imagename)
         except:
             pass
 
@@ -559,8 +559,8 @@ class LineObj(object):
                     'colour' : None,
                     'style' : None,
                     }
-        for k in kwargs.keys():
-            if self.prop.has_key(k):
+        for k in list(kwargs.keys()):
+            if k in self.prop:
                 self.prop[k] = kwargs[k]
 
 class AxisObj(object):
@@ -575,8 +575,8 @@ class AxisObj(object):
         self.prop ={'label' : None,
                     'log' : False,
                     }
-        for k in kwargs.keys():
-            if self.prop.has_key(k):
+        for k in list(kwargs.keys()):
+            if k in self.prop:
                 self.prop[k] = kwargs[k]
 
 class GraphicsObj(object):
@@ -612,7 +612,7 @@ class GraphicsObj(object):
 
     def setAxis(self, **kwargs):
         ##  print kwargs
-        for key in kwargs.keys():
+        for key in list(kwargs.keys()):
             if key in ['x','y'] and kwargs[key] in self.var_idx:
                 if getattr(self, key+'axis') != None:
                     self.var_idx.append(getattr(self, key+'axis').idx)
@@ -628,7 +628,7 @@ class GraphicsObj(object):
 
     def resetAxis(self):
         self.xaxis = self.yaxis = None
-        self.var_idx = range(self.data_shape[1])
+        self.var_idx = list(range(self.data_shape[1]))
 
     def getIdx(self, label):
         assert label in self.data_lines, '\n%s is not a valid data line.\nSelect one of %s' % (label, self.data_lines)
@@ -707,9 +707,9 @@ class PyscesGPlot2MPL:
         import matplotlib
         try:
             matplotlib.use('TKagg')
-        except Exception, ex:
-            print ex
-            print "\nPySCeS uses matplotlib's TKagg backend for interactive plotting please enable this backend when compiling matplotlib"
+        except Exception as ex:
+            print(ex)
+            print("\nPySCeS uses matplotlib's TKagg backend for interactive plotting please enable this backend when compiling matplotlib")
         ## import matplotlib.axes3d
         import pylab
         ## self._matplotlib_axes3d_ = matplotlib.axes3d
@@ -721,14 +721,14 @@ class PyscesGPlot2MPL:
         """
         Create a new_figure_generator with range [1,num+1]
         """
-        self.new_figure_generator = itertools.cycle(range(1,num+1))
+        self.new_figure_generator = itertools.cycle(list(range(1,num+1)))
         self.max_open_windows = num
 
     def setActiveFigure(self, fignum):
         self.current_figure = self.P.figure(fignum)
 
     def setNewFigure(self):
-        self.setActiveFigure(self.new_figure_generator.next())
+        self.setActiveFigure(next(self.new_figure_generator))
 
     def closeAllPlotWindows(self):
         for x in range(self.max_open_windows):
@@ -742,8 +742,8 @@ class PyscesGPlot2MPL:
         D = Graphics2dObj(data, x)
         if labels != None: D.setDataLabels(labels)
         if len(ylist) == 0:
-            print 'ylist empty plotting all data vs (%s)' % x
-            ylist = range(data.shape[1])
+            print('ylist empty plotting all data vs (%s)' % x)
+            ylist = list(range(data.shape[1]))
             ylist.pop(ylist.index(x))
         if len(ylist) > 0:
             ylt = (numpy.array(ylist) < D.data_shape[1])
@@ -767,7 +767,7 @@ class PyscesGPlot2MPL:
 
 
     def plot3D(self, *args, **kwargs):
-        print "*****\nplot3D not implemented yet.\n*****"
+        print("*****\nplot3D not implemented yet.\n*****")
 
     def plotX(self, data):
         if self.mode_create_new_figure:
@@ -846,7 +846,7 @@ class PyscesGPlot2MPL:
         self.P.ylim(start, end)
 
     def zrng(self, start, end):
-        print "*****\n\tNot implemented yet.\n*****"
+        print("*****\n\tNot implemented yet.\n*****")
 
     def xlabel(self, l=''):
         self.P.xlabel(l)
@@ -855,13 +855,13 @@ class PyscesGPlot2MPL:
         self.P.ylabel(l)
 
     def zlabel(self, l=''):
-        print "*****\n\tNot implemented yet.\n*****"
+        print("*****\n\tNot implemented yet.\n*****")
 
     def title(self, l=''):
         self.P.title(l)
 
     def ticslevel(self, x=0.0):
-        print "*****\n\tNot implemented yet.\n*****"
+        print("*****\n\tNot implemented yet.\n*****")
 
     def setLineWidth(self, w=1):
         'set line width for current axis'
@@ -878,7 +878,7 @@ class PyscesGPlot2MPL:
         try:
             if imagename[-4:] != '.png':
                 imagename += '.png'
-                print 'File saved as: ' + imagename
+                print('File saved as: ' + imagename)
         except:
             pass
 
@@ -944,6 +944,6 @@ class PyscesGPlot2MplExt(PyscesGPlot2MPL):
         ##  F = self.P.figure(1)
         ##  S = self.P.subplot(1,1,1)
         D = Graphics2dObj(data, x)
-        print D.var_idx
-        print D.data[1]
+        print(D.var_idx)
+        print(D.data[1])
         self.P.plot(D.xaxis.data, D.getVarData())

@@ -31,7 +31,7 @@ __doc__ = '''
             '''
 import os, copy, gc, time
 import math, operator, re
-import pprint, cPickle, cStringIO
+import pprint, pickle, io
 import numpy
 import scipy
 import scipy.linalg
@@ -45,10 +45,10 @@ except AttributeError:
         import scipy.misc
         ScipyDerivative = scipy.misc.derivative
         HAVE_SCIPY_DERIV = True
-    except ImportError, AttributeError:
+    except ImportError as AttributeError:
         pass
 if not HAVE_SCIPY_DERIV:
-    raise RuntimeError, '\nSciPy derivative function not available'
+    raise RuntimeError('\nSciPy derivative function not available')
 
 from getpass import getuser
 
@@ -78,19 +78,19 @@ del random.SystemRandom, random.WichmannHill, random.triangular
 
 # Scipy version check
 if int(scipy.__version__.split('.')[0]) < 1 and int(scipy.__version__.split('.')[1]) < 6:
-    print '\nINFO: Your version of SciPy (' +  scipy.version.version + ') might be too old\n\tVersion 0.6.x or newer is strongly recommended\n'
+    print('\nINFO: Your version of SciPy (' +  scipy.version.version + ') might be too old\n\tVersion 0.6.x or newer is strongly recommended\n')
 else:
     if not __SILENT_START__:
-        print 'You are using NumPy (%s) with SciPy (%s)' % (numpy.__version__, scipy.__version__)
+        print('You are using NumPy (%s) with SciPy (%s)' % (numpy.__version__, scipy.__version__))
 
 _HAVE_PYSUNDIALS = False
 _PYSUNDIALS_LOAD_ERROR = ''
 try:
     from pysundials import cvode
     if not __SILENT_START__:
-        print 'PySundials available'
+        print('PySundials available')
     _HAVE_PYSUNDIALS = True
-except Exception, ex:
+except Exception as ex:
     _PYSUNDIALS_LOAD_ERROR = '%s' % ex
     _HAVE_PYSUNDIALS = False
 
@@ -142,10 +142,10 @@ def chkpsc(File):
         if File[-4:] == '.psc':
             pass
         else:
-            print 'Assuming extension is .psc'
+            print('Assuming extension is .psc')
             File += '.psc'
     except:
-        print 'Chkpsc error'
+        print('Chkpsc error')
     return File
 
 def chkmdir():
@@ -190,8 +190,8 @@ class BagOfStuff(object):
         "Returns a single attribute \"attr1_attr2\" or None"
         try:
             return getattr(self, attr1 + '_' + attr2)
-        except Exception, ex:
-            print ex
+        except Exception as ex:
+            print(ex)
             return None
 
     def select(self, attr, search='a'):
@@ -349,7 +349,7 @@ class ScanDataObj(object):
         self.mod_data.append(tuple([getattr(mod, attr) for attr in self.mod_data_labels]))
 
     def closeScan(self):
-        print '\nINFO: closing scan no new data may be added.'
+        print('\nINFO: closing scan no new data may be added.')
         if self.HAS_SPECIES:
             self.species = numpy.array(self.species)
         if self.HAS_FLUXES:
@@ -457,7 +457,7 @@ class ScanDataObj(object):
         """getScanData(\*args) feed this method species/flux/rule/mod labels and it
         will return an array of [parameter(s), sp1, f1, ....]
         """
-        if kwargs.has_key('lbls'):
+        if 'lbls' in kwargs:
             lbls = kwargs['lbls']
         else:
             lbls = False
@@ -627,7 +627,7 @@ class StateDataObj(object):
         will return an array of [time, sp1, r1, ....]
         """
 
-        if kwargs.has_key('lbls'):
+        if 'lbls' in kwargs:
             lbls = kwargs['lbls']
         else:
             lbls = False
@@ -647,7 +647,7 @@ class StateDataObj(object):
                 lout.append(roc)
                 output.append(self.xdata[self.xdata_labels.index(roc)])
             else:
-                print 'I don\'t have an attribute %s ... ignoring.' % roc
+                print('I don\'t have an attribute %s ... ignoring.' % roc)
         if not lbls:
             return output
         else:
@@ -844,7 +844,7 @@ class IntegrationDataObj(object):
             bounds = temp_t[1] - temp_t[0]
         c1 = (temp_t >= time-bounds)
         c2 = (temp_t <= time+bounds)
-        print 'Searching (%s:%s:%s)' % (time-bounds, time, time+bounds)
+        print('Searching (%s:%s:%s)' % (time-bounds, time, time+bounds))
 
         t = []
         sp = None
@@ -904,7 +904,7 @@ class IntegrationDataObj(object):
         """
         output = self.time
         ##  print argimrgs
-        if kwargs.has_key('lbls'):
+        if 'lbls' in kwargs:
             lbls = kwargs['lbls']
         else:
             lbls = False
@@ -1074,7 +1074,7 @@ class EventAssignment(NumberBase):
 
     def __call__(self):
         setattr(self.mod, self.variable, self.value)
-        if self.__DEBUG__: print '\tAssigning %s = %s' % (self.variable, self.value)
+        if self.__DEBUG__: print('\tAssigning %s = %s' % (self.variable, self.value))
         return True
 
     def __init__(self, name, mod):
@@ -1138,12 +1138,12 @@ class Event(NewCoreBase):
             self.state0 = self.state
             self._need_action = True
             self._ASS_TIME_ = time + self.delay
-            if self.__DEBUG__: print '\nevent %s is evaluating at %s' % (self.name, time)
+            if self.__DEBUG__: print('\nevent %s is evaluating at %s' % (self.name, time))
             ret = True
         if self._need_action and self._TIME_ >= self._ASS_TIME_:
             for ass in self.assignments:
                 ass()
-            if self.__DEBUG__: print 'event %s is assigning at %s (delay=%s)' % (self.name, time, self.delay)
+            if self.__DEBUG__: print('event %s is assigning at %s (delay=%s)' % (self.name, time, self.delay))
             self._need_action = False
             ret = True
         return ret
@@ -1208,7 +1208,7 @@ class PieceWise(NewCoreBase):
 
         InfixParser.setNameStr('self.mod.', '')
         self._names = []
-        if len(pwd.keys()) == 1:
+        if len(list(pwd.keys())) == 1:
             formula = pwd[0][0]
             InfixParser.parse(formula)
             for n in InfixParser.names:
@@ -1352,7 +1352,7 @@ class PysMod(object):
         if not self.__PSC_auto_load:
             self.ModelLoad(stoich_load=stoich_load)
         else:
-            print 'PySCeS now automatically loads the model on model object instantiation. If you do not want this behaviour pass the autoload=False argument to the constructor, if you really want to reload the model, run reLoad().'
+            print('PySCeS now automatically loads the model on model object instantiation. If you do not want this behaviour pass the autoload=False argument to the constructor, if you really want to reload the model, run reLoad().')
 
     def reLoad(self,stoich_load=0):
         """
@@ -1375,7 +1375,7 @@ class PysMod(object):
         # check for .psc extension
         File = chkpsc(File)
 
-        print 'Using model directory: ' + dir
+        print('Using model directory: ' + dir)
 
         if not os.path.isdir(os.path.join(MODEL_DIR,"orca")):
             os.mkdir(os.path.join(MODEL_DIR,"orca"))
@@ -1387,20 +1387,20 @@ class PysMod(object):
             outFile = file(os.path.join(dir,File),'w')
             outFile.write(fString)
             outFile.close()
-            print 'Using file: ' + File
+            print('Using file: ' + File)
 
             if os.path.exists(os.path.join(dir,File)):
-                print os.path.join(dir,File) + ' loading .....',
+                print(os.path.join(dir,File) + ' loading .....', end=' ')
                 self.ModelDir = dir
                 self.ModelFile = File
             else:
-                print os.path.join(dir,File) + ' does not exist'
-                print 'Please set with ModelDir and ModelFile .....',
+                print(os.path.join(dir,File) + ' does not exist')
+                print('Please set with ModelDir and ModelFile .....', end=' ')
                 self.ModelFile = 'None'
                 self.ModelDir = dir
-        except Exception, e:
-            print e
-            print os.path.join(dir,File) + ' does not exist please re-instantiate model .....',
+        except Exception as e:
+            print(e)
+            print(os.path.join(dir,File) + ' does not exist please re-instantiate model .....', end=' ')
         self.__settings__['display_debug'] = 0
         self.ModelOutput = OUTPUT_DIR
 
@@ -1458,13 +1458,13 @@ class PysMod(object):
             mfgo = 1
 
         while mfgo == 1:
-            print 'Models available in your model_dir: \n************'
+            print('Models available in your model_dir: \n************')
             cntr = 0
             namelen = 0
             while len(os.listdir(dir)) == 0:
-                print 'No models available in model directory, please set using pys_usercfg.ini or call\
-                with pysces.model(\'file.psc\',dir=\'path\\to\\models\')'
-                dir = raw_input('\nPlease enter full path to models <CTRL+C> exits: ')
+                print('No models available in model directory, please set using pys_usercfg.ini or call\
+                with pysces.model(\'file.psc\',dir=\'path\\to\\models\')')
+                dir = input('\nPlease enter full path to models <CTRL+C> exits: ')
 
             dirList = os.listdir(dir)
             for x in range(len(dirList)-1,-1,-1):
@@ -1476,15 +1476,15 @@ class PysMod(object):
                     namelen = len(x)
             for x in dirList:
                 if cntr < 2:
-                    print x + ' '*(namelen-len(x)),
+                    print(x + ' '*(namelen-len(x)), end=' ')
                     cntr += 1
                 else:
-                    print x
+                    print(x)
                     cntr = 0
-            print '\n************\n'
-            print '\nYou need to specify a valid model file ...\n'
+            print('\n************\n')
+            print('\nYou need to specify a valid model file ...\n')
 
-            File = raw_input('\nPlease enter filename: ')
+            File = input('\nPlease enter filename: ')
             try:
                 File = chkpsc(File)
                 if os.path.exists(os.path.join(dir,File)):
@@ -1492,20 +1492,20 @@ class PysMod(object):
             except:
                 mfgo = 1
 
-        print 'Using model directory: ' + dir
+        print('Using model directory: ' + dir)
 
         try:
             if os.path.exists(os.path.join(dir,File)):
-                print os.path.join(dir,File) + ' loading .....',
+                print(os.path.join(dir,File) + ' loading .....', end=' ')
                 self.ModelDir = dir
                 self.ModelFile = File
             else:
-                print os.path.join(dir,File) + ' does not exist'
-                print 'Please set with ModelDir and ModelFile .....',
+                print(os.path.join(dir,File) + ' does not exist')
+                print('Please set with ModelDir and ModelFile .....', end=' ')
                 self.ModelFile = 'None'
                 self.ModelDir = dir
         except:
-            print os.path.join(dir,File) + ' does not exist please re-instantiate model .....',
+            print(os.path.join(dir,File) + ' does not exist please re-instantiate model .....', end=' ')
         self.__settings__['display_debug'] = 0
         self.ModelOutput = OUTPUT_DIR
 
@@ -1543,10 +1543,10 @@ class PysMod(object):
         - *piecewises* a piecewise dictionary created by the InfixParser
 
         """
-        if piecewises != None and len(piecewises.keys()) > 0:
+        if piecewises != None and len(list(piecewises.keys())) > 0:
             self.__HAS_PIECEWISE__ = True
             for p in piecewises:
-                print 'Info: adding piecewise object: %s' % p
+                print('Info: adding piecewise object: %s' % p)
                 #if len(piecewises[p].keys()) == 2:
                     # piecewises[p][0].reverse() # only for libsbml generated infix
                 self.__piecewises__.update({p : piecewises[p]})
@@ -1570,29 +1570,29 @@ class PysMod(object):
             if os.path.exists(os.path.join(self.ModelDir,self.ModelFile)):
                 pass
             else:
-                print '\nInvalid self.ModelFile: ' + os.path.join(self.ModelDir,self.ModelFile)
+                print('\nInvalid self.ModelFile: ' + os.path.join(self.ModelDir,self.ModelFile))
         except:
-            print 'WARNING: Problem verifying: ' + os.path.join(self.ModelDir,self.ModelFile)
+            print('WARNING: Problem verifying: ' + os.path.join(self.ModelDir,self.ModelFile))
 
         if self.ModelFile[-4:] == '.psc':
             pass
         else:
-            print 'Assuming extension is .psc'
+            print('Assuming extension is .psc')
             self.ModelFile += '.psc'
 
-        print '\nParsing file: %s' % os.path.join(self.ModelDir, self.ModelFile)
+        print('\nParsing file: %s' % os.path.join(self.ModelDir, self.ModelFile))
 
         pscParser.ParsePSC(self.ModelFile,self.ModelDir,self.ModelOutput)
-        print ' '
+        print(' ')
 
         badlist = pscParser.KeywordCheck(pscParser.ReactionIDs)
         badlist = pscParser.KeywordCheck(pscParser.Inits,badlist)
 
         if len(badlist) != 0:
-            print '\n******************************\nPSC input file contains PySCeS keywords please rename them and reload:'
+            print('\n******************************\nPSC input file contains PySCeS keywords please rename them and reload:')
             for item in badlist:
-                print '   --> ' + item
-            print '******************************\n'
+                print('   --> ' + item)
+            print('******************************\n')
             self.__parseOK = 0
             #assert len(badlist) != 0, 'Keyword error, please check input file'
 
@@ -1607,11 +1607,11 @@ class PysMod(object):
             # model attributes are now initialised here brett2008
             self.__InitDict__ = {}
             # set parameters and add to __InitDict__
-            for p in self.__pDict__.keys():
+            for p in list(self.__pDict__.keys()):
                 setattr(self, self.__pDict__[p]['name'], self.__pDict__[p]['initial'])
                 self.__InitDict__.update({self.__pDict__[p]['name'] : self.__pDict__[p]['initial']})
             # set species and add to __InitDict__ and set mod.Xi_init
-            for s in self.__sDict__.keys():
+            for s in list(self.__sDict__.keys()):
                 setattr(self, self.__sDict__[s]['name'], self.__sDict__[s]['initial'])
                 if not self.__sDict__[s]['fixed']:
                     setattr(self, self.__sDict__[s]['name']+'_init', self.__sDict__[s]['initial'])
@@ -1646,7 +1646,7 @@ class PysMod(object):
                     #print 'INFO: This model suggests that it requires stochastic simulation and StochPy (stompy.sf.net) is not installed ... PySCeS will treat this model as continuous.'
 
             # set the species type in sDict according to 'Species_In_Conc'
-            for s in self.__sDict__.keys():
+            for s in list(self.__sDict__.keys()):
                 if not self.__KeyWords__['Species_In_Conc']:
                     self.__sDict__[s]['isamount'] = True
                 else:
@@ -1654,7 +1654,7 @@ class PysMod(object):
 
             # setup compartments
             self.__compartments__ = pscParser.compartments.copy()
-            if len(self.__compartments__.keys()) > 0:
+            if len(list(self.__compartments__.keys())) > 0:
                 self.__HAS_COMPARTMENTS__ = True
             else:
                 self.__HAS_COMPARTMENTS__ = False
@@ -1689,22 +1689,22 @@ class PysMod(object):
             ##  if pscParser.ModelUsesNumpyFuncs:
                 ##  print 'Numpy functions detected in kinetic laws.\n'
         else:
-            print '\nERROR: model parsing error, please check input file.\n'
+            print('\nERROR: model parsing error, please check input file.\n')
         # added in a check for model correctness and human error reporting (1=ok, 0=error)
         if len(pscParser.SymbolErrors) != 0:
-            print '\nUndefined symbols:\n%s' % self.SymbolErrors
+            print('\nUndefined symbols:\n%s' % self.SymbolErrors)
         if not pscParser.ParseOK:
-            print '\n\n*****\nModel parsing errors detected in input file '+ self.ModelFile +'\n*****'
-            print '\nInput file errors'
+            print('\n\n*****\nModel parsing errors detected in input file '+ self.ModelFile +'\n*****')
+            print('\nInput file errors')
             for error in pscParser.LexErrors:
-                print error
+                print(error)
                 ##  try:
                     ##  print error[0] + 'in line:\t' + str(error[1]) + ' ('+ error[2][:20] +' ...)'
                 ##  except IndexError:
                     ##  print 'Illegal character:', error.__repr__(), error.__str__()
-            print '\nParser errors'
+            print('\nParser errors')
             for error in pscParser.ParseErrors:
-                print error
+                print(error)
                 ##  try:
                     ##  print error[0] + '- ' + error[2][:20]
                 ##  except IndexError:
@@ -1748,7 +1748,7 @@ class PysMod(object):
 
             os.chdir(self.ModelOutput)
             keep = []
-            rules = assignment_rules.keys()
+            rules = list(assignment_rules.keys())
             dep = rules
             while len(dep) > 0:
                 dep = []
@@ -1766,7 +1766,7 @@ class PysMod(object):
                 self._NewRuleXCode.update({assignment_rules[ar]['name'] : evalCode})
                 code_string += evalCode
 
-            print '\nAssignment rule(s) detected.'
+            print('\nAssignment rule(s) detected.')
             self._Function_forced  = code_string
         elif self.__HAS_FORCED_FUNCS__ and self.__settings__['mode_substitute_assignment_rules']:
             # here we substitute nested assignment rules
@@ -1788,7 +1788,7 @@ class PysMod(object):
                 InfixParser.parse(assignment_rules[ass]['formula'])
                 assignment_rules[ass]['code_string'] = InfixParser.output
             self._Function_forced = 'pass\n'
-            print 'Assignment rule(s) detected and substituted.'
+            print('Assignment rule(s) detected and substituted.')
         else:
             self._Function_forced = 'pass\n'
 
@@ -1805,10 +1805,10 @@ class PysMod(object):
         self._NewRateRuleXCode = {}
         if self.__HAS_RATE_RULES__:
             # create a rr vector
-            self.__rrule__ = numpy.ones(len(rate_rules.keys()),'d')
+            self.__rrule__ = numpy.ones(len(list(rate_rules.keys())),'d')
             # brett2008 debug stuff doesn't do any harm
             cntr = 0
-            rr_keys = rate_rules.keys()
+            rr_keys = list(rate_rules.keys())
             rr_keys.sort()
             for ar in rr_keys:
                 name = rate_rules[ar]['name']
@@ -1830,7 +1830,7 @@ class PysMod(object):
                 # create mod.<rule name>_init attributes
                 setattr(self, '%s_init' % name, getattr(self, name))
             os.chdir(self.ModelOutput)
-            print 'Rate rule(s) detected.'
+            print('Rate rule(s) detected.')
         else:
             rr_code_block = 'pass\n'
             rr_map_block = 'pass\n'
@@ -1844,17 +1844,17 @@ class PysMod(object):
         try:
             exec(self.__CODE_raterule)
         except ZeroDivisionError:
-            print 'WARNING: Assignment RateRule ZeroDivision on initialisation (continuing)'
-        except Exception, ex:
-            print 'WARNING: RateRule initialisation error\n', ex
+            print('WARNING: Assignment RateRule ZeroDivision on initialisation (continuing)')
+        except Exception as ex:
+            print('WARNING: RateRule initialisation error\n', ex)
 
         zeroDivErr = []
         for k in self._NewRuleXCode:
             try:
                 exec(compile(self._NewRuleXCode[k],'NewRuleXCode','exec'))
-            except Exception, ex:
+            except Exception as ex:
                 zeroDivErr.append(k)
-        exit = len(self._NewRuleXCode.keys())
+        exit = len(list(self._NewRuleXCode.keys()))
         while len(zeroDivErr) > 0 and exit > 0:
             zeroDivErr2 = []
             for kk in zeroDivErr:
@@ -1863,20 +1863,20 @@ class PysMod(object):
                     if self.__HAS_RATE_RULES__:
                         exec(self.__CODE_raterule)
                         exec(self.__CODE_raterule_map)
-                except Exception, ex:
+                except Exception as ex:
                     zeroDivErr2.append(kk)
             exit -= 1
             zeroDivErr = zeroDivErr2
             if exit < 0:
-                print 'WARNING: ZeroDivision elimination failed'
+                print('WARNING: ZeroDivision elimination failed')
 
         try:
             exec(self.__CODE_forced)
             #print 'done.'
         except ZeroDivisionError:
-            print 'WARNING: Assignment rule ZeroDivision on intialisation'
-        except Exception, ex:
-            print 'WARNING: Assignment rule error (disabling all rules)\n', ex
+            print('WARNING: Assignment rule ZeroDivision on intialisation')
+        except Exception as ex:
+            print('WARNING: Assignment rule error (disabling all rules)\n', ex)
             self.__CODE_forced = compile('pass\n','AssignRules','exec')
 
     def Stoichiometry_Init(self,nmatrix,load=0):
@@ -1895,12 +1895,12 @@ class PysMod(object):
 
         """
         if load:
-            print 'Loading saved stoichiometry ...'
+            print('Loading saved stoichiometry ...')
             try:
                 stc = self.Stoichiometry_Load_Serial()
                 go = 1
-            except Exception, slx:
-                print slx
+            except Exception as slx:
+                print(slx)
                 go = 0
 
             row,col = nmatrix.shape
@@ -1921,11 +1921,11 @@ class PysMod(object):
                 ##  print 'Stoichiometry mismatch'
                 ##  for x in badList:
                     ##  print x,
-                print '\nProblem loading stoichiometry, reanalysing ...'
+                print('\nProblem loading stoichiometry, reanalysing ...')
                 stc = PyscesStoich.Stoich(nmatrix)
                 status = 0
             else:
-                print 'Stoichiometry verified ... we have liftoff'
+                print('Stoichiometry verified ... we have liftoff')
                 status = 1
         else:
             #print 'Instantiating new stoichiometry ...'
@@ -1987,7 +1987,7 @@ class PysMod(object):
             self.__nmatrix__ = self.__initmodel__()            #Creates the model N
             #print '\nintializing N\n'
         else:
-            print '\nStoichiometric override active\n'
+            print('\nStoichiometric override active\n')
 
         assert len(self.__nmatrix__) > 0, '\nUnable to generate Stoichiometric Matrix! model has:\n%s reactions\n%s species\nwhat did you have in mind?\n' % (len(self.__reactions__), len(self.__species__))
 
@@ -2013,26 +2013,26 @@ class PysMod(object):
         ksmall,kbig = self.__structural__.MatrixValueCompare(self.__structural__.kzeromatrix)
         SmallValueError = 0
         if abs(lsmall) < self.__structural__.stoichiometric_analysis_lu_precision*10.0:
-            print '\nWARNING: values in L0matrix are close to stoichiometric precision!'
-            print 'Stoichiometric LU precision:', self.__structural__.stoichiometric_analysis_lu_precision
-            print 'L0 smallest abs(value)', abs(lsmall)
-            print 'Machine precision:', mach_spec.eps
+            print('\nWARNING: values in L0matrix are close to stoichiometric precision!')
+            print('Stoichiometric LU precision:', self.__structural__.stoichiometric_analysis_lu_precision)
+            print('L0 smallest abs(value)', abs(lsmall))
+            print('Machine precision:', mach_spec.eps)
             SmallValueError = 1
         if abs(ksmall) < self.__structural__.stoichiometric_analysis_lu_precision*10.0:
-            print '\nWARNING: values in K0matrix are close to stoichiometric precision!'
-            print 'Stoichiometric precision:', self.__structural__.stoichiometric_analysis_lu_precision
-            print 'K0 smallest abs(value)', abs(ksmall)
-            print 'Machine precision:', mach_spec.eps
+            print('\nWARNING: values in K0matrix are close to stoichiometric precision!')
+            print('Stoichiometric precision:', self.__structural__.stoichiometric_analysis_lu_precision)
+            print('K0 smallest abs(value)', abs(ksmall))
+            print('Machine precision:', mach_spec.eps)
             SmallValueError = 1
         if SmallValueError:
-            raw_input('\nStructural Analysis results may not be reliable!!!.\n\nTry change <mod>.__settings__["stoichiometric_analysis_lu_precision"] (see reference manual for details)\n\n\t press any key to continue: ')
+            input('\nStructural Analysis results may not be reliable!!!.\n\nTry change <mod>.__settings__["stoichiometric_analysis_lu_precision"] (see reference manual for details)\n\n\t press any key to continue: ')
 
         # cross check that rank is consistant between K0 and L0
         if self.__structural__.kzeromatrix.shape[0] != self.__structural__.lzeromatrix.shape[1]:
-            print '\nWARNING: the rank calculated by the Kand L analysis methods are not the same!'
-            print '\tK analysis calculates the rank as: ' + `self.__structural__.kzeromatrix.shape[0]`
-            print '\tL analysis calculates the rank as: ' + `self.__structural__.lzeromatrix.shape[1]`
-            print 'This is not good! Structural Analysis results are not reliable!!!\n'
+            print('\nWARNING: the rank calculated by the Kand L analysis methods are not the same!')
+            print('\tK analysis calculates the rank as: ' + repr(self.__structural__.kzeromatrix.shape[0]))
+            print('\tL analysis calculates the rank as: ' + repr(self.__structural__.lzeromatrix.shape[1]))
+            print('This is not good! Structural Analysis results are not reliable!!!\n')
             assert self.__structural__.kzeromatrix.shape[0] == self.__structural__.lzeromatrix.shape[1], '\nStructuralAnalysis Error: rank mismatch'
 
 
@@ -2105,7 +2105,7 @@ class PysMod(object):
         else:
             self.Consmatrix = None
         self.__StoichOK = 1
-        print ' '
+        print(' ')
 
     def Stoichiometry_ReAnalyse(self):
         """
@@ -2163,7 +2163,7 @@ class PysMod(object):
                 cval = y[0]
         return (rval,cval)
 
-    def __Stoich_nmatrix_UpdateValue__(self,(x,y),val):
+    def __Stoich_nmatrix_UpdateValue__(self, xxx_todo_changeme,val):
         """
         __Stoich_nmatrix_UpdateValue__((x,y), val)
 
@@ -2174,11 +2174,12 @@ class PysMod(object):
         val: value
 
         """
+        (x,y) = xxx_todo_changeme
         self.nmatrix[x,y] = val
         self.__nmatrix__[x,y] = val
         self.Nmatrix.array[x,y] = val
 
-    def __Stoich_nmatrix_CheckValue__(self,(x,y),val):
+    def __Stoich_nmatrix_CheckValue__(self, xxx_todo_changeme1,val):
         """
         __Stoich_nmatrix_CheckValue__((x,y),val)
 
@@ -2190,28 +2191,29 @@ class PysMod(object):
         val: new value
 
         """
+        (x,y) = xxx_todo_changeme1
         go = 1
         if x == None or y == None:
-            print '\nSpecies (nmatrix) index  =', x
-            print 'Reaction (nmatrix) index =', y
-            print '\nI\'m confused, perhaps you entered an incorrect species or reaction name'
-            print 'or they are in the wrong order?'
+            print('\nSpecies (nmatrix) index  =', x)
+            print('Reaction (nmatrix) index =', y)
+            print('\nI\'m confused, perhaps you entered an incorrect species or reaction name')
+            print('or they are in the wrong order?')
             go = 0
         elif abs(self.__nmatrix__[x,y]) == 0.0:
             if val != 0.0:
                 go = 0
-                print '\nZero coefficient violation'
-                print '  nmatrix['+`x`+','+`y`+'] can only be = 0.0 (input '+str(val)+')'
+                print('\nZero coefficient violation')
+                print('  nmatrix['+repr(x)+','+repr(y)+'] can only be = 0.0 (input '+str(val)+')')
         elif self.__nmatrix__[x,y] > 0.0:
             if val <= 0.0:
                 go = 0
-                print '\nPositive coefficient violation'
-                print '  nmatrix['+`x`+','+`y`+'] can only be > 0.0 (input '+str(val)+')'
+                print('\nPositive coefficient violation')
+                print('  nmatrix['+repr(x)+','+repr(y)+'] can only be > 0.0 (input '+str(val)+')')
         elif self.__nmatrix__[x,y] < 0.0:
             if val >= 0.0:
                 go = 0
-                print '\nNegative coefficient violation'
-                print '  nmatrix['+`x`+','+`y`+'] can only be < 0.0 (input '+str(val)+')'
+                print('\nNegative coefficient violation')
+                print('  nmatrix['+repr(x)+','+repr(y)+'] can only be < 0.0 (input '+str(val)+')')
         if go:
             return 1
         else:
@@ -2235,14 +2237,14 @@ class PysMod(object):
             pass
         else:
             os.mkdir(self.__settings__['serial_dir'])
-        print '\ncPickle data stored in: ' + self.__settings__['serial_dir']
+        print('\ncPickle data stored in: ' + self.__settings__['serial_dir'])
 
         File = open(os.path.join(self.__settings__['serial_dir'], filename),'wb')
         try:
-            cPickle.dump(data,File,-1)
-            print 'Serialization complete'
-        except Exception, E:
-            print 'Serialize error:\n',E
+            pickle.dump(data,File,-1)
+            print('Serialization complete')
+        except Exception as E:
+            print('Serialize error:\n',E)
         File.flush()
         File.close()
         del data
@@ -2261,15 +2263,15 @@ class PysMod(object):
         """
         filename = str(filename)+'.pscdat'
         if not os.path.exists(os.path.join(self.__settings__['serial_dir'],filename)):
-            raise RuntimeError, 'Serialized data '+os.path.join(self.__settings__['serial_dir'],filename)+' does not exist'
+            raise RuntimeError('Serialized data '+os.path.join(self.__settings__['serial_dir'],filename)+' does not exist')
         data = None
         try:
             File = open(os.path.join(self.__settings__['serial_dir'], filename),'rb')
-            data = cPickle.load(File)
+            data = pickle.load(File)
             File.close()
-            print 'Serial decoding complete'
-        except Exception, E:
-            print 'Serial decode error:\n',E
+            print('Serial decoding complete')
+        except Exception as E:
+            print('Serial decode error:\n',E)
 
         return data
 
@@ -2279,37 +2281,37 @@ class PysMod(object):
         startFudging = 1.0e-8
         I_AM_FUDGING = False
         if self.__HAS_COMPARTMENTS__:
-            tmp = min([abs(self.__compartments__[c]['size']) for c in self.__compartments__.keys()])
+            tmp = min([abs(self.__compartments__[c]['size']) for c in list(self.__compartments__.keys())])
             if tmp < startFudging:
                 ##  self.__settings__['compartment_fudge_factor'] = 10.0**round(numpy.log10(tmp))
                 self.__settings__['compartment_fudge_factor'] = tmp # sneaky b%*))_)%$^&*@rds
                 ##  print 'compartment_fudge_factor', self.__settings__['compartment_fudge_factor']
-            for c in self.__compartments__.keys():
+            for c in list(self.__compartments__.keys()):
                 if self.__settings__['compartment_fudge_factor'] < startFudging:
                     newsize = self.__compartments__[c]['size']/self.__settings__['compartment_fudge_factor']
-                    print 'INFO: Rescaling compartment with size %s to %s' % (self.__compartments__[c]['size'], newsize)
+                    print('INFO: Rescaling compartment with size %s to %s' % (self.__compartments__[c]['size'], newsize))
                     self.__compartments__[c]['size'] = newsize
                     self.__compartments__[c].update({'scale' : self.__settings__['compartment_fudge_factor']})
                     I_AM_FUDGING = True
                 setattr(self, self.__compartments__[c]['name'], self.__compartments__[c]['size'])
                 setattr(self, '%s_init' % self.__compartments__[c]['name'], self.__compartments__[c]['size'])
         if self.__HAS_COMPARTMENTS__:
-            for sp in self.__sDict__.keys():
-                if self.__sDict__[sp]['compartment'] == None and len(self.__compartments__.keys()) == 1:
-                    self.__sDict__[sp]['compartment'] = self.__compartments__[self.__compartments__.keys()[0]]['name']
-                    print 'COMPARTMENT WARNING: this model has a compartment defined %s but \"%s\" is not in it ... I\'ll try it for now' %\
-                    ([self.__compartments__[c]['name'] for c in self.__compartments__.keys()], sp)
+            for sp in list(self.__sDict__.keys()):
+                if self.__sDict__[sp]['compartment'] == None and len(list(self.__compartments__.keys())) == 1:
+                    self.__sDict__[sp]['compartment'] = self.__compartments__[list(self.__compartments__.keys())[0]]['name']
+                    print('COMPARTMENT WARNING: this model has a compartment defined %s but \"%s\" is not in it ... I\'ll try it for now' %\
+                    ([self.__compartments__[c]['name'] for c in list(self.__compartments__.keys())], sp))
                     ##  print self.__sDict__[sp]
-                elif self.__sDict__[sp]['compartment'] == None and len(self.__compartments__.keys()) > 1:
+                elif self.__sDict__[sp]['compartment'] == None and len(list(self.__compartments__.keys())) > 1:
                     assert self.__sDict__[sp]['compartment'] != None,\
                     '\nCOMPARTMENT ERROR: this model has multiple compartments defined %s but \"%s\" is not in one!' %\
-                    ([self.__compartments__[c]['name'] for c in self.__compartments__.keys()], sp)
+                    ([self.__compartments__[c]['name'] for c in list(self.__compartments__.keys())], sp)
                 # brett 2008 fudge this!
                 if not self.__KeyWords__['Species_In_Conc'] and I_AM_FUDGING:
                     self.__sDict__[sp]['initial'] = self.__sDict__[sp]['initial']/self.__settings__['compartment_fudge_factor']
                     setattr(self, sp, self.__sDict__[sp]['initial'])
                     setattr(self, '%s_init' % sp, self.__sDict__[sp]['initial'])
-                    print 'INFO: Rescaling species (%s) to size %s.' % (sp, self.__sDict__[sp]['initial'])
+                    print('INFO: Rescaling species (%s) to size %s.' % (sp, self.__sDict__[sp]['initial']))
 
         self.__CsizeAllIdx__ = []
         self.__null_compartment__ = 1.0
@@ -2369,7 +2371,7 @@ class PysMod(object):
         os.chdir(self.ModelOutput)
         if len(self.__events__) > 0:
             self.__HAS_EVENTS__ = True
-            print 'Event(s) detected.'
+            print('Event(s) detected.')
         else:
             self.__HAS_EVENTS__ = False
 
@@ -2529,22 +2531,22 @@ class PysMod(object):
         self.mode_integrator = 'LSODA' # LSODA/CVODE set the intgration algorithm
         if self.__HAS_EVENTS__:
             if _HAVE_PYSUNDIALS:
-                print '\nINFO: events detected and we have PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').'
+                print('\nINFO: events detected and we have PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').')
                 self.mode_integrator = 'CVODE'
             else:
-                print '\nWARNING: PySCeS needs PySundials installed for event handling, PySCeS will continue with LSODA (NOTE: ALL EVENTS WILL BE IGNORED!).'
-                print 'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
-                print 'For other OS\'s see pysundials.sf.net for installation details\n'
+                print('\nWARNING: PySCeS needs PySundials installed for event handling, PySCeS will continue with LSODA (NOTE: ALL EVENTS WILL BE IGNORED!).')
+                print('Windows users may install the "pysces_pysundials" package from pysces.sf.net')
+                print('For other OS\'s see pysundials.sf.net for installation details\n')
                 self.__events__ = []
         #if self.__HAS_RATE_RULES__ or self.__HAS_COMPARTMENTS__:
         if self.__HAS_RATE_RULES__:
             if _HAVE_PYSUNDIALS:
-                print 'INFO: RateRules detected and PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
+                print('INFO: RateRules detected and PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').\n')
                 self.mode_integrator = 'CVODE'
             else:
-                print '\nWARNING: RateRules detected! PySCeS prefers CVODE but will continue with LSODA (NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)'
-                print 'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
-                print 'For other OS\'s see pysundials.sf.net for installation details\n'
+                print('\nWARNING: RateRules detected! PySCeS prefers CVODE but will continue with LSODA (NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)')
+                print('Windows users may install the "pysces_pysundials" package from pysces.sf.net')
+                print('For other OS\'s see pysundials.sf.net for installation details\n')
 
         # pysundials
         self.mode_integrate_all_odes = False # only available with CVODE
@@ -2558,7 +2560,7 @@ class PysMod(object):
 
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9 :
             self.__settings__["cvode_reltol"] = 1.0e-6
-            print 'INFO: Piecewise functions detected increasing CVODE tolerance slightly (mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).'
+            print('INFO: Piecewise functions detected increasing CVODE tolerance slightly (mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).')
 
         # Normal simulation options
         self.sim_start = 0.0
@@ -2681,22 +2683,22 @@ class PysMod(object):
         try:
             exec(self.__CODE_user)
             #print 'done.'
-        except Exception, e:
-            print 'WARNING: User function error\n', e
-            print 'This might be due to non-instantiated (e.g. MCA/state) attributes'
-            print 'Make sure the attributes that are used in your function exist ...'
-            print 'and manually load using the self.ReloadUserFunc() method'
+        except Exception as e:
+            print('WARNING: User function error\n', e)
+            print('This might be due to non-instantiated (e.g. MCA/state) attributes')
+            print('Make sure the attributes that are used in your function exist ...')
+            print('and manually load using the self.ReloadUserFunc() method')
 
         #print '\nInitializing init function ...'
         #print self._Function_init
 
         try:
             self.ReloadInitFunc()
-        except Exception, e:
-            print 'WARNING: Init function error\n', e
-            print 'This function is meant to be used exclusively for the initialization'
-            print 'of PySCeS properties and expressions based on model attributes defined in the input file.'
-            print 'Reinitialize with ReloadInitFunc()'
+        except Exception as e:
+            print('WARNING: Init function error\n', e)
+            print('This function is meant to be used exclusively for the initialization')
+            print('of PySCeS properties and expressions based on model attributes defined in the input file.')
+            print('Reinitialize with ReloadInitFunc()')
 
     def ReloadUserFunc(self):
         """
@@ -2712,8 +2714,8 @@ class PysMod(object):
         self.__CODE_user = compile(self._Function_user,'_Function_user','exec')
         try:
             exec(self.__CODE_user)
-        except Exception, e:
-            print 'WARNING: User function load error\n', e
+        except Exception as e:
+            print('WARNING: User function load error\n', e)
 
     def ReloadInitFunc(self):
         """
@@ -2763,7 +2765,7 @@ class PysMod(object):
                 # not, we need to bail out as the graph therefore can't be
                 # sorted.
                 acyclic = False
-                for node, edges in graph_unsorted.items():
+                for node, edges in list(graph_unsorted.items()):
                     for edge in edges:
                         if edge in graph_unsorted:
                             break
@@ -2868,10 +2870,10 @@ class PysMod(object):
             # this creates the mapping string for the derivative functions
 
         if self.__settings__['display_debug'] == 1:
-            print 'mapString'
-            print mapString
-            print 'mapString_R'
-            print mapString_R
+            print('mapString')
+            print(mapString)
+            print('mapString_R')
+            print(mapString_R)
 
         # create the REq string in ReactionIDs order as a single multiline definition
         # using indexes: vString (Vtemp[x] =)
@@ -2883,7 +2885,7 @@ class PysMod(object):
         ##  dispREq = ''
 
         symbR = {}
-        if len(self.__rules__.keys()) > 0 and self.__settings__['mode_substitute_assignment_rules']:
+        if len(list(self.__rules__.keys())) > 0 and self.__settings__['mode_substitute_assignment_rules']:
             # create substitution dictionary
             for ass in self.__rules__:
                 symbR.update({self.__rules__[ass]['name'] : self.__rules__[ass]['code_string']})
@@ -2895,7 +2897,7 @@ class PysMod(object):
 
             # Core update inspired by Core2, lambda functions replaced by Reaction instances
 
-            if len(self.__rules__.keys()) > 0 and self.__settings__['mode_substitute_assignment_rules']:
+            if len(list(self.__rules__.keys())) > 0 and self.__settings__['mode_substitute_assignment_rules']:
                 # substitute assignment rules
                 InfixParser.setNameStr('self.', '')
                 InfixParser.FunctionReplacements = symbR
@@ -2930,12 +2932,12 @@ class PysMod(object):
                     if warn:
                         warnings += "# %s: %s\n#  assuming kinetic constants are flow constants.\n" % (rr, rrobj.formula)
             if warnings != '' and self.__settings__['display_compartment_warnings']:
-                print '\n# -- COMPARTMENT WARNINGS --'
-                print warnings
+                print('\n# -- COMPARTMENT WARNINGS --')
+                print(warnings)
         os.chdir(self.ModelOutput)
         if self.__settings__['display_debug'] == 1:
-            print 'vString'
-            print vString
+            print('vString')
+            print(vString)
             ##  print 'vString2'
             ##  print vString2
             ##  print 'DvOrder'
@@ -2957,7 +2959,7 @@ class PysMod(object):
         StoicMatrix = numpy.zeros((len(VarReagents),len(self.__reactions__)),'d')
         for reag in VarReagents:
             for id in self.__reactions__:
-                if reag in self.__nDict__[id]['Reagents'].keys():
+                if reag in list(self.__nDict__[id]['Reagents'].keys()):
                     StoicMatrix[VarReagents.index(reag)][self.__reactions__.index(id)] = self.__nDict__[id]['Reagents'][reag]
         return StoicMatrix
 
@@ -2987,12 +2989,12 @@ class PysMod(object):
             DvarUpString += 'self.%s = input[%s]\n' % (self.__species__[x], x)
 
         if self.__settings__['display_debug'] == 1:
-            print 's_initDeriv'
-            print s_initDeriv
-            print '\n__remaps'
-            print self.__remaps
-            print '\nDvarUpString'
-            print DvarUpString
+            print('s_initDeriv')
+            print(s_initDeriv)
+            print('\n__remaps')
+            print(self.__remaps)
+            print('\nDvarUpString')
+            print(DvarUpString)
 
         mvarFunc = compile(mvarString,'mvarString','exec')
         return sOrder,DvarUpString
@@ -3009,9 +3011,9 @@ class PysMod(object):
         """
         runmapString = ''
         if self.__settings__['display_debug'] == 1:
-            print 'InitParams2'
-            print self.__parameters__
-            print 'InitStrings2'
+            print('InitParams2')
+            print(self.__parameters__)
+            print('InitStrings2')
             ##  print self.__InitStrings
 
         # Initialise parameter elasticities
@@ -3022,10 +3024,10 @@ class PysMod(object):
             par_remap += 'self.%s = parVal_hold[%s]\n' % (self.__parameters__[x], x)
 
         if self.__settings__['display_debug'] == 1:
-            print 'par_map2store'
-            print par_map2store
-            print 'par_remap'
-            print par_remap
+            print('par_map2store')
+            print(par_map2store)
+            print('par_remap')
+            print(par_remap)
         return (par_map2store,par_remap)
 
 #pysces core - the steady-state solver and integration routines
@@ -3089,18 +3091,18 @@ class PysMod(object):
         exec(self.__mapFunc__)
         try:
             self.Forcing_Function()
-        except Exception, de:
-            print 'INFO: forcing function failure', de
+        except Exception as de:
+            print('INFO: forcing function failure', de)
         try:
             exec(self.__vFunc__)
-        except (ArithmeticError,AttributeError,NameError,ZeroDivisionError,ValueError), detail:
-            print 'INFO: REq evaluation failure:', detail
+        except (ArithmeticError,AttributeError,NameError,ZeroDivisionError,ValueError) as detail:
+            print('INFO: REq evaluation failure:', detail)
             Vtemp[:] = self.__settings__['mach_floateps']
         if self.__HAS_RATE_RULES__:
             try:
                 exec(self.__CODE_raterule)
-            except (ArithmeticError,AttributeError,NameError,ZeroDivisionError,ValueError), detail:
-                print 'INFO: RateRule evaluation failure:', detail
+            except (ArithmeticError,AttributeError,NameError,ZeroDivisionError,ValueError) as detail:
+                print('INFO: RateRule evaluation failure:', detail)
         return Vtemp
 
     def _EvalREq2(self,s,Vtemp):
@@ -3228,11 +3230,11 @@ class PysMod(object):
         Tsim0 = time.time()
         sim_res, rates, simOK = self.CVODE(None)
         Tsim1 = time.time()
-        print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
+        print("%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0))
 
         if self.__HAS_RATE_RULES__:
             sim_res, rrules = numpy.split(sim_res,[len(self.__species__)],axis=1)
-            print 'RateRules evaluated and added to mod.data_sim.'
+            print('RateRules evaluated and added to mod.data_sim.')
 
         # TODO: split this off into a method shared by this and Simulate()
         self.data_sim = IntegrationDataObj()
@@ -3246,7 +3248,7 @@ class PysMod(object):
             self.data_sim.setXData(self.CVODE_xdata, lbls=self.CVODE_extra_output)
             self.CVODE_xdata = None
         if not simOK:
-            print 'Simulation failure'
+            print('Simulation failure')
         del sim_res
 
         self.CVODE_continuous_result.append(self.data_sim)
@@ -3320,7 +3322,7 @@ class PysMod(object):
                 if hasattr(self, d) and d not in self.__species__ + self.__reactions__ + self.__rate_rules__:
                     out.append(d)
                 else:
-                    print '\nWarning: CVODE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species or rate.\n' % d
+                    print('\nWarning: CVODE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species or rate.\n' % d)
             if len(out) > 0:
                 self.CVODE_extra_output = out
                 CVODE_XOUT = True
@@ -3355,8 +3357,8 @@ class PysMod(object):
         MIN_ABS_TOL = self.__settings__["cvode_abstol"] # 1.0e-15
         ##  MAX_ABS_TOL = self.__settings__["cvode_abstol_max"] #1.0e-3 not used anymore
         ABSTOL_ADJUST_FACTOR = self.__settings__["cvode_abstol_factor"] # 1.0e-6
-        cvode_sim_range = range(sim_st, len(self.sim_time))
-        cvode_scale_range = range(sim_st, len(self.sim_time), len(self.sim_time)/4 or len(self.sim_time))
+        cvode_sim_range = list(range(sim_st, len(self.sim_time)))
+        cvode_scale_range = list(range(sim_st, len(self.sim_time), len(self.sim_time)/4 or len(self.sim_time)))
         cvode_scale_range = cvode_scale_range[1:]
         reltol = cvode.realtype(self.__settings__["cvode_reltol"]) #relative tolerance must be a realtype
         abstol = cvode.NVector(self.__CVODE_initial_num__*[self.__settings__["cvode_abstol"]])
@@ -3396,8 +3398,8 @@ class PysMod(object):
             while True:
                 try:
                     flag = cvode.CVode(self.__CVODE_mem__, tout, self.__CVODE_y__, cvode.ctypes.byref(t), cvode.CV_NORMAL)
-                except AssertionError, ex:
-                    print 'cvode error1', ex
+                except AssertionError as ex:
+                    print('cvode error1', ex)
                     flag = None
                 self._TIME_ = tout
                 if flag == cvode.CV_ROOT_RETURN: #if a root was found before desired time point, output it
@@ -3420,7 +3422,7 @@ class PysMod(object):
                                         self.__CVODE_y__[assIdx] = assVal
                                     reInit = True
                                 elif not self.mode_integrate_all_odes and ass.variable in self.L0matrix.getLabels()[0]:
-                                    print 'Event assignment to dependent species consider setting \"mod.mode_integrate_all_odes = True\"'
+                                    print('Event assignment to dependent species consider setting \"mod.mode_integrate_all_odes = True\"')
                                 elif self.__HAS_RATE_RULES__ and ass.variable in self.__rate_rules__:
                                     ##  print 'Event is assigning to rate rule'
                                     assVal = ass.getValue()
@@ -3436,7 +3438,7 @@ class PysMod(object):
                                         setattr(self, ass.variable, ass.getValue())
                                         reInit = True
                                     except:
-                                        print 'ERROR: Updating model attribute from event: ', ass.variable
+                                        print('ERROR: Updating model attribute from event: ', ass.variable)
 
                     if reInit:
                         cvode.CVodeReInit(self.__CVODE_mem__, func, tout, self.__CVODE_y__, cvode.CV_SV, reltol, abstol)
@@ -3530,11 +3532,11 @@ class PysMod(object):
                         ##  TOL_ADJUSTER += 1
                         output[st] = numpy.NaN
                         break
-                    print 'mxstep warning (%s) mxstep set to %s' % (flag, self.__settings__["cvode_mxstep"])
+                    print('mxstep warning (%s) mxstep set to %s' % (flag, self.__settings__["cvode_mxstep"]))
                     cvode.CVodeSetMaxNumSteps(self.__CVODE_mem__, self.__settings__["cvode_mxstep"])
                 elif flag < -3:
-                    print 'CVODE error:', flag
-                    print 'At ', tout
+                    print('CVODE error:', flag)
+                    print('At ', tout)
                     output[st] = numpy.NaN
                     rates[st] = numpy.NaN
                     if CVODE_XOUT:
@@ -3545,7 +3547,7 @@ class PysMod(object):
 
 
         if self.__HAS_EVENTS__:
-            for ass in var_store.keys():
+            for ass in list(var_store.keys()):
                 #print 'old value', ass, getattr(self, ass)
                 setattr(self, ass, var_store[ass])
                 #print 'new value', getattr(self, ass)
@@ -3562,11 +3564,11 @@ class PysMod(object):
             nfeLS = cvode.CVDenseGetNumRhsEvals(self.__CVODE_mem__)
             nge = cvode.CVodeGetNumGEvals(self.__CVODE_mem__)
 
-            print "\nFinal Statistics:"
-            print "nst = %-6i nfe  = %-6i nsetups = %-6i nfeLS = %-6i nje = %i"%(nst, nfe, nsetups, nfeLS, nje)
-            print "nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n "%(nni, ncfn, netf, nge)
-            print 'reltol = %s' % reltol
-            print 'abstol:\n%s' % abstol
+            print("\nFinal Statistics:")
+            print("nst = %-6i nfe  = %-6i nsetups = %-6i nfeLS = %-6i nje = %i"%(nst, nfe, nsetups, nfeLS, nje))
+            print("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n "%(nni, ncfn, netf, nge))
+            print('reltol = %s' % reltol)
+            print('abstol:\n%s' % abstol)
 
         if cvode.CV_SUCCESS >= 0:
             return output, rates, True
@@ -3638,16 +3640,16 @@ class PysMod(object):
                 status = 1
             if status > 0 and iter < self.__settings__['mode_sim_max_iter']:
                 if self.__settings__["lsoda_mxstep"] == 0:
-                    print '\nIntegration error\n\nSetting self.__settings__["lsoda_mxstep"] = 1000 and reSimulating ...'
+                    print('\nIntegration error\n\nSetting self.__settings__["lsoda_mxstep"] = 1000 and reSimulating ...')
                     self.__settings__["lsoda_mxstep"] = 1000
                 else:
-                    print 'Integration error\n\nSetting self.__settings__["lsoda_mxstep"] = ' + `self.__settings__["lsoda_mxstep"]*3` + ' and reSimulating ...'
+                    print('Integration error\n\nSetting self.__settings__["lsoda_mxstep"] = ' + repr(self.__settings__["lsoda_mxstep"]*3) + ' and reSimulating ...')
                     self.__settings__["lsoda_mxstep"] = self.__settings__["lsoda_mxstep"]*3
                 iter += 1
             elif status > 0 and iter == self.__settings__['mode_sim_max_iter']:
-                print '\nThis simulation is going nowhere fast\nConsider trying CVODE (mod.mode_integrator = \'CVODE\')\n'
-                print 'self.__settings__["lsoda_mxstep"] = ' + `self.__settings__["lsoda_mxstep"]`
-                print '__settings__[\'mode_sim_max_iter\'] = ' + `iter`
+                print('\nThis simulation is going nowhere fast\nConsider trying CVODE (mod.mode_integrator = \'CVODE\')\n')
+                print('self.__settings__["lsoda_mxstep"] = ' + repr(self.__settings__["lsoda_mxstep"]))
+                print('__settings__[\'mode_sim_max_iter\'] = ' + repr(iter))
                 go = False
             else:
                 go = False
@@ -3713,13 +3715,13 @@ class PysMod(object):
                                           full_output=1)
         if state_out[2] == 1:
             if self.__settings__['hybrd_mesg'] == 1:
-                print '(hybrd)', state_out[3]
+                print('(hybrd)', state_out[3])
             return state_out[0], True
         else:
             if self.__settings__['hybrd_mesg']:
-                print 'INFO: (hybrd) Invalid steady state:'
+                print('INFO: (hybrd) Invalid steady state:')
             if self.__settings__['hybrd_mesg'] == 1:
-                print '(hybrd)', state_out[3]
+                print('(hybrd)', state_out[3])
             return state_out[0], False
 
     def FINTSLV(self,initial):
@@ -3801,7 +3803,7 @@ class PysMod(object):
         iopt = numpy.zeros((50),'i')
 
         if self.__settings__['nleq2_jacgen'] == 1:
-            print '(nleq2)User supplied Jacobian not supported yet ... setting __settings__[\'nleq2_jacgen\'] = 0'
+            print('(nleq2)User supplied Jacobian not supported yet ... setting __settings__[\'nleq2_jacgen\'] = 0')
             self.__settings__['nleq2_jacgen'] = 0
 
         rtol = mach_spec.eps*10.0*N
@@ -3847,12 +3849,12 @@ class PysMod(object):
         GO = True
         while GO:
             if BRETT_DEBUG_MODE:
-                print 's_scale', s_scale
-                print 'ierr(%s) = %s' % (iter,ierr)
-                print 'rtol(%s) = %s' % (iter,rtol)
-                print 'nitmax(%s) = %s' % (iter,iwk[30])
-                print 's_scale(%s) = %s' % (iter,s_scale)
-                print 'max_iter(%s) = %s' % (iter,max_iter)
+                print('s_scale', s_scale)
+                print('ierr(%s) = %s' % (iter,ierr))
+                print('rtol(%s) = %s' % (iter,rtol))
+                print('nitmax(%s) = %s' % (iter,iwk[30]))
+                print('s_scale(%s) = %s' % (iter,s_scale))
+                print('max_iter(%s) = %s' % (iter,max_iter))
 
             res,s_scale,rtol,iopt,ierr = nleq2.nleq2(func,jacfunc,initial,s_scale,rtol,iopt,iwk,rwk)
 
@@ -3874,16 +3876,16 @@ class PysMod(object):
             iter += 1
 
         if BRETT_DEBUG_MODE and ierr > 0:
-            print 'ierr = %s' % (ierr)
-            print res
+            print('ierr = %s' % (ierr))
+            print(res)
             time.sleep(5)
 
         if ierr > 0:
             if self.__settings__['nleq2_mesg']:
-                print '(nleq2) exits with ierr = %s' % ierr
+                print('(nleq2) exits with ierr = %s' % ierr)
         else:
             if self.__settings__['nleq2_mesg']:
-                print '(nleq2) The solution converged.'
+                print('(nleq2) The solution converged.')
         if ierr > 0:
             return res, False
         else:
@@ -3907,14 +3909,14 @@ class PysMod(object):
 
         """
         if self.__HAS_RATE_RULES__:
-            raise NotImplementedError, '\nBifurcation analysis not currently available for models containing RateRules'
+            raise NotImplementedError('\nBifurcation analysis not currently available for models containing RateRules')
 
         assert type(scanpar) == str, '\nscanpar must be a <string> representing a model parameter'
         modpar = list(self.__parameters__)
         try:
             a = modpar.index(scanpar)
         except:
-            raise NameError, `scanpar` + ' is not a parameter of this model'
+            raise NameError(repr(scanpar) + ' is not a parameter of this model')
         if scanpar3d != None:
             if type(scanpar3d) == str:
                 scanpar3d = float(scanpar3d)
@@ -3925,15 +3927,15 @@ class PysMod(object):
 
         if self.__settings__["pitcon_jac_opt"] < 1:
             self.__settings__["pitcon_jac_opt"] = 1
-            print '\nINFO: .__settings__["pitcon_jac_opt"] set to 1 - user defined jacobian function not yet supported'
+            print('\nINFO: .__settings__["pitcon_jac_opt"] set to 1 - user defined jacobian function not yet supported')
 
         # DONE!
         def fx(s):
             setattr(self, scanpar, s[-1])
             try:
                 sdot[:-1] = self._EvalODE(s[:-1], Vtemp)
-            except Exception, ex:
-                print 'PITCON EXCEPTION 1', ex
+            except Exception as ex:
+                print('PITCON EXCEPTION 1', ex)
                 sdot[:-1] = 0.0
             sdot[-1] = s[-1]
             return sdot
@@ -4080,7 +4082,7 @@ class PysMod(object):
                                     xout.insert(0,scanpar3d)
                                 res.append(xout)
                     elif iwork[0] == 3:
-                        print '\nTarget point:'
+                        print('\nTarget point:')
                         xout = xr2.tolist()
                         a = xout.pop(-1)
 
@@ -4093,10 +4095,10 @@ class PysMod(object):
                         xout = xout.tolist()
                         xout.insert(0,a)
 
-                        print xout
+                        print(xout)
                         self.pitcon_target_points.append(xout)
                     elif iwork[0] == 4:
-                        print '\nLimit point'
+                        print('\nLimit point')
                         xout = xr2.tolist()
                         a = xout.pop(-1)
 
@@ -4109,15 +4111,15 @@ class PysMod(object):
                         xout = xout.tolist()
                         xout.insert(0,a)
 
-                        print xout
+                        print(xout)
                         self.pitcon_limit_points.append(xout)
                     elif iwork[0] == 1:
                         pass
                     else:
-                        print iwork[0]
+                        print(iwork[0])
                         #raw_input()
             else:
-                print '\nInvalid steady state, skipping ...'
+                print('\nInvalid steady state, skipping ...')
 
         if self.__settings__["pitcon_filter_neg_res"]:
             for result in range(len(res)-1,-1,-1):
@@ -4155,7 +4157,7 @@ class PysMod(object):
             try:
                 assert len(self.__inspec__) == len(self.__species__)
             except:
-                print '\nINFO: sim_sinit is the incorrect length initialising with .sX_init'
+                print('\nINFO: sim_sinit is the incorrect length initialising with .sX_init')
                 self.__inspec__ = numpy.zeros(len(self.__species__))
                 eval(self.__mapFunc_R__)
         else:
@@ -4163,7 +4165,7 @@ class PysMod(object):
             self.sim_end = float(self.sim_end)
             self.sim_points = float(self.sim_points)
             if self.sim_points == 1.0:
-                print '*****\nWARNING: simulations require a minimum of 2 points, setting sim_points = 2.0\n*****'
+                print('*****\nWARNING: simulations require a minimum of 2 points, setting sim_points = 2.0\n*****')
                 self.sim_points = 2.0
             self.sim_time = numpy.linspace(self.sim_start, self.sim_end, self.sim_points, endpoint=1, retstep=0)
             eval(self.__mapFunc_R__)
@@ -4189,7 +4191,7 @@ class PysMod(object):
             self.__Build_Tvec__(amounts=True)
             self.showConserved(screenwrite=0)
             if self.__settings__['display_debug'] == 1:
-                print self.conserved_sums
+                print(self.conserved_sums)
 
         # Initialise the simulation ...
         if self.__settings__['mode_sim_init'] == 0:
@@ -4207,7 +4209,7 @@ class PysMod(object):
                 for x in range(len(s0_sim_init)):
                     if s0_sim_init[x] < 0.0:
                         s0_sim_init[x] = self.__settings__['small_concentration']
-                        print 'Negative concentration detected in SimInit: s['+`x`+'] set to ' + `self.__settings__['small_concentration']`
+                        print('Negative concentration detected in SimInit: s['+repr(x)+'] set to ' + repr(self.__settings__['small_concentration']))
             else:
                 s0_sim_init = copy.copy(self.__inspec__)
         elif self.__settings__['mode_sim_init'] == 3:
@@ -4245,11 +4247,11 @@ class PysMod(object):
             sim_res, rates, simOK = self.CVODE(copy.copy(s0_sim_init))
         Tsim1 = time.time()
         if self.__settings__['lsoda_mesg']:
-            print "%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0)
+            print("%s time for %s points: %s" % (self.mode_integrator, len(self.sim_time), Tsim1-Tsim0))
 
         if self.__HAS_RATE_RULES__:
             sim_res, rrules = numpy.split(sim_res,[len(self.__species__)],axis=1)
-            print 'RateRules evaluated and added to mod.data_sim.'
+            print('RateRules evaluated and added to mod.data_sim.')
 
         self.data_sim = IntegrationDataObj()
         self.IS_VALID = simOK
@@ -4262,7 +4264,7 @@ class PysMod(object):
             self.data_sim.setXData(self.CVODE_xdata, lbls=self.CVODE_extra_output)
             self.CVODE_xdata = None
         if not simOK:
-            print 'Simulation failure'
+            print('Simulation failure')
         del sim_res
 
     @property
@@ -4323,7 +4325,7 @@ class PysMod(object):
             self.__Build_Tvec__(amounts=True)
             self.showConserved(screenwrite=0)
             if self.__settings__['display_debug'] == 1:
-                print self.conserved_sums
+                print(self.conserved_sums)
 
         #clear the solver initialisation array
         s0_ss_init = None
@@ -4342,7 +4344,7 @@ class PysMod(object):
             s0_ss_init = self.__inspec__.copy()
             s0_ss_init[:] = self.__settings__['small_concentration']
         elif self.mode_state_init == 2:
-            print 'This initialisation mode has been disabled, using initial values.'
+            print('This initialisation mode has been disabled, using initial values.')
             s0_ss_init = self.__inspec__.copy()
         ##  # Perform a 10-logstep simulation numpy.logspace(0,5,18) and initialise solver with final value
         ##  # This is guesstimate ... if anyone has a better idea please let me know
@@ -4401,7 +4403,7 @@ class PysMod(object):
         else:
             if self.mode_solver == 'NLEQ2':
                 self.mode_solver = 'HYBRD'
-            print 'INFO: switching to HYBRD.\nNleq2 solver not available see /nleq/readme.txt for details'
+            print('INFO: switching to HYBRD.\nNleq2 solver not available see /nleq/readme.txt for details')
 
         # ******* OTHER SOLVERS GO IN HERE *******
 
@@ -4427,7 +4429,7 @@ class PysMod(object):
                 if hasattr(self, d) and d not in self.__species__ + self.__reactions__ + self.__rate_rules__:
                     out.append(d)
                 else:
-                    print '\nWARNING: STATE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species, rate or rule.\n' % d
+                    print('\nWARNING: STATE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species, rate or rule.\n' % d)
             if len(out) > 0:
                 self.STATE_extra_output = out
                 STATE_XOUT = True
@@ -4458,16 +4460,16 @@ class PysMod(object):
             if (state_species < 0.0).any():
                 self.__StateOK__ = False
                 if self.__settings__['mode_state_mesg']:
-                    print 'WARNING!! Negative concentrations detected.'
+                    print('WARNING!! Negative concentrations detected.')
             if self.__StateOK__:
                 break
             else:
                 if self.mode_solver_fallback and self.__settings__['solver_switch_warning']:
                     slv_idx  = available_solvers.index(solver)
                     if slv_idx != len(available_solvers)-1:
-                        print 'INFO: STATE is switching to %s solver.' % available_solvers[slv_idx+1]
+                        print('INFO: STATE is switching to %s solver.' % available_solvers[slv_idx+1])
                     else:
-                        print 'INFO: STATE calculation failed!'
+                        print('INFO: STATE calculation failed!')
         if STATE_XOUT:
             STATE_xdata = self._EvalExtraData(self.STATE_extra_output)
 
@@ -4490,12 +4492,12 @@ class PysMod(object):
         # final check for a bad state set check if fluxes are == mach_eps
         # this is almost never going to be true
         if (self.state_flux == self.__settings__['mach_floateps']).any():
-            print '\nWARNING: extremely small flux detected! proceed with caution:'
-            print self.state_flux
+            print('\nWARNING: extremely small flux detected! proceed with caution:')
+            print(self.state_flux)
             ##  self.__StateOK__ = False
 
         if not self.__StateOK__:
-            print '\n***\nWARNING: invalid steady state solution (species concentrations and fluxes)\n***\n'
+            print('\n***\nWARNING: invalid steady state solution (species concentrations and fluxes)\n***\n')
             if self.__settings__['mode_state_nan_on_fail']:
                 self.state_species[:] = numpy.NaN
                 self.state_flux[:] = numpy.NaN
@@ -4516,10 +4518,10 @@ class PysMod(object):
         self.data_sstate.IS_VALID = self.__StateOK__
 
         if self.__settings__['display_debug'] == 1:
-            print 'self.state_species'
-            print self.state_species
-            print 'self.state_flux'
-            print self.state_flux
+            print('self.state_species')
+            print(self.state_species)
+            print('self.state_flux')
+            print(self.state_flux)
 
 #driver routines that support the core routines
 #   core support
@@ -4582,7 +4584,7 @@ class PysMod(object):
 
         """
         if self.__HAS_MOIETY_CONSERVATION__ == True:
-            Tlist = range(0,len(self.__tvec_a__))
+            Tlist = list(range(0,len(self.__tvec_a__)))
             if Tlist != []:
                 ConSumPstr = ''
                 for x in range(0,len(Tlist)):
@@ -4606,13 +4608,13 @@ class PysMod(object):
             self.conserved_sums = 'No moiety conservation'
 
         if File != None:
-            print '\nConserved relationships'
+            print('\nConserved relationships')
             #assert type(File) == file, 'showConserved() needs an open file object'
             File.write('\n## Conserved relationships\n')
             File.write(self.conserved_sums)
         elif screenwrite:
-            print '\nConserved relationships'
-            print self.conserved_sums
+            print('\nConserved relationships')
+            print(self.conserved_sums)
 
 
     def showFluxRelationships(self,File=None):
@@ -4638,13 +4640,13 @@ class PysMod(object):
             Ostr += '\n'
 
         if File != None:
-            print '\nFlux relationships'
+            print('\nFlux relationships')
             #assert type(File) == file, 'showConserved() needs an open file object'
             File.write('\n## Flux relationships\n')
             File.write(Ostr)
         else:
-            print '\nFlux relationships'
-            print Ostr
+            print('\nFlux relationships')
+            print(Ostr)
 
     # Calculate dependant variables done directly in EvalREq2 this is a utility version
     def Fix_S_fullinput(self, s_vec, amounts=True):
@@ -4779,17 +4781,17 @@ class PysMod(object):
             val = self.__settings__['mach_floateps']**2
             for x in range(len(input2)):
                 if abs(input2[x]) <= val:
-                    print 'Info: zero flux detected: J_%s set to %s' % (self.reactions[x], val)
+                    print('Info: zero flux detected: J_%s set to %s' % (self.reactions[x], val))
                     input2[x] = val
         if self.__settings__['elas_zero_conc_fix']:
             val = self.__settings__['mach_floateps']**2
             for x in range(len(input)):
                 if abs(input[x]) <= val:
-                    print 'Info: zero concentration detected: %s set to %s' % (self.species[x], val)
+                    print('Info: zero concentration detected: %s set to %s' % (self.species[x], val))
                     input[x] = val
 
         if self.__settings__['display_debug'] == 1:
-            print '\nVarinput = ' + `input` + '\n'
+            print('\nVarinput = ' + repr(input) + '\n')
 
         self.__evmatrix__ = numpy.zeros((len(self.__reactions__),len(self.__species__)),'d')
 
@@ -4807,7 +4809,7 @@ class PysMod(object):
         # attempt to evaluate every variable against every flux: E's > mach_eps are assumed to exist
         for react in range(len(self.__reactions__)):
             if self.__settings__['display_debug'] == 1:
-                print '\nReaction: ' + self.__reactions__[react]
+                print('\nReaction: ' + self.__reactions__[react])
             for met in range(len(self.__species__)):
                 countV = 0
                 countMet = 0
@@ -4824,18 +4826,18 @@ class PysMod(object):
 
                     a = ScipyDerivative(self.__num_deriv_function__,input[met],order=self.__settings__['mode_elas_deriv_order'],dx=hstep,n=1,\
                         args=('v=self.' + self.__reactions__[react] + '()','self.' + self.__species__[met] + '=x'))
-                except Exception, ex:
-                    print ex
-                    print '\nINFO: Elasticity evaluation failure in ', self.__reactions__[react], self.__species__[met]
-                    print 'Elasticity has been set to zero'
-                    print 'A stepsize that is too large might cause this ... try decreasing the factor and or min stepsize'
-                    print 'Keep in mind machine precision, is', self.__settings__['mach_floateps'], ' and if min stepsize'
-                    print 'becomes too small numeric error can become significant'
+                except Exception as ex:
+                    print(ex)
+                    print('\nINFO: Elasticity evaluation failure in ', self.__reactions__[react], self.__species__[met])
+                    print('Elasticity has been set to zero')
+                    print('A stepsize that is too large might cause this ... try decreasing the factor and or min stepsize')
+                    print('Keep in mind machine precision, is', self.__settings__['mach_floateps'], ' and if min stepsize')
+                    print('becomes too small numeric error can become significant')
                     a = 0.0
                 if abs(a) >= self.__settings__['mach_floateps']:
                     if self.__settings__['display_debug'] == 1:
-                        print 'species: ' + self.__species__[met]
-                        print '--> d(' + self.__reactions__[react] + ')d(' + self.__species__[met] + ') = ' + str(a)
+                        print('species: ' + self.__species__[met])
+                        print('--> d(' + self.__reactions__[react] + ')d(' + self.__species__[met] + ') = ' + str(a))
                     self.__evmatrix__[react,met] = a
 
        # restore variables to ss values only if steady state used
@@ -4857,7 +4859,7 @@ class PysMod(object):
             for x in range(0,len(input2)):
                 Dj[x,x] = 1.0/input2[x]
                 if self.__settings__['elas_scaling_div0_fix'] and numpy.isinf(Dj[x,x]):
-                    print 'Infinite elasticity detected during scaling setting to zero (%s)' % self.reactions[x]
+                    print('Infinite elasticity detected during scaling setting to zero (%s)' % self.reactions[x])
                     Dj[x,x] = 1.0e-16
             #print Dj
 
@@ -4889,18 +4891,18 @@ class PysMod(object):
                 self.ec.scaled = False
 
             if self.__settings__['display_debug'] == 1:
-                print '\n\n********************************\n'
-                print output2
-                print '\n********************************\n'
+                print('\n\n********************************\n')
+                print(output2)
+                print('\n********************************\n')
         else:
             pass
             #print 'INFO: variable elasticity symbols not attached - .__settings__["elas_evar_upsymb"] = ' + `self.__settings__["elas_evar_upsymb"]`
 
         if self.__settings__['display_debug'] == 1:
-            print '\ne_vmatrix'
-            print `self.__D_s_Order`.replace('self.','')
-            print self.__reactions__
-            print self.__evmatrix__
+            print('\ne_vmatrix')
+            print(repr(self.__D_s_Order).replace('self.',''))
+            print(self.__reactions__)
+            print(self.__evmatrix__)
 
     def CleanNaNsFromArray(self, arr, replace_val=0.0):
         """
@@ -4949,9 +4951,9 @@ class PysMod(object):
         # create parameter holding array
         parVal_hold = numpy.zeros((len(self.__parameters__)),'d')
         if self.__settings__['display_debug'] == 1:
-            print '\nParinput = ' + `input` + '\n'
-            print '\nparVal_hold1'
-            print parVal_hold
+            print('\nParinput = ' + repr(input) + '\n')
+            print('\nparVal_hold1')
+            print(parVal_hold)
 
         #Store parameter values into the storage array and copy them to the working array (parVal2)
         exec(self.__par_map2storeC)
@@ -4966,7 +4968,7 @@ class PysMod(object):
 
         for react in range(len(self.__reactions__)):
             if self.__settings__['display_debug'] == 1:
-                print '\nReaction: ' + self.__reactions__[react]
+                print('\nReaction: ' + self.__reactions__[react])
             for par in range(len(self.__parameters__)):
                 countV = 0
                 countPar = 0
@@ -4981,19 +4983,19 @@ class PysMod(object):
 
                     a = ScipyDerivative(self.__num_deriv_function__,getattr(self,self.__parameters__[par]),order=self.__settings__['mode_elas_deriv_order'],dx=hstep,n=1,\
                         args=('v=self.' + self.__reactions__[react] + '()','self.' + self.__parameters__[par] + '=x'))
-                except Exception, ex:
-                    print '\nNumeric derivative evaluation failure in ', self.__reactions__[react], self.__parameters__[par]
-                    print 'Elasticity has been set to NaN'
-                    print 'A stepsize that is too large might cause this ... try decreasing the factor and or min stepsize'
-                    print 'Keep in mind machine precision, is', self.__settings__['mach_floateps'], ' and if min stepsize'
-                    print 'becomes too small numeric error can become significant'
-                    print ex
+                except Exception as ex:
+                    print('\nNumeric derivative evaluation failure in ', self.__reactions__[react], self.__parameters__[par])
+                    print('Elasticity has been set to NaN')
+                    print('A stepsize that is too large might cause this ... try decreasing the factor and or min stepsize')
+                    print('Keep in mind machine precision, is', self.__settings__['mach_floateps'], ' and if min stepsize')
+                    print('becomes too small numeric error can become significant')
+                    print(ex)
                     a = numpy.NaN
 
                 if numpy.isnan(a) or abs(a) > self.__settings__['mach_floateps']:
                     if self.__settings__['display_debug'] == 1:
-                        print 'parameter: ' + self.__parameters__[par]
-                        print '--> d(' + self.__reactions__[react] + ')d(' + self.__parameters__[par] + ') = ' + `a`
+                        print('parameter: ' + self.__parameters__[par])
+                        print('--> d(' + self.__reactions__[react] + ')d(' + self.__parameters__[par] + ') = ' + repr(a))
                     self.__epmatrix__[react,par] = a
 
         self.elas_par_u = self.__epmatrix__
@@ -5002,8 +5004,8 @@ class PysMod(object):
         exec(self.__par_remapC)
 
         if self.__settings__['display_debug'] == 1:
-            print '\nparVal_hold2'
-            print parVal_hold
+            print('\nparVal_hold2')
+            print(parVal_hold)
 
         # Parameters are scaled by [1/J]*[Ep]*[P]
         # If scaled mca is requested scale self.__epmatrix__
@@ -5018,7 +5020,7 @@ class PysMod(object):
             for x in range(0,len(input2)):
                 Dj[x,x] = 1.0/input2[x]
                 if self.__settings__['elas_scaling_div0_fix'] and numpy.isinf(Dj[x,x]):
-                    print 'Infinite elasticity detected during scaling setting to zero (%s)' % self.reactions[x]
+                    print('Infinite elasticity detected during scaling setting to zero (%s)' % self.reactions[x])
                     Dj[x,x] = 1.0e-16
             #print Dj
 
@@ -5052,15 +5054,15 @@ class PysMod(object):
                 self.ecp.scaled = False
 
             if self.__settings__['display_debug'] == 1:
-                print '\n\n********************************\n'
-                print output2
-                print '\n********************************\n'
+                print('\n\n********************************\n')
+                print(output2)
+                print('\n********************************\n')
 
         if self.__settings__['display_debug'] == 1:
-            print '\ne_pmatrix'
-            print self.__parameters__
-            print self.__reactions__
-            print self.__epmatrix__
+            print('\ne_pmatrix')
+            print(self.__parameters__)
+            print(self.__reactions__)
+            print(self.__epmatrix__)
 
     def showEvar(self,File=None):
         """
@@ -5079,7 +5081,7 @@ class PysMod(object):
             evar_output = ''
             for x in range(0,r):
                 react = self.__reactions__[x]
-                evar_output += '\n' + `self.__reactions__[x]` + '\n'
+                evar_output += '\n' + repr(self.__reactions__[x]) + '\n'
                 for y in range (0,c):
                     rtemp = self.__settings__['mode_number_format'] % self.__evmatrix__[x,y]
                     met = self.__D_s_Order[y]
@@ -5094,12 +5096,12 @@ class PysMod(object):
             evar_output = 'No variable elasticities - run EvalEvar() to calculate'
 
         if File != None:
-            print '\nspecies elasticities'
+            print('\nspecies elasticities')
             File.write('\n## species elasticities\n')
             File.write(evar_output)
         else:
-            print '\nspecies elasticities'
-            print evar_output
+            print('\nspecies elasticities')
+            print(evar_output)
 
 
     def showEpar(self,File=None):
@@ -5119,7 +5121,7 @@ class PysMod(object):
             epar_output = ''
             for x in range(0,r):
                 react = self.__reactions__[x]
-                epar_output += '\n' + `self.__reactions__[x]` + '\n'
+                epar_output += '\n' + repr(self.__reactions__[x]) + '\n'
                 for y in range (0,c):
                     rtemp = self.__settings__['mode_number_format'] % self.__epmatrix__[x,y]
                     met = self.__parameters__[y]
@@ -5136,12 +5138,12 @@ class PysMod(object):
             epar_output = 'No parameter elasticities - run EvalEpar() to calculate'
 
         if File != None:
-            print '\nParameter elasticities'
+            print('\nParameter elasticities')
             File.write('\n## Parameter elasticities\n')
             File.write(epar_output)
         else:
-            print '\nParameter elasticities'
-            print epar_output
+            print('\nParameter elasticities')
+            print(epar_output)
 
     def showElas(self,File=None):
         """
@@ -5193,7 +5195,7 @@ class PysMod(object):
             try:
                 s_1_scale[x,x] = 1.0/input[self.lmatrix_row[x]] #create 1/D Using the steady-state met's ordered to the rows
             except:
-                print 'Zero species detected: ' + self.__species__[self.lmatrix_row[x]] + '_ss = ' + `input[self.lmatrix_row[x]]`
+                print('Zero species detected: ' + self.__species__[self.lmatrix_row[x]] + '_ss = ' + repr(input[self.lmatrix_row[x]]))
                 s_1_scale[x,x] = 0.0
 
         Si_order = numpy.zeros(len(self.lmatrix_col)) #check
@@ -5217,7 +5219,7 @@ class PysMod(object):
             try:
                 j_1_scale[x,x] = 1.0/input2[self.kmatrix_row[x]]
             except:
-                print '\nNull flux detected: ' + self.__reactions__[self.kmatrix_row[x]] + '_ss = ' + `input2[self.kmatrix_row[x]]`
+                print('\nNull flux detected: ' + self.__reactions__[self.kmatrix_row[x]] + '_ss = ' + repr(input2[self.kmatrix_row[x]]))
                 j_1_scale[x,x] = 0.0
 
         Ji_order = numpy.zeros(len(self.kmatrix_col)) #check
@@ -5274,22 +5276,22 @@ class PysMod(object):
                 e2[x,y]  = self.elas_var_u[self.kmatrix_row[x],self.lmatrix_row[y]]
 
         if self.__settings__['display_debug'] == 1:
-            print self.lmatrix_row
-            print self.kmatrix_row
-            print '---'
-            print self.__nmatrix__.shape
-            print self.nmatrix_row
-            print self.nmatrix_col
-            print self.nmatrix
-            print '---'
-            print self.__lmatrix__.shape
-            print self.__lmatrix__
-            print '---'
-            print self.__kmatrix__.shape
-            print self.__kmatrix__
-            print '---'
-            print e2.shape
-            print e2
+            print(self.lmatrix_row)
+            print(self.kmatrix_row)
+            print('---')
+            print(self.__nmatrix__.shape)
+            print(self.nmatrix_row)
+            print(self.nmatrix_col)
+            print(self.nmatrix)
+            print('---')
+            print(self.__lmatrix__.shape)
+            print(self.__lmatrix__)
+            print('---')
+            print(self.__kmatrix__.shape)
+            print(self.__kmatrix__)
+            print('---')
+            print(e2.shape)
+            print(e2)
 
         EL = -1.0*numpy.dot(e2,self.__lmatrix__)
         KEL = numpy.concatenate((self.__kmatrix__, EL),1)
@@ -5301,11 +5303,11 @@ class PysMod(object):
             # fortran has a very fp idea of zero I use abs(val)<1.0e-15
             self.__structural__.MatrixFloatFix(Ci_u,val=1.e-15)
             go = 1
-        except Exception, ex:
-            print ex
-            print '\nINFO: K-EL matrix inversion failed this is possibly due to NaN values in the Elasticity matrix'
-            print 'NaN elasticities can be caused by zero fluxes or concentrations look at the settings (in mod.__settings__)'
-            print  '\'elas_scaling_div0_fix\' and \'elas_zero_flux_fix\''
+        except Exception as ex:
+            print(ex)
+            print('\nINFO: K-EL matrix inversion failed this is possibly due to NaN values in the Elasticity matrix')
+            print('NaN elasticities can be caused by zero fluxes or concentrations look at the settings (in mod.__settings__)')
+            print('\'elas_scaling_div0_fix\' and \'elas_zero_flux_fix\'')
             go = 0
 
         if go == 1 and not self.__settings__['mode_mca_scaled']:
@@ -5356,12 +5358,12 @@ class PysMod(object):
         del e2, EL, KEL
 
         if self.__settings__['display_debug'] == 1:
-            print 'print self.mca_ci_row'
-            print self.mca_ci_row
-            print 'print self.mca_ci_col'
-            print self.mca_ci_col
-            print 'print self.mca_ci'
-            print self.mca_ci
+            print('print self.mca_ci_row')
+            print(self.mca_ci_row)
+            print('print self.mca_ci_col')
+            print(self.mca_ci_col)
+            print('print self.mca_ci')
+            print(self.mca_ci)
 
         CJi = numpy.zeros((len(self.kmatrix_col),self.mca_ci.shape[1]),'d')
         CSi = numpy.zeros((self.mca_ci.shape[0] - len(self.kmatrix_col),self.mca_ci.shape[1]),'d')
@@ -5392,12 +5394,12 @@ class PysMod(object):
         Ko_col.reverse()
 
         if self.__settings__['display_debug'] == 1:
-            print 'CJi'
-            print CJi
-            print 'sKo'
-            print sKo
-            print 'self.kzeromatrix'
-            print self.__kzeromatrix__
+            print('CJi')
+            print(CJi)
+            print('sKo')
+            print(sKo)
+            print('self.kzeromatrix')
+            print(self.__kzeromatrix__)
 
         #new
         if self.__settings__['mode_mca_scaled']:
@@ -5411,12 +5413,12 @@ class PysMod(object):
         del sKo, CJi
 
         if self.__settings__['display_debug'] == 1:
-            print 'self.mca_cjd_row'
-            print self.mca_cjd_row
-            print 'self.mca_cjd_col'
-            print self.mca_cjd_col
-            print 'self.mca_cjd'
-            print self.mca_cjd
+            print('self.mca_cjd_row')
+            print(self.mca_cjd_row)
+            print('self.mca_cjd_col')
+            print(self.mca_cjd_col)
+            print('self.mca_cjd')
+            print(self.mca_cjd)
 
         Lo_row = []
         Lo_col = []
@@ -5447,12 +5449,12 @@ class PysMod(object):
         del CSi, sLo
 
         if self.__settings__['display_debug'] == 1:
-            print 'self.mca_csd'
-            print self.mca_csd
-            print 'self.mca_csd_row'
-            print self.mca_csd_row
-            print 'self.mca_csd_col'
-            print self.mca_csd_col
+            print('self.mca_csd')
+            print(self.mca_csd)
+            print('self.mca_csd_row')
+            print(self.mca_csd_row)
+            print('self.mca_csd_col')
+            print(self.mca_csd_col)
 
         if self.__HAS_FLUX_CONSERVATION__ and self.__HAS_MOIETY_CONSERVATION__:
             self.cc_flux = numpy.concatenate((self.mca_ci[:self.__kmatrix__.shape[1],:],self.mca_cjd))
@@ -5469,7 +5471,7 @@ class PysMod(object):
             self.cc_conc_row = copy.copy(self.mca_ci_row[self.__kmatrix__.shape[1]:])
             self.cc_conc_col = copy.copy(self.mca_ci_col)
         elif self.__HAS_MOIETY_CONSERVATION__:
-            print 'INFO: this is interesting no dependent flux cc\'s only dependent conc cc\'s!'
+            print('INFO: this is interesting no dependent flux cc\'s only dependent conc cc\'s!')
             self.cc_flux = copy.copy(self.mca_ci[:self.__kmatrix__.shape[1],:])
             self.cc_flux_row = copy.copy(self.mca_ci_row[:self.__kmatrix__.shape[1]])
             self.cc_flux_col = copy.copy(self.mca_ci_col)
@@ -5477,7 +5479,7 @@ class PysMod(object):
             self.cc_conc_row = copy.copy(self.mca_ci_row[self.__kmatrix__.shape[1]:] + self.mca_csd_row)
             self.cc_conc_col = copy.copy(self.mca_ci_col)
         else:
-            print 'INFO: this is interesting no dependent flux/conc coefficients!'
+            print('INFO: this is interesting no dependent flux/conc coefficients!')
             self.cc_flux = copy.copy(self.mca_ci[:self.__kmatrix__.shape[1],:])
             self.cc_flux_row = copy.copy(self.mca_ci_row[:self.__kmatrix__.shape[1]])
             self.cc_flux_col = copy.copy(self.mca_ci_col)
@@ -5498,20 +5500,20 @@ class PysMod(object):
             self.cc.scaled = False
 
         if self.__settings__['display_debug'] == 1:
-            print 'self.cc_flux'
-            print self.cc_flux_row
-            print self.cc_flux_col
-            print self.cc_flux.shape
+            print('self.cc_flux')
+            print(self.cc_flux_row)
+            print(self.cc_flux_col)
+            print(self.cc_flux.shape)
 
-            print 'self.cc_conc'
-            print self.cc_conc_row
-            print self.cc_conc_col
-            print self.cc_conc.shape
+            print('self.cc_conc')
+            print(self.cc_conc_row)
+            print(self.cc_conc_col)
+            print(self.cc_conc.shape)
 
-            print 'self.cc_all'
-            print self.cc_all_row
-            print self.cc_all_col
-            print self.cc_all.shape
+            print('self.cc_all')
+            print(self.cc_all_row)
+            print(self.cc_all_col)
+            print(self.cc_all.shape)
 
         if self.__settings__["mca_ccj_upsymb"]:
             #CJ
@@ -5535,10 +5537,10 @@ class PysMod(object):
                         setattr(self, 'ucc' + self.cc_all_row[x] + '_' + self.cc_all_col[y], self.cc_all[x,y])
 
         if self.__settings__['display_debug'] == 1:
-            print 'CJoutput'
-            print CJoutput
-            print 'CSoutput'
-            print CSoutput
+            print('CJoutput')
+            print(CJoutput)
+            print('CSoutput')
+            print(CSoutput)
 
     def showCC(self,File=None):
         """
@@ -5607,29 +5609,29 @@ class PysMod(object):
         if File != None:
             #assert type(File) == file, 'showCC() needs an open file object'
             if self.__settings__["mca_ccall_altout"]:
-                print '\nControl coefficients grouped by reaction'
+                print('\nControl coefficients grouped by reaction')
                 File.write('\n## Control coefficients grouped by reaction\n')
                 File.write(CAltoutput)
             else:
                 if self.__settings__["mca_ccall_fluxout"]:
-                    print '\nFlux control coefficients'
+                    print('\nFlux control coefficients')
                     File.write('\n## Flux control coefficients\n')
                     File.write(CJoutput)
                 if self.__settings__["mca_ccall_concout"]:
-                    print '\nConcentration control coefficients'
+                    print('\nConcentration control coefficients')
                     File.write('\n## Concentration control coefficients\n')
                     File.write(CSoutput)
         else:
             if self.__settings__["mca_ccall_altout"]:
-                print '\nControl coefficients grouped by reaction'
-                print CAltoutput
+                print('\nControl coefficients grouped by reaction')
+                print(CAltoutput)
             else:
                 if self.__settings__["mca_ccall_fluxout"]:
-                    print '\nFlux control coefficients'
-                    print CJoutput
+                    print('\nFlux control coefficients')
+                    print(CJoutput)
                 if self.__settings__["mca_ccall_concout"]:
-                    print '\nConcentration control coefficients'
-                    print CSoutput
+                    print('\nConcentration control coefficients')
+                    print(CSoutput)
 
     def EvalRC(self):
         """
@@ -5809,18 +5811,18 @@ class PysMod(object):
                 #returns eigenvalues as well as left and right eigenvectors
                 eigenval,self.eigen_vecleft,self.eigen_vecright = scipy.linalg.eig(jacobian,numpy.identity(jacobian.shape[0],'d'),left=1,right=1)
                 if self.__settings__['display_debug'] == 1:
-                    print '\nEigenvalues'
-                    print eigenval
-                    print '\nLeft Eigenvector'
-                    print self.eigen_vecleft
-                    print '\nRight Eigenvector'
-                    print self.eigen_vecright
+                    print('\nEigenvalues')
+                    print(eigenval)
+                    print('\nLeft Eigenvector')
+                    print(self.eigen_vecleft)
+                    print('\nRight Eigenvector')
+                    print(self.eigen_vecright)
             else:
                 #returns eigenvalues
                 eigenval = scipy.linalg.eigvals(jacobian)
                 if self.__settings__['display_debug'] == 1:
-                    print '\nEigenvalues'
-                    print eigenval
+                    print('\nEigenvalues')
+                    print(eigenval)
 
         self.eigen_values = eigenval
         #self.eigen_order = tuple(eigenorder)
@@ -5829,7 +5831,7 @@ class PysMod(object):
             setattr(self, 'lambda' + str(x+1), self.eigen_values[x])
 
         if self.__settings__['display_debug'] == 1:
-            print '\nEigenvalues attached as lambda1 ... lambda' + `len(eigenorder)` + '\n'
+            print('\nEigenvalues attached as lambda1 ... lambda' + repr(len(eigenorder)) + '\n')
 
 
     def showEigen(self,File=None):
@@ -5881,37 +5883,37 @@ class PysMod(object):
         elif pos_real == eiglen:
             eigenstats += ' --> Unstable state'
 
-        eigenstats += '\nPurely real: ' + `pure_real`
-        eigenstats += '\nPurely imaginary: ' + `pure_imag`
-        eigenstats += '\nZero: ' + `pure_zero`
-        eigenstats += '\nPositive real part: ' + `pos_real`
-        eigenstats += '\nNegative real part: ' + `neg_real`
+        eigenstats += '\nPurely real: ' + repr(pure_real)
+        eigenstats += '\nPurely imaginary: ' + repr(pure_imag)
+        eigenstats += '\nZero: ' + repr(pure_zero)
+        eigenstats += '\nPositive real part: ' + repr(pos_real)
+        eigenstats += '\nNegative real part: ' + repr(neg_real)
 
         if File != None:
             #assert type(File) == file, 'showEigen() needs an open file object'
-            print '\nEigen values'
+            print('\nEigen values')
             File.write('\n## Eigen values\n')
             scipy.io.write_array(File,self.eigen_values,precision=2,keep_open=1)
-            print '\nEigen statistics'
+            print('\nEigen statistics')
             File.write('\n## Eigen statistics\n')
             File.write(eigenstats)
             if self.__settings__['mode_eigen_output']:
-                print '\nLeft eigen vector'
+                print('\nLeft eigen vector')
                 File.write('\n## Left eigen vector\n')
                 scipy.io.write_array(File,self.eigen_vecleft,precision=2,keep_open=1)
-                print '\nRight eigen vector'
+                print('\nRight eigen vector')
                 File.write('\n## Right eigen vector\n')
                 scipy.io.write_array(File,self.eigen_vecright,precision=2,keep_open=1)
         else:
-            print '\nEigen values'
-            print self.eigen_values
-            print '\nEigen statistics'
-            print eigenstats
+            print('\nEigen values')
+            print(self.eigen_values)
+            print('\nEigen statistics')
+            print(eigenstats)
             if self.__settings__['mode_eigen_output']:
-                print '\nLeft eigen vector'
-                print self.eigen_vecleft
-                print '\nRight eigen vector'
-                print self.eigen_vecright
+                print('\nLeft eigen vector')
+                print(self.eigen_vecleft)
+                print('\nRight eigen vector')
+                print(self.eigen_vecright)
 
 #Utility functions
 #new generation metafunctions
@@ -6228,7 +6230,7 @@ class PysMod(object):
         if self.__HAS_MOIETY_CONSERVATION__:
             self.EvalRCT()
         else:
-            print 'No moiety conservation detected, reverting to simple doMcaRC().'
+            print('No moiety conservation detected, reverting to simple doMcaRC().')
 
 #show/save function prototypes
     def showSpecies(self,File=None):
@@ -6244,12 +6246,12 @@ class PysMod(object):
         """
         out_list = []
 
-        print '\nSpecies values'
+        print('\nSpecies values')
         out_list.append('\n## species values\n')
         for x in range(len(self.__species__)):
             if File == None:
                 ##  print self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % eval('self.' + self.__species__[x])
-                print self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x])
+                print(self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x]))
             else:
                 ##  out_list.append(self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % eval('self.' + self.__species__[x]) + '\n')
                 out_list.append(self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x]) + '\n')
@@ -6270,11 +6272,11 @@ class PysMod(object):
         """
         out_list = []
 
-        print '\nSpecies initial values'
+        print('\nSpecies initial values')
         out_list.append('\n## species initial values\n')
         for x in range(len(self.__species__)):
             if File == None:
-                print self.__species__[x] + '_init = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x]+'_init')
+                print(self.__species__[x] + '_init = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x]+'_init'))
             else:
                 out_list.append(self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__species__[x]+'_init') + '\n')
         if File != None:
@@ -6294,11 +6296,11 @@ class PysMod(object):
         """
         out_list = []
 
-        print '\nFixed species'
+        print('\nFixed species')
         out_list.append('\n## fixed species\n')
         for x in range(len(self.__fixed_species__)):
             if File == None:
-                print self.__fixed_species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__fixed_species__[x])
+                print(self.__fixed_species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__fixed_species__[x]))
             else:
                 out_list.append(self.__fixed_species__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__fixed_species__[x]) + '\n')
         if File != None:
@@ -6318,11 +6320,11 @@ class PysMod(object):
         """
         out_list = []
 
-        print '\nParameters'
+        print('\nParameters')
         out_list.append('\n## parameters\n')
         for x in range(len(self.__parameters__)):
             if File == None:
-                print self.__parameters__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__parameters__[x])
+                print(self.__parameters__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__parameters__[x]))
             else:
                 out_list.append(self.__parameters__[x] + ' = ' +  self.__settings__['mode_number_format'] % getattr(self, self.__parameters__[x]) + '\n')
         if File != None:
@@ -6343,44 +6345,44 @@ class PysMod(object):
         noMod = []
         out_list = []
 
-        print '\nModifiers per reaction:'
+        print('\nModifiers per reaction:')
         out_list.append('\n## modifiers per reaction\n')
         for reac in self.__modifiers__:
             rstr = ''
             if len(reac[1]) == 1:
-                if File == None: print reac[0] +' has modifier:',
+                if File == None: print(reac[0] +' has modifier:', end=' ')
                 rstr = rstr + reac[0] +' has modifier: '
                 for x in reac[1]:
-                    if File == None: print x,
+                    if File == None: print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None: print ' '
+                if File == None: print(' ')
                 rstr += '\n'
             elif len(reac[1]) > 1:
-                if File == None: print reac[0] +' has modifiers: ',
+                if File == None: print(reac[0] +' has modifiers: ', end=' ')
                 rstr = rstr + reac[0] +' has modifiers: '
                 for x in reac[1]:
-                    if File == None: print x,
+                    if File == None: print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None: print ' '
+                if File == None: print(' ')
                 rstr += '\n'
             else:
                 noMod.append(reac[0])
 
             out_list.append(rstr)
         if len(noMod) > 0:
-            print '\nReactions with no modifiers:'
+            print('\nReactions with no modifiers:')
             out_list.append('\n## reactions with no modifiers\n')
             cntr = 0
             rstr = ''
             for n in range(len(noMod)):
                 cntr += 1
                 if cntr > 6:
-                    if File == None: print ' '
+                    if File == None: print(' ')
                     rstr += '\n'
                     cntr = 0
-                if File == None: print noMod[n],
+                if File == None: print(noMod[n], end=' ')
                 rstr = rstr + noMod[n] + ' '
-            if File == None: print ' '
+            if File == None: print(' ')
             rstr += '\n'
             out_list.append(rstr)
 
@@ -6402,28 +6404,28 @@ class PysMod(object):
         """
         out_list = []
 
-        print '\nSteady-state species concentrations'
+        print('\nSteady-state species concentrations')
         out_list.append('\n## Current steady-state species concentrations\n')
         if self.__StateOK__:
             for x in range(len(self.state_species)):
                 if File == None:
-                    print self.__species__[x] + '_ss = ' + self.__settings__['mode_number_format'] % self.state_species[x]
+                    print(self.__species__[x] + '_ss = ' + self.__settings__['mode_number_format'] % self.state_species[x])
                 else:
                     out_list.append(self.__species__[x] + '_ss = ' + self.__settings__['mode_number_format'] % self.state_species[x] + '\n')
         else:
-            print 'No valid steady state found'
+            print('No valid steady state found')
             out_list.append('No valid steady state found.\n')
 
-        print '\nSteady-state fluxes'
+        print('\nSteady-state fluxes')
         out_list.append('\n## Steady-state fluxes\n')
         if self.__StateOK__:
             for x in range(len(self.state_flux)):
                 if File == None:
-                    print 'J_' + self.__reactions__[x] + ' = ' + self.__settings__['mode_number_format'] % self.state_flux[x]
+                    print('J_' + self.__reactions__[x] + ' = ' + self.__settings__['mode_number_format'] % self.state_flux[x])
                 else:
                     out_list.append('J_' + self.__reactions__[x] + ' = ' + self.__settings__['mode_number_format'] % self.state_flux[x] + '\n')
         else:
-            print 'No valid steady state found'
+            print('No valid steady state found')
             out_list.append('No valid steady state found.\n')
 
         if File != None:
@@ -6444,12 +6446,12 @@ class PysMod(object):
         del s,Vtemp
 
         if File != None:
-            print '\nReaction rates'
+            print('\nReaction rates')
             File.write('\n##Reaction rates\n')
             File.write(outrate)
         else:
-            print '\nReaction rates'
-            print outrate
+            print('\nReaction rates')
+            print(outrate)
 
 
     def showRateEq(self,File=None):
@@ -6468,13 +6470,13 @@ class PysMod(object):
 
         self.__settings__['mode_number_format'] = '%2.5f'
 
-        print '\nReaction stoichiometry and rate equations'
+        print('\nReaction stoichiometry and rate equations')
         out_list.append('\n## Reaction stoichiometry and rate equations\n')
 
         # writes these out in a better order
         for key in self.Kmatrix.row:
             if File == None:
-                print key + ':'
+                print(key + ':')
             else:
                 out_list.append(key + ':\n')
             reagL = []
@@ -6511,12 +6513,12 @@ class PysMod(object):
             else:
                 symbol = ' > '
             if File == None:
-                print '\t' + substring + symbol + prodstring
-                print '\t' + self.__nDict__[key]['RateEq'].replace('self.','')
+                print('\t' + substring + symbol + prodstring)
+                print('\t' + self.__nDict__[key]['RateEq'].replace('self.',''))
             else:
                 out_list.append('\t' + substring + symbol + prodstring + '\n')
                 out_list.append('\t' + self.__nDict__[key]['RateEq'].replace('self.','') + '\n\n')
-        if len(self.__rules__.keys()) > 0:
+        if len(list(self.__rules__.keys())) > 0:
             out_list.append('\n# Assignment rules\n')
             for ass in self.__rules__:
                 out_list.append('!F %s = %s\n' % (self.__rules__[ass]['name'],\
@@ -6576,10 +6578,10 @@ class PysMod(object):
             odes += '\n'
 
         if File != None:
-            print '\nODE\'s (unreduced)\n'
+            print('\nODE\'s (unreduced)\n')
             File.write(odes)
         else:
-            print odes
+            print(odes)
 
     def showODEr(self,File=None,fmt='%2.3f'):
         """
@@ -6629,11 +6631,11 @@ class PysMod(object):
             odes += '\n'
 
         if File != None:
-            print '\nODE\'s (reduced)\n'
+            print('\nODE\'s (reduced)\n')
             File.write(odes)
             self.showConserved(File)
         else:
-            print odes
+            print(odes)
             self.showConserved()
 
     def showModel(self,filename=None,filepath=None,skipcheck=0):
@@ -6654,13 +6656,13 @@ class PysMod(object):
             filepath = self.ModelDir
 
         if filename == None:
-            print '\nFixed species'
+            print('\nFixed species')
             if len(self.__fixed_species__) == 0:
-                print '<none>'
+                print('<none>')
             else:
                 for x in self.__fixed_species__:
-                    print x,
-            print ' '
+                    print(x, end=' ')
+            print(' ')
 
             self.showRateEq()
             self.showSpeciesI()
@@ -6681,37 +6683,37 @@ class PysMod(object):
                         filex = os.path.join(filepath,filename)
                         f = open(filex,'r')
                         f.close()
-                        input = raw_input('\nfile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
+                        input = input('\nfile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
                         if input == 'y' or input == '':
                             go = 1
                             loop = 1
                         elif input == 'n':
-                            filename = raw_input('\nfile "' + filename + '" exists. Enter a new filename: ')
+                            filename = input('\nfile "' + filename + '" exists. Enter a new filename: ')
                             go = 1
                             filex = os.path.join(filepath,filename)
                             filename = chkpsc(filename)
                         else:
-                            print '\nInvalid input'
+                            print('\nInvalid input')
                     except:
-                        print '\nfile "' + filex + '" does not exist, proceeding'
+                        print('\nfile "' + filex + '" does not exist, proceeding')
                         loop = 1
                         go = 1
             else:
-                print '\nI hope we have a filebuffer'
-                if type(filename)==file or type(filename)==cStringIO.OutputType: # --johann 20070615
+                print('\nI hope we have a filebuffer')
+                if type(filename)==file or type(filename)==io.OutputType: # --johann 20070615
                     go = 1
                     FBuf = 1
-                    print 'Seems like it'
+                    print('Seems like it')
                 else:
                     go = 0
-                    print 'Are you sure you know what ur doing'
+                    print('Are you sure you know what ur doing')
 
             if go == 1:
                 if not FBuf:
                     if filex[-4:] == '.psc':
                         pass
                     else:
-                        print 'Assuming extension is .psc'
+                        print('Assuming extension is .psc')
                         filex += '.psc'
                     outFile = open(filex,'w')
                 else:
@@ -6805,13 +6807,13 @@ class PysMod(object):
             km += ')'
 
         if File != None:
-            print '\nStoichiometric matrix (N)'
+            print('\nStoichiometric matrix (N)')
             File.write('\n\n## Stoichiometric matrix (N)\n')
             File.write(km)
             File.write('\n')
         else:
-            print '\nStoichiometric matrix (N)'
-            print km
+            print('\nStoichiometric matrix (N)')
+            print(km)
 
     def showNr(self,File=None,fmt='%2.3f'):
         """
@@ -6877,13 +6879,13 @@ class PysMod(object):
                     pass
             km += ')'
         if File != None:
-            print '\nReduced stoichiometric matrix (Nr)'
+            print('\nReduced stoichiometric matrix (Nr)')
             File.write('\n\n## Reduced stoichiometric matrix (Nr)\n')
             File.write(km)
             File.write('\n')
         else:
-            print '\nReduced stoichiometric matrix (Nr)'
-            print km
+            print('\nReduced stoichiometric matrix (Nr)')
+            print(km)
 
     def showK(self,File=None,fmt='%2.3f'):
         """
@@ -6949,7 +6951,7 @@ class PysMod(object):
             km += ')'
 
         if File != None:
-            print '\nKernel matrix (K)'
+            print('\nKernel matrix (K)')
             File.write('\n\n## Kernel matrix (K)\n')
             if not self.__HAS_FLUX_CONSERVATION__:
                 File.write('No flux conservation\n')
@@ -6957,11 +6959,11 @@ class PysMod(object):
                 File.write(km)
                 File.write('\n')
         else:
-            print '\nKernel matrix (K)'
+            print('\nKernel matrix (K)')
             if not self.__HAS_FLUX_CONSERVATION__:
-                print 'No flux conservation'
+                print('No flux conservation')
             else:
-                print km
+                print(km)
 
     def showL(self,File=None,fmt='%2.3f'):
         """
@@ -7027,7 +7029,7 @@ class PysMod(object):
 
 
         if File != None:
-            print '\nLink matrix (L)'
+            print('\nLink matrix (L)')
             File.write('\n\n## Link matrix (L)\n')
             if not self.__HAS_MOIETY_CONSERVATION__:
                 File.write('No moiety conservation\n')
@@ -7037,12 +7039,12 @@ class PysMod(object):
                 File.write(km)
                 File.write('\n')
         else:
-            print '\nLink matrix (L)'
+            print('\nLink matrix (L)')
             if not self.__HAS_MOIETY_CONSERVATION__:
-                print '\"No moiety conservation\"\n'
-                print km
+                print('\"No moiety conservation\"\n')
+                print(km)
             else:
-                print km
+                print(km)
 
 #Internal test functions
     def TestSimState(self,endTime=10000,points=101,diff=1.0e-5):
@@ -7103,7 +7105,7 @@ class PysMod(object):
             if self.__settings__['write_array_spacer']:
                 File.write('\n')
             if Col != None:
-                print 'Writing column'
+                print('Writing column')
                 File.write('#')
                 try:
                     input_width = len(self.__settings__['mode_number_format'] % input[0,0])+ 1 + len(str(separator))
@@ -7118,11 +7120,11 @@ class PysMod(object):
                         File.write(str(x[:input_width]) + spacer)
                 File.write('\n')
             try:
-                print '\nWriting array (normal) to file'
+                print('\nWriting array (normal) to file')
                 #scipy.io.write_array(File,input,separator=' ',linesep='\n',precision=3,keep_open=1)
                 flush_count = 0
                 if self.__settings__['write_arr_lflush'] < 2:
-                    print 'INFO: LineFlush must be >= 2'
+                    print('INFO: LineFlush must be >= 2')
                     self.__settings__['write_arr_lflush'] = 2
                 for x in range(input.shape[0]):
                     flush_count += 1
@@ -7139,15 +7141,15 @@ class PysMod(object):
                         flush_count = 0
                         #print 'flushing'
                 #File.write('\n')
-            except IndexError, e:
-                print '\nWriting vector (normal) to file'
+            except IndexError as e:
+                print('\nWriting vector (normal) to file')
                 for x in range(len(input)):
                     File.write(self.__settings__['mode_number_format'] % input[x])
                     if x < len(input)-1:
                         File.write(separator)
                 File.write('\n')
             if Row != None:
-                print 'Writing row'
+                print('Writing row')
                 File.write('# Row: ')
                 for x in Row:
                     File.write(str(x)+separator)
@@ -7155,7 +7157,7 @@ class PysMod(object):
             if close_file:
                 File.close()
         else:
-            print 'INFO: You need to supply an open writable file as the 2nd argument to this function'
+            print('INFO: You need to supply an open writable file as the 2nd argument to this function')
 
 
     def Write_array_latex(self,input,File=None,Row=None,Col=None,close_file=0):
@@ -7184,13 +7186,13 @@ class PysMod(object):
 
         if Row != None:
             assert len(Row) == input.shape[0], 'len(Row) must be equal to len(input_row)'
-            print 'Writing row'
+            print('Writing row')
         if Col != None:
             assert len(Col) == input.shape[1], 'len(Col) must be equal to len(input_col)'
-            print 'Writing column'
+            print('Writing column')
 
         if self.__settings__['write_arr_lflush'] < 2:
-            print 'INFO: LineFlush must be >= 2'
+            print('INFO: LineFlush must be >= 2')
             self.__settings__['write_arr_lflush'] = 2
 
         fname = 'Write_array_latex_' + self.ModelFile.replace('.psc','')  + '_' + time.strftime("%H:%M:%S")
@@ -7199,7 +7201,7 @@ class PysMod(object):
             File.write('\n%% ' + fname + '\n')
             try:
                 a = input.shape
-                print '\nWriting array (LaTeX) to file'
+                print('\nWriting array (LaTeX) to file')
                 File.write('\\[\n')
                 File.write('\\begin{array}{')
                 if Row != None:
@@ -7245,11 +7247,11 @@ class PysMod(object):
                 File.write('\\end{array}\n')
                 File.write('\\]\n\n')
             except:
-                print '\nINFO: Only arrays can currently be processed with this method.\n'
+                print('\nINFO: Only arrays can currently be processed with this method.\n')
             if close_file:
                 File.close()
         else:
-            print 'INFO: You need to supply an open writable file as the 2nd argument to this method'
+            print('INFO: You need to supply an open writable file as the 2nd argument to this method')
 
 
     def Write_array_html(self,input,File=None,Row=None,Col=None,name=None,close_file=0):
@@ -7283,12 +7285,12 @@ class PysMod(object):
 
         if Row != None:
             assert len(Row) == input.shape[0], 'len(Row) must be equal to len(input_row)'
-            print 'Writing row'
+            print('Writing row')
         if Col != None:
             assert len(Col) == input.shape[1], 'len(Col) must be equal to len(input_col)'
-            print 'Writing column'
+            print('Writing column')
         if self.__settings__['write_arr_lflush'] < 2:
-            print 'INFO: LineFlush must be >= 2'
+            print('INFO: LineFlush must be >= 2')
             self.__settings__['write_arr_lflush'] = 2
         if name != None:
             fname = 'PySCeS data "'+name+'" generated from model file: '+self.ModelFile+ ' ' + time.strftime("%H:%M:%S")
@@ -7316,7 +7318,7 @@ class PysMod(object):
             File.write('\n<table border="1" cellpadding="2" cellspacing="2" bgcolor="#FFFFFF">')
             try:
                 a = input.shape
-                print 'Writing array (HTML) to file'
+                print('Writing array (HTML) to file')
 
                 double_index = 15
 
@@ -7371,7 +7373,7 @@ class PysMod(object):
                         File.write('  <td>&nbsp;</td>\n')
                     File.write('</tr>\n')
             except:
-                print '\nINFO: Only arrays can currently be processed with this method.\n'
+                print('\nINFO: Only arrays can currently be processed with this method.\n')
 
             File.write('\n</table>\n')
             File.write('</p>\n\n')
@@ -7392,7 +7394,7 @@ class PysMod(object):
             if close_file:
                 File.close()
         else:
-            print 'INFO: You need to supply an open writable file as the 2nd argument to this method'
+            print('INFO: You need to supply an open writable file as the 2nd argument to this method')
 
 
     def SimPlot(self, plot='species', filename=None, title=None, log=None, format='lines'):
@@ -7415,7 +7417,7 @@ class PysMod(object):
         labels = None
         allowedplots = ['all', 'species', 'rates']
         if type(plot) != list and plot not in allowedplots:
-            raise RuntimeError, '\nPlot must be one of %s not \"%s\"' % (str(allowedplots), plot)
+            raise RuntimeError('\nPlot must be one of %s not \"%s\"' % (str(allowedplots), plot))
         if plot == 'all':
             data, labels = self.data_sim.getAllSimData(lbls=True)
         elif plot == 'species':
@@ -7429,7 +7431,7 @@ class PysMod(object):
                 data, labels = self.data_sim.getSimData(*plot, **kwargs)
         del allowedplots
         self.__SIMPLOT_OUT__ = labels
-        plt.plotLines(data, 0, range(1, data.shape[1]), titles=labels, formats=[format])
+        plt.plotLines(data, 0, list(range(1, data.shape[1])), titles=labels, formats=[format])
         # set the x-axis range so that it is original range + 0.2*sim_end
         # this is a sceintifcally dtermned amount of space that is needed for the title at the
         # end of the line :-) - brett 20040209
@@ -7485,7 +7487,7 @@ class PysMod(object):
 
         """
         if self.__settings__["scan1_dropbad"] != 0:
-            print '\n****\nINFO: Dropping invalid steady states can mask interesting behaviour\n****\n'
+            print('\n****\nINFO: Dropping invalid steady states can mask interesting behaviour\n****\n')
 
         #check the legitimacy of the input and output lists
         #self.__settings__["scan1_mca_mode"] = scanMCA
@@ -7502,14 +7504,14 @@ class PysMod(object):
                 a = parameters.index(x)
                 scanpar.append(x)
             except:
-                print x, ' is not a parameter'
+                print(x, ' is not a parameter')
         if len(scanpar) < 1:
-            print 'mod.scan_in should contain something'
+            print('mod.scan_in should contain something')
             run = 0
         elif len(scanpar) > 1:
-            print 'Only 1D scans possible - first element will be used'
+            print('Only 1D scans possible - first element will be used')
             scanpar = scanpar[0]
-            print'self.scan_in = ', scanpar
+            print('self.scan_in = ', scanpar)
         else:
             scanpar = scanpar[0]
 
@@ -7553,33 +7555,33 @@ class PysMod(object):
                         getattr(self.rc, x[2:])
                 elif x in self.reactions:
                     getattr(self.data_sstate, x)
-                    print "INFO: using steady-state flux for reaction (%s --> J_%s)" % (x, x)
+                    print("INFO: using steady-state flux for reaction (%s --> J_%s)" % (x, x))
                     self.scan_out[self.scan_out.index(x)] = 'J_%s' % x
                 elif x.startswith('J_'):
                     getattr(self.data_sstate, x[2:])
                 elif x in self.species:
                     getattr(self.data_sstate, x)
-                    print "INFO: using steady-state concentration for species (%s --> %s_ss)" % (x, x)
+                    print("INFO: using steady-state concentration for species (%s --> %s_ss)" % (x, x))
                     self.scan_out[self.scan_out.index(x)] = '%s_ss' % x
                 elif x.endswith('_ss'):
                     getattr(self.data_sstate, x[:-3])
                 else:
                     getattr(self, x)
             except:
-                print x + ' is not a valid attribute'
+                print(x + ' is not a valid attribute')
                 wrong.append(x)
             if x == self.scan_in:
                 wrong.append(x)
-                print x, ' is mod.scan_in '
+                print(x, ' is mod.scan_in ')
 
         if len(wrong) != 0:
             try:
                 for x in wrong:
-                    print self.scan_out
+                    print(self.scan_out)
                     self.scan_out.remove(x)
-                    print self.scan_out
+                    print(self.scan_out)
             except:
-                print 'No valid output'
+                print('No valid output')
                 run = 0
 
         assert len(self.scan_out) != 0, "Output parameter list (mod.scan_out) empty - do the model attributes exist ... see manual for details."
@@ -7597,12 +7599,12 @@ class PysMod(object):
         self.__scan_errors_idx__ = None
 
         if self.__settings__['scan1_mesg']:
-            print '\nScanning ...'
+            print('\nScanning ...')
         if len(self.scan_in) > 0 and run == 1:
             badList = []
             badList_idx = []
             if self.__settings__['scan1_mesg']:
-                print len(range1)-(cntr*cntr2),
+                print(len(range1)-(cntr*cntr2), end=' ')
             for xi in range(len(range1)):
                 x = range1[xi]
                 setattr(self, self.scan_in, x)
@@ -7665,20 +7667,20 @@ class PysMod(object):
                 cntr3 += 1
                 if cntr == 20:
                     if self.__settings__['scan1_mesg']:
-                        print len(range1)-(cntr*cntr2),
+                        print(len(range1)-(cntr*cntr2), end=' ')
                     cntr = 0
                     cntr2 += 1
                 if cntr3 == 101:
                     if self.__settings__['scan1_mesg']:
-                        print ' '
+                        print(' ')
                     cntr3 = 0
         if self.__settings__['scan1_mesg']:
-            print '\ndone.\n'
+            print('\ndone.\n')
         if len(badList) != 0:
             self.__scan_errors_par__ = badList
             self.__scan_errors_idx__ = badList_idx
-            print '\nINFO: ' + str(len(badList)) + ' invalid steady states detected at ' + self.scan_in + ' values:'
-            print badList
+            print('\nINFO: ' + str(len(badList)) + ' invalid steady states detected at ' + self.scan_in + ' values:')
+            print(badList)
         if len(result) == 0:
             self.scan_res = numpy.zeros((len(range1),len(self.scan_out)+1))
         else:
@@ -7709,7 +7711,7 @@ class PysMod(object):
         else:
             plot = [at for at in plot if hasattr(self, at)]
         if len(plot) == 0:
-            print 'No plottable output specified using self.scan_out'
+            print('No plottable output specified using self.scan_out')
             plot = self.scan_out
 
         plotidx = [self.scan_out.index(c)+1 for c in plot]
@@ -7744,7 +7746,7 @@ class PysMod(object):
 
         for p in [p1, p2]:
             if not hasattr(self, p[0]):
-                raise RuntimeError, '\"%s\" is not a valid model attribute' % p[0]
+                raise RuntimeError('\"%s\" is not a valid model attribute' % p[0])
 
         p1 = list(p1) + [log, False]
         p2 = list(p2) + [log, False]
@@ -7837,7 +7839,7 @@ class PysMod(object):
 
         """
 
-        print '\nINFO: Cloning function is currently experimental ... use with care.'
+        print('\nINFO: Cloning function is currently experimental ... use with care.')
         return copy.deepcopy(self)
 
 
@@ -7850,5 +7852,5 @@ if __psyco_active__:
     psyco.bind(PysMod)
 
 if __name__ == '__main__':
-    print '\nTo use PySCeS import it from a Python Shell: \n\timport pysces\n'
-    raw_input('Press <enter> to continue')
+    print('\nTo use PySCeS import it from a Python Shell: \n\timport pysces\n')
+    input('Press <enter> to continue')

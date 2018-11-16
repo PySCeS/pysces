@@ -19,17 +19,17 @@ from pysces.version import __version__
 __doc__ = '''pysx contributed modules interface'''
 
 # load any unofficial user contrib stuff
-from PyscesContribUser import *
+from .PyscesContribUser import *
 # load official contrib stuff
 import os,sys,fileinput
-import contrib as CONTRIB_module
-import PyscesWeb
+from . import contrib as CONTRIB_module
+from . import PyscesWeb
 try:
-    import PyscesSBML
+    from . import PyscesSBML
     sbmlOK = 1
     libsbml = PyscesSBML.libsbml
-except Exception, e:
-    print 'contrib: sbml not available', e
+except Exception as e:
+    print('contrib: sbml not available', e)
     sbmlOK = 0
 
 
@@ -172,23 +172,23 @@ class contrib:
             if CONTRIB_module.mod_dict[module]['status']:
                 loadOK = 2
                 #print mod
-                print 'Loading module \"' + module + '\"'
+                print('Loading module \"' + module + '\"')
                 #exec('code = '+ CONTRIB_module.mod_dict[mod]['base']+'()')
                 try:
                     setattr(self,module,eval(CONTRIB_module.mod_dict[module]['base']+'()'))
                     loadOK -= 1
-                except Exception, f:
-                    print ' Unable to instantiate module:', f
+                except Exception as f:
+                    print(' Unable to instantiate module:', f)
                 try:
                     setattr(self,'_' + module,eval('CONTRIB_module.' + module))
                     loadOK -= 1
-                except Exception, f:
-                    print ' Unable to load module:', f
+                except Exception as f:
+                    print(' Unable to load module:', f)
                 if not loadOK:
-                    print 'ok.'
+                    print('ok.')
                 else:
-                    print ' Module \"' + module + '\" loading incomplete'
-        print ' '
+                    print(' Module \"' + module + '\" loading incomplete')
+        print(' ')
 
 
 

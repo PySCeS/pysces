@@ -19,11 +19,11 @@ Brett G. Olivier
 import pysces
 import numpy, scipy
 
-from KrakenNET import os, time, socket
-from KrakenNET import StatusServer, BasicServer
-from KrakenNET import HOSTNAME, BLOCK_SIZE, STATUS_PORT, PYSCES_PORT, CFSERVE_PORT
+from .KrakenNET import os, time, socket
+from .KrakenNET import StatusServer, BasicServer
+from .KrakenNET import HOSTNAME, BLOCK_SIZE, STATUS_PORT, PYSCES_PORT, CFSERVE_PORT
 
-print 'I AM:', HOSTNAME, 'using BLOCK_SIZE: %s' % BLOCK_SIZE
+print('I AM:', HOSTNAME, 'using BLOCK_SIZE: %s' % BLOCK_SIZE)
 
 # end header
 
@@ -52,7 +52,7 @@ class PyscesServer(BasicServer):
 
     def P_INIT(self, *args):
         args = args[0]
-        print 'Args', args
+        print('Args', args)
         self.RESULT = None
         self.setStatus('INITIALISING')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,72 +67,72 @@ class PyscesServer(BasicServer):
                 GO = False
         self.model_name = args[0]
         self.model = pysces.model(self.model_name, loader="string", fString=model)
-        if self.debug: print 'P_INIT ... ok.'
+        if self.debug: print('P_INIT ... ok.')
         self.setStatus('DONE_INITIALISE')
         return True
 
     def P_LOAD(self, *args):
-        print 'Loading:', self.model_name
+        print('Loading:', self.model_name)
         self.RESULT = None
         self.model.doLoad()
         self.model.SetQuiet()
-        if self.debug: print 'P_LOAD ... ok.'
+        if self.debug: print('P_LOAD ... ok.')
         self.setStatus('DONE_LOAD')
         return True
 
     def P_SET_SETTINGS_FLOAT(self, *args):
         args = args[0]
-        print 'Setting:', args
+        print('Setting:', args)
         self.RESULT = None
         self.model.__settings__.update({args[0] : float(args[1])})
         ##  setattr(self.model, args[0], args[1])
-        print self.model.__settings__[args[0]]
+        print(self.model.__settings__[args[0]])
         return True
 
     def P_SET_SETTINGS_STRING(self, *args):
         args = args[0]
-        print 'Setting:', args
+        print('Setting:', args)
         self.RESULT = None
         self.model.__settings__.update({args[0] : args[1]})
         ##  setattr(self.model, args[0], args[1])
-        print self.model.__settings__[args[0]]
+        print(self.model.__settings__[args[0]])
         return True
 
     def P_SET_STR(self, *args):
         args = args[0]
-        print 'Setting:', args
+        print('Setting:', args)
         self.RESULT = None
         setattr(self.model, args[0], args[1])
-        print getattr(self.model, args[0])
+        print(getattr(self.model, args[0]))
         return True
 
     def P_SET_FLOAT(self, *args):
         # note to self in future investigate numpy.float64 for this
         args = args[0]
-        print 'Setting:', args
+        print('Setting:', args)
         self.RESULT = None
         setattr(self.model, args[0], float(args[1].strip()))
-        print getattr(self.model, args[0])
+        print(getattr(self.model, args[0]))
         return True
 
     def P_STATE(self, *args):
         self.model.doState()
         self.RESULT = (self.model.state_species, self.model.state_flux)
-        if self.debug: print 'P_STATE ... ok.'
+        if self.debug: print('P_STATE ... ok.')
         self.setStatus('DONE_STATE')
         return True
 
     def P_ELAS(self, *args):
         self.model.doElas()
         self.RESULT = (self.model.elas_var, self.model.elas_par)
-        if self.debug: print 'P_ELAS ... ok.'
+        if self.debug: print('P_ELAS ... ok.')
         self.setStatus('DONE_ELAS')
         return True
 
     def P_MCA(self, *args):
         self.model.doMca()
         self.RESULT = (self.model.mca_ci, self.model.mca_cjd, self.model.mca_csd)
-        if self.debug: print 'P_MCA ... ok.'
+        if self.debug: print('P_MCA ... ok.')
         self.setStatus('DONE_MCA')
         return True
 
@@ -140,10 +140,10 @@ class PyscesServer(BasicServer):
         """Args: (float(time_end), int(points))"""
         self.setStatus('SIMULATING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
         self.model.doSim(float(args[0]), float(args[1]))
         self.RESULT = (self.model.sim_res)
-        if self.debug: print 'P_STATE ... ok.'
+        if self.debug: print('P_STATE ... ok.')
         self.setStatus('DONE_SIM')
         return True
 
@@ -153,7 +153,7 @@ class PyscesServer(BasicServer):
         """
         self.setStatus('SCANNING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
         commands = []
         cpoint = 1
         shift = 0
@@ -169,14 +169,14 @@ class PyscesServer(BasicServer):
             cpoint += 1
             output.append(args[cpoint].strip())
 
-        print '\n', commands
-        print output, '\n'
+        print('\n', commands)
+        print(output, '\n')
 
         scan = pysces.Scanner(self.model)
         scan.quietRun = True
         for gen in commands:
-            print gen
-            print gen[0], float(gen[1]), float(gen[2]), int(gen[3]), bool(int(gen[4])), bool(int(gen[5]))
+            print(gen)
+            print(gen[0], float(gen[1]), float(gen[2]), int(gen[3]), bool(int(gen[4])), bool(int(gen[5])))
 
             scan.addGenerator(gen[0], float(gen[1]), float(gen[2]), int(gen[3]),\
                                 log=bool(int(gen[4])), slave=bool(int(gen[5])))
@@ -193,7 +193,7 @@ class PyscesServer(BasicServer):
         """
         self.setStatus('CONTINUING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
 
         self.model.pitcon_par_space = scipy.logspace(\
             scipy.log10(float(args[1].strip())), scipy.log10(float(args[2].strip())), int(args[3].strip()))
@@ -210,7 +210,7 @@ class PyscesServer(BasicServer):
         """
         self.setStatus('CONTINUING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
 
         pscan = pysces.PITCONScanUtils(self.model)
         if len(args) == 4:
@@ -228,7 +228,7 @@ class PyscesServer(BasicServer):
         """
         self.setStatus('CONTINUING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
 
         pscan = pysces.PITCONScanUtils(self.model)
         #TODO HARD CODED FOR NOW BUT NEEDS GENERALISATION
@@ -248,7 +248,7 @@ class PyscesServer(BasicServer):
         """
         self.setStatus('CONTINUING')
         args = args[0]
-        print 'Args', args
+        print('Args', args)
         userout = []
         for a in range(len(args)):
             args[a] = args[a].strip()
@@ -283,6 +283,6 @@ if __name__ == '__main__':
     ##  print 'FLUX',   pscan.flux_res[0]
     ##  print 'EIGEN',  pscan.eigen_res[0]
     StartPysCeSKrakenServer()
-    print '\nAll threads terminated ... exiting now.\n'
+    print('\nAll threads terminated ... exiting now.\n')
 
 

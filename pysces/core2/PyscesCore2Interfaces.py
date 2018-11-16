@@ -15,12 +15,12 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
-from version import __version__
+from .version import __version__
 
 import os, copy, re, time
 from getpass import getuser
 from xml.etree import ElementTree
-import StringIO
+import io
 import itertools
 
 CurrentDirectory = os.getcwd() # temporary thing
@@ -28,7 +28,7 @@ CurrentDirectory = os.getcwd() # temporary thing
 # this is a PySCeS specific hack
 from pysces import output_dir as CurrentDirectory
 
-from InfixParser import MyInfixParser
+from .InfixParser import MyInfixParser
 InfixParser = MyInfixParser()
 InfixParser.buildlexer()
 InfixParser.buildparser(debug=0, debugfile='infix.dbg', \
@@ -81,7 +81,7 @@ class CoreToPsc(object):
             else:
                 out += s[c]
         out += ' \n# Keywords\n'
-        kk = self.core.__KeyWords__.keys()
+        kk = list(self.core.__KeyWords__.keys())
         kk.sort()
         for key in kk:
             if self.core.__KeyWords__[key] != None:
@@ -94,7 +94,7 @@ class CoreToPsc(object):
                 else:
                     out += '%s: %s\n' % (key, self.core.__KeyWords__[key])
         out += ' \n# GlobalUnitDefinitions\n'
-        for key in self.core.__uDict__.keys():
+        for key in list(self.core.__uDict__.keys()):
             if key in ['substance','volume','time','length','area']:
                 k1, k2 = key[0].upper(), key[1:]
                 k = k1 + k2
@@ -148,10 +148,10 @@ class CoreToPsc(object):
         for r in self.core.reactions:
             C = ''
             if not r.hasCompartment() and len(self.core.compartments) == 1:
-                print 'Info: single compartment model: locating \"%s\" in default compartment' % r.name
+                print('Info: single compartment model: locating \"%s\" in default compartment' % r.name)
                 C = '@%s' % self.core.compartments[0].getName()
             elif not r.hasCompartment() and len(self.core.compartments) > 1:
-                print 'Info: multiple compartments defined but reaction %s is not located in any of them.' % r.name
+                print('Info: multiple compartments defined but reaction %s is not located in any of them.' % r.name)
             elif r.hasCompartment():
                 C = '@%s' % r.getCompartment().getName()
 
@@ -261,10 +261,10 @@ class CoreToPsc(object):
         for f in self.core.species:
             C = ''
             if not f.hasCompartment() and len(self.core.compartments) == 1:
-                print 'Info: single compartment model %s is in default compartment' % f.name
+                print('Info: single compartment model %s is in default compartment' % f.name)
                 C = '@%s' % self.core.compartments[0].getName()
             elif not f.hasCompartment() and len(self.core.compartments) > 1:
-                print 'Warning: multiple compartments defined but species %s is not located in any of them.' % f.name
+                print('Warning: multiple compartments defined but species %s is not located in any of them.' % f.name)
             elif f.hasCompartment():
                 C = '@%s' % f.getCompartment().getName()
 
@@ -424,7 +424,7 @@ class CoreToPsc(object):
         if directory != None:
             assert os.path.exists(directory), '\n%s does not exist.' % directory
             filename = os.path.join(directory, filename)
-        print 'Writing file: %s' % filename
+        print('Writing file: %s' % filename)
         outF = file(filename, 'w')
         outF.write(self.header_block)
         outF.write(self.fixed_block)
@@ -440,7 +440,7 @@ class CoreToPsc(object):
         outF.flush()
         outF.close()
         if getstrbuf:
-            fb = StringIO.StringIO()
+            fb = io.StringIO()
             outF = file(filename, 'r')
             fb.write(outF.read())
             outF.flush()
@@ -479,7 +479,7 @@ class PscToCore(object):
             from pysces.PyscesParse import PySCeSParser
             self.pscParser = PySCeSParser(debug=0)
         except:
-            print "\nYou need PySCeS installed to use this module"
+            print("\nYou need PySCeS installed to use this module")
 
 
     def getPSCFileFromDisk(self, ModelFile, ModelDir=None, WorkDir=None):
@@ -488,7 +488,7 @@ class PscToCore(object):
         """
 
         if ModelFile[-4:] != '.psc':
-            print "Assuming .psc extension"
+            print("Assuming .psc extension")
             ModelFile += '.psc'
         if ModelDir == None:
             # this will probably change in future - bgoli
@@ -652,9 +652,9 @@ class CoreToSBML(object):
         try:
             import libsbml as SBML
             self.SBML = SBML
-        except Exception, e:
-            print e
-            print 'Posix sbml load error'
+        except Exception as e:
+            print(e)
+            print('Posix sbml load error')
             self.SBML = None
 
     def createModel(self):
@@ -682,7 +682,7 @@ class CoreToSBML(object):
 
     def setCompartments(self):
         if len(self.core.compartments) < 1:
-            print 'Warning: no compartments defined adding one called \"Cell\"'
+            print('Warning: no compartments defined adding one called \"Cell\"')
             self.core.addOneCompartment('Cell', 1.0, 3)
         for cs in self.core.compartments:
             comp_def = self.model.createCompartment()
@@ -716,7 +716,7 @@ class CoreToSBML(object):
 
         """
         ud = self.core.getGlobalUnits()
-        for un in ud.keys():
+        for un in list(ud.keys()):
             # for now just the basic stuff
             if un in ['substance','volume','time','length','area']:
                 vdef = self.model.createUnitDefinition()
@@ -765,10 +765,10 @@ class CoreToSBML(object):
             s.setId(spe.name)
             s.setName(spe.name)
             if not spe.hasCompartment() and len(self.core.compartments) == 1:
-                print 'Warning: species %s does not have a compartment locating it in \"%s\"' % (spe.getName(), self.core.compartments[0].getName())
+                print('Warning: species %s does not have a compartment locating it in \"%s\"' % (spe.getName(), self.core.compartments[0].getName()))
                 spe.setCompartment(self.core.compartments[0])
             elif not spe.hasCompartment() and len(self.core.compartments) >= 1:
-                raise UserWarning, "%s does not have a compartment and there are more than 1 to choose from!" % spe.getName()
+                raise UserWarning("%s does not have a compartment and there are more than 1 to choose from!" % spe.getName())
             s.setCompartment(spe.getCompartment().getName())
             if spe.name in self.core.hasFixedSpecies():
                 s.setBoundaryCondition(True)
@@ -777,7 +777,7 @@ class CoreToSBML(object):
                 s.setBoundaryCondition(False)
             ##  print 'FUCK (%s) %s' % (spe.getName(), spe())
             if spe() == None:
-                print 'Warning, species %s has not been initialised setting to 1.0' % spe.getName()
+                print('Warning, species %s has not been initialised setting to 1.0' % spe.getName())
             if spe.isAmount():
                 s.setInitialAmount(spe())
                 s.setHasOnlySubstanceUnits(True)
@@ -811,7 +811,7 @@ class CoreToSBML(object):
 
     def astSetCSymbolTime(self, ast):
         """set ASTNode type <cn> _TIME_ </cn> to <csymbol> time </csymbol>"""
-        strBuf = StringIO.StringIO()
+        strBuf = io.StringIO()
         mathMLin = self.SBML.writeMathMLToString(ast)
         strBuf.write(mathMLin)
         strBuf.seek(0)
@@ -829,11 +829,11 @@ class CoreToSBML(object):
 
             children = node.getchildren()
             for child in range(len(children)):
-                idxNode(children[child], counter.next())
+                idxNode(children[child], next(counter))
 
         idxNode(root, idx=0)
 
-        strBuf = StringIO.StringIO()
+        strBuf = io.StringIO()
         etree.write(strBuf)
         strBuf.seek(0)
         mathMLout = strBuf.read()
@@ -851,14 +851,14 @@ class CoreToSBML(object):
             for symb in rule._names:
                 if symb in self.core.hasReactions():
                     req_replacements.update({symb : '(%s)' % self.infixPSC2SBML(self.core.get(symb).code_string.split('=')[1].replace('self.','').replace('()',''))})
-            if len(req_replacements.keys())  > 0:
+            if len(list(req_replacements.keys()))  > 0:
                 InfixParser.setNameStr('', '')
                 InfixParser.SymbolReplacements = req_replacements
                 InfixParser.parse(form)
                 form = InfixParser.output
             ASTnode = self.SBML.parseFormula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
-            if self.__DEBUG__: print 'Adding RateRule: %s = %s' % (rule.getName(),form)
+            if self.__DEBUG__: print('Adding RateRule: %s = %s' % (rule.getName(),form))
             # set _TIME_ ASTnode tag to <csymbol> time </csymbol>
             ASTnode = self.astSetCSymbolTime(ASTnode)
             RR.setMath(ASTnode)
@@ -874,7 +874,7 @@ class CoreToSBML(object):
     def setEvents(self):
         """Set events"""
         for ev in self.core.events:
-            if self.__DEBUG__: print 'Adding event: %s' % ev.getName()
+            if self.__DEBUG__: print('Adding event: %s' % ev.getName())
             EV = self.model.createEvent()
             EV.setName(ev.getName())
             EV.setId(ev.getName())
@@ -883,8 +883,8 @@ class CoreToSBML(object):
             # replace PySCeS infix with libSBML infix
             form = ev.code_string.split('=')[1].replace('self.','').replace('()','')
             form = self.infixPSC2SBML(form)
-            if self.__DEBUG__: print '\tTrigger: %s' % form
-            print '\tTrigger: %s' % form
+            if self.__DEBUG__: print('\tTrigger: %s' % form)
+            print('\tTrigger: %s' % form)
             ASTnode = self.SBML.parseFormula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
             # set _TIME_ ASTnode tag to <csymbol> time
@@ -894,7 +894,7 @@ class CoreToSBML(object):
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
             for ass in ev.assignments:
-                if self.__DEBUG__: print '\tAssignment: %s = %s' % (ass.getName(), ass.formula)
+                if self.__DEBUG__: print('\tAssignment: %s = %s' % (ass.getName(), ass.formula))
                 form = self.infixPSC2SBML(ass.formula)
                 ASTnode = self.SBML.parseFormula(form)
                 # eass = self.SBML.EventAssignment(ass.getName(), ASTnode)
@@ -968,7 +968,7 @@ class CoreToSBML(object):
     def getSBMLFileAsStrBuf(self):
         try: UseR = getuser()
         except: UseR = ''
-        fb = StringIO.StringIO()
+        fb = io.StringIO()
         h1 = '<?xml version="1.0" encoding="utf-8"?>\n'
         h1 += '<!-- Created with PySCeS ('+ __version__ + ') on ' + time.strftime("%a, %d %b %Y %H:%M:%S") + ' by '+UseR+' -->\n'
         fb.write(h1 + self.getSBML())
@@ -987,7 +987,7 @@ class CoreToSBML(object):
         if directory != None:
             assert os.path.exists(directory), '\n%s does not exist.' % directory
             filename = os.path.join(directory, filename)
-        print 'Writing file: %s' % filename
+        print('Writing file: %s' % filename)
 
         try: UseR = getuser()
         except: UseR = ''
@@ -997,7 +997,7 @@ class CoreToSBML(object):
         F.write(h1 + self.getSBML())
         F.flush()
         F.close()
-        print 'Model %s exported as: %s' % (self.name, filename)
+        print('Model %s exported as: %s' % (self.name, filename))
 
 
 class SbmlToCore(object):
@@ -1044,9 +1044,9 @@ class SbmlToCore(object):
         try:
             import libsbml as SBML
             self.SBML = SBML
-        except Exception, e:
-            print e
-            print 'SBML load error'
+        except Exception as e:
+            print(e)
+            print('SBML load error')
             self.SBML = None
         assert self.SBML != None, '\nNo SBML library available'
 
@@ -1062,7 +1062,7 @@ class SbmlToCore(object):
 
     def getSbmlStringFromDisk(self, sbml, Dir=None):
         if sbml[-4:] != '.xml':
-            print "Assuming .xml extension"
+            print("Assuming .xml extension")
             sbml += '.xml'
         if Dir == None:
             Dir = CurrentDirectory
@@ -1131,7 +1131,7 @@ class SbmlToCore(object):
             if hasTimeS != None:
                 tSymb = hasTimeS.group()[hasTimeS.group().find('>'):]
                 tSymb = tSymb.replace('>','').replace('<','').strip()
-                print 'csymbol time defined as \"%s\" in event %s' % (tSymb,trigger.getId())
+                print('csymbol time defined as \"%s\" in event %s' % (tSymb,trigger.getId()))
 
             delay = ev.getDelay()
             if delay != None:
@@ -1159,15 +1159,15 @@ class SbmlToCore(object):
     def getId(self, e):
         name = e.getId()
         if name in self.__reserved__:
-            print '%s is a reserved symbol, replacing with %s' % (name, self.__reserved__[name])
-            self.__Errors__.update({self._ecount.next() : 'Reserved symbol %s replaced with %s' % (name, self.__reserved__[name])})
+            print('%s is a reserved symbol, replacing with %s' % (name, self.__reserved__[name]))
+            self.__Errors__.update({next(self._ecount) : 'Reserved symbol %s replaced with %s' % (name, self.__reserved__[name])})
             name = self.__reserved__[name]
         return name
 
     def updatePiecewiseDict(self, piecewises):
-        if len(piecewises.keys()) > 0:
+        if len(list(piecewises.keys())) > 0:
             for p in piecewises:
-                if len(piecewises[p].keys()) == 2:
+                if len(list(piecewises[p].keys())) == 2:
                     piecewises[p][0].reverse()
                 self.__piecewises__.update({p : piecewises[p]})
 
@@ -1200,14 +1200,14 @@ class SbmlToCore(object):
         self.COMP_FUDGE_FACTOR = 1.0
         startFudging = 1.0e-6
         I_AM_FUDGING = False
-        tmp = min([abs(self.__compartments__[c]['size']) for c in self.__compartments__.keys()])
+        tmp = min([abs(self.__compartments__[c]['size']) for c in list(self.__compartments__.keys())])
         if tmp < startFudging:
             self.COMP_FUDGE_FACTOR = tmp # sneaky b%*))_)%$^&*@rds
 
-        for c in self.__compartments__.keys():
+        for c in list(self.__compartments__.keys()):
             if self.COMP_FUDGE_FACTOR < startFudging:
                 newsize = self.__compartments__[c]['size']/self.COMP_FUDGE_FACTOR
-                print 'INFO: Rescaling compartment with size %s to %s' % (self.__compartments__[c]['size'], newsize)
+                print('INFO: Rescaling compartment with size %s to %s' % (self.__compartments__[c]['size'], newsize))
                 self.__compartments__[c]['size'] = newsize
                 self.__compartments__[c].update({'scale' : self.COMP_FUDGE_FACTOR})
                 I_AM_FUDGING = True
@@ -1218,7 +1218,7 @@ class SbmlToCore(object):
             self.IS_SINGLE_COMPARTMENT = False
 
         if len(self.model.getListOfSpecies()) < 1:
-            self.__Errors__.update({self._ecount.next() : 'No free species!? ... help I\'m confused!'})
+            self.__Errors__.update({next(self._ecount) : 'No free species!? ... help I\'m confused!'})
         for i in self.model.getListOfSpecies():
             specname = self.getId(i)
             if i.getHasOnlySubstanceUnits():
@@ -1232,7 +1232,7 @@ class SbmlToCore(object):
 
         for i in self.model.getListOfSpecies():
             specname = self.getId(i)
-            if self.__DEBUG__: print '%s has only substance units: %s' % (specname, i.getHasOnlySubstanceUnits())
+            if self.__DEBUG__: print('%s has only substance units: %s' % (specname, i.getHasOnlySubstanceUnits()))
             IS_CONC = i.isSetInitialConcentration()
             IS_AMNT = i.isSetInitialAmount()
             Conc = float(i.getInitialConcentration())
@@ -1245,7 +1245,7 @@ class SbmlToCore(object):
             fxd = None
             if i.getBoundaryCondition() or i.getConstant():
                 if i.getConstant() and not i.getBoundaryCondition():
-                    print '%s is set as constant, assuming: BoundaryCondition = True' % specname
+                    print('%s is set as constant, assuming: BoundaryCondition = True' % specname)
                 init_fixed.setdefault(specname, Conc)
                 fxd = True
             else:
@@ -1278,7 +1278,7 @@ class SbmlToCore(object):
                     Punits.append(self.getId(xp))
                 init_par.update({self.getId(xp) : float(xp.getValue())})
         if len(Punits) > 0:
-            self.__Errors__.update({self._ecount.next() : 'Parameter units ignored for parameters:\n%s' % Punits})
+            self.__Errors__.update({next(self._ecount) : 'Parameter units ignored for parameters:\n%s' % Punits})
 
         # add any function definitions
         if self.model.getNumFunctionDefinitions() > 0:
@@ -1299,7 +1299,7 @@ class SbmlToCore(object):
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>'):]
                     tSymb = tSymb.replace('>','').replace('<','').strip()
-                    print 'csymbol time defined as \"%s\" in formula %s' % (tSymb,self.getId(fnc))
+                    print('csymbol time defined as \"%s\" in formula %s' % (tSymb,self.getId(fnc)))
                     SRs = {tSymb:'_TIME_'}
                     SRs.update(self.__reserved__)
                     InfixParser.SymbolReplacements = SRs
@@ -1341,7 +1341,7 @@ class SbmlToCore(object):
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>'):]
                     tSymb = tSymb.replace('>','').replace('<','').strip()
-                    print 'csymbol time defined as \"%s\" in reaction %s' % (tSymb,self.getId(i))
+                    print('csymbol time defined as \"%s\" in reaction %s' % (tSymb,self.getId(i)))
                 #if there are local parameters hash them to R_P
                 if len(j.getListOfParameters()) > 0:
                     InfixParser.setNameStr('@', '@')
@@ -1358,7 +1358,7 @@ class SbmlToCore(object):
                     req = InfixParser.output
                     if InfixParser.DelayRemoved:
                         delayignore.append(self.getId(i))
-                    if self.__DEBUG__: print 'Setting local parameter:'
+                    if self.__DEBUG__: print('Setting local parameter:')
                     for k in j.getListOfParameters():
                         if k.isSetUnits() and self.getId(k) not in Punits:
                             Punits.append(self.getId(k))
@@ -1367,8 +1367,8 @@ class SbmlToCore(object):
                         par.append(self.getId(i) + '_' + self.getId(k))
                         init_par.setdefault(self.getId(i) + '_' + self.getId(k), k.getValue())
                         # local parameters are hashed with reaction name
-                        if self.__DEBUG__: print '%s_%s' %  (self.getId(i), self.getId(k)),
-                    if self.__DEBUG__: print ''
+                        if self.__DEBUG__: print('%s_%s' %  (self.getId(i), self.getId(k)), end=' ')
+                    if self.__DEBUG__: print('')
                     req = req.replace('@','')
                 else:
                     InfixParser.setNameStr('', '')
@@ -1388,7 +1388,7 @@ class SbmlToCore(object):
                 # update piecewise dict ... don't ask!
                 self.updatePiecewiseDict(InfixParser.piecewises)
             else:
-                print 'WARNING: No rate equation for reaction %s in file: %s' % (self.getId(i), self.sbml_file)
+                print('WARNING: No rate equation for reaction %s in file: %s' % (self.getId(i), self.sbml_file))
                 req = None
 
             rDict['Params'] = par
@@ -1405,7 +1405,7 @@ class SbmlToCore(object):
                 # kill/collect stoichiometrymath for future processing
                 smath = k.getStoichiometryMath()
                 if smath != None:
-                    self.__Errors__.update({self._ecount.next() : 'StoichiometryMath (%s) not supported and ignored' % k.getSpecies()})
+                    self.__Errors__.update({next(self._ecount) : 'StoichiometryMath (%s) not supported and ignored' % k.getSpecies()})
 
             for k in i.getListOfProducts():
                 species = k.getSpecies()
@@ -1414,7 +1414,7 @@ class SbmlToCore(object):
                 # kill/collect stoichiometrymath for future processing
                 smath = k.getStoichiometryMath()
                 if smath != None:
-                    self.__Errors__.update({self._ecount.next() : 'StoichiometryMath (%s) not supported and ignored' % k.getSpecies()})
+                    self.__Errors__.update({next(self._ecount) : 'StoichiometryMath (%s) not supported and ignored' % k.getSpecies()})
 
             # work with net stoichiometries
             rDict['Reagents'] = {}
@@ -1422,11 +1422,11 @@ class SbmlToCore(object):
             rtmp = rDict['Reagents']
 
             for sp in Substrates+Products:
-                if not rtmp.has_key(sp[0]):
+                if sp[0] not in rtmp:
                     rtmp.update({sp[0] : sp[1]})
                 else:
                     rtmp[sp[0]] += sp[1]
-            for r in rtmp.keys():
+            for r in list(rtmp.keys()):
                 if abs(rtmp[r]) < 1.0e-14:
                     rtmp.pop(r)
             if i.getReversible() == True:
@@ -1447,11 +1447,11 @@ class SbmlToCore(object):
             rDict['Modifiers'] = mods
             #print "Modifiers", rDict['Modifiers']
         if len(hasFast) > 0:
-            self.__Errors__.update({self._ecount.next() : 'Fast attribute ignored for reactions:\n%s' % hasFast})
+            self.__Errors__.update({next(self._ecount) : 'Fast attribute ignored for reactions:\n%s' % hasFast})
         if len(Punits) > 0:
-            self.__Errors__.update({self._ecount.next() : 'Parameter units ignored for (local) parameters:\n%s' % Punits})
+            self.__Errors__.update({next(self._ecount) : 'Parameter units ignored for (local) parameters:\n%s' % Punits})
         if len(delayignore) > 0:
-            self.__Errors__.update({self._ecount.next() : 'delay function removed in reactions:\n%s' % delayignore})
+            self.__Errors__.update({next(self._ecount) : 'delay function removed in reactions:\n%s' % delayignore})
 
         del hasFast, Punits, delayignore
 
@@ -1469,27 +1469,27 @@ class SbmlToCore(object):
 
         InitStrings = []
 
-        for s in init_var.keys():
+        for s in list(init_var.keys()):
             self.__InitDict__.update({s : float(init_var[s])})
             setattr(self, s, float(init_var[s]))
-        for s in init_fixed.keys():
+        for s in list(init_fixed.keys()):
             self.__InitDict__.update({s : float(init_fixed[s])})
             setattr(self, s, float(init_fixed[s]))
-        for s in init_par.keys():
+        for s in list(init_par.keys()):
             self.__InitDict__.update({s : float(init_par[s])})
             setattr(self, s, float(init_par[s]))
 
-        self.InitParams = init_par.keys()
-        self.fixed_species = init_fixed.keys()
-        self.species = init_var.keys()
-        self.parameters = init_par.keys()
-        self.reactions = NetworkDict.keys()
+        self.InitParams = list(init_par.keys())
+        self.fixed_species = list(init_fixed.keys())
+        self.species = list(init_var.keys())
+        self.parameters = list(init_par.keys())
+        self.reactions = list(NetworkDict.keys())
         self.modifiers = []
-        for r in NetworkDict.keys():
+        for r in list(NetworkDict.keys()):
             self.modifiers.append((r, NetworkDict[r]['Modifiers']))
-        if len(self.__rules__.keys()) > 0:
+        if len(list(self.__rules__.keys())) > 0:
             self._Function_forced = ''
-            for r in self.__rules__.keys():
+            for r in list(self.__rules__.keys()):
                 self._Function_forced += self.__rules__[r]['name'] + ' = ' +\
                 self.__rules__[r]['formula'] + '\n'
         else:
@@ -1499,17 +1499,17 @@ class SbmlToCore(object):
         self._Function_init = ''
         self.__nDict__ = NetworkDict
 
-        if len(self.__Errors__.keys()) > 0:
-            print '\n*******************************************************************'
+        if len(list(self.__Errors__.keys())) > 0:
+            print('\n*******************************************************************')
             ##  print 'Errors encountered in SBML translated!'
-            print 'Issues encountered in SBML translation (model processed anyway)'
-            print 'SBML source: %s' % self.sbml_file
-            print '*******************************************************************\n'
-            ekeys = self.__Errors__.keys()
+            print('Issues encountered in SBML translation (model processed anyway)')
+            print('SBML source: %s' % self.sbml_file)
+            print('*******************************************************************\n')
+            ekeys = list(self.__Errors__.keys())
             ekeys.sort()
             for e in ekeys:
-                print self.__Errors__[e],'\n'
-            print '*******************************************************************\n'
+                print(self.__Errors__[e],'\n')
+            print('*******************************************************************\n')
             time.sleep(self.__error_sleep_time__)
 
     def getRules(self):
@@ -1522,7 +1522,7 @@ class SbmlToCore(object):
                 rtype = 'rate'
             elif rule.isAlgebraic():
                 rtype = 'algebraic'
-                self.__Errors__.update({self._ecount.next() : 'Algebraic rule (%s) ignored' % rule.getFormula()})
+                self.__Errors__.update({next(self._ecount) : 'Algebraic rule (%s) ignored' % rule.getFormula()})
 
             assert rtype in ['assignment', 'rate', 'algebraic'], '\n%s rules currently not supported.' % rtype
 
@@ -1534,7 +1534,7 @@ class SbmlToCore(object):
             if hasTimeS != None:
                 tSymb = hasTimeS.group()[hasTimeS.group().find('>'):]
                 tSymb = tSymb.replace('>','').replace('<','').strip()
-                print 'csymbol time defined as \"%s\" in rule %s' % (tSymb, self.getId(rule))
+                print('csymbol time defined as \"%s\" in rule %s' % (tSymb, self.getId(rule)))
                 InfixParser.setNameStr('', '')
                 SRs = {tSymb:'_TIME_'}
                 SRs.update(self.__reserved__)
@@ -1565,7 +1565,7 @@ class SbmlToCore(object):
                                         })
 
     def removeCompartmentFromKineticLaw(self, kl):
-        strBuf = StringIO.StringIO()
+        strBuf = io.StringIO()
         mathMLin = self.SBML.writeMathMLToString(kl.getMath())
         strBuf.write(mathMLin)
         strBuf.seek(0)
@@ -1580,7 +1580,7 @@ class SbmlToCore(object):
             ##  print 'node.tag', node.tag
             node.attrib.update({'idx':str(idx)})
             node_idx.update({idx:node})
-            if node.text != None and node.text.strip() in self.__compartments__.keys():
+            if node.text != None and node.text.strip() in list(self.__compartments__.keys()):
                 node.attrib.update({'compartment':'1'})
                 self._comp_idx.append(idx)
             else:
@@ -1590,7 +1590,7 @@ class SbmlToCore(object):
             for child in range(len(children)):
                 children[child].attrib.update({'parent':str(idx)})
                 ##  print '\tchild.tag', children[child].tag
-                idxNode(children[child], counter.next())
+                idxNode(children[child], next(counter))
 
         idxNode(root, idx=0)
 
@@ -1600,7 +1600,7 @@ class SbmlToCore(object):
                 if len(node_idx[cParent].getchildren()) == 3 and\
                 node_idx[cParent].getchildren()[0].tag == '{http://www.w3.org/1998/Math/MathML}times':
                     for c in node_idx[cParent].getchildren():
-                        if c.tag != '{http://www.w3.org/1998/Math/MathML}times' and c.text.strip() not in self.__compartments__.keys():
+                        if c.tag != '{http://www.w3.org/1998/Math/MathML}times' and c.text.strip() not in list(self.__compartments__.keys()):
                             cParentParent = int(node_idx[cParent].attrib['parent'])
                             for cp in node_idx[cParentParent].getchildren():
                                 if cp.attrib['idx'] == node_idx[cParent].attrib['idx']:
@@ -1625,18 +1625,18 @@ class SbmlToCore(object):
                                     break
                 elif len(node_idx[cParent].getchildren()) > 3:
                     for c in node_idx[cParent].getchildren():
-                        if c.text != None and c.text.strip() in self.__compartments__.keys():
+                        if c.text != None and c.text.strip() in list(self.__compartments__.keys()):
                             node_idx[cParent].remove(node_idx[comp_idx])
                             break
         for n in node_idx:
-            if node_idx[n].attrib.has_key('idx'):
+            if 'idx' in node_idx[n].attrib:
                 node_idx[n].attrib.pop('idx')
-            if node_idx[n].attrib.has_key('compartment'):
+            if 'compartment' in node_idx[n].attrib:
                 node_idx[n].attrib.pop('compartment')
-            if node_idx[n].attrib.has_key('parent'):
+            if 'parent' in node_idx[n].attrib:
                 node_idx[n].attrib.pop('parent')
 
-        strBuf = StringIO.StringIO()
+        strBuf = io.StringIO()
         etree.write(strBuf)
         strBuf.seek(0)
         mathMLout = strBuf.read()

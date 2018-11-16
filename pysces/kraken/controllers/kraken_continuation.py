@@ -14,7 +14,7 @@ blob.startModelServer(Model_File, Model_Dir)
 blob.startTentacleMonitor(interval=60)
 
 # initialise tentacles
-print 'Server list: %s\n' % blob.available_server_list
+print('Server list: %s\n' % blob.available_server_list)
 server_list = blob.available_server_list
 
 I_list = ['P_INIT,' + blob.model_server.model_file_name, 'P_LOAD',\
@@ -27,11 +27,11 @@ I_list = ['P_INIT,' + blob.model_server.model_file_name, 'P_LOAD',\
 yrange = 100
 xpoints = 512
 delta_list = scipy.logspace(scipy.log10(0.2),scipy.log10(1.0), yrange)
-print delta_list
+print(delta_list)
 delta_gen = buildCycler(delta_list)
 
 def deltaCommand():
-    delta = 'P_SET_FLOAT,A05,%s' % delta_gen.next()
+    delta = 'P_SET_FLOAT,A05,%s' % next(delta_gen)
     return [delta]
 
 job_list = []
@@ -51,44 +51,44 @@ while JobsWaiting:
     job_servers = []
     for job in range(len(job_list)):
         if job < len(server_list):
-            server = getServer.next()
+            server = next(getServer)
             job_servers.append(server)
             blob.sendCmdListToOne(I_list, server)
             blob.sendCmdListToOne(deltaCommand(), server)
             blob.sendJobToOne(job_list[job], server)
         else:
             deferred_jobs.append(job_list[job])
-            print 'Job %s of %s deferred' % (job+1, len(job_list))
+            print('Job %s of %s deferred' % (job+1, len(job_list)))
     blob.runAllJobs()
     ##  blob.sendCmdListToAll(['P_STORE_DATA'])
     for server in job_servers:
         blob.getDataFromOneJob(server)
         arr = blob.tentacle_response[server]
         DaResults.append(arr)
-        print type(arr)
+        print(type(arr))
     blob.clearProcessMap()
     if len(deferred_jobs) > 0:
-        print '\nDeferred:', deferred_jobs
+        print('\nDeferred:', deferred_jobs)
         job_list = deferred_jobs
     else:
         JobsWaiting = False
     cPickle.dump(DaResults, file('cont_result_list.bin','wb'), 2)
 
 
-print '\nNumber of results = %s' % len(DaResults)
+print('\nNumber of results = %s' % len(DaResults))
 total_states = 0
 for x in range(len(DaResults)):
     try:
-        print '\tResult %s has %s rows and %s columns' % (x+1, DaResults[x].shape[0], DaResults[x].shape[1])
+        print('\tResult %s has %s rows and %s columns' % (x+1, DaResults[x].shape[0], DaResults[x].shape[1]))
         total_states += DaResults[x].shape[0]
     except:
-        print type(DaResults[x])
-        print '\tResult %s %s: %s' % (x+1, type(DaResults[x]), DaResults[x])
-        print original_job_list[x]
+        print(type(DaResults[x]))
+        print('\tResult %s %s: %s' % (x+1, type(DaResults[x]), DaResults[x]))
+        print(original_job_list[x])
 
 TIME_END = time.time()
 
-print 'Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0)
+print('Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0))
 
 FinalArray = concatenateArrays(DaResults)
 cPickle.dump(FinalArray, file('cont_result_array.bin','wb'), 2)
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         ##  z.append(scipy.log10(coords[r,2]))
 
     n=coords.shape[0]
-    print "n:",n
+    print("n:",n)
     # write data to vtk polydata file
     # write header
     out = file('cont_result_ug.vtk', 'w')

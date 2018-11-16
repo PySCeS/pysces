@@ -49,27 +49,27 @@ def Scheduler1(contrl, job_list, init_list, task_id):
         job_servers = []
         for job in range(len(job_list)):
             if job < len(contrl.available_server_list):
-                print '\nJob %s queued for processing...' % (job+1)
-                server = getServer.next()
+                print('\nJob %s queued for processing...' % (job+1))
+                server = next(getServer)
                 job_servers.append(server)
-                print "\nProcessing job %s init list ..." % (job+1)
+                print("\nProcessing job %s init list ..." % (job+1))
                 contrl.sendCmdListToOne(init_list, server)
-                print "\nProcessing job %s delta command ..." % (job+1)
+                print("\nProcessing job %s delta command ..." % (job+1))
                 contrl.sendCmdListToOne(deltaCommand(), server)
                 contrl.sendJobToOne(job_list[job], server)
             else:
                 deferred_jobs.append(job_list[job])
-                print 'Job %s deferred and rescheduled.' % (job+1)
-        print "\nProcessing queued jobs ..."
+                print('Job %s deferred and rescheduled.' % (job+1))
+        print("\nProcessing queued jobs ...")
         contrl.runAllJobs()
         for server in job_servers:
             contrl.getDataFromOneJob(server)
             arr = contrl.tentacle_response[server]
             DaResults.append(arr)
-            print type(arr)
+            print(type(arr))
         contrl.clearProcessMap()
         if len(deferred_jobs) > 0:
-            print '\nDeferred:', deferred_jobs
+            print('\nDeferred:', deferred_jobs)
             job_list = deferred_jobs
         else:
             JobsWaiting = False
@@ -77,19 +77,19 @@ def Scheduler1(contrl, job_list, init_list, task_id):
 
     TIME_END = time.time()
 
-    print '\nNumber of results = %s' % len(DaResults)
+    print('\nNumber of results = %s' % len(DaResults))
     total_states = 0
     for x in range(len(DaResults)):
         try:
-            print '\tResult %s has %s rows and %s columns' % (x+1, DaResults[x][0].shape[0], DaResults[x][0].shape[1])
+            print('\tResult %s has %s rows and %s columns' % (x+1, DaResults[x][0].shape[0], DaResults[x][0].shape[1]))
             total_states += DaResults[x][0].shape[0]
         except:
-            print type(DaResults[x][0])
-            print '\tResult %s %s: %s' % (x+1, type(DaResults[x][0]), DaResults[x][0])
-            print original_job_list[x]
+            print(type(DaResults[x][0]))
+            print('\tResult %s %s: %s' % (x+1, type(DaResults[x][0]), DaResults[x][0]))
+            print(original_job_list[x])
 
 
-    print 'Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0)
+    print('Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0))
     return DaResults
 
 def GridSortLR(arr):
@@ -97,15 +97,15 @@ def GridSortLR(arr):
     Sort irregular unstructured grid data into monotonically rising grid data
     (where possible) Work from left column to right (uses ultra cool NumPy functions :-)
     """
-    print 'arr.shape:', arr.shape
+    print('arr.shape:', arr.shape)
     sorted = numpy.rot90(arr)
-    print 'rotated.shape:', sorted.shape
+    print('rotated.shape:', sorted.shape)
     sorted_idx = numpy.lexsort(sorted)
-    print 'sorted_idx.shape', sorted_idx.shape
+    print('sorted_idx.shape', sorted_idx.shape)
     sorted = sorted.take(sorted_idx, axis=-1)
     sorted = numpy.flipud(sorted)
     arr = numpy.transpose(sorted)
-    print 'arr.shape:', arr.shape
+    print('arr.shape:', arr.shape)
     return arr
 
 def ScalarFunc(val):
@@ -131,10 +131,10 @@ def writeVTK_UnstructuredGrid(fname, arr):
         HAVE_SCALARS = 1
     else:
         HAVE_SCALARS = 0
-        print 'No scalar values supplied Z axis values will be used'
+        print('No scalar values supplied Z axis values will be used')
 
     n=arr.shape[0]
-    print "n:",n
+    print("n:",n)
     # write data to vtk polydata file
     # write header
     out = file(fname+'.vtk', 'w')
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     ##  Model_Dir = '/home/bgoli/mypysces/pscmodels/isola06'
     blob.startModelServer(Model_File, Model_Dir)
     blob.startTentacleMonitor(interval=60)
-    print 'Server list: %s\n' % blob.available_server_list
+    print('Server list: %s\n' % blob.available_server_list)
 
     """
     Get a name for this task (task == collection of jobs)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
         Used in sendCmdListToOne() so may one or more commands returned
         as a list
         """
-        delta = 'P_SET_FLOAT,A05,%s' % delta_gen.next()
+        delta = 'P_SET_FLOAT,A05,%s' % next(delta_gen)
         # must return a list !!!
         return [delta]
 
@@ -263,14 +263,14 @@ if __name__ == '__main__':
     del DaResults
 
     FinalIArray = concatenateArrays(iRes)
-    print 'Indexes[0]', FinalIArray[0]
+    print('Indexes[0]', FinalIArray[0])
     FinalSArray = concatenateArrays(sRes)
     FinalJArray = concatenateArrays(jRes)
     FinalEArray = concatenateArrays(eRes)
-    print FinalIArray.shape, FinalIArray.dtype
-    print FinalSArray.shape, FinalSArray.dtype
-    print FinalJArray.shape, FinalJArray.dtype
-    print FinalEArray.shape, FinalEArray.dtype
+    print(FinalIArray.shape, FinalIArray.dtype)
+    print(FinalSArray.shape, FinalSArray.dtype)
+    print(FinalJArray.shape, FinalJArray.dtype)
+    print(FinalEArray.shape, FinalEArray.dtype)
     del iRes
     del sRes
     del jRes
@@ -315,8 +315,8 @@ if __name__ == '__main__':
     for row in range(vtkcoords.shape[0]):
         vtkcoords[row,:3] = scipy.log10(vtkcoords[row,:3])
 
-    print vtkcoords[:10,:]
+    print(vtkcoords[:10,:])
     vtkcoords = GridSortLR(vtkcoords)
-    print vtkcoords[:10,:]
+    print(vtkcoords[:10,:])
 
     writeVTK_UnstructuredGrid(task_name+'_result_ug', vtkcoords)

@@ -11,4 +11,4 @@ pysx_affiliation = 'Kegg Graduate Institute'
 pysx_web = 'http://www.sys-bio.org'
 pysx_notes = 'This is an interface to the Systems Biology Workbench'
 
-from sbw_func import *
+from .sbw_func import *

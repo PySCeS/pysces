@@ -28,7 +28,7 @@ from pysces.PyscesUtils import TimerBox
 from pysces.PyscesScan import Scanner
 import multiprocessing
 
-import sys, os, cPickle
+import sys, os, pickle
 flush = sys.stdout.flush
 from time import sleep, time
 import subprocess
@@ -73,26 +73,26 @@ class ParScanner(Scanner):
         """
         self.engine=engine
         if engine == 'multiproc':
-            print 'parallel engine: multiproc'
+            print('parallel engine: multiproc')
         elif engine == 'ipcluster':
-            print 'parallel engine: ipcluster'
+            print('parallel engine: ipcluster')
             try:
                 from IPython.parallel import Client
-            except ImportError, ex:
-                print '\n',ex
-                raise ImportError, 'PARSCANNER: Requires IPython version >=0.12 (http://ipython.org) and 0MQ (http://zero.mq).'
+            except ImportError as ex:
+                print('\n',ex)
+                raise ImportError('PARSCANNER: Requires IPython version >=0.12 (http://ipython.org) and 0MQ (http://zero.mq).')
             try:
                 rc = Client()
                 self.rc=rc
-            except IOError, ex:
-                raise IOError, str(ex)+'\nPARSCANNER: Requires a running IPython cluster. See "ipcluster --help".\n'
+            except IOError as ex:
+                raise IOError(str(ex)+'\nPARSCANNER: Requires a running IPython cluster. See "ipcluster --help".\n')
             dv = rc[:]       # direct view
             lv = rc.load_balanced_view()
             self.dv=dv
             self.lv=lv
             dv.execute('from pysces.PyscesParScan import Analyze, setModValue')
         else:
-            raise UserWarning, engine+" is not a valid parallel engine!"
+            raise UserWarning(engine+" is not a valid parallel engine!")
         self.GenDict = {}
         self.GenOrder = []
         self.ScanSpace = []
@@ -130,7 +130,7 @@ class ParScanner(Scanner):
         """
         Internal method to prepare the parameters and generate ScanSpace.
         """
-        print "\nPREPARATION\n-----------"
+        print("\nPREPARATION\n-----------")
         self.scanT.normal_timer('PREP')
         self._MODE_ = self._MODE_.lower()
         assert self._MODE_ in self.__AnalysisModes__, '\nSCANNER: \"%s\" is not a valid analysis mode!' % self._MODE_
@@ -145,8 +145,8 @@ class ParScanner(Scanner):
             #self.dv.execute('mod.__settings__["mode_state_nan_on_fail"] = True')
         # generate the scan space
         self.genScanSpace()
-        print "Generated ScanSpace:", self.scanT.PREP.next()
-        print 'PARSCANNER: Tsteps', self.Tsteps
+        print("Generated ScanSpace:", next(self.scanT.PREP))
+        print('PARSCANNER: Tsteps', self.Tsteps)
         flush()
 
     def Run(self,ReRun=False):
@@ -159,14 +159,14 @@ class ParScanner(Scanner):
         if self.engine == 'multiproc':
             fN = str(time()).split('.')[0]
             F = file(fN, 'wb')
-            cPickle.dump((self.mod, self.ScanPartition, self.SeqPartition, self.GenOrder, self.UserOutputList), F, protocol=-1)
+            pickle.dump((self.mod, self.ScanPartition, self.SeqPartition, self.GenOrder, self.UserOutputList), F, protocol=-1)
             F.close()
             fN = os.path.abspath(fN)
-            print "Preparation completed:", self.scanT.PREP.next()
+            print("Preparation completed:", next(self.scanT.PREP))
             self.scanT.normal_timer('RUN')
             subprocess.call(['python', MULTISCANFILE, self._MODE_, fN])
             F = file(fN, 'rb')
-            res_list = cPickle.load(F)
+            res_list = pickle.load(F)
             F.close()
             os.remove(fN)
             for result in res_list:
@@ -174,18 +174,18 @@ class ParScanner(Scanner):
         elif self.engine == 'ipcluster':
             for i in range(len(self.ScanPartition)):
                 arl.append(self.lv.apply(Analyze, self.ScanPartition[i], self.SeqPartition[i], self.GenOrder, self._MODE_, self.UserOutputList, self.mod))
-            print "Submitted tasks:", len(arl)
-            print "Preparation completed:", self.scanT.PREP.next()
-            print "\nPARALLEL COMPUTATION\n--------------------"
+            print("Submitted tasks:", len(arl))
+            print("Preparation completed:", next(self.scanT.PREP))
+            print("\nPARALLEL COMPUTATION\n--------------------")
             flush()
             self.scanT.normal_timer('RUN')
             while self.lv.queue_status()['unassigned'] > 0:
                 sleep(5)
-                print 'Tasks to go... ', self.lv.queue_status()['unassigned']
+                print('Tasks to go... ', self.lv.queue_status()['unassigned'])
             # wait until all tasks are completed
             self.lv.wait()
             flush()
-            print "\nGATHER RESULT\n-------------"
+            print("\nGATHER RESULT\n-------------")
             flush()
             for ar in arl:
                 result = ar.get()
@@ -195,7 +195,7 @@ class ParScanner(Scanner):
                     #   3 - invalid_state_list
                     #   4 - invalid_state_list_idx
                 self.StoreData(result)
-        print "Parallel calculation completed:", self.scanT.RUN.next()
+        print("Parallel calculation completed:", next(self.scanT.RUN))
         self.GatherScanResult()
 
     def RunScatter(self,ReRun=False):
@@ -204,7 +204,7 @@ class ParScanner(Scanner):
         Not load balanced, equal number of scan runs per node.
         """
         if self.engine != 'ipcluster':
-            print "RunScatter() only supported with ipcluster!"
+            print("RunScatter() only supported with ipcluster!")
             return
         self.Prepare(ReRun)
         # this is where the parallel magic fun starts....
@@ -216,18 +216,18 @@ class ParScanner(Scanner):
         # scatter ScanSpace and SeqArray
         self.dv.scatter('partition', self.ScanSpace)
         self.dv.scatter('seqarray', self.SeqArray)
-        print "Scattered ScanSpace on number of engines:", len(self.dv)
-        print "Preparation completed:", self.scanT.PREP.next()
-        print "\nPARALLEL COMPUTATION\n--------------------"
+        print("Scattered ScanSpace on number of engines:", len(self.dv))
+        print("Preparation completed:", next(self.scanT.PREP))
+        print("\nPARALLEL COMPUTATION\n--------------------")
         flush()
         self.scanT.normal_timer('RUN')
         # executes scan on partitioned ScanSpace on every node
         self.dv.execute('y=Analyze(partition,seqarray,GenOrder,mode,UserOutputList,mod)',block=True)
-        print "Parallel calculation completed:", self.scanT.RUN.next()
+        print("Parallel calculation completed:", next(self.scanT.RUN))
         flush()
 
         ## this is analysis stuff
-        print "\nGATHER RESULT\n-------------"
+        print("\nGATHER RESULT\n-------------")
         flush()
         ar = self.dv.gather('y')
         results=ar.get()
@@ -239,7 +239,7 @@ class ParScanner(Scanner):
                 #   3 - invalid_state_list
                 #   4 - invalid_state_list_idx
             self.StoreData(result)
-        print "Parallel calculation completed:", self.scanT.RUN.next()
+        print("Parallel calculation completed:", next(self.scanT.RUN))
         self.GatherScanResult()
 
     def StoreData(self, result):
@@ -264,14 +264,14 @@ class ParScanner(Scanner):
             self.UserOutputResults = np.vstack([i for i in self.UserOutputResults])
         self.resetInputParameters()
         #print "Gather completed:", self.scanT.GATHER.next()
-        print "\nPARSCANNER: %s states analysed" % len(self.SteadyStateResults)
-        print "Total time taken: ", self.scanT.PREP.next()
+        print("\nPARSCANNER: %s states analysed" % len(self.SteadyStateResults))
+        print("Total time taken: ", next(self.scanT.PREP))
         self.scanT.PREP.close()     # close timer
         self.scanT.RUN.close()
         if len(self.invalid_state_list) > 0:
-            print '\nBad steady states encountered at:\n'
-            print "Sequence: ", self.invalid_state_list_idx
-            print "Parameters: ", self.invalid_state_list
+            print('\nBad steady states encountered at:\n')
+            print("Sequence: ", self.invalid_state_list_idx)
+            print("Parameters: ", self.invalid_state_list)
 
 # Utility methods for scatter/gather
 # was in engineCode.py but refactored into main script

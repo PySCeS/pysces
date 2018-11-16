@@ -50,7 +50,7 @@ kcntrl.setScanJobs(0.01, 40000, scan_segments, scan_job, log=True)
 
 kcntrl.Run(raw_data_dump=False)
 kcntrl.concatenateResults()
-print 'kcntrl.result_array.shape', kcntrl.result_array.shape
+print('kcntrl.result_array.shape', kcntrl.result_array.shape)
 
 MID = time.time()
 
@@ -77,13 +77,13 @@ kisect.writeVTK_UnstructuredGrid(kisect.vtkintersection.take([0,1,2],axis=1), kc
 
 END = time.time()
 
-print "\n********** start Kraken report **********"
-print "Using %s tentacles" % len(kcntrl.kc_available_server_list)
-print "Scan points          = %s" % (pointsP1*pointsP2*scan_segments)
-print "Data generation time = %2.2f minutes." % ((MID-START)/60.0)
-print "Data analysis time   = %2.2f minutes." % ((END-MID)/60.0)
-print "Total scan time      = %2.2f minutes." % ((END-START)/60.0)
-print "Total points/minute  = %2.1f" % ((60.0*pointsP1*pointsP2*scan_segments)/(END-START))
-print "********** end Kraken report **********\n"
+print("\n********** start Kraken report **********")
+print("Using %s tentacles" % len(kcntrl.kc_available_server_list))
+print("Scan points          = %s" % (pointsP1*pointsP2*scan_segments))
+print("Data generation time = %2.2f minutes." % ((MID-START)/60.0))
+print("Data analysis time   = %2.2f minutes." % ((END-MID)/60.0))
+print("Total scan time      = %2.2f minutes." % ((END-START)/60.0))
+print("Total points/minute  = %2.1f" % ((60.0*pointsP1*pointsP2*scan_segments)/(END-START)))
+print("********** end Kraken report **********\n")
 
 kcntrl.Dump(kisect, kcntrl.task_id+'_kisect.bin')

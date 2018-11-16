@@ -206,7 +206,7 @@ class PlotBase(object):
         Wait *seconds* (default = 3) or until enter is pressed (seconds = -1)
         """
         if seconds == -1:
-            raw_input("\nPress <enter> to continue ...\n")
+            input("\nPress <enter> to continue ...\n")
         else:
             time.sleep(seconds)
 
@@ -259,9 +259,9 @@ class GnuPlotUPI(PlotBase):
             self.__DISP_TERMINAL__ = 'x11'
         try:
             self.__G_SUBPROC__ = subprocess.Popen(self.__GNUPLOT_EXE_PATH__, stdin=subprocess.PIPE)
-        except Exception, ex:
-            print '\nGnuPlot load failure\n'
-            print ex
+        except Exception as ex:
+            print('\nGnuPlot load failure\n')
+            print(ex)
         if work_dir == None or not os.path.exists(work_dir):
             work_dir = os.getcwd()
         self.__DATA_FILE_PATH__ = os.path.join(work_dir, self.__DATA_FILE_NAME__)
@@ -287,7 +287,7 @@ class GnuPlotUPI(PlotBase):
         """
         cmd = cmd.replace('\\','/')
         self.last_command = cmd
-        if self.__ECHO__: print 'SENT: %s' % cmd
+        if self.__ECHO__: print('SENT: %s' % cmd)
 
         self.__G_SUBPROC__.stdin.write("""%s\n""" % cmd)
 
@@ -302,7 +302,7 @@ class GnuPlotUPI(PlotBase):
         if dfmt == None:
             dfmt = self.DATF_FORMAT
         numpy.savetxt(self.__DATA_FILE_PATH__, arr, fmt=dfmt, delimiter=' ')
-        if self.__ECHO__: print 'WROTE: %s' % self.__DATA_FILE_PATH__
+        if self.__ECHO__: print('WROTE: %s' % self.__DATA_FILE_PATH__)
         self.g_pause() # multiplot protection
 
     def g_file_write_array3D(self, arr, yaxis=1, dfmt=None):
@@ -337,7 +337,7 @@ class GnuPlotUPI(PlotBase):
                 F.write(' \n')
             F.flush()
             F.close()
-            if self.__ECHO__: print 'WROTE: %s' % self.__DATA_FILE_PATH__
+            if self.__ECHO__: print('WROTE: %s' % self.__DATA_FILE_PATH__)
         del outlist
         self.g_pause()
 
@@ -362,7 +362,7 @@ class GnuPlotUPI(PlotBase):
 
         Format can also be the *CommonStyle* 'lines' or 'points'.
         """
-        if format in self.CommonStyleDefs.keys():
+        if format in list(self.CommonStyleDefs.keys()):
             format = self.CommonStyleDefs[format]
         if title == '':
             title = []
@@ -388,16 +388,16 @@ class GnuPlotUPI(PlotBase):
 
         self.g_file_write_array(data, dfmt=self.DATF_FORMAT)
         if len(y) == 0:
-            y = range(data.shape[1])
+            y = list(range(data.shape[1]))
             y.pop(x)
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print "len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1])
+            print("len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1]))
             formats = [formats[-1]]
         elif formats[0] == '' or formats[0] == None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1]*formats
-        cFormats = self.CommonStyleDefs.keys()
+        cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
                 formats[f] = self.CommonStyleDefs[formats[f]]
@@ -424,7 +424,7 @@ class GnuPlotUPI(PlotBase):
 
         Format can also be the *CommonStyle* 'lines' or 'points'.
         """
-        if format in self.CommonStyleDefs.keys():
+        if format in list(self.CommonStyleDefs.keys()):
             format = self.CommonStyleDefs[format]
         if titles == '':
             titles = []
@@ -451,15 +451,15 @@ class GnuPlotUPI(PlotBase):
         self.g_file_write_array3D(data, yaxis=y, dfmt=self.DATF_FORMAT)
 
         if len(z) == 0:
-            z = range(data.shape[1])
+            z = list(range(data.shape[1]))
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print "len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1])
+            print("len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1]))
             formats = [formats[-1]]
         elif formats[0] == '' or formats[0] == None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1]*formats
-        cFormats = self.CommonStyleDefs.keys()
+        cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
                 formats[f] = self.CommonStyleDefs[formats[f]]
@@ -472,7 +472,7 @@ class GnuPlotUPI(PlotBase):
             if zi not in (x,y):
                 cmd += '''"%s" u %s:%s:%s t "%s" %s, ''' % (self.__DATA_FILE_PATH__,  x+1, y+1, zi+1, titles[zi], formats[zi])
         cmd = cmd[:-2]
-        print cmd
+        print(cmd)
         self.g_write(cmd)
         self.setKey(True)
 
@@ -632,15 +632,15 @@ class GnuPlotUPI(PlotBase):
             else:
                 imgPath = os.path.join(os.getcwd(), name)
 
-        if imgPath != None and type in self.Terminals.keys():
+        if imgPath != None and type in list(self.Terminals.keys()):
             self.set('output', '\"%s\"' % imgPath)
             self.setTerminal(type, self.Terminals[type])
             self.replot()
             self.set('output')
             self.setTerminal(self.__DISP_TERMINAL__, self.Terminals[self.__DISP_TERMINAL__])
-            print 'Image exported as \"%s\"' % imgPath
+            print('Image exported as \"%s\"' % imgPath)
         else:
-            print 'Image not exported as type \"%s\"' % type
+            print('Image not exported as type \"%s\"' % type)
 
     def setDataFileNumberFormat(self, format='%.8e'):
         """
@@ -648,7 +648,7 @@ class GnuPlotUPI(PlotBase):
 
         - *format* format string (default='%.8e')
         """
-        print 'GnuPlot array data will be written as %s' % format % 0.123456789
+        print('GnuPlot array data will be written as %s' % format % 0.123456789)
         self.DATF_FORMAT = format
 
     def setTerminal(self, name, options=''):
@@ -746,23 +746,23 @@ class MatplotlibUPI(PlotBase):
                 matplotlib.use(backend, warn=False)
                 self.__BACKEND__ = backend
                 if not __SILENT_START__:
-                    print('Matplotlib backend set to: \"{}\"'.format(backend))
+                    print(('Matplotlib backend set to: \"{}\"'.format(backend)))
             else:
                 if backend in [None, 'None', 'none']:
-                    print('Matplotlib backend not set, using: \"{}\"'.format(matplotlib.get_backend()))
+                    print(('Matplotlib backend not set, using: \"{}\"'.format(matplotlib.get_backend())))
                     self.__BACKEND__ = matplotlib.get_backend()
                 else:
                     matplotlib.use('TkAgg', warn=False)
                     self.__BACKEND__ = 'TkAgg'
-                    print('Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(backend, 'TkAgg'))
+                    print(('Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(backend, 'TkAgg')))
 
             #if self.__ENABLE_HTML5__:
                 #matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
             #else:
                 #matplotlib.use('TKagg', warn=False)
-        except Exception, ex:
-            print ex
-            print "\nPySCeS defaults to matplotlib's TKagg backend if not specified in the user conficuration file, set \"matplotlib_backend = <backend>\" "
+        except Exception as ex:
+            print(ex)
+            print("\nPySCeS defaults to matplotlib's TKagg backend if not specified in the user conficuration file, set \"matplotlib_backend = <backend>\" ")
 
         from matplotlib import pyplot
         from matplotlib import pylab
@@ -775,14 +775,14 @@ class MatplotlibUPI(PlotBase):
         """
         Create a figure_generator with range [1,num+1]
         """
-        self.__FIGURE_GENERATOR__ = itertools.cycle(range(1,num+1))
+        self.__FIGURE_GENERATOR__ = itertools.cycle(list(range(1,num+1)))
         self.MAX_OPEN_WINDOWS = num
 
     def _setActiveFigure(self, fignum):
         self.__CURRENT_FIGURE__ = self.pyplot.figure(fignum)
 
     def _setNewFigure(self):
-        self._setActiveFigure(self.__FIGURE_GENERATOR__.next())
+        self._setActiveFigure(next(self.__FIGURE_GENERATOR__))
 
     def closeAll(self):
         """
@@ -817,7 +817,7 @@ class MatplotlibUPI(PlotBase):
 
         Format can also be the *CommonStyle* 'lines' or 'points'.
         """
-        if format in self.CommonStyleDefs.keys():
+        if format in list(self.CommonStyleDefs.keys()):
             format = self.CommonStyleDefs[format]
         if title == '':
             title = []
@@ -843,17 +843,17 @@ class MatplotlibUPI(PlotBase):
             self._setNewFigure()
         if not self.__MODE_HOLD__: self.pyplot.clf()
         if len(y) == 0:
-            y = range(self.__ARRAY_DATA__.shape[1])
+            y = list(range(self.__ARRAY_DATA__.shape[1]))
             y.pop(x)
 
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print "len(titles) must be one or equal the number data columns (%s) using: \"%s\"" % (data.shape[1], formats[-1])
+            print("len(titles) must be one or equal the number data columns (%s) using: \"%s\"" % (data.shape[1], formats[-1]))
             formats = [copy.copy(formats[-1])]
         elif formats[0] == '' or formats[0] == None:
             formats = ['-']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1]*formats
-        cFormats = self.CommonStyleDefs.keys()
+        cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
                 formats[f] = self.CommonStyleDefs[formats[f]]
@@ -966,7 +966,7 @@ class MatplotlibUPI(PlotBase):
         else:
             out_n = os.path.join(self.__WORK_DIR__, name)
         numpy.savetxt(out_n, self.__ARRAY_DATA__, fmt=dfmt, delimiter=' ')
-        print 'Data saved as \"%s\"' % out_n
+        print('Data saved as \"%s\"' % out_n)
 
     def export(self, name, directory=None, type='png'):
         """
@@ -988,9 +988,9 @@ class MatplotlibUPI(PlotBase):
             else:
                 imgPath = os.path.join(os.getcwd(), name)
             self.pyplot.savefig(imgPath)
-            print 'Image exported as \"%s\"' % imgPath
+            print('Image exported as \"%s\"' % imgPath)
         else:
-            print 'Image not exported as type \"%s\"' % type
+            print('Image not exported as type \"%s\"' % type)
 
 
     def setLineWidth(self, width=1):
@@ -1054,7 +1054,7 @@ class PyscesUPI(PlotBase):
         if interface in self.__GINTERFACES__ and self.__getattribute__('%s' % interface[0]) != None:
             self.__setattr__('__USE_%s__' % interface.upper(), True)
         else:
-            print 'Cannot activate \"%s\"interface' % interface
+            print('Cannot activate \"%s\"interface' % interface)
 
     def __gselect__(self, func, *args, **kwargs):
         """
@@ -1075,13 +1075,13 @@ class PyscesUPI(PlotBase):
             try:
                 self.m.__getattribute__(func)(*args, **kwargs)
             except NotImplementedError:
-                print '\"%s\" method not available using Matplotlib' % func
+                print('\"%s\" method not available using Matplotlib' % func)
 
         if self.__USE_GNUPLOT__:
             try:
                 self.g.__getattribute__(func)(*args2, **kwargs2)
             except NotImplementedError:
-                print '\"%s\" method not available using GnuPlot ' % func
+                print('\"%s\" method not available using GnuPlot ' % func)
         del args, kwargs, args2, kwargs2
 
     def plot(self, data, x, y, title='', format=''):

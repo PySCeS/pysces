@@ -18,13 +18,13 @@ Brett G. Olivier
 import os
 import numpy, scipy, itertools, time
 
-from KrakenNET import socket, time, cPickle
-from KrakenNET import SimpleClient, SimpleMultiReadClient, ThreadedClient
-from KrakenNET import ModelFileServer, TentacleScanner, ServerListLoader
-from KrakenNET import ServerStatusCheck, HOSTNAME, BLOCK_SIZE, PICKLE_PROTOCOL, STATUS_PORT, PYSCES_PORT, CFSERVE_PORT
+from .KrakenNET import socket, time, cPickle
+from .KrakenNET import SimpleClient, SimpleMultiReadClient, ThreadedClient
+from .KrakenNET import ModelFileServer, TentacleScanner, ServerListLoader
+from .KrakenNET import ServerStatusCheck, HOSTNAME, BLOCK_SIZE, PICKLE_PROTOCOL, STATUS_PORT, PYSCES_PORT, CFSERVE_PORT
 
-print 'I AM:', HOSTNAME
-print 'Using BLOCK_SIZE: %s\n' % BLOCK_SIZE
+print('I AM:', HOSTNAME)
+print('Using BLOCK_SIZE: %s\n' % BLOCK_SIZE)
 
 class KrakenController:
     kc_status_port = None
@@ -50,23 +50,23 @@ class KrakenController:
         self.kc_tentacle_response = {}
         self.kc_tentacle_process_map = {}
 
-        print self.kc_status_port, self.kc_pysces_port, self.kc_block_size
+        print(self.kc_status_port, self.kc_pysces_port, self.kc_block_size)
 
     def initialiseTentacles(self,file_name=None, directory_name=os.getcwd()):
         if file_name != None:
             self.kc_file_name = file_name
         self.kc_available_server_list = ServerListLoader().ReadFile(self.kc_file_name, directory_name)
         self.kc_tentacle_scanner = TentacleScanner(self.kc_available_server_list)
-        print 'Server list:'
-        print self.kc_available_server_list, '\n'
+        print('Server list:')
+        print(self.kc_available_server_list, '\n')
         assert len(self.kc_available_server_list) > 0, '\n* No servers in server list file'
 
     def getActiveTentacles(self):
         self.kc_tentacle_scanner.scan()
         self.kc_available_server_list = self.kc_tentacle_scanner.servers_ready
         self.kc_busy_server_list = self.kc_tentacle_scanner.servers_busy
-        print 'Server list:'
-        print self.kc_available_server_list, '\n'
+        print('Server list:')
+        print(self.kc_available_server_list, '\n')
         assert len(self.kc_available_server_list) > 0, '\n* No active servers'
         for t in self.kc_available_server_list:
             self.kc_tentacle_response.setdefault(t)
@@ -107,7 +107,7 @@ class KrakenController:
 
     def runAllJobs(self):
         Istarted = []
-        for s in self.kc_tentacle_process_map.keys():
+        for s in list(self.kc_tentacle_process_map.keys()):
             if self.kc_tentacle_process_map[s] != None:
                 if not self.kc_tentacle_process_map[s].isAlive():
                     self.kc_tentacle_process_map[s].start()
@@ -117,7 +117,7 @@ class KrakenController:
         del Istarted
 
     def clearProcessMap(self):
-        for s in self.kc_tentacle_process_map.keys():
+        for s in list(self.kc_tentacle_process_map.keys()):
             if self.kc_tentacle_process_map[s] != None:
                 if not self.kc_tentacle_process_map[s].isAlive():
                     self.kc_tentacle_process_map[s] = None
@@ -125,19 +125,19 @@ class KrakenController:
 
 
     def getDataFromOneJob(self, server):
-        assert self.kc_tentacle_process_map.has_key(server), '\n* Server %s not in active server list' % server
+        assert server in self.kc_tentacle_process_map, '\n* Server %s not in active server list' % server
         if self.kc_tentacle_process_map[server].response == 'True':
-            print '* \"%s\" reports completing job without error' % server
+            print('* \"%s\" reports completing job without error' % server)
         else:
-            print '* Check result! \"%s\" reports job processing failure'  % server
+            print('* Check result! \"%s\" reports job processing failure'  % server)
         client = SimpleMultiReadClient(server, self.kc_pysces_port, self.kc_block_size)
         client.send('P_GETDATA')
         self.kc_tentacle_response[server] = cPickle.loads(client.response)
-        print '\n', server, 'returns', type(self.kc_tentacle_response[server])
-        print 'Data successfully retrieved from: %s \n' % server
+        print('\n', server, 'returns', type(self.kc_tentacle_response[server]))
+        print('Data successfully retrieved from: %s \n' % server)
 
     def getDataFromAllJobs(self, pause=0.2):
-        for s in self.kc_tentacle_process_map.keys():
+        for s in list(self.kc_tentacle_process_map.keys()):
             if self.kc_tentacle_process_map[s] != None:
                 self.getDataFromOneJob(s)
                 time.sleep(pause)
@@ -145,28 +145,28 @@ class KrakenController:
     def killTentacles(self):
         GO = True
         while GO:
-            input = raw_input('\nYou have initiated tentacle shutdown ... are you sure? (y/n): ')
+            input = input('\nYou have initiated tentacle shutdown ... are you sure? (y/n): ')
             if input in ['y','Y','yes']:
                 GO = False
                 for server in self.kc_available_server_list:
                     SimpleClient(server, self.kc_status_port, self.kc_block_size).send(['KILL'])
                     SimpleClient(server, self.kc_pysces_port, self.kc_block_size).send(['KILL'])
-                print 'Warning: all servers deleted for this host'
+                print('Warning: all servers deleted for this host')
                 self.kc_available_server_list = []
             elif input in ['n','N','no']:
                 GO = False
             else:
-                print '\nPlease enter y for yes or n for no'
+                print('\nPlease enter y for yes or n for no')
 
     def chkpsc(self,F):
         try:
             if F[-4:] == '.psc':
                 pass
             else:
-                print 'Assuming extension is .psc'
+                print('Assuming extension is .psc')
                 F += '.psc'
         except:
-            print 'Chkpsc error'
+            print('Chkpsc error')
         return F
 
     def startModelServer(self, model_file, model_dir):
@@ -179,11 +179,11 @@ class KrakenController:
                 self.kc_model_server = ModelFileServer(CFSERVE_PORT, BLOCK_SIZE, 'model_server')
                 self.kc_model_server.ReadFile(self.model_file, self.model_dir)
                 self.kc_model_server.start()
-            except Exception,ex:
-                print 'Server might already be running on this machine'
-                print ex
+            except Exception as ex:
+                print('Server might already be running on this machine')
+                print(ex)
         else:
-            print 'Error: file %s does not exist!\n' % mpath
+            print('Error: file %s does not exist!\n' % mpath)
             raise NameError
 
     def startTentacleMonitor(self, interval=60):
@@ -222,7 +222,7 @@ class KrakenScanController(KrakenController):
         self.getActiveTentacles()
         self.startModelServer(self.Model_File, self.Model_Dir)
         self.startTentacleMonitor(interval=self.tentacle_monitor_interval)
-        print 'Server list: %s\n' % self.kc_available_server_list
+        print('Server list: %s\n' % self.kc_available_server_list)
 
     def setInitCmds(self, lst):
         assert type(lst) == list, 'This must be a list'
@@ -248,7 +248,7 @@ class KrakenScanController(KrakenController):
         for p in range(len(kpoints)-1):
             job2 = job % (kpoints[p], kpoints[p+1])
             self.job_list.append(job2)
-            print job2
+            print(job2)
 
     def Run(self, raw_data_dump=True):
         START = time.time()
@@ -257,9 +257,9 @@ class KrakenScanController(KrakenController):
         if raw_data_dump:
             try:
                 self.Dump(self.result_list, self.task_id+'_raw_data')
-            except Exception, ex:
-                print 'Raw data not saved', ex
-        print "Data generation time = %2.2f minutes." % ((MID-START)/60.0)
+            except Exception as ex:
+                print('Raw data not saved', ex)
+        print("Data generation time = %2.2f minutes." % ((MID-START)/60.0))
 
     def buildCycler(self, lst):
         """
@@ -273,9 +273,9 @@ class KrakenScanController(KrakenController):
             cPickle.dump(thing, F, 2)
             F.flush()
             F.close()
-        except Exception, ex:
-            print 'Dump exception raised'
-            print ex
+        except Exception as ex:
+            print('Dump exception raised')
+            print(ex)
 
     def deltaCommand(self):
         """
@@ -301,34 +301,34 @@ class KrakenScanController(KrakenController):
             job_servers = []
             for job in range(len(job_list)):
                 if job < len(self.kc_available_server_list):
-                    print '\nJob %s queued for processing...' % (job+1)
-                    server = getServer.next()
+                    print('\nJob %s queued for processing...' % (job+1))
+                    server = next(getServer)
                     job_servers.append(server)
-                    print "\nProcessing job %s init list ..." % (job+1)
+                    print("\nProcessing job %s init list ..." % (job+1))
                     self.sendCmdListToOne(init_list, server)
-                    print "\nProcessing job %s delta command ..." % (job+1)
+                    print("\nProcessing job %s delta command ..." % (job+1))
                     self.sendCmdListToOne(self.deltaCommand(), server)
                     self.sendJobToOne(job_list[job], server)
                 else:
                     deferred_jobs.append(job_list[job])
-                    print 'Job %s deferred and rescheduled.' % (job+1)
-            print "\nProcessing queued jobs ..."
+                    print('Job %s deferred and rescheduled.' % (job+1))
+            print("\nProcessing queued jobs ...")
             self.runAllJobs()
             for server in job_servers:
                 self.getDataFromOneJob(server)
                 arr = self.kc_tentacle_response[server]
                 self.result_list.append(arr)
-                print type(arr)
+                print(type(arr))
             self.clearProcessMap()
             if len(deferred_jobs) > 0:
-                print '\nDeferred:', deferred_jobs
+                print('\nDeferred:', deferred_jobs)
                 job_list = deferred_jobs
             else:
                 self.JobsWaiting = False
 
         TIME_END = time.time()
 
-        print '\nNumber of results = %s' % len(self.result_list)
+        print('\nNumber of results = %s' % len(self.result_list))
         total_states = 0
         ##  for x in range(len(self.result_list)):
             ##  try:
@@ -359,14 +359,14 @@ class KrakenScanController(KrakenController):
         return self.result_list
 
     def getAndClearResultArray(self):
-        print 'ReSetting result_array and result_list (returning result_array)'
+        print('ReSetting result_array and result_list (returning result_array)')
         tmp = self.result_array
         self.result_list = []
         self.result_array = None
         return tmp
 
     def getAndClearResultList(self):
-        print 'ReSetting result_array and result_list (returning result_list)'
+        print('ReSetting result_array and result_list (returning result_list)')
         tmp = self.result_list
         self.result_list = []
         self.result_array = None

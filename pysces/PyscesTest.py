@@ -48,8 +48,8 @@ def CopyTestModels(dirIn=os.path.join(pysces.install_dir,'pscmodels'),dirOut=pys
 
     if os.path.exists(dirIn):
         if os.path.exists(dirOut):
-            print 'src : ' + dirIn
-            print 'dest: ' + dirOut
+            print('src : ' + dirIn)
+            print('dest: ' + dirOut)
             flist = os.listdir(dirIn)
             if overwrite == 0:
                 flist2 = os.listdir(dirOut)
@@ -65,16 +65,16 @@ def CopyTestModels(dirIn=os.path.join(pysces.install_dir,'pscmodels'),dirOut=pys
                                 #print File +  (maxlen-len(File))*'.' + ' skipped'
                             except:
                                 shutil.copy(os.path.join(dirIn,File),os.path.join(dirOut,File))
-                                print File +  (maxlen-len(File))*'.' + ' ok'
+                                print(File +  (maxlen-len(File))*'.' + ' ok')
                         else:
                             shutil.copy(os.path.join(dirIn,File),os.path.join(dirOut,File))
-                            print File +  (maxlen-len(File))*'.' + ' ok'
+                            print(File +  (maxlen-len(File))*'.' + ' ok')
             else:
-                print 'Empty directory?'
+                print('Empty directory?')
         else:
-            print dirOut + ' does not exist'
+            print(dirOut + ' does not exist')
     else:
-        print dirIn + ' does not exist'
+        print(dirIn + ' does not exist')
 
 
 class PyscesTest:
@@ -84,9 +84,9 @@ class PyscesTest:
 
     def __init__(self,lvl=2,std2file=0):
         #copy models from server to local model store
-        print '\nCopying pysces_test models if necessary ...'
+        print('\nCopying pysces_test models if necessary ...')
         CopyTestModels()
-        print 'done.'
+        print('done.')
         self.basic_runner = unittest.TextTestRunner()
         self.BasicTest = unittest.makeSuite(PyscesBasicTest,'test')
         self.ExtendedTest = unittest.makeSuite(PyscesExtendedTest,'test')
@@ -113,7 +113,7 @@ class PyscesTest:
         self.__dfi__ = NullWriter(std2file)
         tmpSTD = sys.stdout
         for x in range(lvl):
-            print '\nLevel ' + str(x+1) + ' tests'
+            print('\nLevel ' + str(x+1) + ' tests')
             sys.stdout = self.__dfi__
             getattr(self, 'lvl_'+str(x+1))()
             sys.stdout = tmpSTD
@@ -468,12 +468,12 @@ class PyscesExternalTest(unittest.TestCase):
 
     def test_PITCON1(self):
         import scipy
-        print '''
+        print('''
         C  PCPRB1.FOR  The Freudenstein-Roth function.
         C  Limit points in the first variable occur at:
         C    (14.28309, -1.741377,  0.2585779)
         C    (61.66936,  1.983801, -0.6638797)
-        '''
+        ''')
         def fx(X):
             FX[0] = X[0] - ((X[1] - 5.0)*X[1] + 2.0) * X[1] - 13.0 + 34.0 * (X[2]-1.0)
             FX[1] = X[0] + ((X[1] + 1.0)*X[1] - 14.0) * X[1] - 29.0 + 10.0 *(X[2] - 1.0)
@@ -499,8 +499,8 @@ class PyscesExternalTest(unittest.TestCase):
         for run in range(iterations):
             ierror,iwork,rwork,xrout = pysces.pitcon.pitcon1(fjac,fpar,fx,ipar,iwork,rwork,xr)
             if iwork[0] == 4:
-                print '\nLimit point in run = ' + `run + 1`
-                print xrout
+                print('\nLimit point in run = ' + repr(run + 1))
+                print(xrout)
                 limits.append(xrout)
             output.append(xrout)
 

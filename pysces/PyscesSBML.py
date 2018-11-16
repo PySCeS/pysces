@@ -25,13 +25,13 @@ from getpass import getuser
 if sys.platform == 'win32':
     try:
         import pysces.libsbml.libsbmlinit as SBML
-    except Exception, e:
-        print 'Windows sbml load error',e
+    except Exception as e:
+        print('Windows sbml load error',e)
 else:
     try:
         import libsbml as SBML
-    except Exception, e:
-        print 'Posix sbml load error',e
+    except Exception as e:
+        print('Posix sbml load error',e)
 
 
 class PyscesSBML:
@@ -144,7 +144,7 @@ class PyscesSBML:
     def getAssignmentRules(self):
         self.parseForcingFunctions()
         out = []
-        for key in self.__forcing_function_dic__.keys():
+        for key in list(self.__forcing_function_dic__.keys()):
             out.append((key, self.__forcing_function_dic__[key]))
         return out
 
@@ -164,7 +164,7 @@ class PyscesSBML:
         dir [default=None]: output directory
 
         """
-        if self._debug: print 'SBML_createModel'
+        if self._debug: print('SBML_createModel')
         self.model_obj = mod
         self.__nDict__= self.model_obj.__nDict__
         self.model_filename = filename
@@ -192,12 +192,12 @@ class PyscesSBML:
         try:
             self.parseForcingFunctions()
         except:
-            print "No pre-defined forcing functions"
+            print("No pre-defined forcing functions")
 
 
         if self.sbml_level == 1:
             if sys.platform == 'win32':
-                print 'Due to a bug in self.SBML for Windows writing a lvl 1 file will crash your session writing lvl 2 instead ... sorry'
+                print('Due to a bug in self.SBML for Windows writing a lvl 1 file will crash your session writing lvl 2 instead ... sorry')
                 self.sbml_document.setLevel(2)
             else:
                 self.sbml_document.setLevel(self.sbml_level)
@@ -216,7 +216,7 @@ class PyscesSBML:
         vol [default=1]: the compartment volume
 
         """
-        if self._debug: print 'SBML_setCompartment'
+        if self._debug: print('SBML_setCompartment')
         comp_def = self.sbml_model.createCompartment()
         if not name:
             self.model_compartment_name = 'Cell'
@@ -254,7 +254,7 @@ class PyscesSBML:
         time [default=(1,0)]: the model time unit - SBML default is "second"
 
         """
-        for un in kwargs.keys():
+        for un in list(kwargs.keys()):
             vdef = self.sbml_model.createUnitDefinition()
             vdef.setId(un)
             vu = self.sbml_model.createUnit()
@@ -276,7 +276,7 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print 'SBML_setSpecies'
+        if self._debug: print('SBML_setSpecies')
         reagList = self.model_obj.__species__ + self.model_obj.__fixed_species__
         for reagent in range(len(reagList)):
             s = self.sbml_model.createSpecies()
@@ -302,7 +302,7 @@ class PyscesSBML:
     def SBML_setAssignmentRules(self, rules=[]):
 
         for rule in rules:
-            print rule
+            print(rule)
             self.global_parameters.append(rule[0])
             p = self.sbml_model.createParameter()
             p.setId(rule[0])
@@ -324,11 +324,11 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print 'SBML_setReactions'
+        if self._debug: print('SBML_setReactions')
         #TotSpecies = list(self.model_obj._PysMod__FixedReagents)+list(self.model_obj._PysMod__VarReagents)
         reaction_params = []
         for rxn in self.model_obj._PysMod__ReactionIDs:
-            print 'Adding reaction:', rxn
+            print('Adding reaction:', rxn)
             i = self.sbml_model.createReaction()
             i.setId(rxn)
             ndr = self.model_network_dict[rxn]
@@ -372,21 +372,21 @@ class PyscesSBML:
             for reac in self.model_obj.__modifiers__:
                 if reac[0] == rxn:
                     for x in reac[1]:
-                        print ' ' + reac[0] +' has modifier: ' + x
+                        print(' ' + reac[0] +' has modifier: ' + x)
                         self.sbml_model.createModifier().setSpecies(x)
 
         # add extra parameter initialised but not in reactions
         # we have to do this in case the assignment rules are added after we build the model
-        hack = self.__forcing_function_dic__.keys()
+        hack = list(self.__forcing_function_dic__.keys())
 
         not_xparams = self.global_parameters + reaction_params+\
                      list(self.model_obj.species)+\
                      list(self.model_obj.fixed_species) + [self.model_compartment_name] +hack
 
 
-        for k in self.__InitDict__.keys():
+        for k in list(self.__InitDict__.keys()):
             if k not in not_xparams:
-                print 'Adding parameter:', k
+                print('Adding parameter:', k)
                 self.global_parameters.append(k)
                 p = self.sbml_model.createParameter()
                 p.setId(k)
@@ -405,7 +405,7 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print 'SBML_setModel'
+        if self._debug: print('SBML_setModel')
         self.sbml_document.setModel(self.sbml_model)
 
     def SBML_writeFile(self):
@@ -484,7 +484,7 @@ class PyscesSBML:
         # if a species is a BoundaryCondition or constant it becomes fixed - brett 20050111
             if i.getBoundaryCondition() or i.getConstant():
                 if i.getConstant() and not i.getBoundaryCondition():
-                    print parName, ' is set as constant, assuming: BoundaryCondition = True'
+                    print(parName, ' is set as constant, assuming: BoundaryCondition = True')
                 init_fixed.append((parName,i.getInitialConcentration()))
             else:
                 init_var.append((parName,i.getInitialConcentration()))
@@ -509,10 +509,10 @@ class PyscesSBML:
                 if d.getLevel() == 1:
                     rDict['RateEq'] = rDict['RateEq'].replace(' ', '' )
                     rDict['RateEq'] = rDict['RateEq'].replace('^', '**')
-            except Exception, err:
+            except Exception as err:
                 rDict['Params'] = []
                 rDict['RateEq'] = ''
-                print err
+                print(err)
 
             Substrates = []
             Products = []
@@ -595,7 +595,7 @@ class PyscesSBML:
             compartmentList.append((getName(comp),comp.getVolume()))
 
         if len(compartmentList) > 1:
-            print '\nINFO: PySCeS models are assumed to have a single compartment'
+            print('\nINFO: PySCeS models are assumed to have a single compartment')
 
         if len(compartmentList) > 0:
             F = open(self.model_filename+'.psc','a')
@@ -784,14 +784,14 @@ class PyscesSBML:
                         reagL.append('{' + number_format % abs(NetworkDict[key]['Reagents'][reagent]) + '}' + reagent.replace('self.',''))
                 elif NetworkDict[key]['Reagents'][reagent] == 0:
                     #reagL.append(reagent.replace('self.',''))
-                    print NetworkDict[key]['Reagents']
-                    raw_input('WTF: please contact developers')
+                    print(NetworkDict[key]['Reagents'])
+                    input('WTF: please contact developers')
 
             if len(reagL) == 0:
-                print 'Zero pool substrate', File.name
+                print('Zero pool substrate', File.name)
                 reagL.append('$pool')
             if len(reagR) == 0:
-                print 'Zero pool product', File.name
+                print('Zero pool product', File.name)
                 reagR.append('$pool')
 
             substring = ''

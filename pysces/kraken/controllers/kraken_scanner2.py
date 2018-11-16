@@ -27,7 +27,7 @@ def splitScan(start, end, intervals, job, log=False):
     for p in range(len(kpoints)-1):
         job2 = job % (kpoints[p], kpoints[p+1])
         job_list.append(job2)
-        print job2
+        print(job2)
     return job_list
 
 def buildCycler(lst):
@@ -60,27 +60,27 @@ def Scheduler1(contrl, job_list, init_list, task_id):
         job_servers = []
         for job in range(len(job_list)):
             if job < len(contrl.available_server_list):
-                print '\nJob %s queued for processing...' % (job+1)
-                server = getServer.next()
+                print('\nJob %s queued for processing...' % (job+1))
+                server = next(getServer)
                 job_servers.append(server)
-                print "\nProcessing job %s init list ..." % (job+1)
+                print("\nProcessing job %s init list ..." % (job+1))
                 contrl.sendCmdListToOne(init_list, server)
-                print "\nProcessing job %s delta command ..." % (job+1)
+                print("\nProcessing job %s delta command ..." % (job+1))
                 contrl.sendCmdListToOne(deltaCommand(), server)
                 contrl.sendJobToOne(job_list[job], server)
             else:
                 deferred_jobs.append(job_list[job])
-                print 'Job %s deferred and rescheduled.' % (job+1)
-        print "\nProcessing queued jobs ..."
+                print('Job %s deferred and rescheduled.' % (job+1))
+        print("\nProcessing queued jobs ...")
         contrl.runAllJobs()
         for server in job_servers:
             contrl.getDataFromOneJob(server)
             arr = contrl.tentacle_response[server]
             DaResults.append(arr)
-            print type(arr)
+            print(type(arr))
         contrl.clearProcessMap()
         if len(deferred_jobs) > 0:
-            print '\nDeferred:', deferred_jobs
+            print('\nDeferred:', deferred_jobs)
             job_list = deferred_jobs
         else:
             JobsWaiting = False
@@ -88,19 +88,19 @@ def Scheduler1(contrl, job_list, init_list, task_id):
 
     TIME_END = time.time()
 
-    print '\nNumber of results = %s' % len(DaResults)
+    print('\nNumber of results = %s' % len(DaResults))
     total_states = 0
     for x in range(len(DaResults)):
         try:
-            print '\tResult %s has %s rows and %s columns' % (x+1, DaResults[x][0].shape[0], DaResults[x][0].shape[1])
+            print('\tResult %s has %s rows and %s columns' % (x+1, DaResults[x][0].shape[0], DaResults[x][0].shape[1]))
             total_states += DaResults[x][0].shape[0]
         except:
-            print type(DaResults[x][0])
-            print '\tResult %s %s: %s' % (x+1, type(DaResults[x][0]), DaResults[x][0])
-            print original_job_list[x]
+            print(type(DaResults[x][0]))
+            print('\tResult %s %s: %s' % (x+1, type(DaResults[x][0]), DaResults[x][0]))
+            print(original_job_list[x])
 
 
-    print 'Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0)
+    print('Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0))
     return DaResults
 
 def GridSortLR(arr):
@@ -108,15 +108,15 @@ def GridSortLR(arr):
     Sort irregular unstructured grid data into monotonically rising grid data
     (where possible) Work from left column to right (uses ultra cool NumPy functions :-)
     """
-    print 'arr.shape:', arr.shape
+    print('arr.shape:', arr.shape)
     sorted = numpy.rot90(arr)
-    print 'rotated.shape:', sorted.shape
+    print('rotated.shape:', sorted.shape)
     sorted_idx = numpy.lexsort(sorted)
-    print 'sorted_idx.shape', sorted_idx.shape
+    print('sorted_idx.shape', sorted_idx.shape)
     sorted = sorted.take(sorted_idx, axis=-1)
     sorted = numpy.flipud(sorted)
     arr = numpy.transpose(sorted)
-    print 'arr.shape:', arr.shape
+    print('arr.shape:', arr.shape)
     return arr
 
 def ScalarFunc(val):
@@ -145,10 +145,10 @@ def writeVTK_UnstructuredGrid(fname, arr):
         HAVE_SCALARS = 1
     else:
         HAVE_SCALARS = 0
-        print 'No scalar values supplied Z axis values will be used'
+        print('No scalar values supplied Z axis values will be used')
 
     n=arr.shape[0]
-    print "n:",n
+    print("n:",n)
     # write data to vtk polydata file
     # write header
     out = file(fname+'.vtk', 'w')
@@ -196,7 +196,7 @@ def writeVTK_UnstructuredGrid(fname, arr):
 # Parameter scan
 if __name__ == '__main__':
     import time
-    print time.strftime('%y%m%d-%H%M')
+    print(time.strftime('%y%m%d-%H%M'))
     START = time.time()
 
     """
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     Model_Dir = '/home/bgoli/mypysces/pscmodels/isola06'
     blob.startModelServer(Model_File, Model_Dir)
     blob.startTentacleMonitor(interval=120)
-    print 'Server list: %s\n' % blob.available_server_list
+    print('Server list: %s\n' % blob.available_server_list)
 
     """
     Get a name for this task (task == collection of jobs)
@@ -237,31 +237,31 @@ if __name__ == '__main__':
     """
     DaResults = Scheduler1(blob, J_list, I_list, task_name)
     DaResults = concatenateArrays(DaResults)
-    print '\nDaResults.shape', DaResults.shape
-    print 'DaResults[0]\n', DaResults[0]
+    print('\nDaResults.shape', DaResults.shape)
+    print('DaResults[0]\n', DaResults[0])
 
-    print time.strftime('%y%m%d-%H%M')
+    print(time.strftime('%y%m%d-%H%M'))
     MID = time.time()
 
     coords = numpy.transpose(numpy.array((DaResults[:,0],DaResults[:,1],DaResults[:,2]),'d'))
-    print '\ncoords.shape', coords.shape, coords.dtype
-    print 'coords[0]\n', coords[0]
+    print('\ncoords.shape', coords.shape, coords.dtype)
+    print('coords[0]\n', coords[0])
     writeGnuPlot_3D(task_name, coords)
     for r in range(coords.shape[0]):
         coords[r,:] = scipy.log10(coords[r,:])
     writeVTK_UnstructuredGrid(task_name, coords)
 
-    print time.strftime('%y%m%d-%H%M')
+    print(time.strftime('%y%m%d-%H%M'))
     END = time.time()
 
-    print "\n********** start Kraken report **********"
-    print "Using %s tentacles" % len(blob.available_server_list)
-    print "Scan points          = %s" % (pointsP1*pointsP2*scan_segments)
-    print "Data generation time = %2.2f minutes." % ((MID-START)/60.0)
-    print "Data analysis time   = %2.2f minutes." % ((END-MID)/60.0)
-    print "Total scan time      = %2.2f minutes." % ((END-START)/60.0)
-    print "Total points/minute  = %2.1f" % ((60.0*pointsP1*pointsP2*scan_segments)/(END-START))
-    print "********** end Kraken report **********\n"
+    print("\n********** start Kraken report **********")
+    print("Using %s tentacles" % len(blob.available_server_list))
+    print("Scan points          = %s" % (pointsP1*pointsP2*scan_segments))
+    print("Data generation time = %2.2f minutes." % ((MID-START)/60.0))
+    print("Data analysis time   = %2.2f minutes." % ((END-MID)/60.0))
+    print("Total scan time      = %2.2f minutes." % ((END-START)/60.0))
+    print("Total points/minute  = %2.1f" % ((60.0*pointsP1*pointsP2*scan_segments)/(END-START)))
+    print("********** end Kraken report **********\n")
 
 
 

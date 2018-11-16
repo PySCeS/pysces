@@ -94,7 +94,7 @@ class DotNodes:
 		if self.m.getSpecies(i-1).getBoundaryCondition():
 			node_attribute['color'] = "coral"
 		
-		for key, value in other_attributes.items():
+		for key, value in list(other_attributes.items()):
 			node_attribute[key] = value
 		return node_attribute
 	
@@ -111,7 +111,7 @@ class DotNodes:
 		node_attribute['label'] = label
 		node_attribute['URL'] = "Javascript:reaction('//sbml:reaction[%s]')" % str(i)
 		
-		for key, value in other_attributes.items():
+		for key, value in list(other_attributes.items()):
 			node_attribute[key] = value
 		return node_attribute
 		
@@ -128,7 +128,7 @@ class DotNodes:
 		node_attribute['URL'] = "Javascript:compartment(\'//sbml:compartment[%s]\')" \
 			% str(i)
 		
-		for key, value in other_attributes.items():
+		for key, value in list(other_attributes.items()):
 			node_attribute[key] = value
 		return node_attribute
 		

@@ -26,7 +26,7 @@ __doc__ = '''
             and writing them.
             '''
 
-import ConfigParser
+import configparser
 import string
 import os
 
@@ -82,12 +82,12 @@ def ReadConfig(file_path, config={}):
     - *config [default={}]* configuration data
     """
     filein = open(file_path,'r')
-    cp = ConfigParser.ConfigParser()
+    cp = configparser.ConfigParser()
     cp.readfp(filein)
     for sec in cp.sections():
-        name = string.lower(sec)
+        name = sec.lower()
         for opt in cp.options(sec):
-            config[string.lower(opt)] = string.strip(cp.get(sec, opt))
+            config[opt.lower()] = cp.get(sec, opt).strip()
     filein.close()
     return config
 
@@ -101,7 +101,7 @@ def WriteConfig(file_path, config={}, section='Pysces'):
 
     """
     cfgfile = open(file_path,'w')
-    cp = ConfigParser.ConfigParser()
+    cp = configparser.ConfigParser()
     cp.add_section(section)
     for key in config:
         cp.set(section,key, config[key])

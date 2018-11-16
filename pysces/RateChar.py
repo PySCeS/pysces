@@ -5,7 +5,7 @@ import pysces
 from pysces.PyscesModelMap import ModelMap
 from pylab import figure, close, show, ioff, figtext
 from matplotlib.transforms import offset_copy
-import cStringIO,string
+import io,string
 from colorsys import hsv_to_rgb as htor
 from matplotlib.figure import Figure as mplfigure
 import warnings
@@ -37,7 +37,7 @@ class RateChar:
         mod: instantiated PySCeS model
         """
         
-        print doc
+        print(doc)
         # default scan parameter values
         self.min_concrange_factor = min_concrange_factor
         self.max_concrange_factor = max_concrange_factor
@@ -101,7 +101,7 @@ class RateChar:
         ==========
         mod - instantiated PySCeS model
         """
-        F = cStringIO.StringIO()
+        F = io.StringIO()
         mod.showModel(filename=F)
         fstr = F.getvalue()
         F.close()
@@ -123,10 +123,10 @@ class RateChar:
         =========
         pscFile2str(name)
         """
-        Fi = cStringIO.StringIO()
+        Fi = io.StringIO()
         Fi.write(fstr)
         Fi.seek(0)
-        Fo = cStringIO.StringIO()
+        Fo = io.StringIO()
         Fhead = None
         for line in Fi:
             if line[:4] == "FIX:":
@@ -225,7 +225,7 @@ class RateChar:
         basemod.mode_elas_deriv=1
         mymap = ModelMap(basemod)
         OrigFix, Fstr = self.stripFixed(basemod_fstr)
-        print Fstr
+        print(Fstr)
         h1 = self.augmentFixString(OrigFix, fixed)
         model1 = self._mod + '_' + fixed
         mod = pysces.model(model1, loader="string", fString=h1+'\n'+Fstr)
@@ -239,8 +239,8 @@ class RateChar:
         # get fluxes directly linked to fixed species
         FixSubstrateFor = ['J_' + r for r in getattr(mymap, fixed).isSubstrateOf()]
         FixProductFor = ['J_' + r for r in getattr(mymap, fixed).isProductOf()]
-        print 'Fixed species is Substrate for: ', FixSubstrateFor
-        print 'Fixed species is Product for:   ', FixProductFor
+        print('Fixed species is Substrate for: ', FixSubstrateFor)
+        print('Fixed species is Product for:   ', FixProductFor)
         # set scan distances
         scan_min = getattr(basemod,fixed+'_ss')/self.min_concrange_factor
         scan_max = getattr(basemod,fixed+'_ss')*self.max_concrange_factor
@@ -251,10 +251,10 @@ class RateChar:
         sc1.printcnt = 50
         sc1.addScanParameter(fixed, scan_min, scan_max, self.scan_points,log=True)
         args = [fixed] + FixProductFor + FixSubstrateFor
-        print 'Scanner user output: ',args
+        print('Scanner user output: ',args)
         sc1.addUserOutput(*args)
         sc1.Run()  
-        print sc1.UserOutputResults          
+        print(sc1.UserOutputResults)          
         
         
         if len(sc1.invalid_state_list) != 0:
@@ -678,25 +678,25 @@ class RcFigure:
         self.huedict = self._assign_hue()        
         self.reactions = self._reactions()
         self.supply_flux, self.demand_flux = self._plot_flux()        
-        self.reaction_flux = dict(self.supply_flux.items() + 
-                                self.demand_flux.items()) 
+        self.reaction_flux = dict(list(self.supply_flux.items()) + 
+                                list(self.demand_flux.items())) 
 
         self.supply_total, self.demand_total = self._plot_totals()
         
         
         
         self.supply_elas, self.demand_elas, self.mod_elas = self._plot_elas()
-        self.reaction_elas = dict(self.supply_elas.items() +
-                                  self.demand_elas.items() +
-                                  self.mod_elas.items())
+        self.reaction_elas = dict(list(self.supply_elas.items()) +
+                                  list(self.demand_elas.items()) +
+                                  list(self.mod_elas.items()))
                                   
         self.supply_partial_rc, self.demand_partial_rc = self._plot_partial_rc()
-        self.reaction_partial_rc = dict(self.supply_partial_rc.items()+
-                                        self.demand_partial_rc.items())
+        self.reaction_partial_rc = dict(list(self.supply_partial_rc.items())+
+                                        list(self.demand_partial_rc.items()))
         
         self.supply_rc, self.demand_rc = self._plot_rc()         
-        self.reaction_rc = dict(self.supply_rc.items() + 
-                                self.demand_rc.items())
+        self.reaction_rc = dict(list(self.supply_rc.items()) + 
+                                list(self.demand_rc.items()))
         
         
         
@@ -1060,13 +1060,13 @@ class RcFigure:
         kwrs = {'e':self.reaction_elas,
                   'r':self.reaction_rc,
                   'f':self.reaction_flux}
-        for key in kwrs.iterkeys():
-            if kwds.has_key(key):
+        for key in kwrs.keys():
+            if key in kwds:
                 line = kwrs[key][name][0]
                 line.set_visible(kwds[key])
                 self._line_label_vis(line, kwds[key])
-        if kwds.has_key('p') and name in self.reaction_partial_rc.keys():
-            for key in self.reaction_partial_rc[name].iterkeys():
+        if 'p' in kwds and name in list(self.reaction_partial_rc.keys()):
+            for key in self.reaction_partial_rc[name].keys():
                 line = self.reaction_partial_rc[name][key][0]
                 if affzero:                
                     line.set_visible(kwds['p'])
@@ -1113,8 +1113,8 @@ class RcFigure:
                   'demand_total':self.demand_total
                   }
         if 'partial' in line_set_name:
-            for dic in values[line_set_name].iterkeys():
-                for key in values[line_set_name][dic].iterkeys():
+            for dic in values[line_set_name].keys():
+                for key in values[line_set_name][dic].keys():
                     line = values[line_set_name][dic][key][0]
                     if affzero:
                         line.set_visible(visibility)
@@ -1128,7 +1128,7 @@ class RcFigure:
             
             
         else:
-            for key in values[line_set_name].iterkeys():                
+            for key in values[line_set_name].keys():                
                 line = values[line_set_name][key][0]                
                 line.set_visible(visibility)
                 self._line_label_vis(line,visibility)
@@ -1315,11 +1315,11 @@ class RcFigure:
         self.set_type_visible('demand_partial_rc', False, affzero = True)
         
         
-        for line in self.huedict.iterkeys():
-            if self.mod_elas.has_key(line): continue
-            if line not in self.reaction_partial_rc.keys(): continue
-            if len(self.supply_flux) == 1: self.set_visible(self.supply_flux.keys()[0],f=True)
-            if len(self.demand_flux) == 1: self.set_visible(self.demand_flux.keys()[0],f=True)
+        for line in self.huedict.keys():
+            if line in self.mod_elas: continue
+            if line not in list(self.reaction_partial_rc.keys()): continue
+            if len(self.supply_flux) == 1: self.set_visible(list(self.supply_flux.keys())[0],f=True)
+            if len(self.demand_flux) == 1: self.set_visible(list(self.demand_flux.keys())[0],f=True)
         
             filename = os.path.join(self.parent.parent._psc_out_dir, 
                                     self.parent.fix,
@@ -1331,7 +1331,7 @@ class RcFigure:
                 self.save(filename)
             else:
                 self.show()
-                raw_input("Press Enter to continue...")
+                input("Press Enter to continue...")
             self.set_visible(line,f=False)
             
             
@@ -1362,10 +1362,10 @@ class RcFigure:
         self.set_type_visible('demand_partial_rc', False, affzero = True)
         
         
-        for line in self.huedict.iterkeys():
-            if self.mod_elas.has_key(line): continue
-            if len(self.supply_flux) == 1: self.set_visible(self.supply_flux.keys()[0],f=True)
-            if len(self.demand_flux) == 1: self.set_visible(self.demand_flux.keys()[0],f=True)
+        for line in self.huedict.keys():
+            if line in self.mod_elas: continue
+            if len(self.supply_flux) == 1: self.set_visible(list(self.supply_flux.keys())[0],f=True)
+            if len(self.demand_flux) == 1: self.set_visible(list(self.demand_flux.keys())[0],f=True)
         
             filename = os.path.join(self.parent.parent._psc_out_dir, 
                                     self.parent.fix,
@@ -1377,7 +1377,7 @@ class RcFigure:
                 self.save(filename)
             else:
                 self.show()
-                raw_input("Press Enter to continue...")
+                input("Press Enter to continue...")
             self.set_visible(line,f=False,e=False,r=False)
             
             
@@ -1407,11 +1407,11 @@ class RcFigure:
         self.set_type_visible('demand_partial_rc', False, affzero = True)
         
         
-        for line in self.huedict.iterkeys():
-            if self.mod_elas.has_key(line): continue
-            if line not in self.reaction_partial_rc.keys(): continue
-            if len(self.supply_flux) == 1: self.set_visible(self.supply_flux.keys()[0],f=True)
-            if len(self.demand_flux) == 1: self.set_visible(self.demand_flux.keys()[0],f=True)
+        for line in self.huedict.keys():
+            if line in self.mod_elas: continue
+            if line not in list(self.reaction_partial_rc.keys()): continue
+            if len(self.supply_flux) == 1: self.set_visible(list(self.supply_flux.keys())[0],f=True)
+            if len(self.demand_flux) == 1: self.set_visible(list(self.demand_flux.keys())[0],f=True)
             
         
             filename = os.path.join(self.parent.parent._psc_out_dir, 
@@ -1424,7 +1424,7 @@ class RcFigure:
                 self.save(filename)
             else:
                 self.show()
-                raw_input("Press Enter to continue...")
+                input("Press Enter to continue...")
             self.set_visible(line,f=False,p=False,r=False)
     
     

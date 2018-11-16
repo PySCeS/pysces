@@ -11,4 +11,4 @@ pysx_affiliation = 'Triple-J Group for Molecular Cell Physiology'
 pysx_web = 'http://pysces.sourceforge.net'
 pysx_notes = ''
 
-from demotest import *
+from .demotest import *

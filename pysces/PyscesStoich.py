@@ -111,9 +111,9 @@ class StructMatrix:
         assert self.row != None, "\nI need row labels"
         try:
             return self.array.take([self.row.index(l) for l in args], axis=0)
-        except Exception, ex:
-            print ex
-            print "\nValid row labels are: %s" % self.row
+        except Exception as ex:
+            print(ex)
+            print("\nValid row labels are: %s" % self.row)
             return None
 
     def getColsByName(self, *args):
@@ -121,9 +121,9 @@ class StructMatrix:
         assert self.col != None, "\nI need column labels"
         try:
             return self.array.take([self.col.index(l) for l in args], axis=1)
-        except Exception, ex:
-            print ex
-            print "Valid column labels are: %s" % self.col
+        except Exception as ex:
+            print(ex)
+            print("Valid column labels are: %s" % self.col)
             return None
 
     def getLabels(self, axis='all'):
@@ -226,7 +226,7 @@ class MathArrayFunc(object):
         """
         for a in arrays:
             if len(a.shape) != 2:
-                raise LinAlgError, 'Array must be two-dimensional'
+                raise LinAlgError('Array must be two-dimensional')
 
 
     def SwapCol(self,res_a,r1,r2):
@@ -418,8 +418,8 @@ class Stoich(MathArrayFunc):
 
         self.nmatrix = input
         row,col = self.nmatrix.shape
-        self.nmatrix_col = tuple(scipy.array(range(col)))
-        self.nmatrix_row = tuple(scipy.array(range(row)))
+        self.nmatrix_col = tuple(scipy.array(list(range(col))))
+        self.nmatrix_row = tuple(scipy.array(list(range(row))))
 
         #Create a machine specific instance
         from scipy import MachAr
@@ -443,25 +443,25 @@ class Stoich(MathArrayFunc):
         None
 
         """
-        print 'Calculating K matrix .',
+        print('Calculating K matrix .', end=' ')
 
         self.info_flux_conserve = 0  #added 20020416 for conservation detection
 
         if self.__stoichdiagmode__:
-            print '\nKMATRIX\nGetUpperMatrix: ' + time.strftime(self.__TimeFormat)
+            print('\nKMATRIX\nGetUpperMatrix: ' + time.strftime(self.__TimeFormat))
 
         p,u,row_vector,column_vector = self.GetUpperMatrix(self.nmatrix)
         #p,u,row_vector,column_vector = self.GetUpperMatrixUsingQR(self.nmatrix)
         if self.__stoichdiagmode__:
-            print '\nKMATRIX\nScalePivots: ' + time.strftime(self.__TimeFormat)
+            print('\nKMATRIX\nScalePivots: ' + time.strftime(self.__TimeFormat))
 
         unipiv_a = self.ScalePivots(u)
         if self.__stoichdiagmode__:
-            print '\nKMATRIX\nBackSubstitution: ' + time.strftime(self.__TimeFormat)
+            print('\nKMATRIX\nBackSubstitution: ' + time.strftime(self.__TimeFormat))
 
         R_a,row_vector,column_vector = self.BackSubstitution(unipiv_a,row_vector,column_vector)
         if self.__stoichdiagmode__:
-            print '\nKMATRIX\nK_split_R: ' + time.strftime(self.__TimeFormat)
+            print('\nKMATRIX\nK_split_R: ' + time.strftime(self.__TimeFormat))
 
         r_ipart,r_fpart,row_vector,column_vector,nullspace,r_fcolumns,self.info_flux_conserve = self.K_split_R(R_a,row_vector,column_vector)
         # Don't need anymore ... I think - brett 20051013
@@ -473,7 +473,7 @@ class Stoich(MathArrayFunc):
 
 
         if self.__stoichdiagmode__:
-            print '\nKMATRIX\n' + time.strftime(self.__TimeFormat)
+            print('\nKMATRIX\n' + time.strftime(self.__TimeFormat))
 
         self.kmatrix = nullspace
         self.kmatrix_row = tuple(row_vector)
@@ -482,7 +482,7 @@ class Stoich(MathArrayFunc):
         self.kzeromatrix = r_fpart
         self.kzeromatrix_row = tuple(r_fcolumns)
         self.kzeromatrix_col = tuple(column_vector)
-        print ' done.'
+        print(' done.')
 
     def AnalyseL(self):
         """
@@ -495,13 +495,13 @@ class Stoich(MathArrayFunc):
         None
 
         """
-        print 'Calculating L matrix .',
+        print('Calculating L matrix .', end=' ')
 
         a = scipy.transpose(self.nmatrix)
         self.info_moiety_conserve = False #added 20020416 for conservation detection
 
         if self.__stoichdiagmode__:
-            print '\nLMATRIX\nGetUpperMatrix: ' + time.strftime(self.__TimeFormat)
+            print('\nLMATRIX\nGetUpperMatrix: ' + time.strftime(self.__TimeFormat))
 
 
         if not self.USE_QR:
@@ -509,15 +509,15 @@ class Stoich(MathArrayFunc):
         else:
             p,u,row_vector,column_vector = self.GetUpperMatrixUsingQR(a)
         if self.__stoichdiagmode__:
-            print '\nLMATRIX\nScalePivots: ' + time.strftime(self.__TimeFormat)
+            print('\nLMATRIX\nScalePivots: ' + time.strftime(self.__TimeFormat))
 
         unipiv_a = self.ScalePivots(u)
         if self.__stoichdiagmode__:
-            print '\nLMATRIX\nBackSubstitution: ' + time.strftime(self.__TimeFormat)
+            print('\nLMATRIX\nBackSubstitution: ' + time.strftime(self.__TimeFormat))
 
         R_a,row_vector,column_vector = self.BackSubstitution(unipiv_a,row_vector,column_vector)
         if self.__stoichdiagmode__:
-            print '\nLMATRIX\nK_split_R: ' + time.strftime(self.__TimeFormat)
+            print('\nLMATRIX\nK_split_R: ' + time.strftime(self.__TimeFormat))
 
         r_ipart,consmatrix,cons_row_vector,cons_col_vector,lmatrix,lmatrix_row_vector,\
         lmatrix_col_vector,lomatrix,lomatrix_row_vector,lomatrix_col_vector,nrmatrix,Nred_vector,\
@@ -530,7 +530,7 @@ class Stoich(MathArrayFunc):
  ##               print 'Ignored (no L)',e # brett 20050801
 
         if self.__stoichdiagmode__:
-            print '\nLMATRIX\n' + time.strftime(self.__TimeFormat)
+            print('\nLMATRIX\n' + time.strftime(self.__TimeFormat))
 
         self.lmatrix = lmatrix
         self.lmatrix_row = tuple(lmatrix_row_vector)
@@ -547,7 +547,7 @@ class Stoich(MathArrayFunc):
         self.nrmatrix = nrmatrix
         self.nrmatrix_row = tuple(Nred_vector)
         self.nrmatrix_col = tuple(scipy.copy(self.nmatrix_col))
-        print ' done.'
+        print(' done.')
 
 
     def PivotSort(self,a,row_vector,column_vector):
@@ -586,7 +586,7 @@ class Stoich(MathArrayFunc):
                         mVal = el[1]
                         mRow = el[0]
                 if self.__stoichdiagmode__:
-                    print '\tmVal', mVal, mRow
+                    print('\tmVal', mVal, mRow)
 
                 if mRow != None:
                     for y in range(z,col):
@@ -596,14 +596,14 @@ class Stoich(MathArrayFunc):
 
                 if zeroP != (None,None) and zeroP != (z,z) and mRow != None:
                     if self.__stoichdiagmode__:
-                        print '  Swapping: ', (z,z), (zeroP[0],zeroP[1]), 1.0
+                        print('  Swapping: ', (z,z), (zeroP[0],zeroP[1]), 1.0)
                     a = self.SwapRowd(a,z,zeroP[0])
                     a = self.SwapCold(a,z,zeroP[1])
                     row_vector = self.SwapElem(row_vector,z,zeroP[0])
                     column_vector = self.SwapElem(column_vector,z,zeroP[1])
                 elif maxP != (None,None) and maxP != (min(row,col),min(row,col)) and mRow != None:
                     if self.__stoichdiagmode__:
-                        print '  Swapping: ', (z,z), (maxP[0],maxP[1]), a[z,z], maxV
+                        print('  Swapping: ', (z,z), (maxP[0],maxP[1]), a[z,z], maxV)
                     a = self.SwapRowd(a,z,maxP[0])
                     a = self.SwapCold(a,z,maxP[1])
                     row_vector = self.SwapElem(row_vector,z,maxP[0])
@@ -649,7 +649,7 @@ class Stoich(MathArrayFunc):
                         mVal = el[1]
                         mRow = el[0]
                 if self.__stoichdiagmode__:
-                    print '\tmVal', mVal, mRow
+                    print('\tmVal', mVal, mRow)
 
                 if mRow != None:
                     for y in range(z,col):
@@ -659,7 +659,7 @@ class Stoich(MathArrayFunc):
 
                 if maxP != (None,None) and maxP != (min(row,col),min(row,col)) and maxP != (z,z):
                     if self.__stoichdiagmode__:
-                        print '  Swapping: ', (z,z), (maxP[0],maxP[1]), a[z,z], maxV
+                        print('  Swapping: ', (z,z), (maxP[0],maxP[1]), a[z,z], maxV)
                     a = self.SwapRowd(a,z,maxP[0])
                     a = self.SwapCold(a,z,maxP[1])
                     row_vector = self.SwapElem(row_vector,z,maxP[0])
@@ -680,7 +680,7 @@ class Stoich(MathArrayFunc):
         a_in: the matrix to be factorized
 
         """
-        print '.',
+        print('.', end=' ')
 
         self.assertRank2(a_in)
         t = self.commonType(a_in)
@@ -715,8 +715,8 @@ class Stoich(MathArrayFunc):
                     getrf = myflapack.zgetrf #scipy flapack 20041226
                 else:
                     getrf = myflapack.dgetrf #scipy flapack 20041226
-            except Exception, e:
-                print "FLAPACK error", e
+            except Exception as e:
+                print("FLAPACK error", e)
         ##  else:
             ##  try:
                 ##  if self.array_kind[t] == 1:
@@ -751,7 +751,7 @@ class Stoich(MathArrayFunc):
         results = list(results)
 
         if results[2] < 0:
-            print 'Argument ', results['info'], ' had an illegal value'
+            print('Argument ', results['info'], ' had an illegal value')
             raise LinAlgError
         elif results[2] > 0:
             pass
@@ -887,10 +887,10 @@ class Stoich(MathArrayFunc):
         t [default=None)]: typecode argument (currently not used)
 
         """
-        print '.',
+        print('.', end=' ')
 
         if self.__stoichdiagmode__:
-            print '\n',row,col
+            print('\n',row,col)
         for cl in range(0,min(row,col)):
             plu[cl+1:,cl] = 0.0
         return plu
@@ -909,14 +909,14 @@ class Stoich(MathArrayFunc):
         a: a stoichiometric matrix
 
         """
-        print '.',
+        print('.', end=' ')
 
         t = self.commonType(a)
         row,col = a.shape
 
         # this is a test brett 20050802
-        row_vector = scipy.array((range(row)))
-        column_vector = scipy.array((range(col)))
+        row_vector = scipy.array((list(range(row))))
+        column_vector = scipy.array((list(range(col))))
         a,row_vector,column_vector = self.PivotSort_initial(a,row_vector,column_vector)
 
         #18/09/2000 PLUfactorize included in self.GetUpperMatrix
@@ -924,7 +924,7 @@ class Stoich(MathArrayFunc):
 
         # get U from getrf's PLU
         if self.__stoichdiagmode__:
-            print info
+            print(info)
         upper_out = self.SplitLU(a,row,col,t)
 
         p_out = scipy.identity(row)
@@ -965,12 +965,12 @@ class Stoich(MathArrayFunc):
                 upper_out,row_vector,column_vector = self.PivotSort(upper_out,row_vector,column_vector)
                 #PLUfactorize
                 if self.__stoichdiagmode__:
-                    print ' Echelon: ' + time.strftime(self.__TimeFormat), '(', info,')'
+                    print(' Echelon: ' + time.strftime(self.__TimeFormat), '(', info,')')
                 upper_out,ip,info = self.PLUfactorize(upper_out)
 
                 # get U from getrf's PLU
                 if self.__stoichdiagmode__:
-                    print info
+                    print(info)
                 upper_out = self.SplitLU(upper_out,row,col,t)
 
                 #realign row vector and permutation matrix if necessary
@@ -1018,14 +1018,14 @@ class Stoich(MathArrayFunc):
         a: a stoichiometric matrix
 
         """
-        print '.',
+        print('.', end=' ')
 
         t = self.commonType(a)
         row,col = a.shape
 
         # this is a test brett 20050802
-        row_vector = scipy.array((range(row)))
-        column_vector = scipy.array((range(col)))
+        row_vector = scipy.array((list(range(row))))
+        column_vector = scipy.array((list(range(col))))
         ##  a,row_vector,column_vector = self.PivotSort(a,row_vector,column_vector)
         a,row_vector,column_vector = self.PivotSort_initial(a,row_vector,column_vector)
 
@@ -1060,7 +1060,7 @@ class Stoich(MathArrayFunc):
         a_one: an upper triangular matrix U
 
         """
-        print '.',
+        print('.', end=' ')
 
         t = self.commonType(a_one)
         row,col = a_one.shape
@@ -1092,7 +1092,7 @@ class Stoich(MathArrayFunc):
         column_vector: column tracking vector
 
         """
-        print '.',
+        print('.', end=' ')
 
         t = self.commonType(res_a)
         row,col = res_a.shape
@@ -1125,7 +1125,7 @@ class Stoich(MathArrayFunc):
             bigF = 1
         for x in range(min(row,col)):
             if bigF and self.__stoichdiagmode__:
-                print '.',
+                print('.', end=' ')
             for y in range(x+1,min(row,col)):
                 if abs(res_a[x,y]) > self.stoichiometric_analysis_lu_precision:
                     res_a[x,y:] = res_a[x,y:]-(res_a[x,y]*res_a[y,y:])
@@ -1151,7 +1151,7 @@ class Stoich(MathArrayFunc):
         column_vector: column tracking vector
 
         """
-        print '.',
+        print('.', end=' ')
 
         t = self.commonType(R_a)
         row,col = R_a.shape
@@ -1217,7 +1217,7 @@ class Stoich(MathArrayFunc):
         column_vector: column tracking vector
 
         """
-        print '.',
+        print('.', end=' ')
 
         #print '\nR_a'
         #print `R_a`
@@ -1334,8 +1334,8 @@ class Stoich(MathArrayFunc):
         maskF = scipy.machar.machar_double.eps*factor
 
         if TrMat == 0:
-            print 'SVD zero mask:', maskF
-            print 'LU factorization effective zero:', self.stoichiometric_analysis_lu_precision
+            print('SVD zero mask:', maskF)
+            print('LU factorization effective zero:', self.stoichiometric_analysis_lu_precision)
 
             rank = len([el for el in (abs(s) > maskF) if el > 0.0])
 ##            null_mask = (abs(s) > maskF)
@@ -1345,30 +1345,30 @@ class Stoich(MathArrayFunc):
 ##            rank = vhnull.shape[0]
 
 
-            print '\nNmatrix has ' + `nrow` + ' rows and ' + `ncol` + ' columns'
+            print('\nNmatrix has ' + repr(nrow) + ' rows and ' + repr(ncol) + ' columns')
 
-            print '\nSVD \"considers\" the rank to be:        ' + `rank`
-            print 'LU (Kmatrix) considers the rank to be: ' + `self.kzeromatrix.shape[0]`
-            print 'LU (Lmatrix) considers the rank to be: ' + `self.lzeromatrix.shape[1]`
+            print('\nSVD \"considers\" the rank to be:        ' + repr(rank))
+            print('LU (Kmatrix) considers the rank to be: ' + repr(self.kzeromatrix.shape[0]))
+            print('LU (Lmatrix) considers the rank to be: ' + repr(self.lzeromatrix.shape[1]))
 
-            print '\nComparing lzeromatrix dimensions'
-            print 'SVD lzeromatrix.shape =', (u.shape[0]-rank,rank)
-            print 'LU  lzeromatrix.shape =', self.lzeromatrix.shape
+            print('\nComparing lzeromatrix dimensions')
+            print('SVD lzeromatrix.shape =', (u.shape[0]-rank,rank))
+            print('LU  lzeromatrix.shape =', self.lzeromatrix.shape)
 
-            print '\nComparing lmatrix dimensions'
-            print 'SVD lmatrix.shape =',     (u.shape[0],rank)
-            print 'LU  lmatrix.shape =', self.lmatrix.shape
+            print('\nComparing lmatrix dimensions')
+            print('SVD lmatrix.shape =',     (u.shape[0],rank))
+            print('LU  lmatrix.shape =', self.lmatrix.shape)
 
-            print '\nComparing kzeromatrix dimensions'
-            print 'SVD kzeromatrix.shape =', (rank,vh.shape[0]-rank)
-            print 'LU  kzeromatrix.shape =',    self.kzeromatrix.shape
+            print('\nComparing kzeromatrix dimensions')
+            print('SVD kzeromatrix.shape =', (rank,vh.shape[0]-rank))
+            print('LU  kzeromatrix.shape =',    self.kzeromatrix.shape)
 
-            print '\nComparing kmatrix dimensions'
-            print 'SVD kmatrix.shape =',     (vh.shape[0],vh.shape[0]-rank)
-            print 'LU  kmatrix.shape =', self.kmatrix.shape
+            print('\nComparing kmatrix dimensions')
+            print('SVD kmatrix.shape =',     (vh.shape[0],vh.shape[0]-rank))
+            print('LU  kmatrix.shape =', self.kmatrix.shape)
         else:
-            print 'SVD zero mask:', maskF
-            print 'LU factorization effective zero:', self.stoichiometric_analysis_lu_precision
+            print('SVD zero mask:', maskF)
+            print('LU factorization effective zero:', self.stoichiometric_analysis_lu_precision)
 
             rank = len([el for el in (abs(s) > maskF) if el > 0.0])
 ##            null_mask = (abs(s) > maskF)
@@ -1378,44 +1378,44 @@ class Stoich(MathArrayFunc):
 ##            rank = vhnull.shape[0]
 
 
-            print '\nNmatrix has ' + `nrow` + ' rows and ' + `ncol` + ' columns'
+            print('\nNmatrix has ' + repr(nrow) + ' rows and ' + repr(ncol) + ' columns')
 
-            print '\nSVD considers the rank to be:          ' + `rank`
-            print 'LU (Kmatrix) considers the rank to be: ' + `self.kzeromatrix.shape[0]`
-            print 'LU (Lmatrix) considers the rank to be: ' + `self.lzeromatrix.shape[1]`
+            print('\nSVD considers the rank to be:          ' + repr(rank))
+            print('LU (Kmatrix) considers the rank to be: ' + repr(self.kzeromatrix.shape[0]))
+            print('LU (Lmatrix) considers the rank to be: ' + repr(self.lzeromatrix.shape[1]))
 
-            print '\nComparing lzeromatrix dimensions'
-            print 'SVD lzeromatrix.shape =', (vh.shape[0]-rank,rank)
-            print 'LU  lzeromatrix.shape =', self.lzeromatrix.shape
+            print('\nComparing lzeromatrix dimensions')
+            print('SVD lzeromatrix.shape =', (vh.shape[0]-rank,rank))
+            print('LU  lzeromatrix.shape =', self.lzeromatrix.shape)
 
-            print '\nComparing lmatrix dimensions'
-            print 'SVD lmatrix.shape =',     (vh.shape[0],rank)
-            print 'LU  lmatrix.shape =', self.lmatrix.shape
+            print('\nComparing lmatrix dimensions')
+            print('SVD lmatrix.shape =',     (vh.shape[0],rank))
+            print('LU  lmatrix.shape =', self.lmatrix.shape)
 
-            print '\nComparing kzeromatrix dimensions'
-            print 'SVD kzeromatrix.shape =', (rank,u.shape[0]-rank)
-            print 'LU  kzeromatrix.shape =',    self.kzeromatrix.shape
+            print('\nComparing kzeromatrix dimensions')
+            print('SVD kzeromatrix.shape =', (rank,u.shape[0]-rank))
+            print('LU  kzeromatrix.shape =',    self.kzeromatrix.shape)
 
-            print '\nComparing kmatrix dimensions'
-            print 'SVD kmatrix.shape =',     (u.shape[0],u.shape[0]-rank)
-            print 'LU  kmatrix.shape =', self.kmatrix.shape
+            print('\nComparing kmatrix dimensions')
+            print('SVD kmatrix.shape =',     (u.shape[0],u.shape[0]-rank))
+            print('LU  kmatrix.shape =', self.kmatrix.shape)
 
-        print '\nMatrix value check\n******************'
+        print('\nMatrix value check\n******************')
 
-        print '\nKzeromatrix:'
+        print('\nKzeromatrix:')
         sm,bg = self.MatrixValueCompare(self.kzeromatrix)
-        print 'Smallest value:  ', abs(sm)
-        print 'Largest value:   ', abs(bg)
-        print 'Ratio abs(bg/sm):', abs(bg/sm)
+        print('Smallest value:  ', abs(sm))
+        print('Largest value:   ', abs(bg))
+        print('Ratio abs(bg/sm):', abs(bg/sm))
 
-        print '\nLzeromatrix:'
+        print('\nLzeromatrix:')
         sm,bg = self.MatrixValueCompare(self.lzeromatrix)
-        print 'Smallest value:  ', abs(sm)
-        print 'Largest value:   ', abs(bg)
-        print 'Ratio abs(bg/sm):', abs(bg/sm)
+        print('Smallest value:  ', abs(sm))
+        print('Largest value:   ', abs(bg))
+        print('Ratio abs(bg/sm):', abs(bg/sm))
 
-        print '\nPlease note: I\'ve found that for larger models the rank calculated by SVD in this test can become unstable and give incorrect results.'
-        print ' '
+        print('\nPlease note: I\'ve found that for larger models the rank calculated by SVD in this test can become unstable and give incorrect results.')
+        print(' ')
 
         if resultback:
             return u,s,vh

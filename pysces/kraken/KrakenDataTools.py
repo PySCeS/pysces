@@ -23,7 +23,7 @@ class DataTools:
     """
 
     def data_filter_func(row):
-        print 'You should overwrite this (data_filter_func) method with your own or supply a function to data_filter'
+        print('You should overwrite this (data_filter_func) method with your own or supply a function to data_filter')
         return False
 
     def DataFilter(self, data, filter_func=None, report=True):
@@ -53,26 +53,26 @@ class DataTools:
         Sort irregular unstructured grid data into monotonically rising grid data
         (where possible) Work from left column to right (uses ultra cool NumPy functions :-)
         """
-        print 'arr.shape:', arr.shape
+        print('arr.shape:', arr.shape)
         sorted = numpy.rot90(arr)
-        print 'rotated.shape:', sorted.shape
+        print('rotated.shape:', sorted.shape)
         sorted_idx = numpy.lexsort(sorted)
-        print 'sorted_idx.shape', sorted_idx.shape
+        print('sorted_idx.shape', sorted_idx.shape)
         sorted = sorted.take(sorted_idx, axis=-1)
         sorted = numpy.flipud(sorted)
         arr = numpy.transpose(sorted)
-        print 'arr.shape:', arr.shape
+        print('arr.shape:', arr.shape)
         return arr
 
 
     def writeGnuPlot_3D(self, arr, fname):
         if arr.shape[0] > 5e6:
-            print "warning: writeGnuPlot_3D does not work for large arrays"
+            print("warning: writeGnuPlot_3D does not work for large arrays")
         try:
             scipy.io.write_array(fname+'_result_gplt.dat', arr, precision=9, separator=' ')
-        except Exception, ex:
-            print 'writeGnuPlot_3D exception raised'
-            print ex
+        except Exception as ex:
+            print('writeGnuPlot_3D exception raised')
+            print(ex)
 
     def vtk_scalar_func(self, val):
         """
@@ -99,10 +99,10 @@ class DataTools:
             HAVE_SCALARS = 1
         else:
             HAVE_SCALARS = 0
-            print 'No scalar values supplied Z axis values will be used'
+            print('No scalar values supplied Z axis values will be used')
 
         n=arr.shape[0]
-        print "n:",n
+        print("n:",n)
         # write data to vtk polydata file
         # write header
         out = file(fname+'.vtk', 'w')
@@ -176,19 +176,19 @@ class IntersectionAnalysis(DataTools):
             if numpy.abs(self.coords[r, 2] - self.coords[r, 3]) < self.intersect_tol:
                 intersect.append(self.coords[r,:])
                 cntr += 1
-        print '\n*****\n%s intersections found.\n*****\n' % cntr
+        print('\n*****\n%s intersections found.\n*****\n' % cntr)
         self.intersection = numpy.array(intersect)
         self.vtkintersection = self.intersection.copy()
         del intersect
 
     def LogVTKdata(self):
-        print "Logging VTK coords"
+        print("Logging VTK coords")
         # log for vtk
         for r in range(self.vtkcoords.shape[0]):
             self.vtkcoords[r,:self.coords.shape[1]] = scipy.log10(self.vtkcoords[r,:self.coords.shape[1]])
 
     def LogVTKIntersectiondata(self):
-        print "Logging VTK intersection"
+        print("Logging VTK intersection")
         # log for vtk intersect
         for r in range(self.vtkintersection.shape[0]):
             self.vtkintersection[r,:] = scipy.log10(self.intersection[r,:])

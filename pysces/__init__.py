@@ -15,7 +15,7 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
-from version import __version__
+from .version import __version__
 
 __doc__ = """
             PySCeS: the Python Simulator for Cellular Systems
@@ -36,17 +36,17 @@ __doc__ = """
             """
 
 import os, time
-import PyscesConfig
-import PyscesParse
-import PyscesLink as link
-import codeutil
-import PyscesSED as SED
+from . import PyscesConfig
+from . import PyscesParse
+from . import PyscesLink as link
+from . import codeutil
+from . import PyscesSED as SED
 
-from PyscesUtils import str2bool
-from PyscesModelMap import ModelMap
+from .PyscesUtils import str2bool
+from .PyscesModelMap import ModelMap
 
 #TODO get rid unused imports
-from PyscesWeb import PyscesHTML
+from .PyscesWeb import PyscesHTML
 html = PyscesHTML()
 
 DEBUG = False
@@ -72,7 +72,7 @@ if os.sys.platform == 'win32':
 else:
     __PyscesConfigDefault = PyscesConfig.__DefaultPosix
 
-if DEBUG: print time.strftime('1-%H:%M:%S')
+if DEBUG: print(time.strftime('1-%H:%M:%S'))
 
 eggdir = 'pysces-%s-py%s.%s-%s.egg' %(__version__, os.sys.version_info[0],\
 os.sys.version_info[1], os.sys.platform)
@@ -97,14 +97,14 @@ if inipath == None:
             inipath = os.path.join(install_dir, 'pyscfg.ini')
             break
 del eggdir
-if DEBUG: print time.strftime('2-%H:%M:%S')
+if DEBUG: print(time.strftime('2-%H:%M:%S'))
 
 try:
     __config_dict = PyscesConfig.ReadConfig(inipath, config=__PyscesConfigDefault)
-except Exception, ex:
-    print ex
-    print 'Cwd', os.getcwd()
-    print '\nWARNING: Cannot read pyscfg.ini using default values\n'
+except Exception as ex:
+    print(ex)
+    print('Cwd', os.getcwd())
+    print('\nWARNING: Cannot read pyscfg.ini using default values\n')
     __config_dict = __PyscesConfigDefault
 
 # Read config
@@ -127,7 +127,7 @@ for key in __config_dict:
         __SILENT_START__ = str2bool(__config_dict[key])
 assert inipath != None, '\nNo configuration file found'
 
-if DEBUG: print time.strftime('3-%H:%M:%S')
+if DEBUG: print(time.strftime('3-%H:%M:%S'))
 
 __userdict = None
 if os.sys.platform != 'win32':
@@ -182,45 +182,45 @@ os.chdir(backup_dir)
 
 del PyscesConfig
 
-if DEBUG: print time.strftime('4-%H:%M:%S')
+if DEBUG: print(time.strftime('4-%H:%M:%S'))
 
 # initialise pysces.interface.*
 try:
-    import PyscesInterfaces
+    from . import PyscesInterfaces
     interface = PyscesInterfaces.Core2interfaces()
-except Exception, ex:
-    print 'INFO: pysces.interface.* not available'
-    print ex
+except Exception as ex:
+    print('INFO: pysces.interface.* not available')
+    print(ex)
     interface = None
 
 # initialise pysces.plt.*
-import PyscesPlot2
+from . import PyscesPlot2
 gplt = None
 mplt = None
 if __USE_MATPLOTLIB__:
     try:
         mplt = PyscesPlot2.MatplotlibUPI(work_dir=output_dir, backend=__MATPLOTLIB_BACKEND__)
         if not __SILENT_START__:
-            print 'Matplotlib interface loaded (pysces.plt.m)'
-    except Exception, ex:
-        print 'Matplotlib interface not available'
-        if DEBUG: print ex
+            print('Matplotlib interface loaded (pysces.plt.m)')
+    except Exception as ex:
+        print('Matplotlib interface not available')
+        if DEBUG: print(ex)
         __USE_MATPLOTLIB__ = False
 if __USE_GNUPLOT__:
     if GNUPLOT_DIR == None or not os.path.exists(GNUPLOT_DIR):
-        print '''GnuPlot has been enabled but the path to the executable has
+        print('''GnuPlot has been enabled but the path to the executable has
 not been defined (or does not exist). Please set the "gnuplot_dir" key
 in your pyscfg.ini file.
-        '''
+        ''')
     else:
         try:
-            if DEBUG: print GNUPLOT_DIR
+            if DEBUG: print(GNUPLOT_DIR)
             gplt = PyscesPlot2.GnuPlotUPI(work_dir=output_dir, gnuplot_dir=GNUPLOT_DIR)
             if not __SILENT_START__:
-                print 'GnuPlot interface loaded (pysces.plt.g)'
-        except Exception, ex:
-            print 'GnuPlot interface not available'
-            if DEBUG: print ex
+                print('GnuPlot interface loaded (pysces.plt.g)')
+        except Exception as ex:
+            print('GnuPlot interface not available')
+            if DEBUG: print(ex)
             __USE_GNUPLOT__ = False
 
 plt = None
@@ -235,7 +235,7 @@ elif __USE_GNUPLOT__ and __USE_MATPLOTLIB__:
     plt.p_setInterface('gnuplot', gplt)
     plt.p_deactivateInterface('gnuplot')
 
-if DEBUG: print time.strftime('5-%H:%M:%S')
+if DEBUG: print(time.strftime('5-%H:%M:%S'))
 
 alt_import = False
 alt_import_pitcon = False
@@ -244,67 +244,67 @@ if os.sys.platform == 'win32':
     if pitcon_switch:
         os.sys.path.append(os.path.join(install_dir,'pitcon'))
         try:
-            import pitcon.pitcon as pitcon
+            from .pitcon import pitcon as pitcon
             if not __SILENT_START__:
-                print 'Continuation routines available'
-        except Exception, ex:
+                print('Continuation routines available')
+        except Exception as ex:
             try:
                 os.environ['path'] = '%s;%s' % (os.path.join(install_dir,'win32'), os.environ['path'])
-                import pitcon.pitcon as pitcon
+                from .pitcon import pitcon as pitcon
                 if not __SILENT_START__:
-                    print 'Continuation routines available'
-            except Exception, ex:
+                    print('Continuation routines available')
+            except Exception as ex:
                 #print 'Attempting alternate pitcon import ...'
                 #alt_import = True
                 #alt_import_pitcon = True
-                print ex
-                print 'INFO: Pitcon import failed: continuation not available'
+                print(ex)
+                print('INFO: Pitcon import failed: continuation not available')
 
 
     if nleq2_switch:
         os.sys.path.append(os.path.join(install_dir,'nleq2'))
         try:
-            import nleq2.nleq2 as nleq2
+            from .nleq2 import nleq2 as nleq2
             if not __SILENT_START__:
-                print 'NLEQ2 routines available'
-        except Exception, ex:
+                print('NLEQ2 routines available')
+        except Exception as ex:
             try:
                 os.environ['path'] = '%s;%s' % (os.path.join(install_dir,'win32'), os.environ['path'])
-                import nleq2.nleq2 as nleq2
+                from .nleq2 import nleq2 as nleq2
                 if not __SILENT_START__:
-                    print 'NLEQ2 routines available'
-            except Exception, ex:
+                    print('NLEQ2 routines available')
+            except Exception as ex:
                 #print 'Attempting alternate nleq2 import ...'
                 #alt_import = True
                 #alt_import_nleq2 = True
-                print ex
-                print 'INFO: NLEQ2 import failed: option not available'
+                print(ex)
+                print('INFO: NLEQ2 import failed: option not available')
 else:
     if pitcon_switch:
         os.sys.path.append(os.path.join(install_dir,'pitcon'))
         try:
-            import pitcon.pitcon as pitcon
+            from .pitcon import pitcon as pitcon
             if not __SILENT_START__:
-                print 'Pitcon routines available'
-        except Exception, ex:
+                print('Pitcon routines available')
+        except Exception as ex:
             #print ex
             alt_import = True
             alt_import_pitcon = True
 
-            print 'Attempting alternate pitcon import ...'
+            print('Attempting alternate pitcon import ...')
     if nleq2_switch:
         os.sys.path.append(os.path.join(install_dir,'nleq2'))
         try:
-            import nleq2.nleq2 as nleq2
+            from .nleq2 import nleq2 as nleq2
             if not __SILENT_START__:
-                print 'NLEQ2 routines available'
-        except Exception, ex:
+                print('NLEQ2 routines available')
+        except Exception as ex:
             #print ex
             alt_import = True
             alt_import_nleq2 = True
-            print 'Attempting alternate nleq2 import ...'
+            print('Attempting alternate nleq2 import ...')
 
-if DEBUG: print time.strftime('6-%H:%M:%S')
+if DEBUG: print(time.strftime('6-%H:%M:%S'))
 
 if alt_import:
     savedir = os.getcwd()
@@ -313,26 +313,26 @@ if alt_import:
             try:
                 if os.path.exists(os.path.join(tpath,'pysces','pitcon')) and tpath != '':
                     os.chdir(os.path.join(tpath,'pysces','pitcon'))
-                    import pitcon
+                    from . import pitcon
                     if not __SILENT_START__:
-                        print 'Continuation routines available (A)'
-            except Exception, ex:
-                print ex
-                print 'INFO: Alternate pitcon import failed: continuation not available'
+                        print('Continuation routines available (A)')
+            except Exception as ex:
+                print(ex)
+                print('INFO: Alternate pitcon import failed: continuation not available')
         if alt_import_nleq2:
             try:
                 if os.path.exists(os.path.join(tpath,'pysces','nleq2')) and tpath != '':
                     os.chdir(os.path.join(tpath,'pysces','nleq2'))
-                    import nleq2
+                    from . import nleq2
                     if not __SILENT_START__:
-                        print 'NLEQ2 routines available (A)'
-            except Exception, ex:
-                print ex
+                        print('NLEQ2 routines available (A)')
+            except Exception as ex:
+                print(ex)
                 nleq2_switch = False
-                print 'INFO: Alternate NLEQ2 import failed: option not available'
+                print('INFO: Alternate NLEQ2 import failed: option not available')
     os.chdir(savedir)
 
-if DEBUG: print time.strftime('7-%H:%M:%S')
+if DEBUG: print(time.strftime('7-%H:%M:%S'))
 
 def setWorkPath(path):
     """
@@ -353,69 +353,69 @@ def setWorkPath(path):
             P.plt.m.__WORK_DIR__ = path
         if hasattr(P, 'plt') and hasattr(P.plt, 'g') and hasattr(P.plt.g, '__WORK_DIR__'):
             P.plt.g.__WORK_DIR__ = path
-    except Exception, ex:
-        print ex
-        print 'Path change exception'
+    except Exception as ex:
+        print(ex)
+        print('Path change exception')
     del P, O
 
 
 
 # This has to come at the end
-from PyscesModel import PysMod as model
-from PyscesModel import ScanDataObj as ScanDataObj
+from .PyscesModel import PysMod as model
+from .PyscesModel import ScanDataObj as ScanDataObj
 PyscesModel.interface = interface
-from PyscesTest import PyscesTest as test
+from .PyscesTest import PyscesTest as test
 write = None
 try:
-    from PyscesUtils import WriteOutput
+    from .PyscesUtils import WriteOutput
     write = WriteOutput()
     del WriteOutput
-except ImportError, ex:
+except ImportError as ex:
     pass
 
-from PyscesScan import PITCONScanUtils, Scanner
+from .PyscesScan import PITCONScanUtils, Scanner
 
 try:
-    from RateChar import RateChar
+    from .RateChar import RateChar
     if not __SILENT_START__:
-        print "RateChar is available"
-except Exception, ex:
+        print("RateChar is available")
+except Exception as ex:
     RateChar = None
     #print "RateChar not available"
 
 # ParScanner import
 try:
-    from PyscesParScan import ParScanner
+    from .PyscesParScan import ParScanner
     if not __SILENT_START__:
-        print "Parallel scanner is available"
-except ImportError, ex:
+        print("Parallel scanner is available")
+except ImportError as ex:
     ParScanner = None
-    print ex
-    print "INFO: Parallel scanner not available"
+    print(ex)
+    print("INFO: Parallel scanner not available")
 
-if DEBUG: print time.strftime('9-%H:%M:%S')
+if DEBUG: print(time.strftime('9-%H:%M:%S'))
 
 if not __SILENT_START__:
-    print '\nPySCeS environment\n******************'
-    print 'pysces.model_dir = ' + model_dir
-    print 'pysces.output_dir = ' + output_dir
+    print('\nPySCeS environment\n******************')
+    print('pysces.model_dir = ' + model_dir)
+    print('pysces.output_dir = ' + output_dir)
 
-    print '\n\n***********************************************************************'
-    print '* Welcome to PySCeS (' + __version__ + ') - Python Simulator for Cellular Systems   *'
-    print '*                http://pysces.sourceforge.net                        *'
+    print('\n\n***********************************************************************')
+    print('* Welcome to PySCeS (' + __version__ + ') - Python Simulator for Cellular Systems   *')
+    print('*                http://pysces.sourceforge.net                        *')
     ##  print '*                       Somewhere In Time                             *'
-    print '* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2017  *'
-    print '* Triple-J Group for Molecular Cell Physiology                        *'
-    print '* Stellenbosch University, ZA and VU University Amsterdam, NL         *'
-    print '* PySCeS is distributed under the PySCeS (BSD style) licence, see     *'
-    print '* LICENCE.txt (supplied with this release) for details                *'
+    print('* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2017  *')
+    print('* Triple-J Group for Molecular Cell Physiology                        *')
+    print('* Stellenbosch University, ZA and VU University Amsterdam, NL         *')
+    print('* PySCeS is distributed under the PySCeS (BSD style) licence, see     *')
+    print('* LICENCE.txt (supplied with this release) for details                *')
     ##  print '*                 ** Read about PySCeS **                             *'
-    print '* Please cite PySCeS with: doi:10.1093/bioinformatics/bti046          *'
-    print '***********************************************************************'
+    print('* Please cite PySCeS with: doi:10.1093/bioinformatics/bti046          *')
+    print('***********************************************************************')
 
 try:
     del os, key, gplt, mplt
-except Exception, ex:
-    print ex
-    print '\n\nOops I did it again error ...\n\n'
-if DEBUG: print time.strftime('10-%H:%M:%S')
+except Exception as ex:
+    print(ex)
+    print('\n\nOops I did it again error ...\n\n')
+if DEBUG: print(time.strftime('10-%H:%M:%S'))

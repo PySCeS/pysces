@@ -51,7 +51,7 @@ def deltaCommand():
     Used in sendCmdListToOne() so may be one or more commands returned
     as a list
     """
-    delta = 'P_SET_FLOAT,A05,%s' % delta_gen.next()
+    delta = 'P_SET_FLOAT,A05,%s' % next(delta_gen)
     # must return a list !!!
     return [delta]
 
@@ -98,14 +98,14 @@ def concatenateArrays(array_list):
     return output
 
 FinalIArray = concatenateArrays(iRes)
-print 'Indexes[0]', FinalIArray[0]
+print('Indexes[0]', FinalIArray[0])
 FinalSArray = concatenateArrays(sRes)
 FinalJArray = concatenateArrays(jRes)
 FinalEArray = concatenateArrays(eRes)
-print 'FinalIArray', FinalIArray.shape, FinalIArray.dtype
-print 'FinalSArray', FinalSArray.shape, FinalSArray.dtype
-print 'FinalJArray', FinalJArray.shape, FinalJArray.dtype
-print FinalEArray.shape, FinalEArray.dtype
+print('FinalIArray', FinalIArray.shape, FinalIArray.dtype)
+print('FinalSArray', FinalSArray.shape, FinalSArray.dtype)
+print('FinalJArray', FinalJArray.shape, FinalJArray.dtype)
+print(FinalEArray.shape, FinalEArray.dtype)
 del iRes
 del sRes
 del jRes
@@ -150,8 +150,8 @@ vtkcoords = numpy.transpose(numpy.array((FinalArrayCleanJ1[:,0],FinalArrayCleanJ
 for row in range(vtkcoords.shape[0]):
     vtkcoords[row,:3] = scipy.log10(vtkcoords[row,:3])
 
-print vtkcoords[:5,:]
+print(vtkcoords[:5,:])
 vtkcoords = kdata.GridSortLR(vtkcoords)
-print vtkcoords[:5,:]
+print(vtkcoords[:5,:])
 
 kdata.writeVTK_UnstructuredGrid(vtkcoords, kcntrl.task_id+'_result_ug')

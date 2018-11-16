@@ -15,7 +15,7 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Johann M. Rohwer
 """
 
-import sys, cPickle
+import sys, pickle
 import multiprocessing
 from pysces.PyscesParScan import Analyze, setModValue
 from pysces.PyscesUtils import TimerBox
@@ -23,8 +23,8 @@ from time import sleep
 
 
 if __name__ == '__main__':
-    print "\nmultiprocessing script command line:"
-    print sys.argv
+    print("\nmultiprocessing script command line:")
+    print(sys.argv)
     # called with
     # subprocess.call(['python', MULTISCANFILE, self._MODE_, fN])
     MODE = sys.argv[1]
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # load stuff from the pickle
     F = file(sys.argv[2],'rb')
-    mod, scanpartition, seqpartition, genorder, useroutputlist = cPickle.load(F)
+    mod, scanpartition, seqpartition, genorder, useroutputlist = pickle.load(F)
     F.close()
 
     mod.SetQuiet()  # kill verbose output during scan
@@ -41,22 +41,22 @@ if __name__ == '__main__':
     for i in range(len(scanpartition)):
         arl.append(pool.apply_async(Analyze, (scanpartition[i], seqpartition[i], genorder, MODE, useroutputlist, mod)))
 
-    print "Submitted tasks:", len(arl)
-    print "\nPARALLEL COMPUTATION\n--------------------"
+    print("Submitted tasks:", len(arl))
+    print("\nPARALLEL COMPUTATION\n--------------------")
 
     while arl[-1].ready() != True:
         sleep(5)
-        print 'Tasks to go... ', [r.ready() for r in arl].count(False)
+        print('Tasks to go... ', [r.ready() for r in arl].count(False))
         # wait until all tasks are completed
     arl[-1].wait()
 
     # get results
-    print "\nGATHER RESULT\n-------------"
+    print("\nGATHER RESULT\n-------------")
     res_list = []
     for ar in arl:
         res_list.append(ar.get())
     # pickle results_list
     F = file(sys.argv[2], 'wb')
-    cPickle.dump(res_list, F, protocol=-1)
+    pickle.dump(res_list, F, protocol=-1)
     F.flush()
     F.close()

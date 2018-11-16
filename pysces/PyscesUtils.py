@@ -33,7 +33,7 @@ import time
 
 
 def VersionCheck(ver='0.1.5'):
-    print "dead"
+    print("dead")
 
 
 def str2bool(s):
@@ -57,8 +57,8 @@ class TimerBox:
 
     def __init__(self):
         if os.sys.version_info[0] < 2 or os.sys.version_info[1] < 3:
-            print 'Your version of Python (' + str(os.sys.version_info[:3]) + ') might be too old\
-            to use this class. Python 2.2 or newer is required'
+            print('Your version of Python (' + str(os.sys.version_info[:3]) + ') might be too old\
+            to use this class. Python 2.2 or newer is required')
 
     def normal_timer(self,name):
         """
@@ -129,10 +129,10 @@ class TimerBox:
             pass
 
 def CopyTestModels(*args, **kwargs):
-    print "moved to PyscesTest"
+    print("moved to PyscesTest")
 
 def CopyModels(*args, **kwargs):
-    print "dead"
+    print("dead")
 
 
 def ConvertFileD2U(Filelist):
@@ -145,11 +145,11 @@ def ConvertFileD2U(Filelist):
     for line in fileinput.input(Filelist,inplace=1):
         try:
             if line[-2] == '\r':
-                print line[:-2]+'\n',
+                print(line[:-2]+'\n', end=' ')
             else:
-                print line,
+                print(line, end=' ')
         except:
-            print line,
+            print(line, end=' ')
 
 def ConvertFileU2D(Filelist):
     """
@@ -161,11 +161,11 @@ def ConvertFileU2D(Filelist):
     for line in fileinput.input(Filelist,inplace=1):
         try:
             if line[-2] != '\r':
-                print line[:-1]+'\n',
+                print(line[:-1]+'\n', end=' ')
             else:
-                print line,
+                print(line, end=' ')
         except:
-            print '\n',
+            print('\n', end=' ')
 
 class WriteOutput(object):
     """
@@ -208,7 +208,7 @@ class WriteOutput(object):
         F.write('\n')
         F.flush()
         F.close()
-        print 'exported to %s' % fname
+        print('exported to %s' % fname)
 
     def exportLabelledArrayWithHeader(self, arr, names, header, fname, sep=',', format='%f'):
         """
@@ -254,7 +254,7 @@ class WriteOutput(object):
         F.write('\n')
         F.flush()
         F.close()
-        print 'exported to %s' % fname
+        print('exported to %s' % fname)
 
 
     def exportLabelledLinkedList(self, arr, fname, names=None, sep=',', format='%s', appendlist=False):
@@ -306,7 +306,7 @@ class WriteOutput(object):
         F.close()
         del arr
         if not appendlist:
-            print 'exported to %s' % fname
+            print('exported to %s' % fname)
 
     def exportLabelledArrayWithHeader2CSV(self, arr, names, header, fname):
         """

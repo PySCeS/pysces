@@ -10,7 +10,7 @@ Small changes to stoichiometry and modifiers marked as # brett 20050702
 Brett G. Olivier (bgoli@users.sourceforge.net)
 '''
 import pydot
-from VisualiseNodeClasses import DotNodes, EdgeLines
+from .VisualiseNodeClasses import DotNodes, EdgeLines
 
 class VisualiseModel(DotNodes, EdgeLines):
 	"""The visualisation model class"""
@@ -40,7 +40,7 @@ class VisualiseModel(DotNodes, EdgeLines):
 	
 	def __organiseCompartments(self, compart_dict):
 		"""organises the compartments, using outside"""
-		for key in compart_dict.keys():
+		for key in list(compart_dict.keys()):
 			outside = compart_dict[key][0]
 			if len(outside) ==0:
 				self.py_dot_graph.add_subgraph(compart_dict[key][1])

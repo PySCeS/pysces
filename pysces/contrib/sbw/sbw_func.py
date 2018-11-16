@@ -13,15 +13,15 @@ interface itself checks and, if necessary, loads services as required.
 """
 try:
     import SBW
-except Exception, exc:
-    print '\nError loading SBW'
-    print 'Is the Systems Biology Workbench (www.sys-bio.org) installed?'
-    print 'If SBW is installed and still doesn\'t work try creating an empty file'
-    print 'called __init__.py and copy it into'
-    print '\tpython2.x\\lib\\site-packages\\SBW\\'
-    print 'if this directory doesn\'t exist copy python2.x\\SBW\\ to'
-    print 'python2.x\\lib\\site-packages\\SBW\\ add __init__.py and try again'
-    print exc,'\n'
+except Exception as exc:
+    print('\nError loading SBW')
+    print('Is the Systems Biology Workbench (www.sys-bio.org) installed?')
+    print('If SBW is installed and still doesn\'t work try creating an empty file')
+    print('called __init__.py and copy it into')
+    print('\tpython2.x\\lib\\site-packages\\SBW\\')
+    print('if this directory doesn\'t exist copy python2.x\\SBW\\ to')
+    print('python2.x\\lib\\site-packages\\SBW\\ add __init__.py and try again')
+    print(exc,'\n')
 
 import os
 from time import sleep
@@ -60,17 +60,17 @@ class SBW_base:
 
     def Info(self):
         """Display module info"""
-        print ' '
-        print 'Module: ' + self.SBW.getName() + ' (ver. ' + self.SBW.getVersion() + ')'
-        print ' \"' + self.SBW.getDescription() + '\"'
-        print 'Author: ' + self.SBW.getAuthor() + ' (' + self.SBW.getURL() + ')'
+        print(' ')
+        print('Module: ' + self.SBW.getName() + ' (ver. ' + self.SBW.getVersion() + ')')
+        print(' \"' + self.SBW.getDescription() + '\"')
+        print('Author: ' + self.SBW.getAuthor() + ' (' + self.SBW.getURL() + ')')
 
     def SBW_Methods(self):
         """Display available SBW service methods"""
-        print '\nMethods available as sbw.'+ self.SBW.getName()+'.SBW.*'
+        print('\nMethods available as sbw.'+ self.SBW.getName()+'.SBW.*')
         for x in self.SBW.methods:
-            print x        
-        print '\n'
+            print(x)        
+        print('\n')
 
     def WriteOutputToFile(self,filename,dir=None):
         if dir != None:
@@ -86,10 +86,10 @@ class StructAnalysis(SBW_base):
         #Note to self - find out for sure why this only works in __init__ it is a
         #namespace issue but it would be nice to work around it ;-)  - brett
         struct_module_id = psbw.SBWGetModuleInstance('edu.kgi.StructAnalysis')
-        if not sbwModuleProxy.moduleDict.has_key(struct_module_id):
-            print '<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(struct_module_id).pythonName + ' to ModuleProxy (id=' + str(struct_module_id) + ')'
-        if not SBW.__dict__.has_key(sbwModuleProxy.ModuleProxy(struct_module_id).pythonName):
-            print '<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(struct_module_id).pythonName + ' to SBW namespace'
+        if struct_module_id not in sbwModuleProxy.moduleDict:
+            print('<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(struct_module_id).pythonName + ' to ModuleProxy (id=' + str(struct_module_id) + ')')
+        if sbwModuleProxy.ModuleProxy(struct_module_id).pythonName not in SBW.__dict__:
+            print('<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(struct_module_id).pythonName + ' to SBW namespace')
             SBW.__dict__[sbwModuleProxy.ModuleProxy(struct_module_id).pythonName] = sbwModuleProxy.ModuleProxy(struct_module_id)
 
         #wang the StructAnalysis methods into the StructAnalysis instance as SBW.*
@@ -108,8 +108,8 @@ class StructAnalysis(SBW_base):
             self.sbml_string = sbml_str
         try:
             self.output = SBW.edu_kgi_StructAnalysis.StructAnalysis.loadSBML(sbml_str)
-        except Exception, ex:
-            print ex
+        except Exception as ex:
+            print(ex)
             self.output = str(ex)
         self._InitStuff()
         
@@ -120,8 +120,8 @@ class StructAnalysis(SBW_base):
             self.sbml_string = sbml_str
         try:
             self.output = SBW.edu_kgi_StructAnalysis.StructAnalysis.loadSBML(sbml_str)
-        except Exception, ex:
-            print ex
+        except Exception as ex:
+            print(ex)
             self.output = str(ex)
         self._InitStuff()
 
@@ -132,7 +132,7 @@ class StructAnalysis(SBW_base):
             self.sbml_string = sbml_str
         try:
             self.output = SBW.edu_kgi_StructAnalysis.StructAnalysis.loadSBMLwithTests(sbml_str)
-        except Exception, ex:
+        except Exception as ex:
             self.output = str(ex)
         self._InitStuff()
 
@@ -140,14 +140,14 @@ class DrawNetworkGUI(SBW_base):
     def __init__(self):
         # externally spawn a GUI to avoid locking the console (uses default windows location)
         os.spawnv(os.P_NOWAIT,'c:\\Program Files\\KGI\\SBW\\Layout\\DrawNetwork.exe',[])
-        print 'Loading ...'
+        print('Loading ...')
         sleep(3)
         # as we have loaded the thing already, we can just get the Id
         draw_module_id = psbw.getModuleId('DrawNetwork.GUI')
-        if not sbwModuleProxy.moduleDict.has_key(draw_module_id):
-            print '<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(draw_module_id).pythonName + ' to ModuleProxy (id=' + str(draw_module_id) + ')'
-        if not SBW.__dict__.has_key(sbwModuleProxy.ModuleProxy(draw_module_id).pythonName):
-            print '<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(draw_module_id).pythonName + ' to SBW namespace'
+        if draw_module_id not in sbwModuleProxy.moduleDict:
+            print('<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(draw_module_id).pythonName + ' to ModuleProxy (id=' + str(draw_module_id) + ')')
+        if sbwModuleProxy.ModuleProxy(draw_module_id).pythonName not in SBW.__dict__:
+            print('<PySCeS_SBW> Adding ' + sbwModuleProxy.ModuleProxy(draw_module_id).pythonName + ' to SBW namespace')
             SBW.__dict__[sbwModuleProxy.ModuleProxy(draw_module_id).pythonName] = sbwModuleProxy.ModuleProxy(draw_module_id)
         self.SBW = SBW.DrawNetwork_GUI.network
 
@@ -159,14 +159,14 @@ class DrawNetworkGUI(SBW_base):
             self.sbml_string = sbml_str
         try:
             self.SBW.loadSBML(sbml_str)
-        except Exception, ex:
-            print ex
+        except Exception as ex:
+            print(ex)
             self.output = str(ex)
-        print '\n\n\tClick in the DrawNetwork window to refresh display\n\n'
+        print('\n\n\tClick in the DrawNetwork window to refresh display\n\n')
 
     def getSBMLstringWithLayout(self):
         self.output = self.SBW.getSBML()
-        print "SBML+layout stored as output"
+        print("SBML+layout stored as output")
 
 ##  class Simulate3D(SBW_base):
     ##  def __init__(self):

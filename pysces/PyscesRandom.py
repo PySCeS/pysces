@@ -39,7 +39,7 @@ General notes on the underlying Mersenne Twister core generator:
 
 """
 
-from __future__ import division
+
 from warnings import warn as _warn
 from types import MethodType as _MethodType, BuiltinMethodType as _BuiltinMethodType
 from math import log as _log, exp as _exp, pi as _pi, e as _e, ceil as _ceil
@@ -110,10 +110,10 @@ class Random(_random.Random):
             try:
                 # Seed with enough bytes to span the 19937 bit
                 # state space for the Mersenne Twister
-                a = long(_hexlify(_urandom(2500)), 16)
+                a = int(_hexlify(_urandom(2500)), 16)
             except NotImplementedError:
                 import time
-                a = long(time.time() * 256) # use fractional seconds
+                a = int(time.time() * 256) # use fractional seconds
 
         super(Random, self).seed(a)
         self.gauss_next = None
@@ -135,9 +135,9 @@ class Random(_random.Random):
             #   really unsigned 32-bit ints, so we convert negative ints from
             #   version 2 to positive longs for version 3.
             try:
-                internalstate = tuple( long(x) % (2**32) for x in internalstate )
-            except ValueError, e:
-                raise TypeError, e
+                internalstate = tuple( int(x) % (2**32) for x in internalstate )
+            except ValueError as e:
+                raise TypeError(e)
             super(Random, self).setstate(internalstate)
         else:
             raise ValueError("state with version %s passed to "
@@ -172,7 +172,7 @@ class Random(_random.Random):
 
 ## -------------------- integer methods  -------------------
 
-    def randrange(self, start, stop=None, step=1, _int=int, _maxwidth=1L<<BPF):
+    def randrange(self, start, stop=None, step=1, _int=int, _maxwidth=1<<BPF):
         """Choose a random item from range(start, stop[, step]).
 
         This fixes the problem with randint() which includes the
@@ -184,18 +184,18 @@ class Random(_random.Random):
         # common case while still doing adequate error checking.
         istart = _int(start)
         if istart != start:
-            raise ValueError, "non-integer arg 1 for randrange()"
+            raise ValueError("non-integer arg 1 for randrange()")
         if stop is None:
             if istart > 0:
                 if istart >= _maxwidth:
                     return self._randbelow(istart)
                 return _int(self.random() * istart)
-            raise ValueError, "empty range for randrange()"
+            raise ValueError("empty range for randrange()")
 
         # stop argument supplied.
         istop = _int(stop)
         if istop != stop:
-            raise ValueError, "non-integer stop for randrange()"
+            raise ValueError("non-integer stop for randrange()")
         width = istop - istart
         if step == 1 and width > 0:
             # Note that
@@ -215,21 +215,21 @@ class Random(_random.Random):
                 return _int(istart + self._randbelow(width))
             return _int(istart + _int(self.random()*width))
         if step == 1:
-            raise ValueError, "empty range for randrange() (%d,%d, %d)" % (istart, istop, width)
+            raise ValueError("empty range for randrange() (%d,%d, %d)" % (istart, istop, width))
 
         # Non-unit step argument supplied.
         istep = _int(step)
         if istep != step:
-            raise ValueError, "non-integer step for randrange()"
+            raise ValueError("non-integer step for randrange()")
         if istep > 0:
             n = (width + istep - 1) // istep
         elif istep < 0:
             n = (width + istep + 1) // istep
         else:
-            raise ValueError, "zero step for randrange()"
+            raise ValueError("zero step for randrange()")
 
         if n <= 0:
-            raise ValueError, "empty range for randrange()"
+            raise ValueError("empty range for randrange()")
 
         if n >= _maxwidth:
             return istart + istep*self._randbelow(n)
@@ -241,7 +241,7 @@ class Random(_random.Random):
 
         return self.randrange(a, b+1)
 
-    def _randbelow(self, n, _log=_log, _int=int, _maxwidth=1L<<BPF,
+    def _randbelow(self, n, _log=_log, _int=int, _maxwidth=1<<BPF,
                    _Method=_MethodType, _BuiltinMethod=_BuiltinMethodType):
         """Return a random int in the range [0,n)
 
@@ -285,7 +285,7 @@ class Random(_random.Random):
         if random is None:
             random = self.random
         _int = int
-        for i in reversed(xrange(1, len(x))):
+        for i in reversed(range(1, len(x))):
             # pick an element in x[:i+1] with which to exchange x[i]
             j = _int(random() * (i+1))
             x[i], x[j] = x[j], x[i]
@@ -331,7 +331,7 @@ class Random(_random.Random):
             # An n-length list is smaller than a k-length set, or this is a
             # mapping type so the other algorithm wouldn't work.
             pool = list(population)
-            for i in xrange(k):         # invariant:  non-selected at [0,n-i)
+            for i in range(k):         # invariant:  non-selected at [0,n-i)
                 j = _int(random() * (n-i))
                 result[i] = pool[j]
                 pool[j] = pool[n-i-1]   # move non-selected item into vacancy
@@ -339,7 +339,7 @@ class Random(_random.Random):
             try:
                 selected = set()
                 selected_add = selected.add
-                for i in xrange(k):
+                for i in range(k):
                     j = _int(random() * n)
                     while j in selected:
                         j = _int(random() * n)
@@ -505,7 +505,7 @@ class Random(_random.Random):
         # Warning: a few older sources define the gamma distribution in terms
         # of alpha > -1.0
         if alpha <= 0.0 or beta <= 0.0:
-            raise ValueError, 'gammavariate: alpha and beta must be > 0.0'
+            raise ValueError('gammavariate: alpha and beta must be > 0.0')
 
         random = self.random
         if alpha > 1.0:
@@ -672,12 +672,12 @@ class WichmannHill(Random):
 
         if a is None:
             try:
-                a = long(_hexlify(_urandom(16)), 16)
+                a = int(_hexlify(_urandom(16)), 16)
             except NotImplementedError:
                 import time
-                a = long(time.time() * 256) # use fractional seconds
+                a = int(time.time() * 256) # use fractional seconds
 
-        if not isinstance(a, (int, long)):
+        if not isinstance(a, int):
             a = hash(a)
 
         a, x = divmod(a, 30268)
@@ -767,7 +767,7 @@ class WichmannHill(Random):
         if 0 == x == y == z:
             # Initialize from current time
             import time
-            t = long(time.time() * 256)
+            t = int(time.time() * 256)
             t = int((t&0xffffff) ^ (t>>24))
             t, x = divmod(t, 256)
             t, y = divmod(t, 256)
@@ -812,7 +812,7 @@ class SystemRandom(Random):
 
     def random(self):
         """Get the next random number in the range [0.0, 1.0)."""
-        return (long(_hexlify(_urandom(7)), 16) >> 3) * RECIP_BPF
+        return (int(_hexlify(_urandom(7)), 16) >> 3) * RECIP_BPF
 
     def getrandbits(self, k):
         """getrandbits(k) -> x.  Generates a long int with k random bits."""
@@ -821,7 +821,7 @@ class SystemRandom(Random):
         if k != int(k):
             raise TypeError('number of bits should be an integer')
         bytes = (k + 7) // 8                    # bits / 8 and rounded up
-        x = long(_hexlify(_urandom(bytes)), 16)
+        x = int(_hexlify(_urandom(bytes)), 16)
         return x >> (bytes * 8 - k)             # trim excess bits
 
     def _stub(self, *args, **kwds):
@@ -838,7 +838,7 @@ class SystemRandom(Random):
 
 def _test_generator(n, func, args):
     import time
-    print n, 'times', func.__name__
+    print(n, 'times', func.__name__)
     total = 0.0
     sqsum = 0.0
     smallest = 1e10
@@ -851,11 +851,11 @@ def _test_generator(n, func, args):
         smallest = min(x, smallest)
         largest = max(x, largest)
     t1 = time.time()
-    print round(t1-t0, 3), 'sec,',
+    print(round(t1-t0, 3), 'sec,', end=' ')
     avg = total/n
     stddev = _sqrt(sqsum/n - avg*avg)
-    print 'avg %g, stddev %g, min %g, max %g' % \
-              (avg, stddev, smallest, largest)
+    print('avg %g, stddev %g, min %g, max %g' % \
+              (avg, stddev, smallest, largest))
 
 
 def _test(N=2000):

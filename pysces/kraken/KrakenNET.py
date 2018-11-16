@@ -16,12 +16,12 @@ Brett G. Olivier
 """
 
 import os, time
-import cPickle, cStringIO
+import pickle, io
 import socket
 from threading import Thread
-from startup import octopussy
+from .startup import octopussy
 
-print octopussy
+print(octopussy)
 
 HOSTNAME = socket.gethostbyaddr(socket.gethostname())[0]
 BLOCK_SIZE = 32768
@@ -59,7 +59,7 @@ class SimpleClient:
             self.s.settimeout(self.timeout)
             self.s.connect((self.server, self.port))
             self.s.send(d)
-            print 'Sent: ', d
+            print('Sent: ', d)
             self.response.append(self.s.recv(self.block_size))
             self.s.close()
 
@@ -89,7 +89,7 @@ class SimpleMultiReadClient:
         self.s.connect((self.server, self.port))
 
         self.s.send(data)
-        print 'Sent: ', data
+        print('Sent: ', data)
         GO = True
         self.response = ''
         while GO:
@@ -130,7 +130,7 @@ class ThreadedClient(Thread):
         self.s.connect((self.server, self.port))
         self.s.send(self.command)
         self.response = self.s.recv(self.block_size)
-        print self.getName() + ' Sent:    ', self.command
+        print(self.getName() + ' Sent:    ', self.command)
         self.s.close()
         #time.sleep(0.5)
 
@@ -149,24 +149,24 @@ class BasicServerSocket(Thread):
         self.block_size = block_size
         if myname != None:
             self.setName(myname)
-        print self.getName() + ': Ready to serve!'
+        print(self.getName() + ': Ready to serve!')
 
     def run(self):
         self.ListenLoop()
 
     def SendAction(self, data):
-        print self.client_address[0] + ', ' + time.strftime('%H:%M:%S') + ', ' + self.getName() + ', ' + data
+        print(self.client_address[0] + ', ' + time.strftime('%H:%M:%S') + ', ' + self.getName() + ', ' + data)
         return data
 
     def RequestLog(self, data):
-        print self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
-            ', ' + self.getName() + ', ' + data
+        print(self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
+            ', ' + self.getName() + ', ' + data)
 
     def KillCheck(self, data):
         if data[:4] == 'KILL':
             data = 'You killed the server at: ' + time.strftime('%H:%M:%S')
             self.server_active = False
-            print self.client_address[0] + ' terminated me (' + self.getName() + ') at '+ time.strftime('%H:%M:%S')
+            print(self.client_address[0] + ' terminated me (' + self.getName() + ') at '+ time.strftime('%H:%M:%S'))
         return data
 
     def ListenLoop(self):
@@ -223,40 +223,40 @@ class BasicServer(BasicServerSocket):
 
     def SendAction(self, data):
         data = data.split(',')
-        if data[0] in self.PROTOCOL.keys():
-            print self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
-            ', ' + self.getName() + ', EXECUTE ' + str(data).replace(',', '')
+        if data[0] in list(self.PROTOCOL.keys()):
+            print(self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
+            ', ' + self.getName() + ', EXECUTE ' + str(data).replace(',', ''))
             try:
                 if len(data) > 1:
                     data = str(self.PROTOCOL[data[0]](data[1:]))
                 else:
                     data = str(self.PROTOCOL[data[0]]())
-            except Exception, ex:
-                print 'ProcessException', ex
+            except Exception as ex:
+                print('ProcessException', ex)
                 data = 'False'
         else:
-            print self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
-            ', ' + self.getName() + ', UNKNOWN ' + str(data).replace(',', '')
+            print(self.client_address[0] + ', ' + time.strftime('%H:%M:%S') +\
+            ', ' + self.getName() + ', UNKNOWN ' + str(data).replace(',', ''))
             data = 'False'
         return data
 
     def P_GETDATA(self, *args):
         self.setStatus('SENDING_DATA')
-        F = cStringIO.StringIO()
-        cPickle.dump(self.RESULT, F, PICKLE_PROTOCOL)
+        F = io.StringIO()
+        pickle.dump(self.RESULT, F, PICKLE_PROTOCOL)
         F.seek(0)
         data = 'OK'
         while data != '':
             data = F.read(self.block_size)
             self.client.send(data)
         self.setStatus('READY')
-        print octopussy
+        print(octopussy)
         return True
 
     def P_STORE_DATA(self, *args):
         global HOSTNAME
         G = file(HOSTNAME + '_data.bin','wb')
-        cPickle.dump(self.RESULT, G, PICKLE_PROTOCOL)
+        pickle.dump(self.RESULT, G, PICKLE_PROTOCOL)
         G.flush()
         G.close()
         return True
@@ -309,9 +309,9 @@ class ModelFileServer(BasicServerSocket):
                     data = self.model_file.read(self.block_size)
                     self.client.send(data)
             elif data == 'LIST':
-                F = cStringIO.StringIO()
+                F = io.StringIO()
                 data = os.listdir(self.model_directory)
-                cPickle.dump(data,F,PICKLE_PROTOCOL)
+                pickle.dump(data,F,PICKLE_PROTOCOL)
                 F.seek(0)
                 while data != '':
                     data = F.read(self.block_size)
@@ -364,10 +364,10 @@ class ServerStatusCheck(Thread):
         return (server, data)
 
     def PrintStatus(self):
-        print '\n********** Status report %s************\n*' % time.strftime('%H:%M:%S')
+        print('\n********** Status report %s************\n*' % time.strftime('%H:%M:%S'))
         for s in self.current_status:
-            print '*', s[0], s[1]
-        print '*\n*********************************************\n'
+            print('*', s[0], s[1])
+        print('*\n*********************************************\n')
 
 class TentacleScanner:
     def __init__(self,servers):
@@ -386,14 +386,14 @@ class TentacleScanner:
 
         for server in self.servers:
             try:
-                print 'Tentacle scanner is trying server:', server
+                print('Tentacle scanner is trying server:', server)
                 client = SimpleClient(server, STATUS_PORT, BLOCK_SIZE)
                 client.timeout = 5
                 client.send(['STATUS'])
-                print 'Response:', client.response
+                print('Response:', client.response)
                 self.feedback.append((client.server,client.response[0]))
-            except Exception, ex:
-                print ex
+            except Exception as ex:
+                print(ex)
                 self.feedback.append((client.server,'FAILED'))
         self.feedback_history.append(self.feedback)
 
@@ -406,9 +406,9 @@ class TentacleScanner:
                 self.servers_ready.append(sv[0])
             else:
                 self.servers_busy.append(sv[0])
-        print '\nready:\n%s \n' % self.servers_ready
-        print 'busy:\n%s \n'  % self.servers_busy
-        print 'dead:\n%s \n'  % self.servers_dead
+        print('\nready:\n%s \n' % self.servers_ready)
+        print('busy:\n%s \n'  % self.servers_busy)
+        print('dead:\n%s \n'  % self.servers_dead)
 
     def getAvailableServers(self):
         self.scan()
@@ -456,8 +456,8 @@ class ServerListLoader:
                     self.server_list.append(l)
             sFile.close()
             return self.server_list
-        except Exception, ex:
-            print ex
-            print 'Cannot find \'server_list\' file in current directory: %s' % self.directory_name
-            print 'This is a fatal error please create this file with server names, one per line'
+        except Exception as ex:
+            print(ex)
+            print('Cannot find \'server_list\' file in current directory: %s' % self.directory_name)
+            print('This is a fatal error please create this file with server names, one per line')
             return []

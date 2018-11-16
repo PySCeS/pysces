@@ -31,7 +31,7 @@ mod_dict = {}
 mod_os = os.name
 #mod_os = 'posix' # transform a windows machine into a posix one
 
-print '\nAdding contrib modules ...'
+print('\nAdding contrib modules ...')
 for mod in mod_dir_list:
 	status = 0
 	author = ''
@@ -45,31 +45,31 @@ for mod in mod_dir_list:
 		base = getattr(CurMod,'pysx_base_class')
 		web = getattr(CurMod,'pysx_web')
 		if mod_os in getattr(CurMod,'pysx_oscompat'):
-			print 'Including module \"' + mod + '\"'
+			print('Including module \"' + mod + '\"')
 			if email != '':
-				print '\tAuthor(s): ' + author + ', (' + email + ')'
+				print('\tAuthor(s): ' + author + ', (' + email + ')')
 			else:
-				print '\tAuthor(s): ' + author
+				print('\tAuthor(s): ' + author)
 			if web != '':
-				print '\t' + web
+				print('\t' + web)
 			status = 1
 			mod_load_list.append(mod)
 		else:
-			print '\t' + getattr(CurMod,'pysx_name') + ' only available on '\
-			+ str(getattr(CurMod,'pysx_oscompat'))
-			print '\tMaintainer ' + author + email
+			print('\t' + getattr(CurMod,'pysx_name') + ' only available on '\
+			+ str(getattr(CurMod,'pysx_oscompat')))
+			print('\tMaintainer ' + author + email)
 			status = 0
 		del CurMod
-	except Exception, e:
-		print '\nModule ' + mod + ' *not* included'
-		print '\t',e,'\n'
+	except Exception as e:
+		print('\nModule ' + mod + ' *not* included')
+		print('\t',e,'\n')
 	mod_dict.update({mod:{}})
 	mod_dict[mod].update({'status':status,\
 						'path':os.path.abspath(os.path.join(mod_path,mod,'__init__.py')),\
 						'author':author,\
 						'email':email,\
 						'base':base})
-print ' '
+print(' ')
 
 os.chdir(tempdir)
 

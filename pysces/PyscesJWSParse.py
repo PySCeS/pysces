@@ -150,7 +150,7 @@ class JWSParser:
 
     def t_error(self,t):
         self.LexErrors.append(('Lexer error ', t.lineno, t.value, t.type))
-        print 'Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0])
+        print('Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0]))
         t.skip(1)
 
     ##############
@@ -171,11 +171,11 @@ class JWSParser:
 
     def Show(self,name,tok):
         if self.Debug:
-            print name,tok
+            print(name,tok)
 
     def p_error(self,t):
         self.ParseErrors.append(('Syntax error ', t.lineno, t.value, t.type))
-        print 'Syntax error, Line ' + str(t.lineno) + ' : ' + str(t.value)
+        print('Syntax error, Line ' + str(t.lineno) + ' : ' + str(t.value))
         tok = pysces.lib.yacc.token()
         while tok and tok.type != 'REACTION_ID':
             tok = pysces.lib.yacc.token()
@@ -225,7 +225,7 @@ class JWSParser:
 
         # global self.AllRateEqsGiven, ReacParams
         ReacID = t[1]
-        if self.NetworkDict.has_key(ReacID):
+        if ReacID in self.NetworkDict:
             self.ParseErrors.append(('Duplicate Reaction ', t.lineno, ReacID, None))
         self.NetworkDict[ReacID] = {} # Reaction dictionary for ReacID
         self.NetworkDict[ReacID]['Reagents'] = {} # Reagent dictionary within ReacID
@@ -233,7 +233,7 @@ class JWSParser:
         # brett: if an index exists sum the coefficients instead of adding a new one
         # this seems to deal with multiple definitions like X + X > Y and 2{X} + Y > Z + X
         for i in t[2][0]: # First tuple member of ReactionEq contains list of (name,stoichcoef)
-            if self.NetworkDict[ReacID]['Reagents'].has_key(i[0]):
+            if i[0] in self.NetworkDict[ReacID]['Reagents']:
                 self.NetworkDict[ReacID]['Reagents'][i[0]] = self.NetworkDict[ReacID]['Reagents'][i[0]] + i[1]
             else:
                 self.NetworkDict[ReacID]['Reagents'][i[0]] = i[1] # Key for reagent with stoichcoef value
@@ -436,7 +436,7 @@ class JWSParser:
         if os.path.exists(os.path.join(indir,File)) and File[-4:] == '.psc':
             go = 1
         else:
-            print '\nIgnoring non-PySCeS model file: ' + os.path.join(indir,File)
+            print('\nIgnoring non-PySCeS model file: ' + os.path.join(indir,File))
             go = 0
 
         if go == 1:
@@ -461,7 +461,7 @@ class JWSParser:
             self.VarReagents = []    # Variable reagents that occur in reactions
             self.InitParams = []     # Initialised parameters
 
-            print '\nParsing file: '+ os.path.join(indir,File)
+            print('\nParsing file: '+ os.path.join(indir,File))
 
             Data = open(os.path.join(indir,File),'r')
             Model = Data.read()
@@ -471,9 +471,9 @@ class JWSParser:
             self.AllRateEqsGiven = 1 # Flag to check that all rate equations have been given
 
             # try and find a temporary workspace or use cwd
-            if os.environ.has_key('TMP'):
+            if 'TMP' in os.environ:
                 tempDir = os.environ['TMP']
-            elif os.environ.has_key('TEMP'):
+            elif 'TEMP' in os.environ:
                 tempDir = os.environ['TEMP']
             else:
                 tempDir = os.getcwd()
@@ -496,8 +496,8 @@ class JWSParser:
                 self.tabmodule = '_jws' + File[:-4] + "_" + "parsetab"
 
             if self.Debug:
-                print self.tabmodule
-                print self.debugfile
+                print(self.tabmodule)
+                print(self.debugfile)
 
             pysces.lib.lex.lex(module=self, debug=self.Debug)
             pysces.lib.lex.input(Model)
@@ -511,7 +511,7 @@ class JWSParser:
             while 1:
                 tok = pysces.lib.lex.token()
                 if not tok: break
-            if self.LexErrors != []: print 'self.LexErrors = ', self.LexErrors, '\n'
+            if self.LexErrors != []: print('self.LexErrors = ', self.LexErrors, '\n')
 
             while 1:
                 p = pysces.lib.yacc.parse(Model)
@@ -540,53 +540,53 @@ class JWSParser:
 
             # In self.NetworkDict, clean rate equation parameter list of variables that occur in that reaction
             # Add FixedReagent to Params even if not a parameter in rate eqn (requirement to add '$' below)
-            for id in self.NetworkDict.keys():
+            for id in list(self.NetworkDict.keys()):
                 for reag in self.VarReagents:
                     if reag in self.NetworkDict[id]['Params']:
                         self.NetworkDict[id]['Params'].remove(reag)
                 for reag in self.FixedReagents:
-                    if (reag+'[t]' in self.NetworkDict[id]['Reagents'].keys()) and (reag not in self.NetworkDict[id]['Params']):
+                    if (reag+'[t]' in list(self.NetworkDict[id]['Reagents'].keys())) and (reag not in self.NetworkDict[id]['Params']):
                         self.NetworkDict[id]['Params'].append(reag+'[t]')
 
             # Warn if no reagents have been fixed
             if self.FixedReagents == []:
-                print 'Warning: No reagents have been fixed'
+                print('Warning: No reagents have been fixed')
             else: # Warn if a fixed reagent does not occur in a reaction equation
                 for reag in self.FixedReagents:
                     if reag not in self.Reagents:
-                        print 'Warning: ' + reag + ' (fixed) does not occur in any reaction'
+                        print('Warning: ' + reag + ' (fixed) does not occur in any reaction')
 
             # Check whether all parameters have been initialised
             # johann -- remove [t] from params
-            for id in self.NetworkDict.keys():
+            for id in list(self.NetworkDict.keys()):
                 for i in range(len(self.NetworkDict[id]['Params'])):
                     self.NetworkDict[id]['Params'][i] = self.NetworkDict[id]['Params'][i][:-3]
                     if self.NetworkDict[id]['Params'][i] not in self.InitParams:
-                        print 'Warning: Parameter ' + self.NetworkDict[id]['Params'][i] + ' has not been initialised'
+                        print('Warning: Parameter ' + self.NetworkDict[id]['Params'][i] + ' has not been initialised')
 
             # Check whether all variable reagents have been initialised
             for reag in self.VarReagents:
                 if reag[:-3]+'[0]' not in self.Inits:
-                    print 'Warning: Variable ' + reag + ' has not been initialised'
+                    print('Warning: Variable ' + reag + ' has not been initialised')
 
             # Check that all initialised parameters actually occur in self.Inits
             known = 0
             for param in self.InitParams:
-                for id in self.NetworkDict.keys():
+                for id in list(self.NetworkDict.keys()):
                     if param in self.NetworkDict[id]['Params']:
                         known = 1
                         break
                     else:
                         known = 0
-                if not known: print 'Warning: ' + param + \
-                    ' has been initialised but does not occur in any rate equation'
+                if not known: print('Warning: ' + param + \
+                    ' has been initialised but does not occur in any rate equation')
 
             # clean up rate equations in self.NetworkDict to remove [t] for Params
             # clean up Reagents to remove [t] and add $ for fixed
-            for id in self.NetworkDict.keys():
+            for id in list(self.NetworkDict.keys()):
                 for param in self.NetworkDict[id]['Params']:
                     self.NetworkDict[id]['RateEq'] = self.NetworkDict[id]['RateEq'].replace(param+'[t]',param)
-                for reag in self.NetworkDict[id]['Reagents'].keys():
+                for reag in list(self.NetworkDict[id]['Reagents'].keys()):
                     if reag[:-3] in self.NetworkDict[id]['Params']:
                         saveval = self.NetworkDict[id]['Reagents'].pop(reag)
                         self.NetworkDict[id]['Reagents']['$'+reag[:-3]] = saveval
@@ -595,23 +595,23 @@ class JWSParser:
                         self.NetworkDict[id]['Reagents'][reag[:-3]] = saveval
 
             # output errors
-            if self.ParseErrors != []: print 'Parse errors occurred: ', self.ParseErrors
+            if self.ParseErrors != []: print('Parse errors occurred: ', self.ParseErrors)
 
             # debugging
             if debug:
-                print '\n\n\n'
-                print '\nself.ReactionIDs: ',self.ReactionIDs
-                print '\nself.NetworkDict: ',self.NetworkDict
-                print '\nself.Names: ',self.Names
-                print '\nself.Inits: ',self.Inits
-                print '\nself.InitStrings: ',self.InitStrings
-                print '\nself.InitParStrings: ',self.InitParStrings
-                print '\nself.InitVarStrings: ',self.InitVarStrings
-                print '\nself.InitParams: ',self.InitParams
-                print '\nself.Reagents: ',self.Reagents
-                print '\nself.FixedReagents: ',self.FixedReagents
-                print '\nself.VarReagents: ',self.VarReagents
-                print '\nParseErrors: ',self.ParseErrors
+                print('\n\n\n')
+                print('\nself.ReactionIDs: ',self.ReactionIDs)
+                print('\nself.NetworkDict: ',self.NetworkDict)
+                print('\nself.Names: ',self.Names)
+                print('\nself.Inits: ',self.Inits)
+                print('\nself.InitStrings: ',self.InitStrings)
+                print('\nself.InitParStrings: ',self.InitParStrings)
+                print('\nself.InitVarStrings: ',self.InitVarStrings)
+                print('\nself.InitParams: ',self.InitParams)
+                print('\nself.Reagents: ',self.Reagents)
+                print('\nself.FixedReagents: ',self.FixedReagents)
+                print('\nself.VarReagents: ',self.VarReagents)
+                print('\nParseErrors: ',self.ParseErrors)
 
             # now write the jws output file
             filename = File[:-4]
@@ -624,19 +624,19 @@ class JWSParser:
                     filex = os.path.join(outdir,filename)
                     f = open(filex,'r')
                     f.close()
-                    input = raw_input('\nFile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
+                    input = input('\nFile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
                     if input == 'y' or input == '':
                         go = 1
                         loop = 1
                     elif input == 'n':
-                        filename = raw_input('\nFile "' + filename + '" exists. Enter a new filename: ')
+                        filename = input('\nFile "' + filename + '" exists. Enter a new filename: ')
                         go = 1
                         filex = os.path.join(outdir,filename)
                         filename = self.chkjws(filename)
                     else:
-                        print '\nInvalid input'
+                        print('\nInvalid input')
                 except:
-                    print '\nFile "' + filex + '" does not exist, proceeding...'
+                    print('\nFile "' + filex + '" does not exist, proceeding...')
                     loop = 1
                     go = 1
             if go == 1:
@@ -664,7 +664,7 @@ class JWSParser:
                 rateeq_list = []
 
                 nd = self.NetworkDict
-                reaclist = copy.copy(nd.keys())   # johann -- to sort self.ReactionIDs neatly ;-)
+                reaclist = copy.copy(list(nd.keys()))   # johann -- to sort self.ReactionIDs neatly ;-)
                 reaclist.sort()
                 for key in reaclist:              # key = reaction name
                     reagL = []
@@ -718,23 +718,23 @@ class JWSParser:
 
                 # print to stdout if quiet is set to zero
                 if quiet == 0:
-                    print '\nModel name: ' + modelname
+                    print('\nModel name: ' + modelname)
 
-                    print "\nReactions:"
+                    print("\nReactions:")
                     for x in reaction_list:
-                        print x
+                        print(x)
 
-                    print "\nRate Equations:"
+                    print("\nRate Equations:")
                     for x in rateeq_list:
-                        print x
+                        print(x)
 
-                    print '\nParameters:'
+                    print('\nParameters:')
                     for x in self.InitParStrings:
-                        print x
+                        print(x)
 
-                    print '\nSpecies Initial Values:'
+                    print('\nSpecies Initial Values:')
                     for x in self.InitVarStrings:
-                        print x
+                        print(x)
 
 
     def chkjws(self,File):
@@ -752,10 +752,10 @@ class JWSParser:
             if File[-4:] == '.jws':
                 pass
             else:
-                print 'Assuming extension is .jws'
+                print('Assuming extension is .jws')
                 File += '.jws'
         except:
-            print 'Chkjws error'
+            print('Chkjws error')
         return File
 
 if __name__ == '__main__':

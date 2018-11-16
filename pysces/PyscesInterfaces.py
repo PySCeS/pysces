@@ -202,14 +202,14 @@ class Core2interfaces(object):
         if sbmldir == None or not os.path.exists(sbmldir):
             sbmldir = os.getcwd()
         if not os.path.exists(os.path.join(sbmldir,sbmlfile)):
-            raise RuntimeError, '\nSBML file \"%s\" does not exist!' % os.path.join(sbmldir,sbmlfile)
+            raise RuntimeError('\nSBML file \"%s\" does not exist!' % os.path.join(sbmldir,sbmlfile))
         if pscdir == None or not os.path.exists(pscdir):
             pscdir = model_dir
         if pscfile == None:
             pscfile = '%s.psc' % sbmlfile
         self.readSBMLToCore(filename=sbmlfile, directory=sbmldir)
         self.writeCore2PSC(filename=pscfile, directory=pscdir, getstrbuf=False)
-        print '\nSBML2PSC\nin : %s\nout: %s' % (os.path.join(sbmldir,sbmlfile),os.path.join(pscdir,pscfile))
+        print('\nSBML2PSC\nin : %s\nout: %s' % (os.path.join(sbmldir,sbmlfile),os.path.join(pscdir,pscfile)))
 
     # coming soon for now use writeMod2SBML
     ##  def convertPSC2SBML(self, pscfile, pscdir=None, sbmlfile=None, sbmldir=None):

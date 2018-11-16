@@ -68,29 +68,29 @@ class PyscesInputFileParser(object):
             if os.path.exists(os.path.join(self.ModelDir,self.ModelFile)):
                 pass
             else:
-                print '\nInvalid self.ModelFile: ' + os.path.join(self.ModelDir,self.ModelFile)
+                print('\nInvalid self.ModelFile: ' + os.path.join(self.ModelDir,self.ModelFile))
         except:
-            print 'WARNING: Problem verifying: ' + os.path.join(self.ModelDir,self.ModelFile)
+            print('WARNING: Problem verifying: ' + os.path.join(self.ModelDir,self.ModelFile))
 
         if self.ModelFile[-4:] == '.psc':
             pass
         else:
-            print 'Assuming extension is .psc'
+            print('Assuming extension is .psc')
             self.ModelFile += '.psc'
 
-        print '\nParsing file: %s' % os.path.join(self.ModelDir, self.ModelFile)
+        print('\nParsing file: %s' % os.path.join(self.ModelDir, self.ModelFile))
 
         pscParser.ParsePSC(self.ModelFile,self.ModelDir,self.ModelOutput)
-        print ' '
+        print(' ')
 
         badlist = pscParser.KeywordCheck(pscParser.ReactionIDs)
         badlist = pscParser.KeywordCheck(pscParser.Inits,badlist)
 
         if len(badlist) != 0:
-            print '\n******************************\nPSC input file contains PySCeS keywords please rename them and reload:'
+            print('\n******************************\nPSC input file contains PySCeS keywords please rename them and reload:')
             for item in badlist:
-                print '   --> ' + item
-            print '******************************\n'
+                print('   --> ' + item)
+            print('******************************\n')
             self.__parseOK = 0
             #assert len(badlist) != 0, 'Keyword error, please check input file'
 
@@ -104,11 +104,11 @@ class PyscesInputFileParser(object):
             # model attributes are now initialised here brett2008
             self.__InitDict__ = {}
             # set parameters and add to __InitDict__
-            for p in self.__pDict__.keys():
+            for p in list(self.__pDict__.keys()):
                 setattr(self, self.__pDict__[p]['name'], self.__pDict__[p]['initial'])
                 self.__InitDict__.update({self.__pDict__[p]['name'] : self.__pDict__[p]['initial']})
             # set species and add to __InitDict__ and set mod.Xi_init
-            for s in self.__sDict__.keys():
+            for s in list(self.__sDict__.keys()):
                 setattr(self, self.__sDict__[s]['name'], self.__sDict__[s]['initial'])
                 if not self.__sDict__[s]['fixed']:
                     setattr(self, self.__sDict__[s]['name']+'_init', self.__sDict__[s]['initial'])
@@ -130,7 +130,7 @@ class PyscesInputFileParser(object):
                 else:
                     self.__KeyWords__['Output_In_Conc'] = False
             # set the species type in sDict according to 'Species_In_Conc'
-            for s in self.__sDict__.keys():
+            for s in list(self.__sDict__.keys()):
                 if not self.__KeyWords__['Species_In_Conc']:
                     self.__sDict__[s]['isamount'] = True
                 else:
@@ -138,7 +138,7 @@ class PyscesInputFileParser(object):
 
             # setup compartments
             self.__compartments__ = pscParser.compartments.copy()
-            if len(self.__compartments__.keys()) > 0:
+            if len(list(self.__compartments__.keys())) > 0:
                 self.__HAS_COMPARTMENTS__ = True
             else:
                 self.__HAS_COMPARTMENTS__ = False
@@ -171,21 +171,21 @@ class PyscesInputFileParser(object):
             ##  if pscParser.ModelUsesNumpyFuncs:
                 ##  print 'Numpy functions detected in kinetic laws.\n'
         else:
-            print '\nERROR: model parsing error, please check input file.\n'
+            print('\nERROR: model parsing error, please check input file.\n')
         # added in a check for model correctness and human error reporting (1=ok, 0=error)
         if len(pscParser.SymbolErrors) != 0:
-            print '\nUndefined symbols:\n%s' % self.SymbolErrors
+            print('\nUndefined symbols:\n%s' % self.SymbolErrors)
         if not pscParser.ParseOK:
-            print '\n\n*****\nModel parsing errors detected in input file '+ self.ModelFile +'\n*****'
-            print '\nInput file errors'
+            print('\n\n*****\nModel parsing errors detected in input file '+ self.ModelFile +'\n*****')
+            print('\nInput file errors')
             for error in pscParser.LexErrors:
-                print error[0] + 'in line:\t' + str(error[1]) + ' ('+ error[2][:20] +' ...)'
-            print '\nParser errors'
+                print(error[0] + 'in line:\t' + str(error[1]) + ' ('+ error[2][:20] +' ...)')
+            print('\nParser errors')
             for error in pscParser.ParseErrors:
                 try:
-                    print error[0] + '- ' + error[2][:20]
+                    print(error[0] + '- ' + error[2][:20])
                 except:
-                    print error
+                    print(error)
             assert pscParser.ParseOK == 1, 'Input File Error'
 
     def buildN(self):
@@ -203,7 +203,7 @@ class PyscesInputFileParser(object):
         StoicMatrix = numpy.zeros((len(VarReagents),len(self.__reactions__)),'d')
         for reag in VarReagents:
             for id in self.__reactions__:
-                if reag in self.__nDict__[id]['Reagents'].keys():
+                if reag in list(self.__nDict__[id]['Reagents'].keys()):
                     StoicMatrix[VarReagents.index(reag)][self.__reactions__.index(id)] = self.__nDict__[id]['Reagents'][reag]
         return StoicMatrix
 
@@ -248,7 +248,7 @@ class PyscesInputFileParser(object):
             self.nmatrix = self.buildN()            #Creates the model N
             #print '\nintializing N\n'
         else:
-            print '\nStoichiometric override active\n'
+            print('\nStoichiometric override active\n')
 
         assert len(self.nmatrix) > 0, '\nUnable to generate Stoichiometric Matrix! model has:\n%s reactions\n%s species\nwhat did you have in mind?\n' % (len(self.__reactions__), len(self.__species__))
 
@@ -275,26 +275,26 @@ class PyscesInputFileParser(object):
         ksmall,kbig = self.__structural__.MatrixValueCompare(self.__structural__.kzeromatrix)
         SmallValueError = 0
         if abs(lsmall) < self.__structural__.stoichiometric_analysis_lu_precision*10.0:
-            print '\nWARNING: values in L0matrix are close to stoichiometric precision!'
-            print 'Stoichiometric LU precision:', self.__structural__.stoichiometric_analysis_lu_precision
-            print 'L0 smallest abs(value)', abs(lsmall)
-            print 'Machine precision:', mach_spec.eps
+            print('\nWARNING: values in L0matrix are close to stoichiometric precision!')
+            print('Stoichiometric LU precision:', self.__structural__.stoichiometric_analysis_lu_precision)
+            print('L0 smallest abs(value)', abs(lsmall))
+            print('Machine precision:', mach_spec.eps)
             SmallValueError = 1
         if abs(ksmall) < self.__structural__.stoichiometric_analysis_lu_precision*10.0:
-            print '\nWARNING: values in K0matrix are close to stoichiometric precision!'
-            print 'Stoichiometric precision:', self.__structural__.stoichiometric_analysis_lu_precision
-            print 'K0 smallest abs(value)', abs(ksmall)
-            print 'Machine precision:', mach_spec.eps
+            print('\nWARNING: values in K0matrix are close to stoichiometric precision!')
+            print('Stoichiometric precision:', self.__structural__.stoichiometric_analysis_lu_precision)
+            print('K0 smallest abs(value)', abs(ksmall))
+            print('Machine precision:', mach_spec.eps)
             SmallValueError = 1
         if SmallValueError:
-            raw_input('\nStructural Analysis results may not be reliable!!!.\n\nTry change <mod>.__settings__["stoichiometric_analysis_lu_precision"] (see reference manual for details)\n\n\t press any key to continue: ')
+            input('\nStructural Analysis results may not be reliable!!!.\n\nTry change <mod>.__settings__["stoichiometric_analysis_lu_precision"] (see reference manual for details)\n\n\t press any key to continue: ')
 
         # cross check that rank is consistant between K0 and L0
         if self.__structural__.kzeromatrix.shape[0] != self.__structural__.lzeromatrix.shape[1]:
-            print '\nWARNING: the rank calculated by the Kand L analysis methods are not the same!'
-            print '\tK analysis calculates the rank as: ' + `self.__structural__.kzeromatrix.shape[0]`
-            print '\tL analysis calculates the rank as: ' + `self.__structural__.lzeromatrix.shape[1]`
-            print 'This is not good! Structural Analysis results are not reliable!!!\n'
+            print('\nWARNING: the rank calculated by the Kand L analysis methods are not the same!')
+            print('\tK analysis calculates the rank as: ' + repr(self.__structural__.kzeromatrix.shape[0]))
+            print('\tL analysis calculates the rank as: ' + repr(self.__structural__.lzeromatrix.shape[1]))
+            print('This is not good! Structural Analysis results are not reliable!!!\n')
             assert self.__structural__.kzeromatrix.shape[0] == self.__structural__.lzeromatrix.shape[1], '\nStructuralAnalysis Error: rank mismatch'
 
 
@@ -366,7 +366,7 @@ class PyscesInputFileParser(object):
         else:
             self.Consmatrix = None
         self.__StoichOK = 1
-        print ' '
+        print(' ')
 
 if __name__ == '__main__':
     ModelFile = 'pysces_test_linear1.psc'

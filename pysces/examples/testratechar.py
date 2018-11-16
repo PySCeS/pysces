@@ -13,16 +13,16 @@ rc.doAllRateChar()
 rcdC = rc.getRateCharData('C')
 
 
-print '\n\n\n'
-print 'C is regulatory for the following reactions:'
+print('\n\n\n')
+print('C is regulatory for the following reactions:')
 # This loop prints each reaction for which C is a regulatory metabolite
 for reaction in rcdC.findRegulatory():
-    print reaction
-    print '\n'
+    print(reaction)
+    print('\n')
     
 
 
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 
 
 # The figure function returns a figure object that is used to plot the 
@@ -34,15 +34,15 @@ figC = rcdC.figure()
 # functions are useful when there are multiple supply or demand reactions
 # as they plot each reaction on it's own figure. 
 figC.plotRateChar()
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 figC.plotElasRC()
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 figC.plotElasRCIndiv()
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 figC.plotPartialRCDemand()
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 figC.plotPartialRCSupply()
-raw_input('Press Enter to continue...')
+input('Press Enter to continue...')
 
 # The figure object is even more powerful as it also allows you to create
 # custom plots. 
@@ -69,7 +69,7 @@ figC.show()
 figC.save('testfigure1.png')  
 #saves the figure with the filename provided in the pysces directory
 
-raw_input('Press ENTER to continue...')
+input('Press ENTER to continue...')
 
 
 
@@ -93,7 +93,7 @@ figC.set_type_visible('supply_partial_rc',True,affzero=True)
 ## a gradient of zero will also be affected 
 figC.show()
 figC.save('testfigure2.png') 
-raw_input('Press ENTER to continue...')
+input('Press ENTER to continue...')
 
 
 

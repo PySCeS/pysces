@@ -32,7 +32,7 @@ class ModelMapBase(object):
         try:
             return getattr(self, attr)
         except:
-            print "%s is not an attribute of this instance" % attr
+            print("%s is not an attribute of this instance" % attr)
             return None
 
 class MapList(list):
@@ -61,7 +61,7 @@ class ModelMap(ModelMapBase):
         self.__model__ = model
         self.__InitDict__ = self.__model__.__InitDict__.copy()
         self.__compartments__ = self.__model__.__compartments__.copy()
-        for k in self.__InitDict__.keys():
+        for k in list(self.__InitDict__.keys()):
             self.__InitDict__[k] = getattr(self.__model__, k)
         self.global_parameters = []
         self.__parameter_store__ = []
@@ -93,11 +93,11 @@ class ModelMap(ModelMapBase):
             self.compartments.append(co)
             setattr(self, c, co)
         cname = [c.name for c in self.compartments]
-        for s in self.__model__.__sDict__.keys():
+        for s in list(self.__model__.__sDict__.keys()):
             if self.__model__.__sDict__[s]['compartment'] in cname:
                 getattr(self, self.__model__.__sDict__[s]['compartment']).setComponent(getattr(self, s))
                 getattr(self, s).compartment = getattr(self, self.__model__.__sDict__[s]['compartment'])
-        for r in self.__model__.__nDict__.keys():
+        for r in list(self.__model__.__nDict__.keys()):
             if self.__model__.__nDict__[r]['compartment'] in cname:
                 getattr(self, self.__model__.__nDict__[r]['compartment']).setComponent(getattr(self, r))
                 getattr(self, r).compartment = getattr(self, self.__model__.__nDict__[r]['compartment'])
@@ -110,8 +110,8 @@ class ModelMap(ModelMapBase):
         fxnames = self.hasFixedSpecies()
         for p in self.__nDict__[r.name]['Params']:
             p = p.replace('self.','')
-            if p not in self.hasGlobalParameters() and p not in fxnames and not self.__compartments__.has_key(p):
-                if self.__InitDict__.has_key(p):
+            if p not in self.hasGlobalParameters() and p not in fxnames and p not in self.__compartments__:
+                if p in self.__InitDict__:
                     par = Parameter(p, self.__InitDict__[p])
                 else:
                     par = Parameter(p)
@@ -120,7 +120,7 @@ class ModelMap(ModelMapBase):
                 self.global_parameters.append(par)
                 setattr(self, p, par)
                 r.addParameter(par)
-            elif p not in fxnames and not self.__compartments__.has_key(p):
+            elif p not in fxnames and p not in self.__compartments__:
                 pidx = self.hasGlobalParameters().index(p)
                 self.global_parameters[pidx].setAssociation(r)
                 r.addParameter(self.global_parameters[pidx])
@@ -317,32 +317,32 @@ if __name__ == '__main__':
     M = pysces.model('pysces_model_linear1')
     M.doLoad()
 
-    print '\nModel', M.ModelFile
-    print '============='
+    print('\nModel', M.ModelFile)
+    print('=============')
     modmap = ModelMap(M)
 
-    print 'Reactions\n', modmap.hasReactions()
-    print 'Species\n', modmap.hasSpecies()
-    print 'FixedSpecies\n', modmap.hasFixedSpecies()
-    print ' '
-    print 'R1 has reagents\n', modmap.R1.hasReagents()
-    print 'R1 has sub\n', modmap.R1.hasSubstrates()
-    print 'R1 has prod\n', modmap.R1.hasProducts()
-    print 'R1 has mod\n', modmap.R1.hasModifiers()
-    print ' '
-    print 's2 is reagent\n', modmap.s2.isReagentOf()
-    print 's2 is sub\n', modmap.s2.isSubstrateOf()
-    print 's2 is prod\n', modmap.s2.isProductOf()
-    print 's2 is mod\n', modmap.s2.isModifierOf()
-    print ' '
-    print 'R2 stoich\n', modmap.R2.stoichiometry
-    print ' '
-    print 'findReactionsThatIncludeAllSpecifiedReagents(A, B):', modmap.findReactionsThatIncludeAllSpecifiedReagents('s1','s2')
+    print('Reactions\n', modmap.hasReactions())
+    print('Species\n', modmap.hasSpecies())
+    print('FixedSpecies\n', modmap.hasFixedSpecies())
+    print(' ')
+    print('R1 has reagents\n', modmap.R1.hasReagents())
+    print('R1 has sub\n', modmap.R1.hasSubstrates())
+    print('R1 has prod\n', modmap.R1.hasProducts())
+    print('R1 has mod\n', modmap.R1.hasModifiers())
+    print(' ')
+    print('s2 is reagent\n', modmap.s2.isReagentOf())
+    print('s2 is sub\n', modmap.s2.isSubstrateOf())
+    print('s2 is prod\n', modmap.s2.isProductOf())
+    print('s2 is mod\n', modmap.s2.isModifierOf())
+    print(' ')
+    print('R2 stoich\n', modmap.R2.stoichiometry)
+    print(' ')
+    print('findReactionsThatIncludeAllSpecifiedReagents(A, B):', modmap.findReactionsThatIncludeAllSpecifiedReagents('s1','s2'))
 
 
-    print '\nmodmap.hasGlobalParameters\n', modmap.hasGlobalParameters()
+    print('\nmodmap.hasGlobalParameters\n', modmap.hasGlobalParameters())
 
-    print '\nParameter associations'
+    print('\nParameter associations')
     for p in modmap.global_parameters:
-        print '%s.isParameterOf() %s' % (p.name, p.isParameterOf())
+        print('%s.isParameterOf() %s' % (p.name, p.isParameterOf()))
 
