@@ -4825,7 +4825,7 @@ class PysMod(object):
                         hstep = self.__settings__['mode_elas_deriv_min']
 
                     a = ScipyDerivative(self.__num_deriv_function__,input[met],order=self.__settings__['mode_elas_deriv_order'],dx=hstep,n=1,\
-                        args=('v=self.' + self.__reactions__[react] + '()','self.' + self.__species__[met] + '=x'))
+                        args=(self.__reactions__[react], self.__species__[met]))
                 except Exception as ex:
                     print(ex)
                     print('\nINFO: Elasticity evaluation failure in ', self.__reactions__[react], self.__species__[met])
@@ -4982,7 +4982,7 @@ class PysMod(object):
                         hstep = self.__settings__['mode_elas_deriv_min']
 
                     a = ScipyDerivative(self.__num_deriv_function__,getattr(self,self.__parameters__[par]),order=self.__settings__['mode_elas_deriv_order'],dx=hstep,n=1,\
-                        args=('v=self.' + self.__reactions__[react] + '()','self.' + self.__parameters__[par] + '=x'))
+                        args=(self.__reactions__[react], self.__parameters__[par]))
                 except Exception as ex:
                     print('\nNumeric derivative evaluation failure in ', self.__reactions__[react], self.__parameters__[par])
                     print('Elasticity has been set to NaN')
@@ -5248,10 +5248,16 @@ class PysMod(object):
         met: species
 
         """
-        exec(met)
+        #exec(met)
+        #self.Forcing_Function()
+        #exec(react)
+        #return v
+        bk = getattr(self, met) # backup current metabolite value
+        setattr(self, met, x)
         self.Forcing_Function()
-        exec(react)
-        return v
+        v = getattr(self, react)
+        return v()
+        setattr(self, met, bk) # reset metabolite value
 
 #   Control coefficient routines
     def EvalCC(self):
