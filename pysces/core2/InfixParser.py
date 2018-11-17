@@ -26,7 +26,7 @@ from . import lex
 from . import yacc
 import os
 import math
-
+from importlib import reload
 
 class MyInfixLexer:
     """
