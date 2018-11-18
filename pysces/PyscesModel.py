@@ -5256,8 +5256,9 @@ class PysMod(object):
         setattr(self, met, x)
         self.Forcing_Function()
         v = getattr(self, react)
-        return v()
+        vout = v()
         setattr(self, met, bk) # reset metabolite value
+        return vout
 
 #   Control coefficient routines
     def EvalCC(self):
