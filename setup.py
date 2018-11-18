@@ -22,11 +22,11 @@ __version__ = '0.9.6'
 
 import os, re
 import fileinput
-import ConfigParser
+import configparser
 import shutil
 
 try:
-    print 'Building an egg? %s.' % FRYING_EGGS
+    print('Building an egg? %s.' % FRYING_EGGS)
 except:
     FRYING_EGGS = False
 
@@ -38,9 +38,9 @@ except Exception as ex:
 
 try:
     from numpy.distutils.core import setup, Extension
-except Exception, ex:
-    print ex
-    print "PySCeS requires NumPy and SciPy 0.6x+\n"
+except Exception as ex:
+    print(ex)
+    print("PySCeS requires NumPy and SciPy 0.6x+\n")
     os.sys.exit(-1)
 
 try:
@@ -128,11 +128,11 @@ else:
 
 def writeConfig(local_path, config={}):
     cfgfile = open(os.path.join(local_path,'pysces','pyscfg.ini'),'w')
-    cp = ConfigParser.ConfigParser()
+    cp = configparser.ConfigParser()
     # PySCeS internal setup
     cp.add_section('Pysces')
     for key in config:
-        print `key` + ' :: ' + config[key]
+        print(repr(key) + ' :: ' + config[key])
         cp.set('Pysces',key, config[key])
     #add configuration data
     cp.add_section('PyscesConfig')
@@ -161,7 +161,7 @@ def writeConfig(local_path, config={}):
     cfgfile.close()
 
 writeConfig(local_path,config)
-print 'Default configuration file installed'
+print('Default configuration file installed')
 
 # my subpackage list
 mypackages= ['pysces','pysces.tests','pysces.lib','pysces.pitcon',\
@@ -172,17 +172,17 @@ mypackages= ['pysces','pysces.tests','pysces.lib','pysces.pitcon',\
 mymodules = []
 
 if pitcon:
-    print '\nBuilding pitcon'
+    print('\nBuilding pitcon')
     extpath = os.path.join(local_path, 'pysces', 'pitcon')
     pitcon = Extension('pysces.pitcon.pitcon',[os.path.join(extpath,'pitcon.pyf'),os.path.join(extpath,'pcon61subd.f'),os.path.join(extpath,'dpcon61.f'),os.path.join(extpath,'dpcon61w.f')])
     mymodules.append(pitcon)
     #mydata_files.append((os.path.join('pysces','pitcon'), [os.path.join(local_path, 'pysces', 'pitcon','readme.txt'), os.path.join(local_path, 'pysces', 'pitcon','readme.txt')]))
 else:
-    print '\nSkipping pitcon'
+    print('\nSkipping pitcon')
 
 
 if nleq2:
-    print '\nBuilding nleq2'
+    print('\nBuilding nleq2')
     # this is now obsolete with nleq2 4.3 ... i hope !
     ##  print 'System ByteOrder', os.sys.byteorder
     ##  if os.path.exists(os.path.join(local_path, 'pysces', 'nleq2','nleq2.f')) and nleq2_byteorder_override:
@@ -201,7 +201,7 @@ if nleq2:
     mymodules.append(nleq2)
     mypackages.append('pysces.nleq2')
 else:
-    print '\n'
+    print('\n')
 
 if len(mymodules) == 0:
     noext = Extension('None',[],None) # Not ideal but seems safe
