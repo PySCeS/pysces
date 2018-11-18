@@ -1737,7 +1737,7 @@ class Grammar(object):
         result = []
         for p in self.Productions:
             #if not p:
-            if p is not None:
+            if p is None:
                 continue
 
             for s in p.prod:
