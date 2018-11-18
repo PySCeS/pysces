@@ -31,7 +31,7 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool()
 
     # load stuff from the pickle
-    F = file(sys.argv[2],'rb')
+    F = open(sys.argv[2],'rb')
     mod, scanpartition, seqpartition, genorder, useroutputlist = pickle.load(F)
     F.close()
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     for ar in arl:
         res_list.append(ar.get())
     # pickle results_list
-    F = file(sys.argv[2], 'wb')
+    F = open(sys.argv[2], 'wb')
     pickle.dump(res_list, F, protocol=-1)
     F.flush()
     F.close()

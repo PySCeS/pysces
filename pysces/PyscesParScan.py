@@ -77,10 +77,10 @@ class ParScanner(Scanner):
         elif engine == 'ipcluster':
             print('parallel engine: ipcluster')
             try:
-                from IPython.parallel import Client
+                from ipyparallel import Client
             except ImportError as ex:
                 print('\n',ex)
-                raise ImportError('PARSCANNER: Requires IPython version >=0.12 (http://ipython.org) and 0MQ (http://zero.mq).')
+                raise ImportError('PARSCANNER: Requires IPython version >=4.0 (http://ipython.org) and 0MQ (http://zero.mq).')
             try:
                 rc = Client()
                 self.rc=rc
@@ -119,9 +119,9 @@ class ParScanner(Scanner):
         self.ScanSpace = np.array(self.ScanSpace)
         self.SeqArray = np.arange(1,Tsteps+1)
         if Tsteps % spr == 0:
-            numparts = Tsteps/spr
+            numparts = Tsteps//spr
         else:
-            numparts = Tsteps/spr + 1
+            numparts = Tsteps//spr + 1
         self.ScanPartition = [self.ScanSpace[n*spr:(n+1)*spr] for n in range(numparts)]
         self.SeqPartition = [self.SeqArray[n*spr:(n+1)*spr] for n in range(numparts)]
         self.Tsteps = Tsteps
@@ -158,14 +158,14 @@ class ParScanner(Scanner):
         arl = []        # asynchronous results list
         if self.engine == 'multiproc':
             fN = str(time()).split('.')[0]
-            F = file(fN, 'wb')
+            F = open(fN, 'wb')
             pickle.dump((self.mod, self.ScanPartition, self.SeqPartition, self.GenOrder, self.UserOutputList), F, protocol=-1)
             F.close()
             fN = os.path.abspath(fN)
             print("Preparation completed:", next(self.scanT.PREP))
             self.scanT.normal_timer('RUN')
             subprocess.call(['python', MULTISCANFILE, self._MODE_, fN])
-            F = file(fN, 'rb')
+            F = open(fN, 'rb')
             res_list = pickle.load(F)
             F.close()
             os.remove(fN)
