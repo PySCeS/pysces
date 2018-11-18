@@ -99,3 +99,8 @@ ENV/
 pysces/nleq2/nleq2module.c
 pysces/pitcon/pitconmodule.c
 MANIFEST
+pysces/nleq2/fortranobject.c
+pysces/nleq2/fortranobject.h
+pysces/pitcon/fortranobject.c
+pysces/pitcon/fortranobject.h
+
