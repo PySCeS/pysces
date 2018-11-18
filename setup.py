@@ -136,26 +136,26 @@ def writeConfig(local_path, config={}):
         cp.set('Pysces',key, config[key])
     #add configuration data
     cp.add_section('PyscesConfig')
-    cp.set('PyscesConfig','matplotlib', True)
+    cp.set('PyscesConfig','matplotlib', 'True')
     # OSX patch thanks to AF
     if os.sys.platform == 'darwin':
         cp.set('PyscesConfig','matplotlib_backend', 'MacOSX')
     else:
         cp.set('PyscesConfig','matplotlib_backend', 'TkAgg')
-    cp.set('PyscesConfig','gnuplot', False)
+    cp.set('PyscesConfig','gnuplot', 'False')
     # Built in modules
     cp.add_section('PyscesModules')
     if pitcon:
-        cp.set('PyscesModules','pitcon', True)
+        cp.set('PyscesModules','pitcon', 'True')
     else:
-        cp.set('PyscesModules','pitcon', False)
+        cp.set('PyscesModules','pitcon', 'False')
     #PySCeS external module setup
     cp.add_section('ExternalModules')
     if nleq2:
-        cp.set('ExternalModules','nleq2', True)
+        cp.set('ExternalModules','nleq2', 'True')
         mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join(local_path,'pysces','nleq2','nleq2_readme.txt')]))
     else:
-        cp.set('ExternalModules','nleq2', False)
+        cp.set('ExternalModules','nleq2', 'False')
         mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join(local_path,'pysces','nleq2','readme.txt')]))
     cp.write(cfgfile)
     cfgfile.close()
