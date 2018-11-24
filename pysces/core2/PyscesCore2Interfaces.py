@@ -425,7 +425,7 @@ class CoreToPsc(object):
             assert os.path.exists(directory), '\n%s does not exist.' % directory
             filename = os.path.join(directory, filename)
         print('Writing file: %s' % filename)
-        outF = file(filename, 'w')
+        outF = open(filename, 'w')
         outF.write(self.header_block)
         outF.write(self.fixed_block)
         outF.write(self.compartment_block)
@@ -441,7 +441,7 @@ class CoreToPsc(object):
         outF.close()
         if getstrbuf:
             fb = io.StringIO()
-            outF = file(filename, 'r')
+            outF = open(filename, 'r')
             fb.write(outF.read())
             outF.flush()
             outF.close()
@@ -514,7 +514,7 @@ class PscToCore(object):
         setattr(self, 'WorkDir', WorkDir)
         setattr(self, 'ModelDir', WorkDir)
         ModelFile = '%s.psc' % time.time()
-        Mfile = file(os.path.join(WorkDir,ModelFile),'w')
+        Mfile = open(os.path.join(WorkDir,ModelFile),'w')
         Mfile.write(ModelString)
         Mfile.close()
         setattr(self, 'ModelFile', ModelFile)
@@ -993,7 +993,7 @@ class CoreToSBML(object):
         except: UseR = ''
         h1 = '<?xml version="1.0" encoding="utf-8"?>\n'
         h1 += '<!-- Created with PySCeS ('+ __version__ + ') on ' + time.strftime("%a, %d %b %Y %H:%M:%S") + ' by '+UseR+' -->\n'
-        F = file(filename, 'w')
+        F = open(filename, 'w')
         F.write(h1 + self.getSBML())
         F.flush()
         F.close()
@@ -1069,7 +1069,7 @@ class SbmlToCore(object):
         assert os.path.exists(os.path.join(Dir, sbml)), \
             '\nFile %s does not exist' % os.path.join(Dir, sbml)
         self.sbml_file = os.path.join(Dir, sbml)
-        sbmlF = file(self.sbml_file, 'r')
+        sbmlF = open(self.sbml_file, 'r')
         self.sbml_string = sbmlF.read()
         sbmlF.close()
 
