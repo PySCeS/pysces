@@ -97,7 +97,7 @@ pickle_protocol = 0            # Protocol to use when writing pickle files
 
 # String type-checking compatibility
 if sys.version_info[0] < 3:
-    string_types = str
+    string_types = basestring
 else:
     string_types = str
 
@@ -2001,7 +2001,7 @@ class LRTable(object):
 
     def read_pickle(self, filename):
         try:
-            import pickle as pickle
+            import cPickle as pickle
         except ImportError:
             import pickle
 
@@ -2851,7 +2851,7 @@ del _lr_goto_items
 
     def pickle_table(self, filename, signature=''):
         try:
-            import pickle as pickle
+            import cPickle as pickle
         except ImportError:
             import pickle
         with open(filename, 'wb') as outf:

@@ -30,7 +30,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
-
 from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
@@ -48,7 +47,7 @@ import inspect
 # This tuple contains known string types
 try:
     # Python 2.6
-    StringTypes = (bytes, str)
+    StringTypes = (types.StringType, types.UnicodeType)
 except AttributeError:
     # Python 3.0
     StringTypes = (str, bytes)
