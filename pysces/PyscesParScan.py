@@ -80,12 +80,12 @@ class ParScanner(Scanner):
                 from ipyparallel import Client
             except ImportError as ex:
                 print('\n',ex)
-                raise ImportError('PARSCANNER: Requires IPython version >=4.0 (http://ipython.org) and 0MQ (http://zero.mq).')
+                raise ImportError('PARSCANNER: Requires IPython and ipyparallel version >=4.0 (http://ipython.org) and 0MQ (http://zero.mq).')
             try:
                 rc = Client()
                 self.rc=rc
-            except IOError as ex:
-                raise IOError(str(ex)+'\nPARSCANNER: Requires a running IPython cluster. See "ipcluster --help".\n')
+            except OSError as ex:
+                raise OSError(str(ex)+'\nPARSCANNER: Requires a running IPython cluster. See "ipcluster --help".\n')
             dv = rc[:]       # direct view
             lv = rc.load_balanced_view()
             self.dv=dv
@@ -164,7 +164,7 @@ class ParScanner(Scanner):
             fN = os.path.abspath(fN)
             print("Preparation completed:", next(self.scanT.PREP))
             self.scanT.normal_timer('RUN')
-            subprocess.call(['python', MULTISCANFILE, self._MODE_, fN])
+            subprocess.call([sys.executable, MULTISCANFILE, self._MODE_, fN])
             F = open(fN, 'rb')
             res_list = pickle.load(F)
             F.close()
