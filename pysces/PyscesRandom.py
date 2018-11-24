@@ -38,7 +38,7 @@ General notes on the underlying Mersenne Twister core generator:
   and is, therefore, threadsafe.
 
 """
-
+from __future__ import division, print_function
 
 from warnings import warn as _warn
 from types import MethodType as _MethodType, BuiltinMethodType as _BuiltinMethodType

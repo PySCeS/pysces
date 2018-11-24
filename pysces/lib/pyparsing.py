@@ -57,6 +57,9 @@ The pyparsing module handles some of the problems that are typically vexing when
  - quoted strings
  - embedded comments
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 __version__ = "1.5.6"
 __versionTime__ = "26 June 2011 10:53"

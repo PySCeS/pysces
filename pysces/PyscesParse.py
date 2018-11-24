@@ -14,6 +14,9 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from pysces.version import __version__
 __doc__ = "PySCeS parser module -- uses  PLY 1.5 or newer"
@@ -24,7 +27,11 @@ import pysces.lib.lex
 import pysces.lib.yacc
 from getpass import getuser
 from time import sleep, strftime
-from importlib import reload
+
+try:
+    from importlib import reload   # Python 3
+except ImportError:
+    pass
 
 # use net stoichiometry, disable for StomPy
 __USE_NET_STOICH__ = True

@@ -60,6 +60,9 @@ no check for this. I.e.
 
 but this result is meaningless.
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 # Changed Numeric to Numpy and updated code to reflect this - bgoli
 

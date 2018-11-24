@@ -14,6 +14,9 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from pysces.version import __version__
 __doc__ = """

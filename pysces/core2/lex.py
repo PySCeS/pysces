@@ -31,6 +31,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 __version__    = '3.10'
 __tabversion__ = '3.10'
 

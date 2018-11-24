@@ -14,6 +14,9 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from pysces.version import __version__
 __doc__ = '''
@@ -26,7 +29,15 @@ __doc__ = '''
 # for METATOOLlink
 import os, re, io
 # for SBWWebLink
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, getpass
+try:
+    from urllib.request import ProxyHandler, build_opener, HTTPHandler, install_opener, urlopen   #Py 3
+except ImportError:
+    from urllib2 import ProxyHandler, build_opener, HTTPHandler, install_opener, urlopen    #Py 2
+
+try:
+    from urllib.parse import urlencode  #Py 3
+except ImportError:
+    from urllib import urlencode #Py 2
 
 class SBWlink(object):
     """Generic access for local SBW services using SBWPython """
@@ -127,10 +138,10 @@ class SBWLayoutWebLink(object):
 
         if 'user' in proxy_info and 'pwd' not in proxy_info:
             proxy_info.update({'pwd' : getpass.getpass()})
-        proxy_support = urllib.request.ProxyHandler({"http" :
+        proxy_support = ProxyHandler({"http" :
                     "http://%(user)s:%(pwd)s@%(host)s:%(port)d" % proxy_info})
-        opener = urllib.request.build_opener(proxy_support, urllib.request.HTTPHandler)
-        urllib.request.install_opener(opener)
+        opener = build_opener(proxy_support, HTTPHandler)
+        install_opener(opener)
         del proxy_info, proxy_support
 
     def loadSBMLFileFromDisk(self, File, Dir=None):
@@ -161,7 +172,7 @@ class SBWLayoutWebLink(object):
 
     def urlGET(self, host, urlpath):
         url = 'http://%s%s' % (host,urlpath)
-        con = urllib.request.urlopen(url)
+        con = urlopen(url)
         resp = con.read()
         if self.DEBUGMODE:
             print(con.headers)
@@ -173,7 +184,7 @@ class SBWLayoutWebLink(object):
     def urlPOST(self, host, urlpath, data):
         assert type(data) == dict, '\nData must be a dictionary'
         url = 'http://%s%s' % (host, urlpath)
-        con = urllib.request.urlopen(url, urllib.parse.urlencode(data))
+        con = urlopen(url, urlencode(data))
         resp = con.read()
         if self.DEBUGMODE:
             print(con.headers)

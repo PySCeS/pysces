@@ -11,4 +11,6 @@ pysx_affiliation = ''
 pysx_web = 'http://www.basis.ncl.ac.uk/team.html'
 pysx_notes = ''
 
+from __future__ import absolute_import
+
 from .VisualiseSBML import *

@@ -20,6 +20,10 @@ Brett G. Olivier
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
 __version__ = '0.9.6'
 
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import os, re
 import fileinput
 import configparser

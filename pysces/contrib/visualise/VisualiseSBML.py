@@ -4,6 +4,9 @@ Last modified: 4/4/05
 
 The access point to the visualisation stuff
 '''
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from .VisualiseClasses import VisualiseSpecies, VisualiseReaction, VisualiseModel
 

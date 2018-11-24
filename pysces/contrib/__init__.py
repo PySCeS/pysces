@@ -18,6 +18,10 @@ Brett G. Olivier
 __version__ = '0.4.0'
 __doc__ = 'PySCeS contrib module loader'
 
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import os
 import pysces
 tempdir = os.getcwd()

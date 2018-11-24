@@ -58,6 +58,9 @@
 # consider to be good Python "coding style."   Modify the code at your
 # own risk!
 # ----------------------------------------------------------------------------
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import re
 import types

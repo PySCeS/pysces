@@ -11,6 +11,10 @@ Notes: notification does not work yet, new SBW modules are not autoloaded - the
 interface itself checks and, if necessary, loads services as required.
 
 """
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 try:
     import SBW
 except Exception as exc:

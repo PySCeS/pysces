@@ -9,6 +9,10 @@ look at VisualiseNodeClasses
 Small changes to stoichiometry and modifiers marked as # brett 20050702
 Brett G. Olivier (bgoli@users.sourceforge.net)
 '''
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import pydot
 from .VisualiseNodeClasses import DotNodes, EdgeLines
 
