@@ -98,4 +98,6 @@ ENV/
 /pysces/pyscfg.ini
 pysces/nleq2/nleq2module.c
 pysces/pitcon/pitconmodule.c
+fortranobject.c
+fortranobject.h
 MANIFEST
