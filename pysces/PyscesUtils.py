@@ -73,7 +73,7 @@ class TimerBox:
          - *name* the timer name
 
         """
-        assert type(name) == str
+        assert type(name) == str or type(name) == unicode
         def timer(startTime=time.time()):
             while self.__go__:
                 ms = divmod(time.time() - startTime,60)
