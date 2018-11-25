@@ -466,7 +466,7 @@ miriamids =\
                   'name': 'DBG2 Introns',
                   'pattern': '^\\w{1,2}\\.(\\w{1,2}\\.)?[A-Za-z0-9]+$" restricted="true',
                   'url': 'http://identifiers.org/dbg2introns/'},
- 'DOI': {'data_entry': 'http://dx.doi.org/$id',
+ 'DOI': {'data_entry': 'https://doi.org/$id',
          'example': '10.1038/nbt1156',
          'name': 'DOI',
          'pattern': '^(doi\\:)?\\d{2}\\.\\d{4}.*$',
