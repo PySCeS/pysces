@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for PYBIN in /opt/python/cp27*/bin; do
+for PYBIN in /opt/python/cp[23][67]*/bin; do
     ${PYBIN}/pip install numpy
     ${PYBIN}/python /io/setup.py bdist_wheel
 done
