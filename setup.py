@@ -24,8 +24,11 @@ __version__ = '0.9.7'
 
 import os, re
 import fileinput
-import configparser
 import shutil
+try:
+    import configparser  # Py 3
+except ImportError:
+    import ConfigParser as configparser   # Py 2
 
 try:
     print('Building an egg? %s.' % FRYING_EGGS)

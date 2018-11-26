@@ -29,7 +29,11 @@ __doc__ = '''
             and writing them.
             '''
 
-import configparser
+try:
+    import configparser  # Py 3
+except ImportError:
+    import ConfigParser as configparser   # Py 2
+
 import string
 import os
 
