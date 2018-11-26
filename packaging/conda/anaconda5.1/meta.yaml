@@ -1,6 +1,6 @@
 package:
   name: pysces
-  version: "0.9.6"
+  version: "0.9.7"
 
 source:
   git_url: https://github.com/PySCeS/pysces.git
