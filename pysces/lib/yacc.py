@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # ply: yacc.py
 #
-# Copyright (C) 2001-2017
+# Copyright (C) 2001-2018
 # David M. Beazley (Dabeaz LLC)
 # All rights reserved.
 #
@@ -32,7 +32,7 @@
 # -----------------------------------------------------------------------------
 #
 # This implements an LR parser that is constructed from grammar rules defined
-# as Python functions. The grammer is specified by supplying the BNF inside
+# as Python functions. The grammar is specified by supplying the BNF inside
 # Python documentation strings.  The inspiration for this technique was borrowed
 # from John Aycock's Spark parsing system.  PLY might be viewed as cross between
 # Spark and the GNU bison utility.
@@ -58,19 +58,15 @@
 # consider to be good Python "coding style."   Modify the code at your
 # own risk!
 # ----------------------------------------------------------------------------
-from __future__ import division, print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import re
 import types
 import sys
 import os.path
 import inspect
-import base64
 import warnings
 
-__version__    = '3.10'
+__version__    = '3.11'
 __tabversion__ = '3.10'
 
 #-----------------------------------------------------------------------------
@@ -271,6 +267,9 @@ class YaccProduction:
     def lexpos(self, n):
         return getattr(self.slice[n], 'lexpos', 0)
 
+    def set_lexpos(self, n, lexpos):
+        self.slice[n].lexpos = lexpos
+
     def lexspan(self, n):
         startpos = getattr(self.slice[n], 'lexpos', 0)
         endpos = getattr(self.slice[n], 'endlexpos', startpos)
@@ -315,7 +314,7 @@ class LRParser:
     # See:  http://www.gnu.org/software/bison/manual/html_node/Default-Reductions.html#Default-Reductions
     def set_defaulted_states(self):
         self.defaulted_states = {}
-        for state, actions in list(self.action.items()):
+        for state, actions in self.action.items():
             rules = list(actions.values())
             if len(rules) == 1 and rules[0] < 0:
                 self.defaulted_states[state] = rules[0]
@@ -1350,7 +1349,7 @@ class Production(object):
     def __len__(self):
         return len(self.prod)
 
-    def __bool__(self):
+    def __nonzero__(self):
         return 1
 
     def __getitem__(self, index):
@@ -1363,7 +1362,7 @@ class Production(object):
         p = LRItem(self, n)
         # Precompute the list of productions immediately following.
         try:
-            p.lr_after = Prodnames[p.prod[n+1]]
+            p.lr_after = self.Prodnames[p.prod[n+1]]
         except (IndexError, KeyError):
             p.lr_after = []
         try:
@@ -1690,7 +1689,7 @@ class Grammar(object):
         # Then propagate termination until no change:
         while True:
             some_change = False
-            for (n, pl) in list(self.Prodnames.items()):
+            for (n, pl) in self.Prodnames.items():
                 # Nonterminal n terminates iff any of its productions terminates.
                 for p in pl:
                     # Production p terminates iff all of its rhs symbols terminate.
@@ -1718,7 +1717,7 @@ class Grammar(object):
                 break
 
         infinite = []
-        for (s, term) in list(terminates.items()):
+        for (s, term) in terminates.items():
             if not term:
                 if s not in self.Prodnames and s not in self.Terminals and s != 'error':
                     # s is used-but-not-defined, and we've already warned of that,
@@ -1739,8 +1738,7 @@ class Grammar(object):
     def undefined_symbols(self):
         result = []
         for p in self.Productions:
-            #if not p:
-            if p is None:
+            if not p:
                 continue
 
             for s in p.prod:
@@ -1756,7 +1754,7 @@ class Grammar(object):
     # -----------------------------------------------------------------------------
     def unused_terminals(self):
         unused_tok = []
-        for s, v in list(self.Terminals.items()):
+        for s, v in self.Terminals.items():
             if s != 'error' and not v:
                 unused_tok.append(s)
 
@@ -1771,7 +1769,7 @@ class Grammar(object):
 
     def unused_rules(self):
         unused_prod = []
-        for s, v in list(self.Nonterminals.items()):
+        for s, v in self.Nonterminals.items():
             if not v:
                 p = self.Prodnames[s][0]
                 unused_prod.append(p)
@@ -2305,7 +2303,6 @@ class LRGeneratedTable(LRTable):
     # -----------------------------------------------------------------------------
 
     def dr_relation(self, C, trans, nullable):
-        dr_set = {}
         state, N = trans
         terms = []
 
@@ -2493,7 +2490,7 @@ class LRGeneratedTable(LRTable):
     # -----------------------------------------------------------------------------
 
     def add_lookaheads(self, lookbacks, followset):
-        for trans, lb in list(lookbacks.items()):
+        for trans, lb in lookbacks.items():
             # Loop over productions in lookback
             for state, p in lb:
                 if state not in p.lookaheads:
@@ -2739,6 +2736,7 @@ class LRGeneratedTable(LRTable):
             f.write('''
 # %s
 # This file is automatically generated. Do not edit.
+# pylint: disable=W,C,R
 _tabversion = %r
 
 _lr_method = %r
@@ -2753,8 +2751,8 @@ _lr_signature = %r
             if smaller:
                 items = {}
 
-                for s, nd in list(self.lr_action.items()):
-                    for name, v in list(nd.items()):
+                for s, nd in self.lr_action.items():
+                    for name, v in nd.items():
                         i = items.get(name)
                         if not i:
                             i = ([], [])
@@ -2763,7 +2761,7 @@ _lr_signature = %r
                         i[1].append(v)
 
                 f.write('\n_lr_action_items = {')
-                for k, v in list(items.items()):
+                for k, v in items.items():
                     f.write('%r:([' % k)
                     for i in v[0]:
                         f.write('%r,' % i)
@@ -2785,7 +2783,7 @@ del _lr_action_items
 
             else:
                 f.write('\n_lr_action = { ')
-                for k, v in list(self.lr_action.items()):
+                for k, v in self.lr_action.items():
                     f.write('(%r,%r):%r,' % (k[0], k[1], v))
                 f.write('}\n')
 
@@ -2793,8 +2791,8 @@ del _lr_action_items
                 # Factor out names to try and make smaller
                 items = {}
 
-                for s, nd in list(self.lr_goto.items()):
-                    for name, v in list(nd.items()):
+                for s, nd in self.lr_goto.items():
+                    for name, v in nd.items():
                         i = items.get(name)
                         if not i:
                             i = ([], [])
@@ -2803,7 +2801,7 @@ del _lr_action_items
                         i[1].append(v)
 
                 f.write('\n_lr_goto_items = {')
-                for k, v in list(items.items()):
+                for k, v in items.items():
                     f.write('%r:([' % k)
                     for i in v[0]:
                         f.write('%r,' % i)
@@ -2824,7 +2822,7 @@ del _lr_goto_items
 ''')
             else:
                 f.write('\n_lr_goto = { ')
-                for k, v in list(self.lr_goto.items()):
+                for k, v in self.lr_goto.items():
                     f.write('(%r,%r):%r,' % (k[0], k[1], v))
                 f.write('}\n')
 
@@ -3076,7 +3074,7 @@ class ParserReflect(object):
             self.error = True
             return
 
-        self.tokens = tokens
+        self.tokens = sorted(tokens)
 
     # Validate the tokens
     def validate_tokens(self):
@@ -3130,7 +3128,7 @@ class ParserReflect(object):
     # Get all p_functions from the grammar
     def get_pfunctions(self):
         p_functions = []
-        for name, item in list(self.pdict.items()):
+        for name, item in self.pdict.items():
             if not name.startswith('p_') or name == 'p_error':
                 continue
             if isinstance(item, (types.FunctionType, types.MethodType)):
@@ -3189,7 +3187,7 @@ class ParserReflect(object):
         # Secondary validation step that looks for p_ definitions that are not functions
         # or functions that look like they might be grammar rules.
 
-        for n, v in list(self.pdict.items()):
+        for n, v in self.pdict.items():
             if n.startswith('p_') and isinstance(v, (types.FunctionType, types.MethodType)):
                 continue
             if n.startswith('t_'):
@@ -3236,9 +3234,13 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     if module:
         _items = [(k, getattr(module, k)) for k in dir(module)]
         pdict = dict(_items)
-        # If no __file__ attribute is available, try to obtain it from the __module__ instead
+        # If no __file__ or __package__ attributes are available, try to obtain them
+        # from the __module__ instead
         if '__file__' not in pdict:
             pdict['__file__'] = sys.modules[pdict['__module__']].__file__
+        if '__package__' not in pdict and '__module__' in pdict:
+            if hasattr(sys.modules[pdict['__module__']], '__package__'):
+                pdict['__package__'] = sys.modules[pdict['__module__']].__package__
     else:
         pdict = get_caller_module_dict(2)
 
@@ -3480,6 +3482,8 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     if write_tables:
         try:
             lr.write_table(tabmodule, outputdir, signature)
+            if tabmodule in sys.modules:
+                del sys.modules[tabmodule]
         except IOError as e:
             errorlog.warning("Couldn't create %r. %s" % (tabmodule, e))
 
