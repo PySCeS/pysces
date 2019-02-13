@@ -6,15 +6,17 @@ source:
   git_url: https://github.com/PySCeS/pysces.git
 
 build:
-  number: 2
+  number: 1
   include_recipe: True
 
 requirements:
   build:
-    - python
+    - python {{ python }}
     - setuptools
     - numpy>=1.14
     - libpython
+    - scipy
+    - matplotlib
   run:
     - python
     - numpy
