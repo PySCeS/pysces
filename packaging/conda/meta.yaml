@@ -13,15 +13,24 @@ requirements:
   build:
     - python
     - setuptools
-    - numpy
+    - numpy=1.15
     - libpython
-  run:
-    - python
-    - numpy
-    - python-libsbml
+    - mingw
     - scipy
     - matplotlib
     - nose
+  run:
+    - python
+    - setuptools
+    - numpy>=1.15
+    - libpython
+    - mingw
+    - scipy
+    - matplotlib
+    - nose  
+    - nose
+    - python-libsbml
+
 
     
 about:
