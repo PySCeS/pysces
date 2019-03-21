@@ -18,9 +18,9 @@ New hacks to workaround conda-build enhancements in 2019.1
  conda clean --all
  conda build purge
  
- anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py27_1.tar.bz2
- anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py36_1.tar.bz2
- anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py37_1.tar.bz2
+ anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py27_2.tar.bz2
+ anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py36_2.tar.bz2
+ anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py37_2.tar.bz2
  
  
 NOTES: 

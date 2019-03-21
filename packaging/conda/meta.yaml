@@ -6,7 +6,7 @@ source:
   git_url: https://github.com/PySCeS/pysces.git
 
 build:
-  number: 1
+  number: 2
   include_recipe: True
 
 requirements:
@@ -24,11 +24,9 @@ requirements:
     - setuptools
     - numpy>=1.15
     - libpython
-    - mingw
     - scipy
     - matplotlib
     - nose  
-    - nose
     - python-libsbml
 
 
