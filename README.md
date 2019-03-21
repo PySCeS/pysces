@@ -1,29 +1,33 @@
-PySCeS - Python Simulator for Cellular Systems
-----------------------------------------------
+# PySCeS - Python Simulator for Cellular Systems
+
 The official code repository (http://github.com/PySCeS) of The Python Simulator for Cellular Systems: PySCeS project: http://pysces.sourceforge.net release code will be mirrored on SF SVN and all official source archives and binary releases made available from SourceForge.
 
-[![Research software impact](http://depsy.org/api/package/pypi/PySCeS/badge.svg)](http://depsy.org/package/python/PySCeS)
-
-**NEW** PySCeS is now available as an Anaconda package for 64 bit Windows and Linux:
+PySCeS is available as an Anaconda package for 64 bit Windows, Linux and OSX:
 
 ```
-conda install -c bgoli -c sbmlteam pysces
+conda install -c sbmlteam -c pysces pysces
+
 ```
 
-Copyright (c) 2004 - 2017, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
+Copyright (c) 2004 - 2019, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
 All rights reserved.
 
 PySCeS is distributed under a BSD style licence, please see LICENCE.txt for details
 
+# Referring to the latest release
 
-Author information
-------------------
+PySCeS is archived on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2600906.svg)](https://doi.org/10.5281/zenodo.2600906):
+ 
+ Brett G Olivier & Johann Rohwer. (2019, March 21). PySCeS/pysces: PySCeS release 0.9.7 (Version 0.9.7). Zenodo. http://doi.org/10.5281/zenodo.2600905
+
+
+## Author information
 
 Brett G. Olivier
 
 Vrije Universiteit Amsterdam
 Faculty of Earth and Life Sciences
-Department of Molecular Cell Physiology
+Systems Bioinformatics
 De Boelelaan 1085
 NL-1081 HV AMSTERDAM
 The Netherlands
@@ -40,26 +44,24 @@ Matieland
 email: bgoli@users.sourceforge.net
 web:   http://pysces.sourceforge.net
 
-Installation
-------------
+# Installation
 
 Please see INSTALL.txt for information on building PySCeS an its modules.
 
-**NEW** PySCeS is now available as an Anaconda package for 64 bit Windows and Linux:
+PySCeS is available as an Anaconda package for 64 bit Windows, Linux and OSX:
 
 ```
-conda install -c bgoli -c sbmlteam pysces
+conda install -c sbmlteam -c pysces pysces
 ```
 
+[![Research software impact](http://depsy.org/api/package/pypi/PySCeS/badge.svg)](http://depsy.org/package/python/PySCeS)
 
-Additional licence information
-------------------------------
+# Additional licence information
 
 PySCeS has interfaces to and is distributed with additional packages that
 are supplied under their own licence conditions.
 
-NLEQ2
-~~~~~
+## NLEQ2
 
 The NLEQ2 algorithm from ZIB which has it's own licence and warranty
 and does not fall under the PySCeS GPL licence. ZIB has kindly given us
@@ -77,16 +79,12 @@ If you are not using PySCeS for research or personal use you **must** disable
 NLEQ2 by setting nleq2 = 0 in setup.py before installation. This is a plug-in
 solver and its removal does not otherwise influence PySCeS.
 
-Other software (or parts there of) distributed with PySCeS
-----------------------------------------------------------
+# Other software (or parts there of) distributed with PySCeS
 
-PLY
-~~~
+## PLY
 
 David Beazley's PLY 3.3 (http://www.dabeaz.com/ply/). This package is included
 unchanged and consists of two files lex.py and yacc.py in the lib/ and core2/
 modules.
 
-
-Brett G. Olivier, 22 March 2016
-
+Brett G. Olivier, 21 March 2019
