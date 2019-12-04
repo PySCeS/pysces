@@ -3338,9 +3338,16 @@ class PysMod(object):
         if self.sim_time[0] == 0.0:
 
             if self.__CVODE_initialise__:
-                output[0,:] = tZero[:].copy()
+                out0 = tZero[:].copy()
             else:
-                output[0,:] = numpy.array(self.__CVODE_y__[:])
+                out0 = numpy.array(self.__CVODE_y__[:])
+            output[0,:] = out0
+            
+            if not self.mode_integrate_all_odes:
+                self._EvalODE(out0.copy(),self.__CVODE_Vtemp)
+            else:
+                self._EvalODE_CVODE(out0.copy(),self.__CVODE_Vtemp)
+            rates[0] = self.__vvec__
 
             if CVODE_XOUT:
                 self.CVODE_xdata[0,:] = self._EvalExtraData(self.CVODE_extra_output)
@@ -3361,7 +3368,7 @@ class PysMod(object):
         ##  MAX_ABS_TOL = self.__settings__["cvode_abstol_max"] #1.0e-3 not used anymore
         ABSTOL_ADJUST_FACTOR = self.__settings__["cvode_abstol_factor"] # 1.0e-6
         cvode_sim_range = list(range(sim_st, len(self.sim_time)))
-        cvode_scale_range = list(range(sim_st, len(self.sim_time), len(self.sim_time)/4 or len(self.sim_time)))
+        cvode_scale_range = list(range(sim_st, len(self.sim_time), len(self.sim_time)//4 or len(self.sim_time)))
         cvode_scale_range = cvode_scale_range[1:]
         reltol = cvode.realtype(self.__settings__["cvode_reltol"]) #relative tolerance must be a realtype
         abstol = cvode.NVector(self.__CVODE_initial_num__*[self.__settings__["cvode_abstol"]])
