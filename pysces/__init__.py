@@ -68,6 +68,8 @@ __SILENT_START__ = False
 extra_dll_dir = os.path.join(os.path.dirname(__file__), '.libs')
 if os.sys.platform=='win32' and os.path.isdir(extra_dll_dir):
     os.environ["PATH"] += os.pathsep + extra_dll_dir
+    if hasattr(os, 'add_dll_directory'):
+        os.add_dll_directory(extra_dll_dir)
 
 if os.sys.platform == 'win32':
     __PyscesConfigDefault = PyscesConfig.__DefaultWin
