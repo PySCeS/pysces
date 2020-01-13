@@ -111,6 +111,6 @@ def WriteConfig(file_path, config={}, section='Pysces'):
     cp = configparser.ConfigParser()
     cp.add_section(section)
     for key in config:
-        cp.set(section,key, config[key])
+        cp.set(section, key, str(config[key]))
     cp.write(cfgfile)
     cfgfile.close()
