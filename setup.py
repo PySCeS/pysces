@@ -113,10 +113,10 @@ if os.sys.platform == 'win32':
         installdir = os.path.join(os.sys.prefix,'lib','site-packages','pysces')
     config = {
     "install_dir"  : installdir,
-    "model_dir"    : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc')",
-    "output_dir"   : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces')",
-    "gnuplot_dir"  : "None",
-    "silentstart"  : 'False'
+    "model_dir"    : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc'),
+    "output_dir"   : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces'),
+    "gnuplot_dir"  : None,
+    "silentstart"  : False
     }
 else:
     if hasattr(os.sys, 'lib'):
@@ -125,10 +125,10 @@ else:
         lib = 'lib'
     config = {
     "install_dir"  : os.path.join(os.sys.prefix,lib,"python%d.%d" % tuple(os.sys.version_info[:2]) ,'site-packages','pysces'),
-    "model_dir"    : "os.path.join(os.path.expanduser('~'),'Pysces','psc')",
-    "output_dir"   : "os.path.join(os.path.expanduser('~'),'Pysces')",
-    "gnuplot_dir"  : "None",
-    "silentstart"  : 'False'
+    "model_dir"    : os.path.join(os.path.expanduser('~'),'Pysces','psc'),
+    "output_dir"   : os.path.join(os.path.expanduser('~'),'Pysces'),
+    "gnuplot_dir"  : None,
+    "silentstart"  : False
     }
 
 def writeConfig(local_path, config={}):
@@ -137,8 +137,8 @@ def writeConfig(local_path, config={}):
     # PySCeS internal setup
     cp.add_section('Pysces')
     for key in config:
-        print(repr(key) + ' :: ' + config[key])
-        cp.set('Pysces',key, config[key])
+        print(repr(key) + ' :: ' + str(config[key]))
+        cp.set('Pysces', key, str(config[key]))
     #add configuration data
     cp.add_section('PyscesConfig')
     cp.set('PyscesConfig','matplotlib', 'True')

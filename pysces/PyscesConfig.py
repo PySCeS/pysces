@@ -64,7 +64,7 @@ else:
         "install_dir"  : os.path.join(os.sys.prefix,lib,"python%d.%d" % tuple(os.sys.version_info[:2]) ,'site-packages','pysces'),
         "model_dir"    : "os.path.join(os.path.expanduser('~'),'Pysces','psc')",
         "output_dir"   : "os.path.join(os.path.expanduser('~'),'Pysces')",
-        "gnuplot_dir"  : "None",
+        "gnuplot_dir"  : None,
         "pitcon"       : True,
         "nleq2"        : True,
         "gnuplot"      : False,

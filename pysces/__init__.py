@@ -38,6 +38,7 @@ __doc__ = """
             """
 
 import os, time
+from pkg_resources import get_build_platform
 from . import PyscesConfig
 from . import PyscesParse
 from . import PyscesLink as link
@@ -79,7 +80,7 @@ else:
 if DEBUG: print(time.strftime('1-%H:%M:%S'))
 
 eggdir = 'pysces-%s-py%s.%s-%s.egg' %(__version__, os.sys.version_info[0],\
-os.sys.version_info[1], os.sys.platform)
+os.sys.version_info[1], get_build_platform())
 for path in os.sys.path:
     chkPath = path.split(os.path.sep)[-1]
     if chkPath == 'pysces' and path != os.getcwd():
@@ -97,7 +98,7 @@ if inipath == None:
             inipath = os.path.join(install_dir, 'pyscfg.ini')
             break
         elif k.split(os.path.sep)[-1] == eggdir:
-            install_dir = os.path.join(path, 'pysces')
+            install_dir = os.path.join(k, 'pysces')
             inipath = os.path.join(install_dir, 'pyscfg.ini')
             break
 del eggdir
