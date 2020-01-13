@@ -144,8 +144,8 @@ if os.sys.platform != 'win32':
         PyscesConfig.WriteConfig(os.path.join(os.path.expanduser('~'),'Pysces','.pys_usercfg.ini'),config=PyscesConfig.__DefaultPosixUsr, section='Pysces')
         __userdict = PyscesConfig.ReadConfig(os.path.join(os.path.expanduser('~'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultPosixUsr)
 else:
-    if os.path.exists(os.path.join(os.getenv('HOMEDRIVE'),'Pysces','.pys_usercfg.ini')):
-        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('HOMEDRIVE'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
+    if os.path.exists(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini')):
+        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
     elif os.path.exists(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini')):
         __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
     else:

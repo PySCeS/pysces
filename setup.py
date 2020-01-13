@@ -113,8 +113,8 @@ if os.sys.platform == 'win32':
         installdir = os.path.join(os.sys.prefix,'lib','site-packages','pysces')
     config = {
     "install_dir"  : installdir,
-    "model_dir"    : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc'),
-    "output_dir"   : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces'),
+    "model_dir"    : os.path.join(os.getenv('USERPROFILE'),'Pysces','psc'),
+    "output_dir"   : os.path.join(os.getenv('USERPROFILE'),'Pysces'),
     "gnuplot_dir"  : None,
     "silentstart"  : False
     }
