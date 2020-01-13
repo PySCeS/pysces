@@ -93,7 +93,7 @@ myscripts = []
 mydata_files = []
 
 #add some model files into pscmodels
-modfold = os.path.join(local_path, 'pysces', 'pscmodels')
+modfold = os.path.join('pysces', 'pscmodels')
 mods = os.listdir(modfold)
 alist = []
 for x in mods:
@@ -158,10 +158,10 @@ def writeConfig(local_path, config={}):
     cp.add_section('ExternalModules')
     if nleq2:
         cp.set('ExternalModules','nleq2', 'True')
-        mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join(local_path,'pysces','nleq2','nleq2_readme.txt')]))
+        mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join('pysces','nleq2','nleq2_readme.txt')]))
     else:
         cp.set('ExternalModules','nleq2', 'False')
-        mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join(local_path,'pysces','nleq2','readme.txt')]))
+        mydata_files.append((os.path.join('pysces','nleq2'), [os.path.join('pysces','nleq2','readme.txt')]))
     cp.write(cfgfile)
     cfgfile.close()
 
@@ -178,7 +178,7 @@ mymodules = []
 
 if pitcon:
     print('\nBuilding pitcon')
-    extpath = os.path.join(local_path, 'pysces', 'pitcon')
+    extpath = os.path.join('pysces', 'pitcon')
     pitcon = Extension('pysces.pitcon.pitcon',[os.path.join(extpath,'pitcon.pyf'),os.path.join(extpath,'pcon61subd.f'),os.path.join(extpath,'dpcon61.f'),os.path.join(extpath,'dpcon61w.f')])
     mymodules.append(pitcon)
     #mydata_files.append((os.path.join('pysces','pitcon'), [os.path.join(local_path, 'pysces', 'pitcon','readme.txt'), os.path.join(local_path, 'pysces', 'pitcon','readme.txt')]))
@@ -197,7 +197,7 @@ if nleq2:
             ##  shutil.copyfile(os.path.join(extpath,'nleq2_little.f'), os.path.join(extpath,'nleq2.f'))
         ##  elif os.sys.byteorder == 'big':
             ##  shutil.copyfile(os.path.join(extpath,'nleq2_big.f'), os.path.join(extpath,'nleq2.f'))
-    extpath = os.path.join(local_path, 'pysces', 'nleq2')
+    extpath = os.path.join('pysces', 'nleq2')
     nleq2 = Extension('pysces.nleq2.nleq2',[os.path.join(extpath,'nleq2.pyf'),\
             os.path.join(extpath,'nleq2.f'), os.path.join(extpath,'linalg_nleq2.f'),\
             os.path.join(extpath,'zibmon.f'), os.path.join(extpath,'zibsec.f'),\
@@ -213,14 +213,14 @@ if len(mymodules) == 0:
     mymodules.append(noext)
 
 # Data files to copy
-mydata_files.append((os.path.join('pysces'), [os.path.join(local_path,'pysces','pyscfg.ini')]))
-mydata_files.append(('',[os.path.join(local_path,'pysces','pysces.pth')]))
-mydata_files.append((os.path.join('pysces','docs'), [os.path.join(local_path,'pysces','docs','userguide.pdf')]))
-mydata_files.append((os.path.join('pysces','examples'), [os.path.join(local_path,'pysces','examples',examplefile) for examplefile in os.listdir(os.path.join(local_path,'pysces','examples'))]))
+mydata_files.append((os.path.join('pysces'), [os.path.join('pysces','pyscfg.ini')]))
+mydata_files.append(('',[os.path.join('pysces','pysces.pth')]))
+mydata_files.append((os.path.join('pysces','docs'), [os.path.join('pysces','docs','userguide.pdf')]))
+mydata_files.append((os.path.join('pysces','examples'), [os.path.join('pysces','examples',examplefile) for examplefile in os.listdir(os.path.join(local_path,'pysces','examples'))]))
 ##not sure if this is necessary anymore, removed to test
 if os.sys.platform == 'win32':
-    mydata_files.append((os.path.join('pysces','win32'), [os.path.join(local_path,'pysces','win32','libquadmath-0.dll'), os.path.join(local_path,'pysces','win32','libgfortran-3.dll'),\
-    os.path.join(local_path,'pysces','win32','libgcc_s_seh-1.dll'), os.path.join(local_path,'pysces','win32','libwinpthread-1.dll')]))
+    mydata_files.append((os.path.join('pysces','win32'), [os.path.join('pysces','win32','libquadmath-0.dll'), os.path.join('pysces','win32','libgfortran-3.dll'),\
+    os.path.join('pysces','win32','libgcc_s_seh-1.dll'), os.path.join('pysces','win32','libwinpthread-1.dll')]))
 
 os.chdir(local_path)
 # Install packages and the metatool binaries as "data"
