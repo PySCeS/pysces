@@ -40,8 +40,8 @@ import os
 if os.sys.platform == 'win32':
     __DefaultWin = {
         "install_dir"  : os.path.join(os.sys.prefix,'lib','site-packages','pysces'),
-        "model_dir"    : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc')",
-        "output_dir"   : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces')",
+        "model_dir"    : "os.path.join(os.getenv('USERPROFILE'),'Pysces','psc')",
+        "output_dir"   : "os.path.join(os.getenv('USERPROFILE'),'Pysces')",
         "gnuplot_dir"  : "None",
         "pitcon"       : True,
         "nleq2"        : True,
@@ -51,8 +51,8 @@ if os.sys.platform == 'win32':
         "silentstart"  : False
         }
     __DefaultWinUsr = {
-        "model_dir"    : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc'),
-        "output_dir"   : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces'),
+        "model_dir"    : os.path.join(os.getenv('USERPROFILE'),'Pysces','psc'),
+        "output_dir"   : os.path.join(os.getenv('USERPROFILE'),'Pysces'),
         "silentstart"  : False
         }
 else:

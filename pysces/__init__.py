@@ -144,13 +144,15 @@ if os.sys.platform != 'win32':
         PyscesConfig.WriteConfig(os.path.join(os.path.expanduser('~'),'Pysces','.pys_usercfg.ini'),config=PyscesConfig.__DefaultPosixUsr, section='Pysces')
         __userdict = PyscesConfig.ReadConfig(os.path.join(os.path.expanduser('~'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultPosixUsr)
 else:
-    if os.path.exists(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini')):
-        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
+    if os.path.exists(os.path.join(os.getenv('HOMEDRIVE'),'Pysces','.pys_usercfg.ini')):
+        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('HOMEDRIVE'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
+    elif os.path.exists(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini')):
+        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
     else:
-        if not os.path.exists(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces')):
-            os.makedirs(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces'))
-        PyscesConfig.WriteConfig(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini'), config=PyscesConfig.__DefaultWinUsr, section='Pysces')
-        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
+        if not os.path.exists(os.path.join(os.getenv('USERPROFILE'),'Pysces')):
+            os.makedirs(os.path.join(os.getenv('USERPROFILE'),'Pysces'))
+        PyscesConfig.WriteConfig(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini'), config=PyscesConfig.__DefaultWinUsr, section='Pysces')
+        __userdict = PyscesConfig.ReadConfig(os.path.join(os.getenv('USERPROFILE'),'Pysces','.pys_usercfg.ini'), PyscesConfig.__DefaultWinUsr)
 for key in __userdict:
     if key == 'output_dir':
         output_dir = __userdict[key]
