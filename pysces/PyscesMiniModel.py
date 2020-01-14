@@ -15,13 +15,14 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 """
 This module contains simplified methods derived from the Pysces model class
 Brett G. Olivier June 2010
 """
-from __future__ import division, print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import os, copy, time
 import numpy

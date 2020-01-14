@@ -15,15 +15,16 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
 
+from __future__ import division, print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 '''
 This file is for "unofficial" user contributed modules. It is imported into PyscesContrib using
  from PyscesContribUser import *
 Make sure to use the same module class definitions as used in PyscesContrib i.e. CONTRIB_modulename
 to allow for automated module loading and instantiation.
 '''
-from __future__ import division, print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 from pysces.version import __version__
 __doc__ = '''pysx unofficial user contributed module interface'''
