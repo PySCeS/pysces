@@ -40,9 +40,9 @@ import os
 if os.sys.platform == 'win32':
     __DefaultWin = {
         "install_dir"  : os.path.join(os.sys.prefix,'lib','site-packages','pysces'),
-        "model_dir"    : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc')",
-        "output_dir"   : "os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces')",
-        "gnuplot_dir"  : "None",
+        "model_dir"    : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces','psc'),
+        "output_dir"   : os.path.join(os.getenv('HOMEDRIVE')+os.path.sep,'Pysces'),
+        "gnuplot_dir"  : None,
         "pitcon"       : True,
         "nleq2"        : True,
         "gnuplot"      : False,
@@ -62,8 +62,8 @@ else:
         lib = 'lib'
     __DefaultPosix = {
         "install_dir"  : os.path.join(os.sys.prefix,lib,"python%d.%d" % tuple(os.sys.version_info[:2]) ,'site-packages','pysces'),
-        "model_dir"    : "os.path.join(os.path.expanduser('~'),'Pysces','psc')",
-        "output_dir"   : "os.path.join(os.path.expanduser('~'),'Pysces')",
+        "model_dir"    : os.path.join(os.path.expanduser('~'),'Pysces','psc'),
+        "output_dir"   : os.path.join(os.path.expanduser('~'),'Pysces'),
         "gnuplot_dir"  : None,
         "pitcon"       : True,
         "nleq2"        : True,
