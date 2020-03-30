@@ -72,7 +72,7 @@ from pysces import SED
 interface = None
 
 # this is incredibly crude but effectively masks off unsupported random functions
-del random.setstate, random.getstate, # random.division, 
+del random.setstate, random.getstate, # random.division,
 del random.randrange, random.Random, random.choice
 del random.sample, random.shuffle, random.jumpahead
 del random.SystemRandom, random.WichmannHill, random.triangular
@@ -3342,7 +3342,7 @@ class PysMod(object):
             else:
                 out0 = numpy.array(self.__CVODE_y__[:])
             output[0,:] = out0
-            
+
             if not self.mode_integrate_all_odes:
                 self._EvalODE(out0.copy(),self.__CVODE_Vtemp)
             else:
@@ -4173,7 +4173,7 @@ class PysMod(object):
         else:
             self.sim_start = float(self.sim_start)
             self.sim_end = float(self.sim_end)
-            self.sim_points = float(self.sim_points)
+            self.sim_points = int(self.sim_points)
             if self.sim_points == 1.0:
                 print('*****\nWARNING: simulations require a minimum of 2 points, setting sim_points = 2.0\n*****')
                 self.sim_points = 2.0
