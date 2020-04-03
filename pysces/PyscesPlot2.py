@@ -825,7 +825,9 @@ class MatplotlibUPI(PlotBase):
         if title == '':
             title = []
         else:
-            title = ['X', title]
+            title = data.shape[1]*[title]
+        #print(title)
+
         self.plotLines(data, x, [y], title, [format]*data.shape[1])
 
     def plotLines(self, data, x, y=[], titles=[], formats=['-']):
