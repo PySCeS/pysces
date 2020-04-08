@@ -20,7 +20,7 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.7'
+__version__ = '0.9.8'
 
 import os, re
 import fileinput
@@ -53,7 +53,7 @@ try:
     print('bdist_conda is available.')
 except Exception as ex:
     print('bdist_conda not available.')
-    
+
 
 
 ########## User configuration section ##########
