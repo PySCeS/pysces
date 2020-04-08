@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2019 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2020 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -250,7 +250,7 @@ class PySCeSParser:
         'less' : 'operator.lt', 'less_equal' : 'operator.le', # numpy2numpy aliases
         'ne' : 'operator.ne', 'ge' : 'operator.ge', 'le' : 'operator.le', # operator2operator
         'xor' : 'operator.xor', 'piecewise' : 'self._piecewise_', '_piecewise_' : 'self._piecewise_',
-        'not' : 'operator.not_', 'not_' : 'operator.not_', 
+        'not' : 'operator.not_', 'not_' : 'operator.not_',
         'max':'max', 'min' : 'min'
     }
 
@@ -1267,7 +1267,7 @@ class PySCeSParser:
             tempDir = modeloutput
         else:
             tempDir = os.getcwd()
-        
+
         os.chdir(tempDir)
 
         # fix filenames for intermediary files - brett
@@ -1533,7 +1533,7 @@ class PySCeSParser:
         F = open(name,'r+')
         #F.seek(-1,2)
         F.seek(0, os.SEEK_END)
-        F.seek(F.tell() - 1, os.SEEK_SET) 
+        F.seek(F.tell() - 1, os.SEEK_SET)
         if F.read() != '\n':
             if os.sys.platform == 'win32':
                 F.read()

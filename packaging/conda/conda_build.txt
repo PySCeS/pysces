@@ -6,9 +6,9 @@ Optional: update build version and SVN information in meta.yaml
  conda update conda
  conda update conda-build
 
-Run to build (note the upload command path e.g. anaconda upload C:\Anaconda\conda-bld\win-64\pysces-0.9.5-py27hd5793fb_1.tar.bz2): 
+Run to build (note the upload command path e.g. anaconda upload C:\Anaconda\conda-bld\win-64\pysces-0.9.5-py27hd5793fb_1.tar.bz2):
  conda build -c sbmlteam .
- 
+
 New hacks to workaround conda-build enhancements in 2019.1
  conda update conda-build
  conda clean --all
@@ -17,13 +17,13 @@ New hacks to workaround conda-build enhancements in 2019.1
  conda build --numpy 1.15 --python 3.7 -c sbmlteam .
  conda clean --all
  conda build purge
- 
+
  anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py27_2.tar.bz2
  anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py36_2.tar.bz2
  anaconda upload -u pysces C:\Anaconda\conda-bld\win-64\pysces-0.9.7-py37_2.tar.bz2
- 
- 
-NOTES: 
+
+
+NOTES:
 * Under linux/mac remove the libpython build dependency (it does not exist)
 
-(C) Brett 2019
+(C) Brett 2020

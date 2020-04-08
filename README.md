@@ -9,7 +9,7 @@ conda install -c sbmlteam -c pysces pysces
 
 ```
 
-Copyright (c) 2004 - 2019, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
+Copyright (c) 2004 - 2020, Brett G. Olivier, Johann M. Rohwer and Jan-Hendrik S. Hofmeyr
 All rights reserved.
 
 PySCeS is distributed under a BSD style licence, please see LICENCE.txt for details
@@ -17,8 +17,8 @@ PySCeS is distributed under a BSD style licence, please see LICENCE.txt for deta
 # Referring to the latest release
 
 PySCeS is archived on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2600906.svg)](https://doi.org/10.5281/zenodo.2600906):
- 
- Brett G Olivier & Johann Rohwer. (2019, March 21). PySCeS/pysces: PySCeS release 0.9.7 (Version 0.9.7). Zenodo. http://doi.org/10.5281/zenodo.2600905
+
+ Brett G Olivier & Johann Rohwer. (2020, March 21). PySCeS/pysces: PySCeS release 0.9.7 (Version 0.9.7). Zenodo. http://doi.org/10.5281/zenodo.2600905
 
 
 ## Author information
@@ -87,4 +87,4 @@ David Beazley's PLY 3.3 (http://www.dabeaz.com/ply/). This package is included
 unchanged and consists of two files lex.py and yacc.py in the lib/ and core2/
 modules.
 
-Brett G. Olivier, 21 March 2019
+Brett G. Olivier, 21 March 2020
