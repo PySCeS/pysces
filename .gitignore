@@ -30,7 +30,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-/packaging/many_linux/pip
+/packaging/many_linux/pip_cache
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
