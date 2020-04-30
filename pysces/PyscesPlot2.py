@@ -731,31 +731,33 @@ class MatplotlibUPI(PlotBase):
                        'lines' :  '-'
                       }
     __BACKENDS__ = ('GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',\
-                     'agg', 'nbagg', 'cairo', 'emf', 'gdk', 'pdf', 'ps', 'svg', 'template')
+                     'agg', 'nbAgg', 'cairo', 'emf', 'gdk', 'pdf', 'ps', 'svg', 'template')
 
     __INTERACTIVE_BACKENDS__ = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg',\
-                                'CocoaAgg', 'nbagg']
+                                'CocoaAgg', 'nbAgg']
 
     __BACKEND__ = None
 
-    def __init__(self, work_dir=None, backend='TkAgg'):
+    def __init__(self, work_dir=None, backend=None):
         if work_dir != None and os.path.exists(work_dir):
             self.__WORK_DIR__ = work_dir
         else:
             self.__WORK_DIR__ = os.getcwd()
         try:
             import matplotlib
+            if self.isnotebook():
+                backend='nbAgg'
             if backend in self.__INTERACTIVE_BACKENDS__:
-                matplotlib.use(backend, warn=False)
+                matplotlib.use(backend)
                 self.__BACKEND__ = backend
                 if not __SILENT_START__:
                     print(('Matplotlib backend set to: \"{}\"'.format(backend)))
             else:
-                if backend in [None, 'None', 'none']:
-                    print(('Matplotlib backend not set, using: \"{}\"'.format(matplotlib.get_backend())))
+                if backend == 'native':
+                    print(('Using natively configured Matplotlib backend: \"{}\"'.format(matplotlib.get_backend())))
                     self.__BACKEND__ = matplotlib.get_backend()
                 else:
-                    matplotlib.use('TkAgg', warn=False)
+                    matplotlib.use('TkAgg')
                     self.__BACKEND__ = 'TkAgg'
                     print(('Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(backend, 'TkAgg')))
 
@@ -765,7 +767,8 @@ class MatplotlibUPI(PlotBase):
                 #matplotlib.use('TKagg', warn=False)
         except Exception as ex:
             print(ex)
-            print("\nPySCeS defaults to matplotlib's TKagg backend if not specified in the user conficuration file, set \"matplotlib_backend = <backend>\" ")
+            print("\nPySCeS defaults to matplotlib's TKagg backend if not specified \
+                     in the user configuration file, set \"matplotlib_backend = <backend>\" ")
 
         from matplotlib import pyplot
         from matplotlib import pylab
@@ -773,6 +776,18 @@ class MatplotlibUPI(PlotBase):
         self.pyplot = pylab
         if self.__MODE_INTERACTIVE__: self.pyplot.ion()
         self._setNewFigureGenerator(self.MAX_OPEN_WINDOWS)
+    
+    def isnotebook(self):
+        try:
+            shell = get_ipython().__class__.__name__
+            if shell == 'ZMQInteractiveShell':
+                return True   # Jupyter notebook or qtconsole
+            elif shell == 'TerminalInteractiveShell':
+                return False  # Terminal running IPython
+            else:
+                return False  # Other type (?)
+        except NameError:
+            return False      # Probably standard Python interpreter    
 
     def _setNewFigureGenerator(self, num):
         """

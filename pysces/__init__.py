@@ -62,7 +62,7 @@ model_dir = None
 pitcon_switch = False
 nleq2_switch = False
 __USE_MATPLOTLIB__ = True
-__MATPLOTLIB_BACKEND__ = 'TKagg'
+__MATPLOTLIB_BACKEND__ = 'TkAgg'
 __USE_GNUPLOT__ = False
 __SILENT_START__ = False
 
