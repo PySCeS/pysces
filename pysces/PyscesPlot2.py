@@ -747,6 +747,8 @@ class MatplotlibUPI(PlotBase):
             import matplotlib
             if self.isnotebook():
                 backend='nbAgg'
+                import pysces
+                pysces.__MATPLOTLIB_BACKEND__ = 'nbAgg'
             if backend in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
                 self.__BACKEND__ = backend
