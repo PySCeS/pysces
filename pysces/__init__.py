@@ -341,31 +341,6 @@ if alt_import:
 
 if DEBUG: print(time.strftime('7-%H:%M:%S'))
 
-def setWorkPath(path):
-    """
-    Sets the output or working directory.
-
-     - *path* a path/subdirectory (will be created if it doesn't exist)
-
-    """
-    import pysces as P
-    import os as O
-    if not O.path.exists(path):
-        O.makedirs(path)
-    O.chdir(path)
-    try:
-        P.PyscesModel.OUTPUT_DIR = path
-        P.output_dir = path
-        if hasattr(P, 'plt') and hasattr(P.plt, 'm') and hasattr(P.plt.m, '__WORK_DIR__'):
-            P.plt.m.__WORK_DIR__ = path
-        if hasattr(P, 'plt') and hasattr(P.plt, 'g') and hasattr(P.plt.g, '__WORK_DIR__'):
-            P.plt.g.__WORK_DIR__ = path
-    except Exception as ex:
-        print(ex)
-        print('Path change exception')
-    del P, O
-
-
 
 # This has to come at the end
 from .PyscesModel import PysMod as model
