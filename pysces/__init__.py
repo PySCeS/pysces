@@ -341,6 +341,16 @@ if alt_import:
 
 if DEBUG: print(time.strftime('7-%H:%M:%S'))
 
+# check for libsbml
+try:
+    import libsbml as SBML
+    if not __SILENT_START__:
+        print("SBML support available")
+except ImportError as ex:
+    SBML = None
+    print(ex)
+    print("INFO: No SBML library found, SBML support not available")
+
 
 # This has to come at the end
 from .PyscesModel import PysMod as model
