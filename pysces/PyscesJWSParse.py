@@ -21,6 +21,11 @@ from __future__ import unicode_literals
 from pysces.version import __version__
 __doc__ = "PySCeS JWS parser module -- uses  PLY 1.5 or newer"
 
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
+
 import os, copy
 import pysces.lib.lex
 import pysces.lib.yacc
@@ -627,11 +632,11 @@ class JWSParser:
                     filex = os.path.join(outdir,filename)
                     f = open(filex,'r')
                     f.close()
-                    input = input('\nFile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
-                    if input == 'y' or input == '':
+                    inp = input('\nFile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
+                    if inp == 'y' or inp == '':
                         go = 1
                         loop = 1
-                    elif input == 'n':
+                    elif inp == 'n':
                         filename = input('\nFile "' + filename + '" exists. Enter a new filename: ')
                         go = 1
                         filex = os.path.join(outdir,filename)

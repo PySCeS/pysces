@@ -24,6 +24,10 @@ __doc__ = '''SBML reading/writing module - now replaced by PySCeS Core2'''
 import os,sys
 from time import sleep, strftime
 from getpass import getuser
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 
 if sys.platform == 'win32':
     try:

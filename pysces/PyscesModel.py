@@ -35,6 +35,10 @@ __doc__ = '''
 import os, copy, gc, time
 import math, operator, re
 import pprint, pickle, io
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 import numpy
 import scipy
 import scipy.linalg
@@ -6698,26 +6702,29 @@ class PysMod(object):
                 while loop == 0:
                     try:
                         filex = os.path.join(filepath,filename)
-                        f = open(filex,'r')
-                        f.close()
-                        input = input('\nfile "' + filex + '" exists.\nOverwrite? ([y]/n) ')
-                        if input == 'y' or input == '':
+                        if os.path.isfile(filex):
+                            inp = input('\nfile ' + filex + ' exists.\nOverwrite? ([y]/n) ')
+                        else:
+                            raise IOError
+                        if inp == 'y' or inp == '':
                             go = 1
                             loop = 1
-                        elif input == 'n':
+                        elif inp == 'n':
                             filename = input('\nfile "' + filename + '" exists. Enter a new filename: ')
                             go = 1
                             filex = os.path.join(filepath,filename)
                             filename = chkpsc(filename)
                         else:
                             print('\nInvalid input')
-                    except:
+                    except IOError:
                         print('\nfile "' + filex + '" does not exist, proceeding')
                         loop = 1
                         go = 1
             else:
                 print('\nI hope we have a filebuffer')
-                if type(filename)==file or type(filename)==io.OutputType: # --johann 20070615
+                if type(filename).__name__=='file' or \
+                        type(filename).__name__=='StringIO' or\
+                        type(filename).__name__=='TextIOWrapper':
                     go = 1
                     FBuf = 1
                     print('Seems like it')
@@ -6756,7 +6763,9 @@ class PysMod(object):
                 self.showRateEq(File=outFile)
                 self.showSpeciesI(File=outFile)
                 self.showPar(File=outFile)
-                if type(filename)==str or type(filename)==file:  # don't close cStringIO objects -- johann 20070615
+                if type(filename)==str or type(filename).__name__=='file' or \
+                        type(filename).__name__=='TextIOWrapper':  
+                                # don't close StringIO objects
                     outFile.close()
 
     def showN(self,File=None,fmt='%2.3f'):

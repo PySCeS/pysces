@@ -20,6 +20,10 @@ from __future__ import unicode_literals
 
 import os
 import numpy, scipy, itertools, time
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 
 from .KrakenNET import socket, time, cPickle
 from .KrakenNET import SimpleClient, SimpleMultiReadClient, ThreadedClient
@@ -148,15 +152,15 @@ class KrakenController:
     def killTentacles(self):
         GO = True
         while GO:
-            input = input('\nYou have initiated tentacle shutdown ... are you sure? (y/n): ')
-            if input in ['y','Y','yes']:
+            inp = input('\nYou have initiated tentacle shutdown ... are you sure? (y/n): ')
+            if inp in ['y','Y','yes']:
                 GO = False
                 for server in self.kc_available_server_list:
                     SimpleClient(server, self.kc_status_port, self.kc_block_size).send(['KILL'])
                     SimpleClient(server, self.kc_pysces_port, self.kc_block_size).send(['KILL'])
                 print('Warning: all servers deleted for this host')
                 self.kc_available_server_list = []
-            elif input in ['n','N','no']:
+            elif inp in ['n','N','no']:
                 GO = False
             else:
                 print('\nPlease enter y for yes or n for no')

@@ -26,6 +26,11 @@ __doc__ = '''
           Interfaces to external software and API's, has replaced the PySCeS contrib classes.
           '''
 
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
+
 # for METATOOLlink
 import os, re, io
 # for SBWWebLink

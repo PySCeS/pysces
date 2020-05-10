@@ -24,6 +24,10 @@ This module contains simplified methods derived from the Pysces model class
 Brett G. Olivier June 2010
 """
 
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 import os, copy, time
 import numpy
 from pysces import PyscesStoich

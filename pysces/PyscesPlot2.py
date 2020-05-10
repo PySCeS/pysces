@@ -23,7 +23,10 @@ from pysces import __SILENT_START__
 import subprocess, os, shutil, time, math, itertools, copy
 from getpass import getuser
 import numpy, scipy
-
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 
 __doc__ = '''
             PyscesPlot2

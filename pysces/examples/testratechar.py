@@ -1,4 +1,8 @@
 import pysces
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
 
 # Creates a ratechar object for the lin5_hill model
 rc = pysces.RateChar('lin5_hill')

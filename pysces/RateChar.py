@@ -9,6 +9,11 @@ import io,string
 from colorsys import hsv_to_rgb as htor
 from matplotlib.figure import Figure as mplfigure
 import warnings
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
+
 
 doc = '''
 
