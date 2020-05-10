@@ -1296,7 +1296,7 @@ class PysMod(object):
         - *dir* if specified, the path to the input file otherwise the default PyscesModel directory (defined in the pys_config.ini file) is assumed.
         - *autoload* autoload the model, pre 0.7.1 call mod.doLoad(). (default=True) **new**
         - *loader* the default behaviour is to load PSC file, however, if this argument is set to 'string' an input file can be supplied as the *fString* argument (default='file')
-        - *fString* a string containing a PySCeS model file (use with *loader='string'*) the *File* argument now sepcifies the new input file name.
+        - *fString* a string containing a PySCeS model file (use with *loader='string'*) the *File* argument now specifies the new input file name.
 
         """
 
@@ -1377,37 +1377,37 @@ class PysMod(object):
 
         #grab model directory
         chkmdir()
-        dir = MODEL_DIR
+        mdir = MODEL_DIR
 
         # check for .psc extension
         File = chkpsc(File)
 
-        print('Using model directory: ' + dir)
+        print('Using model directory: ' + mdir)
 
         if not os.path.isdir(os.path.join(MODEL_DIR,"orca")):
             os.mkdir(os.path.join(MODEL_DIR,"orca"))
 
-        dir = os.path.join(MODEL_DIR,"orca")
+        mdir = os.path.join(MODEL_DIR,"orca")
 
         # write string to file
         try:
-            outFile = file(os.path.join(dir,File),'w')
+            outFile = open(os.path.join(mdir, File),'w')
             outFile.write(fString)
             outFile.close()
             print('Using file: ' + File)
 
-            if os.path.exists(os.path.join(dir,File)):
-                print(os.path.join(dir,File) + ' loading .....', end=' ')
-                self.ModelDir = dir
+            if os.path.exists(os.path.join(mdir, File)):
+                print(os.path.join(mdir, File) + ' loading .....', end=' ')
+                self.ModelDir = mdir
                 self.ModelFile = File
             else:
-                print(os.path.join(dir,File) + ' does not exist')
+                print(os.path.join(mdir, File) + ' does not exist')
                 print('Please set with ModelDir and ModelFile .....', end=' ')
                 self.ModelFile = 'None'
-                self.ModelDir = dir
+                self.ModelDir = mdir
         except Exception as e:
             print(e)
-            print(os.path.join(dir,File) + ' does not exist please re-instantiate model .....', end=' ')
+            print(os.path.join(mdir, File) + ' does not exist please re-instantiate model .....', end=' ')
         self.__settings__['display_debug'] = 0
         self.ModelOutput = OUTPUT_DIR
 
