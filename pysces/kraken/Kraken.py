@@ -276,7 +276,7 @@ class KrakenScanController(KrakenController):
 
     def Dump(self, thing, fname):
         try:
-            F = file(os.path.join(self.working_dir, fname.replace('.bin','')+'.bin'), 'wb')
+            F = open(os.path.join(self.working_dir, fname.replace('.bin','')+'.bin'), 'wb')
             cPickle.dump(thing, F, 2)
             F.flush()
             F.close()

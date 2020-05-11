@@ -108,7 +108,7 @@ class DataTools:
         print("n:",n)
         # write data to vtk polydata file
         # write header
-        out = file(fname+'.vtk', 'w')
+        out = open(fname+'.vtk', 'w')
         h1 = "# vtk DataFile Version 2.0\n"
         h1 += "%s\n" % fname
         h1 += "ASCII\n"

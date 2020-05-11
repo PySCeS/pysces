@@ -57,7 +57,7 @@ class SBW_base:
         if dir != None:
             filename = os.path.join(dir,filename)
         self.sbml_file = filename
-        sbml_file = file(filename,'r')
+        sbml_file = open(filename,'r')
         self.sbml_string = ''
         for line in sbml_file: self.sbml_string += line
         sbml_file.close()
@@ -79,7 +79,7 @@ class SBW_base:
     def WriteOutputToFile(self,filename,dir=None):
         if dir != None:
             filename = os.path.join(dir,filename)
-        Fout = file(filename,'w')
+        Fout = open(filename,'w')
         Fout.write(self.output)
         Fout.flush()
         Fout.close()

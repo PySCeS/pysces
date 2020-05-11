@@ -194,7 +194,7 @@ class WriteOutput(object):
         """
         if names != None:
             assert arr.shape[0] == len(names), '\n ...  rows must equal number of names!'
-        F = file(fname, 'w')
+        F = open(fname, 'w')
         cntr = 0
         for r in range(arr.shape[0]):
             if names != None:
@@ -230,7 +230,7 @@ class WriteOutput(object):
             assert arr.shape[0] == len(names), '\n ...  rows must equal number of names!'
         if header != None:
             assert arr.shape[1] == len(header), '\n ...  cols must equal number of header names!'
-        F = file(fname, 'w')
+        F = open(fname, 'w')
         cntr = 0
         if header != None:
             if names != None:
@@ -275,9 +275,9 @@ class WriteOutput(object):
         if names != None:
             assert len(arr) == len(names), '\n ...  rows must equal number of names!'
         if not appendlist:
-            F = file(fname, 'w')
+            F = open(fname, 'w')
         else:
-            F = file(fname, 'a')
+            F = open(fname, 'a')
         cntr = 0
         for r in range(len(arr)):
             if names != None:

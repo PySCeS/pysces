@@ -263,7 +263,7 @@ class SED(object):
             sf = os.path.join(self.sedpath, '%s.txt' % (self.id))
         else:
             sf = os.path.join(self.sedpath, 'sedxtmp', '%s.txt' % (self.id))
-        F = file(sf, 'w')
+        F = open(sf, 'w')
         F.write(sedscr.read())
         F.flush()
         F.close()
@@ -295,7 +295,7 @@ class SED(object):
             except Exception as ex:
                 print('\nOops no SED: %s' % ex)
             self.__sedxml__ = sf
-            F = file(sf, 'r')
+            F = open(sf, 'r')
             self._SED_XML_ = F.read()
             F.close()
             del F
@@ -311,11 +311,11 @@ class SED(object):
             #else:
                 #sf = os.path.join(self.sedpath, 'sedxtmp', sedname)
 
-            F = file(self.__sedscript__, 'r')
+            F = open(self.__sedscript__, 'r')
             sedscr = F.read()
             F.close()
             self._SED_XML_ = self.sbwsedclient.ConvertScriptToSedML(sedscr)
-            F = file(sf, 'w')
+            F = open(sf, 'w')
             F.write(self._SED_XML_)
             F.flush()
             F.close()
@@ -326,7 +326,7 @@ class SED(object):
         else:
             raise RuntimeError('\n')
         if self._SED_CURRENT_:
-            F = file(self.__sedxml__, 'w')
+            F = open(self.__sedxml__, 'w')
             F.write(self._SED_XML_)
             F.flush()
             F.close()
@@ -386,11 +386,11 @@ class SED(object):
             MFstr += ' <content location="./%s" format="http://identifiers.org/combine.specifications/sbml"/>\n' % modname
         MFstr += ' <content location="./metadata.rdf" format="http://identifiers.org/combine.specifications/omex-metadata"/>'
 
-        MF = file(os.path.join(ptmp, 'manifest.xml'), 'w')
+        MF = open(os.path.join(ptmp, 'manifest.xml'), 'w')
         MF.write('<?xml version="1.0" encoding="utf-8"?>\n%s\n</omexManifest>\n' % MFstr)
         MF.close()
 
-        MD = file(os.path.join(ptmp, 'metadata.rdf'), 'w')
+        MD = open(os.path.join(ptmp, 'metadata.rdf'), 'w')
         MD.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         MD.write('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n')
         MD.write('    xmlns:dcterms="http://purl.org/dc/terms/"\n')
@@ -441,7 +441,7 @@ def storeObj(obj, filename):
 
     """
     filename = filename+'.dat'
-    F = file(filename, 'wb')
+    F = open(filename, 'wb')
     pickle.dump(obj, F, protocol=2)
     print('Object serialised as %s' % filename)
     F.close()
@@ -452,7 +452,7 @@ def loadObj(filename):
 
     """
     assert os.path.exists(filename), '\nTry again mate!'
-    F = file(filename, 'rb')
+    F = open(filename, 'rb')
     obj = pickle.load(F)
     F.close()
     return obj

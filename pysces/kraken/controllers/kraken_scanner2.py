@@ -84,7 +84,7 @@ def Scheduler1(contrl, job_list, init_list, task_id):
             job_list = deferred_jobs
         else:
             JobsWaiting = False
-        cPickle.dump(DaResults, file(task_id+'_result_list.bin','wb'), 2)
+        cPickle.dump(DaResults, open(task_id+'_result_list.bin','wb'), 2)
 
     TIME_END = time.time()
 
@@ -151,7 +151,7 @@ def writeVTK_UnstructuredGrid(fname, arr):
     print("n:",n)
     # write data to vtk polydata file
     # write header
-    out = file(fname+'.vtk', 'w')
+    out = open(fname+'.vtk', 'w')
     h1 = "# vtk DataFile Version 2.0\n"
     h1 += "%s\n" % fname
     h1 += "ASCII\n"
@@ -359,7 +359,7 @@ if __name__ == '__main__':
     del jRes
     del eRes
 
-    cPickle.dump((FinalIArray,FinalSArray,FinalJArray,FinalEArray), file(task_name+'_result_array.bin','wb'), 2)
+    cPickle.dump((FinalIArray,FinalSArray,FinalJArray,FinalEArray), open(task_name+'_result_array.bin','wb'), 2)
 
     # get rid of negative values in axes and fluxes
     FinalArrayClean = []

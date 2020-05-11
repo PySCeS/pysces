@@ -258,7 +258,7 @@ class BasicServer(BasicServerSocket):
 
     def P_STORE_DATA(self, *args):
         global HOSTNAME
-        G = file(HOSTNAME + '_data.bin','wb')
+        G = open(HOSTNAME + '_data.bin','wb')
         pickle.dump(self.RESULT, G, PICKLE_PROTOCOL)
         G.flush()
         G.close()
@@ -289,7 +289,7 @@ class ModelFileServer(BasicServerSocket):
             model_directory = self.model_directory
         fullP = os.path.join(model_directory,model_file_name)
         if os.path.exists(fullP):
-            self.model_file = file(fullP,'r')
+            self.model_file = open(fullP,'r')
             self.model_directory = model_directory
             self.model_file_name = model_file_name
             return True
@@ -445,7 +445,7 @@ class ServerListLoader:
 
         self.server_list = []
         try:
-            sFile = file(os.path.join(self.directory_name, self.file_name),'r')
+            sFile = open(os.path.join(self.directory_name, self.file_name),'r')
             for l in sFile:
                 l = l.strip()
                 l = l.strip('\n')

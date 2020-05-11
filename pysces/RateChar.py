@@ -91,7 +91,7 @@ class RateChar:
         """
         if name[-4:] != '.psc':
             name += '.psc'
-        F = file(os.path.join(pysces.PyscesModel.MODEL_DIR, name),'r')
+        F = open(os.path.join(pysces.PyscesModel.MODEL_DIR, name),'r')
         fstr = F.read()
         F.close()
         return fstr

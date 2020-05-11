@@ -264,11 +264,11 @@ class PyscesGPlot:
         if path != None:
             imagenameout = os.path.join(path,imagename)
             if File == None:
-                File = file(os.path.join(path,imagename[:-3]+'html'),'w')
+                File = open(os.path.join(path,imagename[:-3]+'html'),'w')
         else:
             imagenameout = os.path.join(os.getcwd(),imagename)
             if File == None:
-                File = file(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
+                File = open(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
         self.__save_command__(imagename)
 
         fname = 'PySCeS generated image - '+imagename+'" generated from model file: ' + strftime("%H:%M:%S")
@@ -888,11 +888,11 @@ class PyscesGPlot2MPL:
         if path != None:
             imagenameout = os.path.join(path,imagename)
             if File == None:
-                File = file(os.path.join(path,imagename[:-3]+'html'),'w')
+                File = open(os.path.join(path,imagename[:-3]+'html'),'w')
         else:
             imagenameout = os.path.join(os.getcwd(),imagename)
             if File == None:
-                File = file(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
+                File = open(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
         self.P.savefig(imagenameout,dpi=80)
 
         fname = 'PySCeS generated image - '+imagename+'" generated from model file: ' + strftime("%H:%M:%S")

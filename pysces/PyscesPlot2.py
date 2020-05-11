@@ -337,7 +337,7 @@ class GnuPlotUPI(PlotBase):
         if len(outlist) <= 1:
             self.g_file_write_array(arr, dfmt=dfmt)
         else:
-            F = file(self.__DATA_FILE_PATH__, 'w+')
+            F = open(self.__DATA_FILE_PATH__, 'w+')
             for d in range(len(outlist)):
                 numpy.savetxt(F, outlist.pop(0), fmt=dfmt)
                 F.write(' \n')
@@ -497,12 +497,12 @@ class GnuPlotUPI(PlotBase):
             out_n = os.path.join(self.__WORK_DIR__, name)
         self.g_write('save "%s.plt"' % out_n)
         shutil.copy(os.path.join(self.__WORK_DIR__, self.__DATA_FILE_NAME__), "%s.dat" % out_n)
-        F = file('%s.plt'% out_n, 'r')
+        F = open('%s.plt'% out_n, 'r')
         fnew = F.read().replace('_gnuplot.dat','%s.dat' % name)
         fnew = fnew.replace('noequal_axes','') # fixes the "noequal_axes" bug in gnuplot save
         fnew = fnew.replace('#!/gnuplot','#!/gnuplot\n#\n# Plot created using PySCeS %s (http://pysces.sourceforge.net)' % __version__) # fixes the "noequal_axes" bug in gnuplot save
         F.close()
-        F = file('%s.plt'% out_n, 'w')
+        F = open('%s.plt'% out_n, 'w')
         F.write(fnew)
         F.flush()
         F.close()

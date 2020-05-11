@@ -100,7 +100,7 @@ class PyscesTest:
         class NullWriter:
             def __init__(self,dres=0):
                 if dres:
-                    self.Fout = file(os.path.join(os.getcwd(),'pysces_test_results.txt'),'w')
+                    self.Fout = open(os.path.join(os.getcwd(),'pysces_test_results.txt'),'w')
                     self.fof = 1
                 else:
                     self.fof = 0

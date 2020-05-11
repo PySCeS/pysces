@@ -56,7 +56,7 @@ class Intersect:
         self.P2range = scipy.logspace(scipy.log10(min2),scipy.log10(max2),step2)
 
     def load_raw_data(self,raw_data_file):
-        raw_file = file(os.path.join(self.data_dir,raw_data_file))
+        raw_file = open(os.path.join(self.data_dir,raw_data_file), 'r')
         self.data_raw = scipy.io.read_array(raw_file)
         raw_file.close()
         print('\nData file load complete.\n')
@@ -67,7 +67,7 @@ class Intersect:
         self.inputP = input
         self.outputP = output
         self.data_raw = scipy.zeros((self.P1steps*self.P2steps,len(output)+2), self.dtype)
-        raw_file = file(os.path.join(self.data_dir,raw_data_file),'w')
+        raw_file = open(os.path.join(self.data_dir,raw_data_file),'w')
         iDx = 0
         flush = 0
         for P1 in range(len(self.P1range)):
@@ -113,7 +113,7 @@ class Intersect:
                 self.STDOUT.write(str(isectCount)+' intersections found!\n')
                     
         self.isect_data = scipy.array(isect)
-        ##  BB = file(os.path.join(self.data_dir,isect_data_file),'w')
+        ##  BB = open(os.path.join(self.data_dir,isect_data_file),'w')
         scipy.io.write_array(os.path.join(self.data_dir,isect_data_file), self.isect_data,keep_open=0)
 
     def output_intersection_metrics(self,filename=None):
@@ -126,7 +126,7 @@ class Intersect:
         print(pysces.session_time())
 
         if filename != None:
-            CC = file(os.path.join(self.data_dir,filename),'w')
+            CC = open(os.path.join(self.data_dir,filename),'w')
             CC.write('\n**********\nIntersection metrics\n**********\n')
             CC.write('Raw data space : ' + repr(self.data_raw.shape) + '\n')
             CC.write('Intersect space: ' + repr(self.isect_data.shape) + '\n')
@@ -200,13 +200,13 @@ class IntersectD3(Intersect):
         iDx = 0
         flush = 0
         SflushCount = 0
-        raw_file = file(os.path.join(self.data_dir,raw_data_file),'w')
+        raw_file = open(os.path.join(self.data_dir,raw_data_file),'w')
         raw_file.close()
         for P1 in range(len(self.P1range)):
             # not agaaaaaaaaaaaaaaaain
             gc.collect()
             del gc.garbage[:]
-            raw_file = file(os.path.join(self.data_dir,raw_data_file),'a')
+            raw_file = open(os.path.join(self.data_dir,raw_data_file),'a')
             #raw_file.seek(-1)
             setattr(self.mod, input[0], self.P1range[P1])
             for P2 in range(len(self.P2range)):
@@ -251,5 +251,5 @@ class IntersectD3(Intersect):
                 self.STDOUT.write(str(isectCount)+' intersections found!\n')
                     
         self.isect_data = scipy.array(isect)
-        BB = file(os.path.join(self.data_dir,isect_data_file),'w')
+        BB = open(os.path.join(self.data_dir,isect_data_file),'w')
         scipy.io.write_array(BB, self.isect_data,keep_open=0)

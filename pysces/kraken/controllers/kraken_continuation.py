@@ -72,7 +72,7 @@ while JobsWaiting:
         job_list = deferred_jobs
     else:
         JobsWaiting = False
-    cPickle.dump(DaResults, file('cont_result_list.bin','wb'), 2)
+    cPickle.dump(DaResults, open('cont_result_list.bin','wb'), 2)
 
 
 print('\nNumber of results = %s' % len(DaResults))
@@ -91,7 +91,7 @@ TIME_END = time.time()
 print('Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0))
 
 FinalArray = concatenateArrays(DaResults)
-cPickle.dump(FinalArray, file('cont_result_array.bin','wb'), 2)
+cPickle.dump(FinalArray, open('cont_result_array.bin','wb'), 2)
 
 
 if __name__ == '__main__':
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     print("n:",n)
     # write data to vtk polydata file
     # write header
-    out = file('cont_result_ug.vtk', 'w')
+    out = open('cont_result_ug.vtk', 'w')
     h1 = "# vtk DataFile Version 2.0\n"
     h1 += "loop\n"
     h1 += "ASCII\n"
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     ##  rounding = 5
     ##  for r in range(coords.shape[0]):
         ##  undup.setdefault(round(coords[r,2], rounding), [coords[r,0], coords[r,1]])
-    ##  rF = file('cont_result_array_gplt_reduced.dat','w')
+    ##  rF = open('cont_result_array_gplt_reduced.dat','w')
     ##  print 'Total states: %s\nReduced states: %s ' % (total_states, len(undup.keys()))
     ##  for key in undup:
         ##  rF.write('%s, %s, %s\n' % (undup[key][0], undup[key][1], key))

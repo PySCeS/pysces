@@ -159,7 +159,7 @@ class SBWLayoutWebLink(object):
             self.svg = None
             self.DRAWNETWORKLOADED = False
             self.LAYOUTMODULELOADED = False
-            sbmlF = file(path, 'r')
+            sbmlF = open(path, 'r')
             self.sbml = sbmlF.read()
             sbmlF.close()
             return True

@@ -1,5 +1,5 @@
-"""
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
+"""
 
 Copyright (C) 2004-2020 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
@@ -586,7 +586,7 @@ class PyscesSBML:
         #print init_fixed
 
         # sometimes things just work lekker (replaced all the old showS^&t) - brett 20050913
-        outFile = file(self.model_filename+'.psc','w')
+        outFile = open(self.model_filename+'.psc','w')
         self.PSC_writeHeader(outFile)
         self.PSC_writeFixedSpeciesList(outFile,init_fixed)
         self.PSC_writeRateEquations(outFile,NetworkDict,number_format='%2.3f')
