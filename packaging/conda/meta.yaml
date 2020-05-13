@@ -1,12 +1,12 @@
 package:
   name: pysces
-  version: "0.9.7"
+  version: "0.9.8"
 
 source:
   git_url: https://github.com/PySCeS/pysces.git
 
 build:
-  number: 2
+  number: 1
   include_recipe: True
 
 requirements:
@@ -40,3 +40,4 @@ about:
 extra:
   maintainers:
    - Brett G. Olivier
+   - Johann M. Rohwer
