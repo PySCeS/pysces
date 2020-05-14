@@ -1,7 +1,7 @@
 MAJOR = 0
 MINOR = 9
 MICRO = 8
-STATUS = ''
+STATUS = 'post1'
 
 def current_version():
     return '%s.%s.%s%s' % (MAJOR, MINOR, MICRO, STATUS)
