@@ -1,5 +1,5 @@
-PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 """
+PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
 Copyright (C) 2004-2020 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
