@@ -20,9 +20,11 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.8post1'
+__version__ = '0.9.8'
 
 import os, re
+import sysconfig
+
 import fileinput
 import shutil
 try:
@@ -176,10 +178,26 @@ mypackages= ['pysces','pysces.tests','pysces.lib','pysces.pitcon',\
 #PySCeS modules
 mymodules = []
 
+# extra compile args for FORTRAN code that should meand that gfortran libraries are statically compiled into the pyd
+if os.sys.platform == 'win32':
+    #extra_f77_compile_args = ["-static-libgcc", "-static-libgfortran"]
+    extra_f77_compile_args = ["-static", "-static-libgcc", "-static-libgfortran"]
+else:
+    extra_f77_compile_args = []
+
+print('extra_f77_compile_args: ', extra_f77_compile_args)
+
+
 if pitcon:
     print('\nBuilding pitcon')
     extpath = os.path.join('pysces', 'pitcon')
-    pitcon = Extension('pysces.pitcon.pitcon',[os.path.join(extpath,'pitcon.pyf'),os.path.join(extpath,'pcon61subd.f'),os.path.join(extpath,'dpcon61.f'),os.path.join(extpath,'dpcon61w.f')])
+    pitcon = Extension('pysces.pitcon.pitcon', sources=[os.path.join(extpath,'pitcon.pyf'),
+                                                        os.path.join(extpath,'pcon61subd.f'),
+                                                        os.path.join(extpath,'dpcon61.f'),
+                                                        os.path.join(extpath,'dpcon61w.f')],
+                                               extra_f77_compile_args=extra_f77_compile_args
+
+                       )
     mymodules.append(pitcon)
     #mydata_files.append((os.path.join('pysces','pitcon'), [os.path.join(local_path, 'pysces', 'pitcon','readme.txt'), os.path.join(local_path, 'pysces', 'pitcon','readme.txt')]))
 else:
@@ -198,11 +216,13 @@ if nleq2:
         ##  elif os.sys.byteorder == 'big':
             ##  shutil.copyfile(os.path.join(extpath,'nleq2_big.f'), os.path.join(extpath,'nleq2.f'))
     extpath = os.path.join('pysces', 'nleq2')
-    nleq2 = Extension('pysces.nleq2.nleq2',[os.path.join(extpath,'nleq2.pyf'),\
-            os.path.join(extpath,'nleq2.f'), os.path.join(extpath,'linalg_nleq2.f'),\
-            os.path.join(extpath,'zibmon.f'), os.path.join(extpath,'zibsec.f'),\
-            os.path.join(extpath,'zibconst.f'), os.path.join(extpath,'wnorm.f')
-            ])
+    nleq2 = Extension('pysces.nleq2.nleq2', sources=[os.path.join(extpath,'nleq2.pyf'),
+                                                     os.path.join(extpath,'nleq2.f'),
+                                                     os.path.join(extpath,'linalg_nleq2.f'),
+                                                     os.path.join(extpath,'zibmon.f'), os.path.join(extpath,'zibsec.f'),
+                                                     os.path.join(extpath,'zibconst.f'), os.path.join(extpath,'wnorm.f')],
+                                            extra_f77_compile_args=extra_f77_compile_args
+                      )
     mymodules.append(nleq2)
     mypackages.append('pysces.nleq2')
 else:
@@ -215,9 +235,9 @@ if len(mymodules) == 0:
 # Data files to copy
 mydata_files.append((os.path.join('pysces'), [os.path.join('pysces','pyscfg.ini')]))
 mydata_files.append(('',[os.path.join('pysces','pysces.pth')]))
-mydata_files.append((os.path.join('pysces','docs'), [os.path.join('pysces','docs','userguide.pdf')]))
+#mydata_files.append((os.path.join('pysces','docs'), [os.path.join('pysces','docs','userguide.pdf')]))  # bgoli2020: does not exist anymore
 mydata_files.append((os.path.join('pysces','examples'), [os.path.join('pysces','examples',examplefile) for examplefile in os.listdir(os.path.join(local_path,'pysces','examples'))]))
-##not sure if this is necessary anymore, removed to test
+## not sure if this is necessary anymore now that I am using static gfortran linking
 if os.sys.platform == 'win32':
     mydata_files.append((os.path.join('pysces','win32'), [os.path.join('pysces','win32','libquadmath-0.dll'), os.path.join('pysces','win32','libgfortran-3.dll'),\
     os.path.join('pysces','win32','libgcc_s_seh-1.dll'), os.path.join('pysces','win32','libwinpthread-1.dll')]))
@@ -248,13 +268,12 @@ setup(name="pysces",
     maintainer = "Brett G. Olivier",
     maintainer_email = "bgoli@users.sourceforge.net",
     url = "http://pysces.sourceforge.net",
-    download_url = "http://pysces.sourceforge.net/download.html",
+    download_url = "https://pypi.org/project/pysces/#files",
     license = "New BSD style",
     keywords = "computational systems biology, modelling, simulation, systems biology" ,
     zip_safe = False,
-    #requires = ['numpy','scipy','matplotlib'],
-    install_requires = ['numpy','scipy','matplotlib','python-libsbml','nose'],
-    platforms = ["Windows", "Linux", "macOS"],
+    install_requires = ['numpy','scipy','matplotlib','nose'],
+    platforms = ["Windows", "POSIX", "Max OSX"],
     classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Development Status :: 6 - Mature',

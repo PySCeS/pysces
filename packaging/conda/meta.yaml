@@ -4,6 +4,7 @@ package:
 
 source:
   git_url: https://github.com/PySCeS/pysces.git
+#  path: pysces-src
 
 build:
   number: 1
@@ -13,24 +14,20 @@ requirements:
   build:
     - python
     - setuptools
-    - numpy=1.15
+    - numpy
     - libpython
-    - mingw
     - scipy
     - matplotlib
     - nose
   run:
     - python
     - setuptools
-    - numpy>=1.15
+    - numpy
     - libpython
     - scipy
     - matplotlib
-    - nose  
-    - python-libsbml
+    - nose
 
-
-    
 about:
   home: http://pysces.sourceforge.net
   license: BSD
