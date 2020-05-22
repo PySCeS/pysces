@@ -29,7 +29,7 @@ For conda build we need the following:
 * cleanup and upload
 ** conda build purge
 ** conda clean --all
-** anaconda upload -u pysces-builds\*
+** anaconda upload -u pysces pysces-builds\*
  
 
 
