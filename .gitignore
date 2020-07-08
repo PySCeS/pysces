@@ -31,6 +31,7 @@ var/
 .installed.cfg
 *.egg
 /packaging/many_linux/pip_cache
+meta.yaml
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

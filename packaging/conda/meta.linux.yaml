@@ -3,12 +3,13 @@ package:
   version: "0.9.8"
 
 source:
-  git_url: https://github.com/PySCeS/pysces.git
-#  path: pysces-src
+  # git_url: https://github.com/PySCeS/pysces.git
+  path: ../..
 
 build:
-  number: 1
+  number: 0
   include_recipe: True
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed . -vv"
 
 requirements:
   build:
@@ -26,6 +27,12 @@ requirements:
     - matplotlib
     - nose
 
+test:
+  imports:
+    - pysces
+  commands:
+    - python -s -c "import pysces; pysces.test(3)"
+
 about:
   home: http://pysces.sourceforge.net
   license: BSD
@@ -34,5 +41,5 @@ about:
 
 extra:
   maintainers:
-   - Brett G. Olivier
-   - Johann M. Rohwer
+    - Brett G. Olivier
+    - Johann M. Rohwer
