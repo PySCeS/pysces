@@ -84,7 +84,11 @@ os.sys.version_info[1], get_build_platform())
 for path in os.sys.path:
     chkPath = path.split(os.path.sep)[-1]
     if chkPath == 'pysces' and path != os.getcwd():
-        install_dir = path
+        if os.path.isdir(os.path.join(path, 'pysces')):
+            # for in-place development with setup.py develop
+            install_dir = os.path.join(path, 'pysces')
+        else:
+            install_dir = path
         inipath = os.path.join(install_dir, 'pyscfg.ini')
         break
     elif chkPath == eggdir:
