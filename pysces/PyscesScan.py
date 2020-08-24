@@ -118,7 +118,7 @@ class Scanner(object):
         print('MaxMode', MaxMode)
         self.UserOutputList = output
 
-    def addScanParameter(self, name, start, end, points, log=False, slave=False):
+    def addScanParameter(self, name, start, end, points, log=False, follower=False):
         """
         Add a parameter to scan (an axis if you like) input is:
 
@@ -127,9 +127,9 @@ class Scanner(object):
         - float(end) = upper bound of scan
         - int(points) = number of points in scan range
         - bool(log) = Use a logarithmic (base10) range
-        - bool(slave) = Scan parameters can be masters i.e. an independent axis or a "slave" which moves synchronously with the previously defined parameter range.
+        - bool(follower) = Scan parameters can be leaders i.e. an independent axis or a "follower" which moves synchronously with the previously defined parameter range.
 
-        The first ScanParameter cannot be a slave.
+        The first ScanParameter cannot be a follower.
         """
         offset = 1
         assert self.testInputParameter(name), (
@@ -140,22 +140,24 @@ class Scanner(object):
         ), '\nSCANNER: This operation is currently not allowed\n'
         if not len(self.GenOrder) == 0:
             for el in self.GenOrder:
-                if self.GenDict[el][4] == False:  # test if not slave
+                if self.GenDict[el][4] == False:  # test if not follower
                     offset = offset * self.GenDict[el][2]  # increment offset
-            if slave == True:
-                prevpar = self.GenOrder[-1]  # previous parameter, i.e. master
-                offset = self.GenDict[prevpar][5]  # don't increment for slave
+            if follower == True:
+                prevpar = self.GenOrder[-1]  # previous parameter, i.e. leader
+                offset = self.GenDict[prevpar][5]  # don't increment for follower
                 if points != self.GenDict[prevpar][2]:
                     print(
-                        'SCANNER: Slave parameter needs to iterate over same number of\npoints as master...resetting points.'
+                        'SCANNER: Follower parameter needs to iterate over same number of\npoints as leader...resetting points.'
                     )
                     points = self.GenDict[prevpar][2]
         else:
-            if slave == True:
-                slave = False
-                print('SCANNER: Inner range cannot be a slave ... resetting to master')
+            if follower == True:
+                follower = False
+                print(
+                    'SCANNER: Inner range cannot be a follower ... resetting to leader'
+                )
         self.GenDict.setdefault(
-            name, (start, end, points, log, slave, offset, getattr(self.mod, name))
+            name, (start, end, points, log, follower, offset, getattr(self.mod, name))
         )
         setattr(self, name + '_test', self.stepGen(offset))
         setattr(self, name, self.rangeGen(name, start, end, points, log))
@@ -269,7 +271,7 @@ class Scanner(object):
             # self.mod.mode_state_nan_on_fail = True
         Tsteps = 1
         for gen in self.GenOrder:
-            if self.GenDict[gen][4] == False:  # don't increase Tsteps for slaves
+            if self.GenDict[gen][4] == False:  # don't increase Tsteps for follower
                 Tsteps *= self.GenDict[gen][2]
         print(next(self.scanT.RUN))
         analysis_counter = 0

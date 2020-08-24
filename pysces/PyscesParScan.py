@@ -125,7 +125,7 @@ class ParScanner(Scanner):
         spr = self.scans_per_run
         Tsteps = 1
         for gen in self.GenOrder:
-            if self.GenDict[gen][4] == False:  # don't increase Tsteps for slaves
+            if self.GenDict[gen][4] == False:  # don't increase Tsteps for followers
                 Tsteps *= self.GenDict[gen][2]
         for step in range(Tsteps):
             pars = self.__nextValue__()

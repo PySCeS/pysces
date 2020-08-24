@@ -2108,7 +2108,6 @@ class PysMod(object):
         stc = self.SerialDecode(self.ModelFile[:-4] + '_stoichiometry')
         return stc
 
-    # new powerslave method - brett 20050825
     def Stoichiometry_Analyse(self, override=0, load=0):
         """
         Stoichiometry_Analyse(override=0,load=0)
