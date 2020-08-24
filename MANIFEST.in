@@ -1,6 +1,7 @@
-
+include README.md
+include README.txt
 include CONTRIBUTORS.txt
-include INSTALL.txt
+include INSTALL.md
 include LATEST.txt
 include setupegg.py
 include pysces/*

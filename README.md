@@ -48,15 +48,27 @@ web:   http://pysces.sourceforge.net
 
 Please see INSTALL.txt for information on building PySCeS an its modules.
 
-PySCeS is available as an Anaconda package for 64 bit Windows, Linux and OSX:
+PySCeS is available as a PyPI or Anaconda package for 64 bit Windows, Linux and OSX:
+
+```
+pip install pysces
+```
+
 
 ```
 conda install -c sbmlteam -c pysces pysces
 ```
 
+# Development
+
+Primary development is on GitHub, feel free to fork and submit pull requests! Want to add new code to PySCeS, go [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+# Additional information
+
 [![Research software impact](http://depsy.org/api/package/pypi/PySCeS/badge.svg)](http://depsy.org/package/python/PySCeS)
 
-# Additional licence information
+
+# Licence information
 
 PySCeS has interfaces to and is distributed with additional packages that
 are supplied under their own licence conditions.

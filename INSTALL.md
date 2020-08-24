@@ -1,5 +1,4 @@
-PySCeS (http://pysces.sourceforge.net) installation
-===================================================
+# PySCeS (http://pysces.sourceforge.net) installation
 
 Please see README.txt and LICENCE.txt for licence/distribution information.
 
@@ -9,8 +8,7 @@ operate on both the Linux and Microsoft Windows operating systems.
 PySCeS makes use of SciPy with NumPy for a number of functions
 and needs a working NumPy/SciPy installation to install and run.
 
-Additional PySCeS modules
--------------------------
+## Additional PySCeS modules
 
 PySCeS functionality has been modularised it is highly recommended that
 the following packages/modules are also installed.
@@ -22,8 +20,7 @@ Linux users should install the Sundials libraries and the PySundials package
 
 - *pysces_metatool* this adds elementary mode support to PySCeS
 
-General requirements
---------------------
+## General requirements
 
 - Python 2.5+
 - Numpy 1.2.1+
@@ -33,8 +30,7 @@ General requirements
 - IPython (optional)
 - libSBML (optional)
 
-Win32 build
------------
+## Windows build
 
 Most requirements for building are incuded in the Enthought Python Distribution
 
@@ -46,18 +42,16 @@ Once MinGW is set up, change to the PySCeS install directory and do a:
 
 This should install PySCeS into the site-packages directory.
 
-Linux build
------------
+## Linux build
 
 gcc 3.4.x (with g77 and g++) or
 gcc 4.1+ (with gfortran and g++)
 
 cd to the PySCeS source and run:
 
-- `python setup.py install`
+`python setup.py install`
 
-Apple Macbuild
---------------
+## OSX build
 
 - install the Enthought Python Distribution (EPD 6)
 - install XCode 3.2.2+ (with GCC 4.2.1+)
@@ -66,39 +60,32 @@ Apple Macbuild
 Make sure the `python` command you call to build is the EPD one and not some
 system Python.
 
-Cross platform compatibility
-----------------------------
+# Cross platform compatibility
 
 PySCeS has been successfully used on (as far as we know), the following systems:
 
-Linux
-~~~~~
+## Linux
+```
 Ubuntu 9.04, 10.04, 10.10, 11.04, 12.04 14.04, 15.04. 16.04 (32 and 64 bit editions)
 Mandriva 2005LE, 2006, 2007, 2007.1, 2008, 2008.1, 2009, 2010
 Mandrake 9.2, 10.0, 10.1
 RedHat 9.0
 Debian Stable
 Gentoo 4+
+```
 
-Windows
-~~~~~~~
-
+## Windows
+```
 Microsoft Windows 2000
 Microsoft Windows XP SP2
 Microsoft Windows 7 Ultimate SP1
 Microsoft Windows 8.1 64
+```
 
-Apple
-~~~~~
-
-MAC OS X
-
-Support
--------
+# Support
 
 If you have any problems installing or using PySCeS try the PySCeS Sourceforge.Net pages
 where you will find help forums, email links to the developers and the latest
 announcements.
-
 
 Brett G. Olivier, 22 March 2016

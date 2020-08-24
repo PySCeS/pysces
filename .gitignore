@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
-*.dll
+# *.so
+# *.dll
 
 # backup files
 *.bak
@@ -32,6 +32,7 @@ var/
 *.egg
 /packaging/many_linux/pip_cache
 meta.yaml
+.libs/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -101,12 +102,13 @@ ENV/
 .idea/
 
 # pysces stuff
-/pysces/pyscfg.ini
-pysces/nleq2/nleq2module.c
-pysces/pitcon/pitconmodule.c
+*.c
+*.pyd
+pysces/pyscfg.ini
 MANIFEST
-pysces/nleq2/fortranobject.c
 pysces/nleq2/fortranobject.h
-pysces/pitcon/fortranobject.c
 pysces/pitcon/fortranobject.h
 
+#  dev env
+wing-pysces.wpr
+wing-pysces.wpu
