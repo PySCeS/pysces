@@ -1,5 +1,5 @@
 """
-PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
+PySCeS - Python Simulator for Cellular Systems (http://sourceforge.net)
 
 Copyright (C) 2004-2020 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
@@ -19,14 +19,19 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
-
 __doc__ = '''PySCeS unittest module'''
 
 import os, sys, shutil
 import unittest
-import pysces  # get rid of me
 from time import sleep
+
+from . import PyscesStoich, pitcon
+from . import install_dir as INSTALL_DIR
+from . import model_dir as MODEL_DIR
+from . import model as PSCMODEL
+from .version import __version__
+
+# evaluation comparison stuff
 from numpy.testing import assert_array_equal, assert_equal
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from scipy import array, zeros, ones, logspace
@@ -35,16 +40,14 @@ from scipy.integrate import odeint
 
 
 def CopyTestModels(
-    dirIn=os.path.join(pysces.install_dir, 'pscmodels'),
-    dirOut=pysces.model_dir,
-    overwrite=0,
+    dirIn=os.path.join(INSTALL_DIR, 'pscmodels'), dirOut=MODEL_DIR, overwrite=0,
 ):
     """
     CopyTestModels(dirIn=os.path.join(pysces_install,'pscmodels'),dirOut=pysces_model,overwrite=0)
 
     'Copy all PySCeS test model files in dirIn to dirOut, defaults to:
     in: pysces/pscmodels
-    out: pysces.model_dir
+    out: model_dir
 
     Arguments:
     =========
@@ -97,7 +100,7 @@ class PyscesTest:
     '''PySCeS test suite: takes a test level as an argument'''
 
     __version__ = __version__
-    model_dir = os.path.join(pysces.model_dir, 'tests')
+    model_dir = os.path.join(MODEL_DIR, 'tests')
 
     def __init__(self, lvl=2, std2file=0):
         # copy models from server to local model store
@@ -154,9 +157,9 @@ class PyscesBasicTest(unittest.TestCase):
     '''Basic test class, tests low-level numerical algorithms'''
 
     __version__ = __version__
-    model_dir = os.path.join(pysces.model_dir, 'tests')
+    model_dir = os.path.join(MODEL_DIR, 'tests')
 
-    MathArrayTest = pysces.PyscesStoich.MathArrayFunc()
+    MathArrayTest = PyscesStoich.MathArrayFunc()
 
     def test_swaprow_d(self):
         arr = array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], 'd')
@@ -271,10 +274,10 @@ class PyscesExtendedTest(unittest.TestCase):
     '''Extended test class, tests modelling related methods'''
 
     __version__ = __version__
-    model_dir = os.path.join(pysces.model_dir, 'tests')
+    model_dir = os.path.join(MODEL_DIR, 'tests')
 
     def test_statemetab_linear1(self):
-        lin = pysces.model('pysces_test_linear1.psc', self.model_dir)
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
         lin.doLoad()
         lin.hybrd_mesg = 0
         lin.State()
@@ -282,7 +285,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(lin.state_species, linmet)
 
     def test_statemetab_branch1(self):
-        bra = pysces.model('pysces_test_branch1.psc', self.model_dir)
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
         bra.doLoad()
         bra.hybrd_mesg = 0
         bra.State()
@@ -290,7 +293,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(bra.state_species, bramet)
 
     def test_statemetab_moiety1(self):
-        moi = pysces.model('pysces_test_moiety1.psc', self.model_dir)
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
         moi.doLoad()
         moi.hybrd_mesg = 0
         moi.State()
@@ -312,7 +315,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(moi.state_species, moimet)
 
     def test_stateflux_linear1(self):
-        lin = pysces.model('pysces_test_linear1.psc', self.model_dir)
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
         lin.doLoad()
         lin.hybrd_mesg = 0
         lin.State()
@@ -320,7 +323,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(lin.state_flux, linflux)
 
     def test_stateflux_branch1(self):
-        bra = pysces.model('pysces_test_branch1.psc', self.model_dir)
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
         bra.doLoad()
         bra.hybrd_mesg = 0
         bra.State()
@@ -331,7 +334,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(bra.state_flux, braflux)
 
     def test_stateflux_moiety1(self):
-        moi = pysces.model('pysces_test_moiety1.psc', self.model_dir)
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
         moi.doLoad()
         moi.hybrd_mesg = 0
         moi.State()
@@ -350,7 +353,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(moi.state_flux, moiflux)
 
     def test_elas_linear1(self):
-        lin = pysces.model('pysces_test_linear1.psc', self.model_dir)
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
         lin.doLoad()
         lin.hybrd_mesg = 0
         lin.State()
@@ -379,7 +382,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(line, line_new)
 
     def test_elas_branch1(self):
-        bra = pysces.model('pysces_test_branch1.psc', self.model_dir)
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
         bra.doLoad()
         bra.hybrd_mesg = 0
         bra.State()
@@ -419,7 +422,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(brae, brae_new)
 
     def test_elas_moiety1(self):
-        moi = pysces.model('pysces_test_moiety1.psc', self.model_dir)
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
         moi.doLoad()
         moi.hybrd_mesg = 0
         moi.State()
@@ -505,7 +508,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(moie, moie_new)
 
     def test_cc_linear1(self):
-        lin = pysces.model('pysces_test_linear1.psc', self.model_dir)
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
         lin.doLoad()
         lin.hybrd_mesg = 0
         lin.State()
@@ -550,7 +553,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(lincc, lincc_new)
 
     def test_cc_branch1(self):
-        bra = pysces.model('pysces_test_branch1.psc', self.model_dir)
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
         bra.doLoad()
         bra.hybrd_mesg = 0
         bra.State()
@@ -628,7 +631,7 @@ class PyscesExtendedTest(unittest.TestCase):
         assert_array_almost_equal(bracc, bracc_new)
 
     def test_cc_moiety1(self):
-        moi = pysces.model('pysces_test_moiety1.psc', self.model_dir)
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
         moi.doLoad()
         moi.hybrd_mesg = 0
         moi.State()
@@ -769,7 +772,7 @@ class PyscesExternalTest(unittest.TestCase):
     '''Extended test class, tests external/add-in numerical algorithms'''
 
     __version__ = __version__
-    model_dir = os.path.join(pysces.model_dir, 'tests')
+    model_dir = os.path.join(MODEL_DIR, 'tests')
 
     def test_PITCON1(self):
         import scipy
@@ -840,7 +843,7 @@ class PyscesExternalTest(unittest.TestCase):
         iterations = 10
 
         for run in range(iterations):
-            ierror, iwork, rwork, xrout = pysces.pitcon.pitcon1(
+            ierror, iwork, rwork, xrout = pitcon.pitcon1(
                 fjac, fpar, fx, ipar, iwork, rwork, xr
             )
             if iwork[0] == 4:
@@ -862,7 +865,7 @@ class PyscesExternalTest(unittest.TestCase):
         assert_array_almost_equal(output6, out6, 4)
 
     # def test_PITCON2(self): # unreliable
-    # mod = pysces.model('pysces_test_pitcon.psc', self.model_dir)
+    # mod = model('pysces_test_pitcon.psc', self.model_dir)
     # mod.doLoad()
     # mod.V2 = mod.V3 = 100.0
     # mod.A05 = 10.0
