@@ -19,7 +19,7 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
+from .version import __version__
 
 __doc__ = '''SBML reading/writing module - now replaced by PySCeS Core2'''
 
@@ -34,7 +34,7 @@ except NameError:
 
 if sys.platform == 'win32':
     try:
-        import pysces.libsbml.libsbmlinit as SBML
+        import libsbml as SBML
     except Exception as e:
         print('Windows sbml load error', e)
 else:

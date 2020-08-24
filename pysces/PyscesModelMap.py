@@ -19,7 +19,7 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
+from .version import __version__
 
 __doc__ = '''PySCeS ModelMap module: useful for exploring model component relations'''
 

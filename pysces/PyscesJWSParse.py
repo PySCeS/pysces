@@ -28,8 +28,8 @@ except NameError:
     pass
 
 import os, copy
-import pysces.lib.lex
-import pysces.lib.yacc
+from .lib import lex
+from .lib import yacc
 from getpass import getuser
 from time import sleep, strftime
 from scipy import MachAr
@@ -218,9 +218,9 @@ class JWSParser:
     def p_error(self, t):
         self.ParseErrors.append(('Syntax error ', t.lineno, t.value, t.type))
         print('Syntax error, Line ' + str(t.lineno) + ' : ' + str(t.value))
-        tok = pysces.lib.yacc.token()
+        tok = yacc.token()
         while tok and tok.type != 'REACTION_ID':
-            tok = pysces.lib.yacc.token()
+            tok = yacc.token()
         return tok
 
     def p_model(self, t):
@@ -500,10 +500,8 @@ class JWSParser:
 
         if go == 1:
             # clean up the modules
-            reload(
-                pysces.lib.lex
-            )  # brett's bugbear code these have to be here ALWAYS!!
-            reload(pysces.lib.yacc)
+            reload(lex)  # brett's bugbear code these have to be here ALWAYS!!
+            reload(yacc)
             # clean up the instance
             self.ReactionIDs = []  # List of reaction names
             self.Names = []  # List of all reagent, parameter and function names
@@ -566,9 +564,9 @@ class JWSParser:
                 print(self.tabmodule)
                 print(self.debugfile)
 
-            pysces.lib.lex.lex(module=self, debug=self.Debug)
-            pysces.lib.lex.input(Model)
-            pysces.lib.yacc.yacc(
+            lex.lex(module=self, debug=self.Debug)
+            lex.input(Model)
+            yacc.yacc(
                 module=self,
                 debug=self.Debug,
                 debugfile=self.debugfile,
@@ -578,14 +576,14 @@ class JWSParser:
             os.chdir(outdir)
 
             while 1:
-                tok = pysces.lib.lex.token()
+                tok = lex.token()
                 if not tok:
                     break
             if self.LexErrors != []:
                 print('self.LexErrors = ', self.LexErrors, '\n')
 
             while 1:
-                p = pysces.lib.yacc.parse(Model)
+                p = yacc.parse(Model)
                 if not p:
                     break
 

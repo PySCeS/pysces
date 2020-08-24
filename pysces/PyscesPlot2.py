@@ -18,8 +18,8 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
-from pysces import __SILENT_START__
+from .version import __version__
+from . import __SILENT_START__
 import subprocess, os, shutil, time, math, itertools, copy
 from getpass import getuser
 import numpy, scipy

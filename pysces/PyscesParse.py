@@ -18,14 +18,14 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
+from .version import __version__
 
 __doc__ = "PySCeS parser module -- uses  PLY 1.5 or newer"
 
 
 import os, copy
-import pysces.lib.lex
-import pysces.lib.yacc
+from .lib import lex
+from .lib import yacc
 from getpass import getuser
 from time import sleep, strftime
 
@@ -667,9 +667,9 @@ class PySCeSParser:
             self.ParseErrors.append(t)
         except:
             print('p_error generated a parsing error')
-        tok = pysces.lib.yacc.token()
+        tok = yacc.token()
         while tok and tok.type != 'REACTION_ID':
-            tok = pysces.lib.yacc.token()
+            tok = yacc.token()
         self.ParseOK = False
         return tok
 
@@ -1332,8 +1332,8 @@ class PySCeSParser:
         self.ModelUsesNumpyFuncs = False
 
         # 4 hrs of debugging and these two lines solve the problem .... I'm out of here!
-        reload(pysces.lib.lex)
-        reload(pysces.lib.yacc)
+        reload(lex)
+        reload(yacc)
         # fixes the obscure reload <--> garbage collection reference overload bug ... who said scripted lang's were
         # easy to use :-) - brett 20040122
 
@@ -1379,9 +1379,9 @@ class PySCeSParser:
             print(self.debugfile)
             print('cwd: ', os.getcwd())
 
-        self.__lexer = pysces.lib.lex.lex(module=self, debug=self.display_debug)
+        self.__lexer = lex.lex(module=self, debug=self.display_debug)
         self.__lexer.input(self.__Model)
-        self.__parser = pysces.lib.yacc.yacc(
+        self.__parser = yacc.yacc(
             module=self,
             debug=self.display_debug,
             debugfile=self.debugfile,

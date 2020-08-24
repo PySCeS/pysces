@@ -23,8 +23,6 @@ from .version import __version__
 # NOTE when you do this PLY adds a module name self. to all tokens
 # not sure if this is an unexpected feature or not. It can be worked around
 # but for now direct import seems the safest
-##  import pysces.lib.lex as lex
-##  import pysces.lib.yacc as yacc
 from . import lex
 from . import yacc
 import os

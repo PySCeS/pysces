@@ -31,14 +31,6 @@ print('I AM:', HOSTNAME, 'using BLOCK_SIZE: %s' % BLOCK_SIZE)
 # end header
 
 __psyco_active__ = 0
-##  try:
-##  import psyco
-##  psyco.profile()
-##  __psyco_active__ = 1
-##  print 'PySCeS Module is now PsycoActive!'
-##  except:
-##  __psyco_active__ = 0
-##  __psyco_active__ = 0
 
 from pysces import TimerBox
 

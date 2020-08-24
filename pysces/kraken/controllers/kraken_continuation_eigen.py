@@ -4,11 +4,12 @@ import itertools
 os.chdir('c:/mypysces/kraken')
 ##  os.chdir('/home/bgoli/mypysces/kraken')
 ##  import pysces
-from pysces.kraken.Kraken import *
+from . import *
+
 ##  from Kraken import *
 
 
-#investigate using vstack with type/range checking
+# investigate using vstack with type/range checking
 def concatenateArrays(array_list):
     output = None
     for arr in range(len(array_list)):
@@ -16,14 +17,16 @@ def concatenateArrays(array_list):
             if arr == 0:
                 output = array_list[arr]
             else:
-                output = scipy.concatenate((output,array_list[arr]))
+                output = scipy.concatenate((output, array_list[arr]))
     return output
+
 
 def buildCycler(lst):
     """
     creates an infinite looping generator with itertools
     """
     return itertools.cycle(lst)
+
 
 def deltaCommand():
     """
@@ -49,17 +52,17 @@ def Scheduler1(contrl, job_list, init_list, task_id):
         job_servers = []
         for job in range(len(job_list)):
             if job < len(contrl.available_server_list):
-                print('\nJob %s queued for processing...' % (job+1))
+                print('\nJob %s queued for processing...' % (job + 1))
                 server = next(getServer)
                 job_servers.append(server)
-                print("\nProcessing job %s init list ..." % (job+1))
+                print("\nProcessing job %s init list ..." % (job + 1))
                 contrl.sendCmdListToOne(init_list, server)
-                print("\nProcessing job %s delta command ..." % (job+1))
+                print("\nProcessing job %s delta command ..." % (job + 1))
                 contrl.sendCmdListToOne(deltaCommand(), server)
                 contrl.sendJobToOne(job_list[job], server)
             else:
                 deferred_jobs.append(job_list[job])
-                print('Job %s deferred and rescheduled.' % (job+1))
+                print('Job %s deferred and rescheduled.' % (job + 1))
         print("\nProcessing queued jobs ...")
         contrl.runAllJobs()
         for server in job_servers:
@@ -73,7 +76,7 @@ def Scheduler1(contrl, job_list, init_list, task_id):
             job_list = deferred_jobs
         else:
             JobsWaiting = False
-        cPickle.dump(DaResults, open(task_id+'_result_list.bin','wb'), 2)
+        cPickle.dump(DaResults, open(task_id + '_result_list.bin', 'wb'), 2)
 
     TIME_END = time.time()
 
@@ -81,16 +84,24 @@ def Scheduler1(contrl, job_list, init_list, task_id):
     total_states = 0
     for x in range(len(DaResults)):
         try:
-            print('\tResult %s has %s rows and %s columns' % (x+1, DaResults[x][0].shape[0], DaResults[x][0].shape[1]))
+            print(
+                '\tResult %s has %s rows and %s columns'
+                % (x + 1, DaResults[x][0].shape[0], DaResults[x][0].shape[1])
+            )
             total_states += DaResults[x][0].shape[0]
         except:
             print(type(DaResults[x][0]))
-            print('\tResult %s %s: %s' % (x+1, type(DaResults[x][0]), DaResults[x][0]))
+            print(
+                '\tResult %s %s: %s' % (x + 1, type(DaResults[x][0]), DaResults[x][0])
+            )
             print(original_job_list[x])
 
-
-    print('Total time taken to complete %s state scan %s minutes' % (total_states, (TIME_END-TIME_START)/60.0))
+    print(
+        'Total time taken to complete %s state scan %s minutes'
+        % (total_states, (TIME_END - TIME_START) / 60.0)
+    )
     return DaResults
+
 
 def GridSortLR(arr):
     """
@@ -108,12 +119,14 @@ def GridSortLR(arr):
     print('arr.shape:', arr.shape)
     return arr
 
+
 def ScalarFunc(val):
     """
     Manipulate the scalar (or z-axis) values
     Accepts and returns a double
     """
     return val
+
 
 def writeVTK_UnstructuredGrid(fname, arr):
     """
@@ -133,11 +146,11 @@ def writeVTK_UnstructuredGrid(fname, arr):
         HAVE_SCALARS = 0
         print('No scalar values supplied Z axis values will be used')
 
-    n=arr.shape[0]
-    print("n:",n)
+    n = arr.shape[0]
+    print("n:", n)
     # write data to vtk polydata file
     # write header
-    out = open(fname+'.vtk', 'w')
+    out = open(fname + '.vtk', 'w')
     h1 = "# vtk DataFile Version 2.0\n"
     h1 += "%s\n" % fname
     h1 += "ASCII\n"
@@ -146,17 +159,17 @@ def writeVTK_UnstructuredGrid(fname, arr):
     out.write(h1)
     # write xyz data
     for r in range(n):
-        #s = '%15.2f %15.2f %15.2f' % (x[i], y[i], z[i])
-        out.write(str(arr[r,0])+" "+str(arr[r,1])+" "+str(arr[r,2])+'\n')
+        # s = '%15.2f %15.2f %15.2f' % (x[i], y[i], z[i])
+        out.write(str(arr[r, 0]) + " " + str(arr[r, 1]) + " " + str(arr[r, 2]) + '\n')
 
     # write cell data
-    out.write("CELLS "+ str(n)+ " "+ str(2*n)+'\n')
+    out.write("CELLS " + str(n) + " " + str(2 * n) + '\n')
     for r in range(n):
-            #s = '1 %d \n' % (i)
-            out.write("1 "+str(r)+"\n")
+        # s = '1 %d \n' % (i)
+        out.write("1 " + str(r) + "\n")
 
     # write cell types
-    out.write("CELL_TYPES " + str(n)+'\n')
+    out.write("CELL_TYPES " + str(n) + '\n')
     for r in range(n):
         out.write("1 \n")
 
@@ -168,10 +181,10 @@ def writeVTK_UnstructuredGrid(fname, arr):
 
     for r in range(n):
         if HAVE_SCALARS:
-            sc=(ScalarFunc(arr[r,3]))
+            sc = ScalarFunc(arr[r, 3])
         else:
-            sc=(ScalarFunc(arr[r,2]))
-        out.write(str(sc)+ "\n")
+            sc = ScalarFunc(arr[r, 2])
+        out.write(str(sc) + "\n")
 
     out.write('\n')
     out.close()
@@ -200,11 +213,18 @@ if __name__ == '__main__':
     Set up a list of 'static' initialisation commands that will be used to
     initialise each server before a job is sent to it
     """
-    I_list = ['P_INIT,' + blob.model_server.model_file_name, 'P_LOAD',\
-        'P_SET_FLOAT,mode_state_init,3', 'P_SET_FLOAT,nleq2_nitmax,20',\
-        'P_SET_FLOAT,mode_state_init3_factor,0.5', 'P_SET_FLOAT,pitcon_iter,20',\
-        'P_SET_FLOAT,V2,200.0', 'P_SET_FLOAT,V3,200.0', 'P_SET_FLOAT,S05,1.0']
-        ##  'P_SET_FLOAT,V2,1000.0', 'P_SET_FLOAT,V3,1000.0', 'P_SET_FLOAT,S05,1.0']
+    I_list = [
+        'P_INIT,' + blob.model_server.model_file_name,
+        'P_LOAD',
+        'P_SET_FLOAT,mode_state_init,3',
+        'P_SET_FLOAT,nleq2_nitmax,20',
+        'P_SET_FLOAT,mode_state_init3_factor,0.5',
+        'P_SET_FLOAT,pitcon_iter,20',
+        'P_SET_FLOAT,V2,200.0',
+        'P_SET_FLOAT,V3,200.0',
+        'P_SET_FLOAT,S05,1.0',
+    ]
+    ##  'P_SET_FLOAT,V2,1000.0', 'P_SET_FLOAT,V3,1000.0', 'P_SET_FLOAT,S05,1.0']
 
     """
     Set up our continuation:
@@ -219,7 +239,7 @@ if __name__ == '__main__':
     ##  delta_list_l = scipy.logspace(scipy.log10(5.1),scipy.log10(100.0), yrange)
     ##  delta_list_h = scipy.logspace(scipy.log10(100.1),scipy.log10(5000.0), yrange*3)
     ##  delta_list = scipy.hstack((delta_list_vl, delta_list_l, delta_list_h))
-    delta_list = scipy.logspace(scipy.log10(0.1),scipy.log10(1.0), yrange)
+    delta_list = scipy.logspace(scipy.log10(0.1), scipy.log10(1.0), yrange)
     # initiate an 'looping' generator with it
     delta_gen = buildCycler(delta_list)
 
@@ -240,7 +260,7 @@ if __name__ == '__main__':
     J_list = []
     for d in delta_list:
         ##  J_list.append('P_CONTINUATION,P,0.001,4.0e2,%s,%s' % (xpoints,d))
-        J_list.append('P_CONTINUATION_WITH_EIGEN,P,0.01,3.0e2,%s,%s' % (xpoints,d))
+        J_list.append('P_CONTINUATION_WITH_EIGEN,P,0.01,3.0e2,%s,%s' % (xpoints, d))
 
     """
     Feed the controller, job list, initiation list and task name to the scheduler
@@ -276,28 +296,48 @@ if __name__ == '__main__':
     del jRes
     del eRes
 
-    cPickle.dump((FinalIArray,FinalSArray,FinalJArray,FinalEArray), open(task_name+'_result_array.bin','wb'), 2)
+    cPickle.dump(
+        (FinalIArray, FinalSArray, FinalJArray, FinalEArray),
+        open(task_name + '_result_array.bin', 'wb'),
+        2,
+    )
 
     # get rid of negative values in axes and fluxes
     FinalArrayClean = []
     FinalVTK = []
     for r in range(FinalSArray.shape[0]):
-        if FinalIArray[r,:].all() > 0.0 and FinalSArray[r,:].all() > 0.0 and \
-            FinalJArray[r,:].all() > 0.0 and FinalIArray[r,1] >= 0.2 and FinalJArray[r,1] >= 0.08 and FinalIArray[r,1] <= 200.0:
-            FinalArrayClean.append([FinalIArray[r,0], FinalIArray[r,1], FinalJArray[r,1], max(FinalEArray[r,:].real)])
+        if (
+            FinalIArray[r, :].all() > 0.0
+            and FinalSArray[r, :].all() > 0.0
+            and FinalJArray[r, :].all() > 0.0
+            and FinalIArray[r, 1] >= 0.2
+            and FinalJArray[r, 1] >= 0.08
+            and FinalIArray[r, 1] <= 200.0
+        ):
+            FinalArrayClean.append(
+                [
+                    FinalIArray[r, 0],
+                    FinalIArray[r, 1],
+                    FinalJArray[r, 1],
+                    max(FinalEArray[r, :].real),
+                ]
+            )
         else:
-            FinalIArray[r,:] = 0.0
-            FinalSArray[r,:] = 0.0
-            FinalJArray[r,:] = 0.0
-            FinalEArray[r,:] = 0.0
+            FinalIArray[r, :] = 0.0
+            FinalSArray[r, :] = 0.0
+            FinalJArray[r, :] = 0.0
+            FinalEArray[r, :] = 0.0
     FinalArrayClean = numpy.array(FinalArrayClean)
 
-
     # write out an xyz gplt file
-    coords = numpy.transpose(numpy.array((FinalArrayClean[:,0],FinalArrayClean[:,1],FinalArrayClean[:,2])))
+    coords = numpy.transpose(
+        numpy.array(
+            (FinalArrayClean[:, 0], FinalArrayClean[:, 1], FinalArrayClean[:, 2])
+        )
+    )
     # get our data in nice grid format for plotting
     coords = GridSortLR(coords)
-    scipy.io.write_array(task_name+'_result_gplt.dat', coords, separator=' ')
+    scipy.io.write_array(task_name + '_result_gplt.dat', coords, separator=' ')
 
     def ScalarFunc(val):
         """
@@ -309,14 +349,23 @@ if __name__ == '__main__':
         else:
             return val
 
-
     # prepare vtk data
-    vtkcoords = numpy.transpose(numpy.array((FinalArrayClean[:,0],FinalArrayClean[:,1],FinalArrayClean[:,2],FinalArrayClean[:,3]),'d'))
+    vtkcoords = numpy.transpose(
+        numpy.array(
+            (
+                FinalArrayClean[:, 0],
+                FinalArrayClean[:, 1],
+                FinalArrayClean[:, 2],
+                FinalArrayClean[:, 3],
+            ),
+            'd',
+        )
+    )
     for row in range(vtkcoords.shape[0]):
-        vtkcoords[row,:3] = scipy.log10(vtkcoords[row,:3])
+        vtkcoords[row, :3] = scipy.log10(vtkcoords[row, :3])
 
-    print(vtkcoords[:10,:])
+    print(vtkcoords[:10, :])
     vtkcoords = GridSortLR(vtkcoords)
-    print(vtkcoords[:10,:])
+    print(vtkcoords[:10, :])
 
-    writeVTK_UnstructuredGrid(task_name+'_result_ug', vtkcoords)
+    writeVTK_UnstructuredGrid(task_name + '_result_ug', vtkcoords)

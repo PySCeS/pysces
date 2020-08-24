@@ -62,20 +62,24 @@ if not HAVE_SCIPY_DERIV:
 
 from getpass import getuser
 
-from pysces import model_dir as MODEL_DIR
-from pysces import output_dir as OUTPUT_DIR
-from pysces import install_dir as INSTALL_DIR
-from pysces import nleq2
-from pysces import nleq2_switch
-from pysces import pitcon
-from pysces import plt, gplt
-from pysces import PyscesStoich
-from pysces import PyscesParse
-from pysces import PyscesRandom as random
-from pysces import __SILENT_START__
-from pysces.PyscesScan import Scanner
-from pysces.core2.InfixParser import MyInfixParser
-from pysces import SED
+from . import model_dir as MODEL_DIR
+from . import output_dir as OUTPUT_DIR
+from . import install_dir as INSTALL_DIR
+from . import PyscesRandom as random
+from .PyscesScan import Scanner
+from .core2.InfixParser import MyInfixParser
+
+from . import (
+    nleq2,
+    nleq2_switch,
+    pitcon,
+    plt,
+    gplt,
+    PyscesStoich,
+    PyscesParse,
+    __SILENT_START__,
+    SED,
+)
 
 interface = None
 
