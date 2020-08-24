@@ -14,16 +14,19 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+
 from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = '''SBML reading/writing module - now replaced by PySCeS Core2'''
 
-import os,sys
+import os, sys
 from time import sleep, strftime
 from getpass import getuser
+
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
@@ -33,12 +36,12 @@ if sys.platform == 'win32':
     try:
         import pysces.libsbml.libsbmlinit as SBML
     except Exception as e:
-        print('Windows sbml load error',e)
+        print('Windows sbml load error', e)
 else:
     try:
         import libsbml as SBML
     except Exception as e:
-        print('Posix sbml load error',e)
+        print('Posix sbml load error', e)
 
 
 class PyscesSBML:
@@ -49,7 +52,18 @@ class PyscesSBML:
     _debug = 0
     SBML = SBML
 
-    def SBML_buildBasicModel(self,mod,filename,slvl=2,dir=None,substance=(1,0),volume=(1,0),time=(1,0),arules=None,notes=None):
+    def SBML_buildBasicModel(
+        self,
+        mod,
+        filename,
+        slvl=2,
+        dir=None,
+        substance=(1, 0),
+        volume=(1, 0),
+        time=(1, 0),
+        arules=None,
+        notes=None,
+    ):
         """
         SBML_buildBasicModel(mod,filename,slvl=2,dir=None)
 
@@ -65,17 +79,28 @@ class PyscesSBML:
         time [default=(1,0)]: the model time unit - SBML default is "second"
 
         """
-        self.SBML_createModel(mod,filename,slvl,dir)
+        self.SBML_createModel(mod, filename, slvl, dir)
         self.SBML_setCompartment()
         self.SBML_setNotes(txt=notes)
-        self.SBML_setUnits(substance=substance,volume=volume,time=time)
-        if arules != None: self.SBML_setAssignmentRules(arules)
+        self.SBML_setUnits(substance=substance, volume=volume, time=time)
+        if arules != None:
+            self.SBML_setAssignmentRules(arules)
         self.SBML_setSpecies()
         self.SBML_setReactions()
         self.SBML_setModel()
 
-
-    def write(self,mod,filename,slvl=2,dir=None,substance=(1,0),volume=(1,0),time=(1,0),arules=None,notes=None):
+    def write(
+        self,
+        mod,
+        filename,
+        slvl=2,
+        dir=None,
+        substance=(1, 0),
+        volume=(1, 0),
+        time=(1, 0),
+        arules=None,
+        notes=None,
+    ):
         """
         write(mod,filename,slvl=2,dir=None)
 
@@ -92,11 +117,14 @@ class PyscesSBML:
         time [default=(1,0)]: the model time unit - SBML default is "second"
 
         """
-        self.SBML_buildBasicModel(mod,filename,slvl,dir,substance,volume,time,arules,notes)
+        self.SBML_buildBasicModel(
+            mod, filename, slvl, dir, substance, volume, time, arules, notes
+        )
         self.SBML_writeFile()
 
-
-    def getSBML_document(self,mod,substance=(1,0),volume=(1,0),time=(1,0),arules=None,notes=None):
+    def getSBML_document(
+        self, mod, substance=(1, 0), volume=(1, 0), time=(1, 0), arules=None, notes=None
+    ):
         """
         Returns an SBML document object
 
@@ -112,10 +140,14 @@ class PyscesSBML:
         filename = 'tempXML'
         slvl = 2
         dir = None
-        self.SBML_buildBasicModel(mod,filename,slvl,dir,substance,volume,time,arules,notes)
+        self.SBML_buildBasicModel(
+            mod, filename, slvl, dir, substance, volume, time, arules, notes
+        )
         return self.sbml_document
 
-    def getSBML_string(self,mod,substance=(1,0),volume=(1,0),time=(1,0),arules=None,notes=None):
+    def getSBML_string(
+        self, mod, substance=(1, 0), volume=(1, 0), time=(1, 0), arules=None, notes=None
+    ):
         """
         Returns an SBML file as a string
 
@@ -130,10 +162,12 @@ class PyscesSBML:
         filename = 'tempXML'
         slvl = 2
         dir = None
-        self.SBML_buildBasicModel(mod,filename,slvl,dir,substance,volume,time,arules,notes)
+        self.SBML_buildBasicModel(
+            mod, filename, slvl, dir, substance, volume, time, arules, notes
+        )
         return self.sbml_document.toSBML()
 
-    def __cleanString__(self,s):
+    def __cleanString__(self, s):
         s = s.lstrip()
         s = s.rstrip()
         return s
@@ -143,10 +177,12 @@ class PyscesSBML:
         ff = self.model_obj._Function_forced.split('\n')
         for f in ff:
             if f != '':
-                f =  f.split('=')
-                f[0] = f[0].replace('self.','')
-                f[1] = f[1].replace('self.','')
-                self.__forcing_function_dic__.setdefault(self.__cleanString__(f[0]), self.__cleanString__(f[1]))
+                f = f.split('=')
+                f[0] = f[0].replace('self.', '')
+                f[1] = f[1].replace('self.', '')
+                self.__forcing_function_dic__.setdefault(
+                    self.__cleanString__(f[0]), self.__cleanString__(f[1])
+                )
 
     def getAssignmentRules(self):
         self.parseForcingFunctions()
@@ -155,9 +191,7 @@ class PyscesSBML:
             out.append((key, self.__forcing_function_dic__[key]))
         return out
 
-
-
-    def SBML_createModel(self,mod,filename,slvl=2,dir=None):
+    def SBML_createModel(self, mod, filename, slvl=2, dir=None):
         """
         SBML_createModel(mod,filename,slvl=2,dir=None)
 
@@ -171,9 +205,10 @@ class PyscesSBML:
         dir [default=None]: output directory
 
         """
-        if self._debug: print('SBML_createModel')
+        if self._debug:
+            print('SBML_createModel')
         self.model_obj = mod
-        self.__nDict__= self.model_obj.__nDict__
+        self.__nDict__ = self.model_obj.__nDict__
         self.model_filename = filename
         if dir == None:
             self.model_dir = self.model_obj.ModelOutput
@@ -189,11 +224,15 @@ class PyscesSBML:
         self.model_compartment_name = None
 
         # create initdict
-        self.__InitStrings__ = [s.replace('self.','') for s in self.model_obj._PysMod__InitStrings]
+        self.__InitStrings__ = [
+            s.replace('self.', '') for s in self.model_obj._PysMod__InitStrings
+        ]
         self.__InitDict__ = {}
         for ii in self.__InitStrings__:
-            l,r = ii.split('=')
-            self.__InitDict__.setdefault(self.__cleanString__(l), float(self.__cleanString__(r)))
+            l, r = ii.split('=')
+            self.__InitDict__.setdefault(
+                self.__cleanString__(l), float(self.__cleanString__(r))
+            )
 
         # create forcing function dic
         try:
@@ -201,17 +240,18 @@ class PyscesSBML:
         except:
             print("No pre-defined forcing functions")
 
-
         if self.sbml_level == 1:
             if sys.platform == 'win32':
-                print('Due to a bug in self.SBML for Windows writing a lvl 1 file will crash your session writing lvl 2 instead ... sorry')
+                print(
+                    'Due to a bug in self.SBML for Windows writing a lvl 1 file will crash your session writing lvl 2 instead ... sorry'
+                )
                 self.sbml_document.setLevel(2)
             else:
                 self.sbml_document.setLevel(self.sbml_level)
         else:
             self.sbml_document.setLevel(2)
 
-    def SBML_setCompartment(self,name=None,vol=1):
+    def SBML_setCompartment(self, name=None, vol=1):
         """
         SBML_setCompartment(name=None,vol=1)
 
@@ -223,19 +263,22 @@ class PyscesSBML:
         vol [default=1]: the compartment volume
 
         """
-        if self._debug: print('SBML_setCompartment')
+        if self._debug:
+            print('SBML_setCompartment')
         comp_def = self.sbml_model.createCompartment()
         if not name:
             self.model_compartment_name = 'Cell'
         else:
             self.model_compartment_name = name
-            for char in [' ','.','-','*','?','!','\t','\n']:
-                self.model_compartment_name = self.model_compartment_name.replace(char,'_')
+            for char in [' ', '.', '-', '*', '?', '!', '\t', '\n']:
+                self.model_compartment_name = self.model_compartment_name.replace(
+                    char, '_'
+                )
             self.model_compartment_name = name
         comp_def.setId(self.model_compartment_name)
         comp_def.setVolume(vol)
 
-    def SBML_setNotes(self,txt=None):
+    def SBML_setNotes(self, txt=None):
         notes = '<body xmlns="http://www.w3.org/1999/xhtml">'
         if txt != None:
             notes += '<span style="font-family: Courier New,Courier,monospace;">'
@@ -243,7 +286,6 @@ class PyscesSBML:
             notes += '</span>'
         notes += '</body>'
         self.sbml_model.setNotes(notes)
-
 
     def SBML_setUnits(self, **kwargs):
         """
@@ -265,13 +307,15 @@ class PyscesSBML:
             vdef = self.sbml_model.createUnitDefinition()
             vdef.setId(un)
             vu = self.sbml_model.createUnit()
-            if un == 'substance': vu.setKind(self.SBML.UnitKind_forName('mole'))
-            elif un == 'volume': vu.setKind(self.SBML.UnitKind_forName('litre'))
-            elif un == 'time': vu.setKind(self.SBML.UnitKind_forName('second'))
+            if un == 'substance':
+                vu.setKind(self.SBML.UnitKind_forName('mole'))
+            elif un == 'volume':
+                vu.setKind(self.SBML.UnitKind_forName('litre'))
+            elif un == 'time':
+                vu.setKind(self.SBML.UnitKind_forName('second'))
             vu.setMultiplier(kwargs[un][0])
             vu.setScale(kwargs[un][1])
             vu.setOffset(0)
-
 
     def SBML_setSpecies(self):
         """
@@ -283,7 +327,8 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print('SBML_setSpecies')
+        if self._debug:
+            print('SBML_setSpecies')
         reagList = self.model_obj.__species__ + self.model_obj.__fixed_species__
         for reagent in range(len(reagList)):
             s = self.sbml_model.createSpecies()
@@ -296,15 +341,15 @@ class PyscesSBML:
             else:
                 s.setBoundaryCondition(False)
 
-            if reagent < len(self.model_obj.__species__ ):
+            if reagent < len(self.model_obj.__species__):
                 reagName = reagList[reagent] + '_init'
             else:
                 reagName = reagList[reagent]
 
             if self.sbml_level == 1:
-                s.setInitialAmount(getattr(self.model_obj,reagName))
+                s.setInitialAmount(getattr(self.model_obj, reagName))
             else:
-                s.setInitialConcentration(getattr(self.model_obj,reagName))
+                s.setInitialConcentration(getattr(self.model_obj, reagName))
 
     def SBML_setAssignmentRules(self, rules=[]):
 
@@ -313,13 +358,12 @@ class PyscesSBML:
             self.global_parameters.append(rule[0])
             p = self.sbml_model.createParameter()
             p.setId(rule[0])
-            p.setValue(getattr(self.model_obj,rule[0]))
+            p.setValue(getattr(self.model_obj, rule[0]))
             p.setConstant(False)
             r = self.sbml_model.createAssignmentRule()
             r.setVariable(rule[0])
             r.setFormula(rule[1])
             r.setMathFromFormula()
-
 
     def SBML_setReactions(self):
         """
@@ -331,8 +375,9 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print('SBML_setReactions')
-        #TotSpecies = list(self.model_obj._PysMod__FixedReagents)+list(self.model_obj._PysMod__VarReagents)
+        if self._debug:
+            print('SBML_setReactions')
+        # TotSpecies = list(self.model_obj._PysMod__FixedReagents)+list(self.model_obj._PysMod__VarReagents)
         reaction_params = []
         for rxn in self.model_obj._PysMod__ReactionIDs:
             print('Adding reaction:', rxn)
@@ -341,7 +386,9 @@ class PyscesSBML:
             ndr = self.model_network_dict[rxn]
             for reagent in ndr['Reagents']:
                 stoich = ndr['Reagents'][reagent]
-                species = self.SBML.SpeciesReference(reagent.replace('self.',''),abs(stoich))
+                species = self.SBML.SpeciesReference(
+                    reagent.replace('self.', ''), abs(stoich)
+                )
                 if stoich < 0:
                     i.addReactant(species)
                 elif stoich > 0:
@@ -349,25 +396,25 @@ class PyscesSBML:
                 elif stoich == 0:
                     i.addModifier(species)
             # add a volume to convert rate equation to kinetic law
-            kineticLaw = ndr['RateEq'].replace('self.','')
-            kineticLaw = kineticLaw.replace('scipy.','')
+            kineticLaw = ndr['RateEq'].replace('self.', '')
+            kineticLaw = kineticLaw.replace('scipy.', '')
             if self.model_compartment_name not in self.model_obj.parameters:
-                kineticLaw = self.model_compartment_name + ' * ('+ kineticLaw +')'
+                kineticLaw = self.model_compartment_name + ' * (' + kineticLaw + ')'
             else:
                 kineticLaw = kineticLaw
             kineticLaw = self.SBML.KineticLaw(kineticLaw)
 
             # local parameters retired in favour of globals
             ##  for parameter in ndr['Params']:
-                ##  p = parameter.replace('self.','')
-                ##  if p not in self.model_obj.__fixed_species__ and p not in self.global_parameters:
-                    ##  try:
-                        ##  kineticLaw.addParameter(self.SBML.Parameter(p, getattr(self.model_obj,p)))
-                        ##  reaction_params.append(p)
-                    ##  except AttributeError,err :
-                        ##  print '\n', err
-                        ##  print "Parameter set error ... are there forcing functions??"
-                        ##  sleep(0.5)
+            ##  p = parameter.replace('self.','')
+            ##  if p not in self.model_obj.__fixed_species__ and p not in self.global_parameters:
+            ##  try:
+            ##  kineticLaw.addParameter(self.SBML.Parameter(p, getattr(self.model_obj,p)))
+            ##  reaction_params.append(p)
+            ##  except AttributeError,err :
+            ##  print '\n', err
+            ##  print "Parameter set error ... are there forcing functions??"
+            ##  sleep(0.5)
             i.setKineticLaw(kineticLaw)
             if ndr['Type'] == 'Rever':
                 rev = True
@@ -379,17 +426,21 @@ class PyscesSBML:
             for reac in self.model_obj.__modifiers__:
                 if reac[0] == rxn:
                     for x in reac[1]:
-                        print(' ' + reac[0] +' has modifier: ' + x)
+                        print(' ' + reac[0] + ' has modifier: ' + x)
                         self.sbml_model.createModifier().setSpecies(x)
 
         # add extra parameter initialised but not in reactions
         # we have to do this in case the assignment rules are added after we build the model
         hack = list(self.__forcing_function_dic__.keys())
 
-        not_xparams = self.global_parameters + reaction_params+\
-                     list(self.model_obj.species)+\
-                     list(self.model_obj.fixed_species) + [self.model_compartment_name] +hack
-
+        not_xparams = (
+            self.global_parameters
+            + reaction_params
+            + list(self.model_obj.species)
+            + list(self.model_obj.fixed_species)
+            + [self.model_compartment_name]
+            + hack
+        )
 
         for k in list(self.__InitDict__.keys()):
             if k not in not_xparams:
@@ -398,9 +449,6 @@ class PyscesSBML:
                 p = self.sbml_model.createParameter()
                 p.setId(k)
                 p.setValue(getattr(self.model_obj, k))
-
-
-
 
     def SBML_setModel(self):
         """
@@ -412,7 +460,8 @@ class PyscesSBML:
         None
 
         """
-        if self._debug: print('SBML_setModel')
+        if self._debug:
+            print('SBML_setModel')
         self.sbml_document.setModel(self.sbml_model)
 
     def SBML_writeFile(self):
@@ -426,9 +475,9 @@ class PyscesSBML:
 
         """
 
-        self.SBML.writeSBML(self.sbml_document,'pysces_sbml_tmp.xml')
-        Fin = open('pysces_sbml_tmp.xml','r')
-        Fout = open(os.path.join(self.model_dir,self.model_filename+'.xml'),'w')
+        self.SBML.writeSBML(self.sbml_document, 'pysces_sbml_tmp.xml')
+        Fin = open('pysces_sbml_tmp.xml', 'r')
+        Fout = open(os.path.join(self.model_dir, self.model_filename + '.xml'), 'w')
         cntr = 0
         try:
             UseR = getuser()
@@ -436,7 +485,16 @@ class PyscesSBML:
             UseR = ''
         for line in Fin:
             if cntr == 1:
-                Fout.write('<!-- Created with PySCeS ('+ __version__ + ') on ' + strftime("%a, %d %b %Y %H:%M:%S") + ' by '+UseR+' -->\n'+line)
+                Fout.write(
+                    '<!-- Created with PySCeS ('
+                    + __version__
+                    + ') on '
+                    + strftime("%a, %d %b %Y %H:%M:%S")
+                    + ' by '
+                    + UseR
+                    + ' -->\n'
+                    + line
+                )
             else:
                 Fout.write(line)
             cntr += 1
@@ -445,8 +503,7 @@ class PyscesSBML:
 
         os.remove('pysces_sbml_tmp.xml')
 
-
-    def convert2psc(self,filename,dir=None,dirOut=None):
+    def convert2psc(self, filename, dir=None, dirOut=None):
         """
         convert2psc(filename,dir=None,dirOut=None)
 
@@ -461,7 +518,7 @@ class PyscesSBML:
         """
         if dir == None:
             dir = os.getcwd()
-        File = os.path.join(dir,filename)
+        File = os.path.join(dir, filename)
         assert os.path.exists(File), "Invalid path"
 
         self.model_filename = filename
@@ -488,19 +545,23 @@ class PyscesSBML:
 
         for i in m.getListOfSpecies():
             parName = getName(i)
-        # if a species is a BoundaryCondition or constant it becomes fixed - brett 20050111
+            # if a species is a BoundaryCondition or constant it becomes fixed - brett 20050111
             if i.getBoundaryCondition() or i.getConstant():
                 if i.getConstant() and not i.getBoundaryCondition():
-                    print(parName, ' is set as constant, assuming: BoundaryCondition = True')
-                init_fixed.append((parName,i.getInitialConcentration()))
+                    print(
+                        parName,
+                        ' is set as constant, assuming: BoundaryCondition = True',
+                    )
+                init_fixed.append((parName, i.getInitialConcentration()))
             else:
-                init_var.append((parName,i.getInitialConcentration()))
+                init_var.append((parName, i.getInitialConcentration()))
 
-        NetworkDict = dict([(i,dict.fromkeys(['Params',
-                              'RateEq',
-                              'Reagents',
-                              'Type'])) for i in ReactionIDs])
-
+        NetworkDict = dict(
+            [
+                (i, dict.fromkeys(['Params', 'RateEq', 'Reagents', 'Type']))
+                for i in ReactionIDs
+            ]
+        )
 
         for i in reactions:
             rDict = NetworkDict[getName(i)]
@@ -509,12 +570,12 @@ class PyscesSBML:
             try:
                 for k in j.getListOfParameters():
                     par.append(getName(k))
-                    init_par.append((getName(k),k.getValue()))
+                    init_par.append((getName(k), k.getValue()))
                     parameters.append(getName(k))
                 rDict['Params'] = par
                 rDict['RateEq'] = j.getFormula()
                 if d.getLevel() == 1:
-                    rDict['RateEq'] = rDict['RateEq'].replace(' ', '' )
+                    rDict['RateEq'] = rDict['RateEq'].replace(' ', '')
                     rDict['RateEq'] = rDict['RateEq'].replace('^', '**')
             except Exception as err:
                 rDict['Params'] = []
@@ -527,12 +588,12 @@ class PyscesSBML:
             for k in i.getListOfReactants():
                 species = k.getSpecies()
                 stoich = -k.getStoichiometry()
-                Substrates.append((species,stoich))
+                Substrates.append((species, stoich))
 
             for k in i.getListOfProducts():
                 species = k.getSpecies()
                 stoich = k.getStoichiometry()
-                Products.append((species,stoich))
+                Products.append((species, stoich))
 
             # this is to eliminate zero stoichiometries {0}xyz
             badList = []
@@ -551,14 +612,14 @@ class PyscesSBML:
 
             # add source/sink pools to nasty substrate/productless reactions - brett 20050908
             if len(Substrates) == 0:
-                Substrates.append(('$pool',-1.0))
+                Substrates.append(('$pool', -1.0))
             if len(Products) == 0:
-                Products.append(('$pool',1.0))
+                Products.append(('$pool', 1.0))
 
             # print Substrates
             # print Products
 
-            rDict['Reagents'] = dict(Substrates+Products)
+            rDict['Reagents'] = dict(Substrates + Products)
             if i.getReversible() == True:
                 t = 'Rever'
             else:
@@ -570,42 +631,42 @@ class PyscesSBML:
         if len(m.getListOfParameters()) > 0:
             for x in m.getListOfParameters():
                 if getName(x) not in parameters:
-                    #print getName(x)
-                    init_par.append((getName(x),x.getValue()))
+                    # print getName(x)
+                    init_par.append((getName(x), x.getValue()))
 
         if dirOut == None:
-            self.model_filename = os.path.join(os.getcwd(),self.model_filename)
+            self.model_filename = os.path.join(os.getcwd(), self.model_filename)
         else:
-            self.model_filename = os.path.join(dirOut,self.model_filename)
+            self.model_filename = os.path.join(dirOut, self.model_filename)
 
-        #print 'init_par'
-        #print init_par
-        #print 'init_var'
-        #print init_var
-        #print 'init_fixed'
-        #print init_fixed
+        # print 'init_par'
+        # print init_par
+        # print 'init_var'
+        # print init_var
+        # print 'init_fixed'
+        # print init_fixed
 
         # sometimes things just work lekker (replaced all the old showS^&t) - brett 20050913
-        outFile = open(self.model_filename+'.psc','w')
+        outFile = open(self.model_filename + '.psc', 'w')
         self.PSC_writeHeader(outFile)
-        self.PSC_writeFixedSpeciesList(outFile,init_fixed)
-        self.PSC_writeRateEquations(outFile,NetworkDict,number_format='%2.3f')
-        self.PSC_writeSpecies(outFile,init_var)
-        self.PSC_writeFixedSpecies(outFile,init_fixed)
-        self.PSC_writeParameters(outFile,init_par)
+        self.PSC_writeFixedSpeciesList(outFile, init_fixed)
+        self.PSC_writeRateEquations(outFile, NetworkDict, number_format='%2.3f')
+        self.PSC_writeSpecies(outFile, init_var)
+        self.PSC_writeFixedSpecies(outFile, init_fixed)
+        self.PSC_writeParameters(outFile, init_par)
         outFile.close()
 
         # Initialise compartment volumes as a parameter - brett 20050908
         compartmentList = []
         for comp in m.getListOfCompartments():
-            #print comp
-            compartmentList.append((getName(comp),comp.getVolume()))
+            # print comp
+            compartmentList.append((getName(comp), comp.getVolume()))
 
         if len(compartmentList) > 1:
             print('\nINFO: PySCeS models are assumed to have a single compartment')
 
         if len(compartmentList) > 0:
-            F = open(self.model_filename+'.psc','a')
+            F = open(self.model_filename + '.psc', 'a')
             F.write('\n## Initialise compartment volumes')
             for comp in compartmentList:
                 F.write('\n' + comp[0] + ' = ' + str(comp[1]))
@@ -614,23 +675,32 @@ class PyscesSBML:
             F.write('\n')
             F.close()
 
-
         # Add assignment rules as forcing functions - brett 20050908
         pscRules = []
         for rule in m.getListOfRules():
-            pscRules.append((rule.getVariable(),rule.getFormula()))
+            pscRules.append((rule.getVariable(), rule.getFormula()))
 
         if len(pscRules) > 0:
-            F = open(self.model_filename+'.psc','a')
+            F = open(self.model_filename + '.psc', 'a')
             F.write('\n## Assignment rules translated to forcing functions\n')
             for rule in pscRules:
                 rule0 = 'self.' + rule[0]
                 rule1l = rule[1].split()
                 for word in range(len(rule1l)):
                     if rule1l[word].isalnum():
-                        if rule1l[word] not in ['1','2','3','4','5','6','7','8','9']:
-                            rule1l[word] = 'self.'+rule1l[word]
-                F.write('!F '+ rule0 + ' = ')
+                        if rule1l[word] not in [
+                            '1',
+                            '2',
+                            '3',
+                            '4',
+                            '5',
+                            '6',
+                            '7',
+                            '8',
+                            '9',
+                        ]:
+                            rule1l[word] = 'self.' + rule1l[word]
+                F.write('!F ' + rule0 + ' = ')
                 for word in rule1l:
                     F.write(word + ' ')
                 F.write('\n')
@@ -638,12 +708,11 @@ class PyscesSBML:
             F.close()
 
         if len(m.getNotes()) > 0:
-            F = open(self.model_filename+'.psc','a')
-            F.write('\n## Model notes' + m.getNotes().replace('\n','\n# ')+'\n\n')
+            F = open(self.model_filename + '.psc', 'a')
+            F.write('\n## Model notes' + m.getNotes().replace('\n', '\n# ') + '\n\n')
             F.close()
 
-
-    def PSC_writeHeader(self,File):
+    def PSC_writeHeader(self, File):
         """
         PSC_writeHeader(File)
 
@@ -660,17 +729,22 @@ class PyscesSBML:
             UseR = ''
 
         header = ''
-        #header +=  '############################################################\n'
+        # header +=  '############################################################\n'
         header += '# PySCeS (' + __version__ + ') model input file\n'
-        header +=  '# PySCeS can be found at http://pysces.sourceforge.net/\n'
-        #header += '###########################################################\n\n'
+        header += '# PySCeS can be found at http://pysces.sourceforge.net/\n'
+        # header += '###########################################################\n\n'
         header += '# Original input file: ' + File.name.split('\\')[-1][:-4] + '\n'
-        header += '# This file generated: ' + strftime("%a, %d %b %Y %H:%M:%S") + ' by '+UseR+'\n\n'
+        header += (
+            '# This file generated: '
+            + strftime("%a, %d %b %Y %H:%M:%S")
+            + ' by '
+            + UseR
+            + '\n\n'
+        )
         File.write(header)
         File.write('\n')
 
-
-    def PSC_writeSpecies(self,File,species):
+    def PSC_writeSpecies(self, File, species):
         """
         PSC_writeSpecies(File,species)
 
@@ -686,13 +760,14 @@ class PyscesSBML:
 
         out_list.append('\n## Variable species initial values\n')
         for x in range(len(species)):
-            out_list.append(species[x][0] + ' = ' +  self.mode_number_format % species[x][1] + '\n')
+            out_list.append(
+                species[x][0] + ' = ' + self.mode_number_format % species[x][1] + '\n'
+            )
         for x in out_list:
             File.write(x)
         File.write('\n')
 
-
-    def PSC_writeFixedSpeciesList(self,File,fixed_species):
+    def PSC_writeFixedSpeciesList(self, File, fixed_species):
         """
         PSC_writeFixedSpeciesList(File,fixed_species)
 
@@ -713,8 +788,7 @@ class PyscesSBML:
                 File.write(x[0] + ' ')
         File.write('\n\n')
 
-
-    def PSC_writeFixedSpecies(self,File,fixed_species):
+    def PSC_writeFixedSpecies(self, File, fixed_species):
         """
         PSC_writeFixedSpecies(File,fixed_species)
 
@@ -730,13 +804,17 @@ class PyscesSBML:
 
         out_list.append('\n## Fixed species\n')
         for x in range(len(fixed_species)):
-            out_list.append(fixed_species[x][0] + ' = ' +  self.mode_number_format % fixed_species[x][1] + '\n')
+            out_list.append(
+                fixed_species[x][0]
+                + ' = '
+                + self.mode_number_format % fixed_species[x][1]
+                + '\n'
+            )
         for x in out_list:
             File.write(x)
         File.write('\n')
 
-
-    def PSC_writeParameters(self,File,parameters):
+    def PSC_writeParameters(self, File, parameters):
         """
         PSC_writeParameters(File,parameters)
 
@@ -752,13 +830,17 @@ class PyscesSBML:
 
         out_list.append('\n## Parameters\n')
         for x in range(len(parameters)):
-            out_list.append(parameters[x][0] + ' = ' +  self.mode_number_format % parameters[x][1] + '\n')
+            out_list.append(
+                parameters[x][0]
+                + ' = '
+                + self.mode_number_format % parameters[x][1]
+                + '\n'
+            )
         for x in out_list:
             File.write(x)
         File.write('\n')
 
-
-    def PSC_writeRateEquations(self,File,NetworkDict,number_format='%2.3f'):
+    def PSC_writeRateEquations(self, File, NetworkDict, number_format='%2.3f'):
         """
         PSC_writeRateEquations(File,NetworkDict,number_format='%2.3f')
 
@@ -781,16 +863,26 @@ class PyscesSBML:
             for reagent in NetworkDict[key]['Reagents']:
                 if NetworkDict[key]['Reagents'][reagent] > 0:
                     if NetworkDict[key]['Reagents'][reagent] == 1.0:
-                        reagR.append(reagent.replace('self.',''))
+                        reagR.append(reagent.replace('self.', ''))
                     else:
-                        reagR.append('{' + number_format % abs(NetworkDict[key]['Reagents'][reagent]) + '}' + reagent.replace('self.',''))
+                        reagR.append(
+                            '{'
+                            + number_format % abs(NetworkDict[key]['Reagents'][reagent])
+                            + '}'
+                            + reagent.replace('self.', '')
+                        )
                 elif NetworkDict[key]['Reagents'][reagent] < 0:
                     if NetworkDict[key]['Reagents'][reagent] == -1.0:
-                        reagL.append(reagent.replace('self.',''))
+                        reagL.append(reagent.replace('self.', ''))
                     else:
-                        reagL.append('{' + number_format % abs(NetworkDict[key]['Reagents'][reagent]) + '}' + reagent.replace('self.',''))
+                        reagL.append(
+                            '{'
+                            + number_format % abs(NetworkDict[key]['Reagents'][reagent])
+                            + '}'
+                            + reagent.replace('self.', '')
+                        )
                 elif NetworkDict[key]['Reagents'][reagent] == 0:
-                    #reagL.append(reagent.replace('self.',''))
+                    # reagL.append(reagent.replace('self.',''))
                     print(NetworkDict[key]['Reagents'])
                     input('WTF: please contact developers')
 
@@ -806,14 +898,14 @@ class PyscesSBML:
             for x in reagL:
                 if count != 0:
                     substring += ' + '
-                substring += x.replace(' ','')
+                substring += x.replace(' ', '')
                 count += 1
             prodstring = ''
             count = 0
             for x in reagR:
                 if count != 0:
                     prodstring += ' + '
-                prodstring += x.replace(' ','')
+                prodstring += x.replace(' ', '')
                 count += 1
 
             if NetworkDict[key]['Type'] == 'Rever':
@@ -821,6 +913,8 @@ class PyscesSBML:
             else:
                 symbol = ' > '
             out_list.append('\t' + substring + symbol + prodstring + '\n')
-            out_list.append('\t' + NetworkDict[key]['RateEq'].replace('self.','') + '\n\n')
+            out_list.append(
+                '\t' + NetworkDict[key]['RateEq'].replace('self.', '') + '\n\n'
+            )
         for x in out_list:
             File.write(x)

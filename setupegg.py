@@ -24,4 +24,5 @@ Adapted from the original NumPy src (numpy.scipy.org).
 """
 FRYING_EGGS = True
 from setuptools import setup
+
 exec(compile(open('setup.py').read(), 'setup.py', 'exec'))

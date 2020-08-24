@@ -14,6 +14,7 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+
 from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
@@ -24,23 +25,29 @@ import os
 import math, operator
 import numpy
 
-CurrentDirectory = os.getcwd() # temporary thing
+CurrentDirectory = os.getcwd()  # temporary thing
 
 # this is a PySCeS specific hack
 from pysces import output_dir as CurrentDirectory
 
 from .InfixParser import MyInfixParser
+
 InfixParser = MyInfixParser()
 InfixParser.buildlexer()
-InfixParser.buildparser(debug=0, debugfile='infix.dbg',
-	tabmodule='infix_tabmodule', outputdir=CurrentDirectory)
+InfixParser.buildparser(
+    debug=0,
+    debugfile='infix.dbg',
+    tabmodule='infix_tabmodule',
+    outputdir=CurrentDirectory,
+)
 InfixParser.setNameStr('self.', '()')
 
-#print 'CurrentDirectory', CurrentDirectory
+# print 'CurrentDirectory', CurrentDirectory
+
 
 class MapList(list):
     def __init__(self, *args):
-        list.__init__(self,*args)
+        list.__init__(self, *args)
 
     def asSet(self):
         return set(self.__getslice__(0, self.__len__()))
@@ -54,7 +61,7 @@ class NewCoreBase(object):
     def getName(self):
         return self.name
 
-    def setName(self,name):
+    def setName(self, name):
         self.name = name
 
     def get(self, attr):
@@ -71,7 +78,7 @@ class NewCoreBase(object):
         """Set an annotation as a key:value pair"""
         if self.annotations == None:
             self.annotations = {}
-        self.annotations.update({key : value})
+        self.annotations.update({key: value})
 
 
 class NumberBase(NewCoreBase):
@@ -107,16 +114,21 @@ class Compartment(NewCoreBase):
 
     def setSize(self, size, dim):
         self.size = size
-        assert dim in [0,1,2,3], '\nOkeee! %s dimensions?' % dim
+        assert dim in [0, 1, 2, 3], '\nOkeee! %s dimensions?' % dim
         self.dimensions = dim
 
     def setArea(self, area=None):
         if area == None and self.dimensions == 2:
             self.area = self.size
-            if self.__DEBUG__: print('Setting reactive area to size for 2D compartment %s' % self.name)
+            if self.__DEBUG__:
+                print('Setting reactive area to size for 2D compartment %s' % self.name)
         elif area == None and self.dimensions == 3:
-            self.area = (113.09733552923255*self.size**2.0)**(0.33333333333333331)
-            if self.__DEBUG__: print('Setting reactive area to surface area for 3D compartment %s (assuming a sphere geometry)' % self.name)
+            self.area = (113.09733552923255 * self.size ** 2.0) ** (0.33333333333333331)
+            if self.__DEBUG__:
+                print(
+                    'Setting reactive area to surface area for 3D compartment %s (assuming a sphere geometry)'
+                    % self.name
+                )
         self.area = area
 
     def hasReactions(self):
@@ -129,15 +141,18 @@ class Compartment(NewCoreBase):
         if reaction.name not in self.hasReactions():
             self.reactions.append(reaction)
             self.__setattr__(reaction.name, reaction)
-            if self.__DEBUG__: print('Adding reaction %s' % reaction.name)
+            if self.__DEBUG__:
+                print('Adding reaction %s' % reaction.name)
 
     def addSpecies(self, species):
         if species.name not in self.hasSpecies():
             self.species.append(species)
             self.__setattr__(species.name, species)
-            if self.__DEBUG__: print('Adding species %s' % species.name)
+            if self.__DEBUG__:
+                print('Adding species %s' % species.name)
         else:
-            if self.__DEBUG__: print('Species %s already added' % species.name)
+            if self.__DEBUG__:
+                print('Species %s already added' % species.name)
 
     def getDimensions(self):
         return self.dimensions
@@ -152,25 +167,34 @@ class Compartment(NewCoreBase):
             return False
 
     def isVolume(self):
-        if self.dimensions == 3: return True
-        else: return False
+        if self.dimensions == 3:
+            return True
+        else:
+            return False
 
     def isArea(self):
-        if self.dimensions == 2: return True
-        else: return False
+        if self.dimensions == 2:
+            return True
+        else:
+            return False
 
     def isLength(self):
-        if self.dimensions == 1: return True
-        else: return False
+        if self.dimensions == 1:
+            return True
+        else:
+            return False
 
     def isPoint(self):
-        if self.dimensions == 0: return True
-        else: return False
+        if self.dimensions == 0:
+            return True
+        else:
+            return False
 
 
 class BaseUnit(NewCoreBase):
     '''Base Unit can be of type: time, substance, volume'''
-    _types = ('time', 'substance', 'volume','area','length')
+
+    _types = ('time', 'substance', 'volume', 'area', 'length')
     value = 1.0
     type = None
 
@@ -202,7 +226,7 @@ class SimpleUnit(NewCoreBase):
         self.type = baseunit.type
 
     def __call__(self):
-        return (self.multiplier*self.baseunit()*10**self.scale)**self.exponent
+        return (self.multiplier * self.baseunit() * 10 ** self.scale) ** self.exponent
 
     def getType(self):
         return self.type
@@ -296,6 +320,7 @@ class Species(NumberBase):
     def isAmount(self):
         return self.__amount__
 
+
 class SpeciesAssignmentRule(Species):
     formula = None
     code_string = None
@@ -312,7 +337,7 @@ class SpeciesAssignmentRule(Species):
         return self.value
 
     def addFormula(self, formula):
-        formula = formula.replace('self.','')
+        formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '()')
         InfixParser.parse(formula)
@@ -323,6 +348,7 @@ class SpeciesAssignmentRule(Species):
 
     def addModelAttr(self, obj):
         self.__setattr__(obj.name, obj)
+
 
 class Function(NewCoreBase):
     formula = None
@@ -348,14 +374,15 @@ class Function(NewCoreBase):
         self.args.append(var)
 
     def addFormula(self, formula):
-        formula = formula.replace('self.','')
+        formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '')
-        InfixParser.SymbolReplacements = {'_TIME_':'_TIME_()'}
+        InfixParser.SymbolReplacements = {'_TIME_': '_TIME_()'}
         InfixParser.parse(formula)
         self._names = InfixParser.names
         self.code_string = 'self.value=%s' % InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
+
 
 class Reaction(NewCoreBase):
     modifiers = None
@@ -403,7 +430,7 @@ class Reaction(NewCoreBase):
         self.modifiers.append(species)
 
     def addFormula(self, formula):
-        formula = formula.replace('self.','')
+        formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '()')
         InfixParser.parse(formula)
@@ -464,6 +491,7 @@ class Parameter(NumberBase):
     def isParameterOf(self):
         return MapList([a.name for a in self.association])
 
+
 class AssignmentRule(Parameter):
     formula = None
     code_string = None
@@ -471,7 +499,7 @@ class AssignmentRule(Parameter):
     _functions = None
     type = 'assignment'
     _TIME_ = None
-    fixed = False # added so that assignment rules can modify fixed species
+    fixed = False  # added so that assignment rules can modify fixed species
 
     def __init__(self, name, value):
         Parameter.__init__(self, name, value)
@@ -481,7 +509,7 @@ class AssignmentRule(Parameter):
         return self.value
 
     def addFormula(self, formula):
-        formula = formula.replace('self.','')
+        formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '()')
         InfixParser.parse(formula)
@@ -512,8 +540,8 @@ class RateRule(NewCoreBase):
         return self.rate
 
     def addFormula(self, formula):
-        formula = formula.replace('self.','')
-        self.formula = formula.replace('()','')
+        formula = formula.replace('self.', '')
+        self.formula = formula.replace('()', '')
         InfixParser.setNameStr('self.', '()')
         InfixParser.parse(self.formula)
         self.code_string = 'self.rate=%s' % InfixParser.output
@@ -542,7 +570,7 @@ class ODE(NewCoreBase):
 
     def __init__(self, species, independent=True):
         self.sdot = species
-        self.name = 'ODE_'+species.name
+        self.name = 'ODE_' + species.name
         self.reactions = []
         self.coefficients = []
         self.ode_terms = []
@@ -558,23 +586,29 @@ class ODE(NewCoreBase):
         if coefficient > 0.0:
             if coefficient == 1.0:
                 term = '+self.%s() ' % (reaction.name)
-                aterm = '+(%s) ' % (reaction.code_string.replace('self.rate=',''))
+                aterm = '+(%s) ' % (reaction.code_string.replace('self.rate=', ''))
                 fterm = '+%s' % (reaction.name)
                 afterm = '+ (%s) ' % (reaction.formula)
             else:
                 term = '+%g*self.%s() ' % (abs(coefficient), reaction.name)
-                aterm = '+%g*(%s) ' % (abs(coefficient), reaction.code_string.replace('self.rate=',''))
+                aterm = '+%g*(%s) ' % (
+                    abs(coefficient),
+                    reaction.code_string.replace('self.rate=', ''),
+                )
                 fterm = '+%g*%s' % (abs(coefficient), reaction.name)
                 afterm = '+ %g*(%s) ' % (abs(coefficient), reaction.formula)
         else:
             if coefficient == -1.0:
                 term = '-self.%s() ' % (reaction.name)
-                aterm = '-(%s) ' % (reaction.code_string.replace('self.rate=',''))
+                aterm = '-(%s) ' % (reaction.code_string.replace('self.rate=', ''))
                 fterm = '-%s' % (reaction.name)
                 afterm = '- (%s) ' % (reaction.formula)
             else:
                 term = '-%g*self.%s() ' % (abs(coefficient), reaction.name)
-                aterm = '-%g*(%s) ' % (abs(coefficient), reaction.code_string.replace('self.rate=',''))
+                aterm = '-%g*(%s) ' % (
+                    abs(coefficient),
+                    reaction.code_string.replace('self.rate=', ''),
+                )
                 fterm = '-%g*%s' % (abs(coefficient), reaction.name)
                 afterm = '- %g*(%s) ' % (abs(coefficient), reaction.formula)
         self.ode_terms.append(term)
@@ -667,15 +701,21 @@ class StructMatrix(NewCoreBase):
 
     def getLabels(self, axis='all'):
         """Return the matrix labels ([rows],[cols]) where axis='row'/'col'/'all'"""
-        if axis == 'row': return self.row
-        elif axis == 'col': return self.col
-        else: return self.row, self.col
+        if axis == 'row':
+            return self.row
+        elif axis == 'col':
+            return self.col
+        else:
+            return self.row, self.col
 
     def getIndexes(self, axis='all'):
         """Return the matrix indexes ([rows],[cols]) where axis='row'/'col'/'all'"""
-        if axis == 'row': return self.ridx
-        elif axis == 'col': return self.cidx
-        else: return self.ridx, self.cidx
+        if axis == 'row':
+            return self.ridx
+        elif axis == 'col':
+            return self.cidx
+        else:
+            return self.ridx, self.cidx
 
     def getByIdx(self, row, col):
         assert row in self.ridx, '\n%s is an invalid index' % row
@@ -700,6 +740,7 @@ class StructMatrix(NewCoreBase):
     def shape(self):
         return self.array.shape
 
+
 class EventAssignment(NumberBase):
     variable = None
     _names = None
@@ -709,7 +750,8 @@ class EventAssignment(NumberBase):
 
     def __call__(self):
         self.variable.value = self.value
-        if self.__DEBUG__: print('\tAssigning %s = %s' % (self.variable.name, self.value))
+        if self.__DEBUG__:
+            print('\tAssigning %s = %s' % (self.variable.name, self.value))
         return True
 
     def __init__(self, name='None'):
@@ -726,7 +768,8 @@ class EventAssignment(NumberBase):
         self._names = InfixParser.names
         self.code_string = 'self.value=%s' % InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
-        if self.__DEBUG__: '\t', self.name, self.code_string
+        if self.__DEBUG__:
+            '\t', self.name, self.code_string
 
     def evaluateAssignment(self):
         exec(self.xcode)
@@ -765,11 +808,16 @@ class Event(NewCoreBase):
             self.state0 = self.state
             self._need_action = True
             self._ASS_TIME_ = self._TIME_() + self.delay
-            if self.__DEBUG__: print('event %s is evaluating at %s' % (self.name, time))
+            if self.__DEBUG__:
+                print('event %s is evaluating at %s' % (self.name, time))
         if self._need_action and self._TIME_() >= self._ASS_TIME_:
             for ass in self.assignments:
                 ass()
-            if self.__DEBUG__: print('event %s is assigning at %s (delay=%s)' % (self.name, time, self.delay))
+            if self.__DEBUG__:
+                print(
+                    'event %s is assigning at %s (delay=%s)'
+                    % (self.name, time, self.delay)
+                )
             self._need_action = False
 
     def setTrigger(self, formula, delay=0.0):
@@ -778,18 +826,19 @@ class Event(NewCoreBase):
         InfixParser.setNameStr('self.', '()')
         ##  print self._time_symbol
         if self._time_symbol != None:
-            InfixParser.SymbolReplacements = {self._time_symbol : '_TIME_'}
+            InfixParser.SymbolReplacements = {self._time_symbol: '_TIME_'}
             ##  self.formula = formula.replace(self._time_symbol, '_TIME_')
         InfixParser.parse(formula)
         self._names = InfixParser.names
         self.code_string = 'self.state=%s' % InfixParser.output
         if self._time_symbol != None:
             InfixParser.setNameStr('', '')
-            InfixParser.SymbolReplacements = {self._time_symbol : '_TIME_'}
+            InfixParser.SymbolReplacements = {self._time_symbol: '_TIME_'}
             InfixParser.parse(formula)
             self.formula = InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
-        if self.__DEBUG__: self.name, self.code_string
+        if self.__DEBUG__:
+            self.name, self.code_string
 
     def setTriggerAttributes(self, core):
         # TODO: experimental
@@ -801,7 +850,8 @@ class Event(NewCoreBase):
         ass.setVariable(var)
         ass.setFormula(formula)
         self.assignments.append(ass)
-        self.__setattr__('_'+var.name, ass)
+        self.__setattr__('_' + var.name, ass)
+
 
 class PieceWise(NewCoreBase):
     """
@@ -809,6 +859,7 @@ class PieceWise(NewCoreBase):
 
     - *args* a dictionary of piecewise information generated by the InfixParser
     """
+
     name = None
     value = None
     formula = None
@@ -825,7 +876,7 @@ class PieceWise(NewCoreBase):
             other = 'pass'
             pwd.pop('other')
         InfixParser.setNameStr('self.', '')
-        InfixParser.SymbolReplacements = {'_TIME_':'_TIME_()'}
+        InfixParser.SymbolReplacements = {'_TIME_': '_TIME_()'}
         self._names = []
         if len(list(pwd.keys())) == 1:
             formula = pwd[0][0]
@@ -834,9 +885,12 @@ class PieceWise(NewCoreBase):
                 if n not in self._names and n != '_TIME_()':
                     self._names.append(n)
             formula = InfixParser.output
-            self.code_string = 'if %s:\n    self.value = %s\nelse:\n    %s' %\
-            (formula, pwd[0][1], other)
-            self.formula = self.code_string.replace('self.','')
+            self.code_string = 'if %s:\n    self.value = %s\nelse:\n    %s' % (
+                formula,
+                pwd[0][1],
+                other,
+            )
+            self.formula = self.code_string.replace('self.', '')
         else:
             formula = pwd[0][0]
             InfixParser.parse(formula)
@@ -849,17 +903,19 @@ class PieceWise(NewCoreBase):
             pwd.pop(0)
             for p in pwd:
                 formula = pwd[p][0]
-                InfixParser.SymbolReplacements = {'_TIME_':'_TIME_()'}
+                InfixParser.SymbolReplacements = {'_TIME_': '_TIME_()'}
                 InfixParser.parse(formula)
                 for n in InfixParser.names:
                     if n not in self._names and n != '_TIME_()':
                         self._names.append(n)
                 formula = InfixParser.output
-                self.code_string += 'elif %s:\n    self.value = %s\n' % (formula, pwd[p][1])
+                self.code_string += 'elif %s:\n    self.value = %s\n' % (
+                    formula,
+                    pwd[p][1],
+                )
             self.code_string += 'else:\n    %s' % other
-            self.formula = self.code_string.replace('self.','')
-        self.xcode = compile(self.code_string, 'PieceWise','exec')
-
+            self.formula = self.code_string.replace('self.', '')
+        self.xcode = compile(self.code_string, 'PieceWise', 'exec')
 
     def __call__(self):
         exec(self.xcode)
@@ -869,6 +925,7 @@ class PieceWise(NewCoreBase):
 class Time(object):
     value = None
     name = '__TIME__'
+
     def __init__(self, t=0):
         self.value = t
 
@@ -876,11 +933,13 @@ class Time(object):
         return self.value
 
     def set(self, t):
-        self.value=t
+        self.value = t
+
 
 ##  def delay(*args):
-    ##  print 'delay() ignored'
-    ##  return 1.0
+##  print 'delay() ignored'
+##  return 1.0
+
 
 class NewCore(NewCoreBase):
     __nDict__ = None
@@ -930,7 +989,8 @@ class NewCore(NewCoreBase):
         self.__model__ = model
         self.__InitDict__ = model.__InitDict__
         if not iValues:
-            if self.__DEBUG__: print(self.__InitDict__)
+            if self.__DEBUG__:
+                print(self.__InitDict__)
             for k in list(self.__InitDict__.keys()):
                 self.__InitDict__[k] = getattr(self.__model__, k)
             for c in model.__compartments__:
@@ -950,7 +1010,7 @@ class NewCore(NewCoreBase):
         self.__compartments__ = model.__compartments__
         self.addCompartments()
         self._TIME_ = Time()
-        self.addPieceWiseFunctions() # this adds any piecewise functions
+        self.addPieceWiseFunctions()  # this adds any piecewise functions
         self.addSpecies()
 
         # the order is important from here as eg functions can occur in rate equations
@@ -958,7 +1018,8 @@ class NewCore(NewCoreBase):
             self.__functions__ = model.__functions__
         except:
             self.__functions__ = {}
-            if self.__DEBUG__: print('No functions')
+            if self.__DEBUG__:
+                print('No functions')
         self.functions = []
         self.addFunctions()
         self.addReactions()
@@ -974,28 +1035,31 @@ class NewCore(NewCoreBase):
 
         ##  # get rid of _TIME_ in not intited
         ##  if '_TIME_' in self.__not_inited__:
-            ##  self.__not_inited__.pop(self.__not_inited__.index('_TIME_'))
+        ##  self.__not_inited__.pop(self.__not_inited__.index('_TIME_'))
         if len(self.__not_inited__) > 0:
-            print("\nWARNING: Uninitialised parameters: %s (value set to zero)" % self.__not_inited__)
+            print(
+                "\nWARNING: Uninitialised parameters: %s (value set to zero)"
+                % self.__not_inited__
+            )
 
-    def __cleanString__(self,s):
+    def __cleanString__(self, s):
         s = s.lstrip()
         s = s.rstrip()
         return s
 
     ##  def parseForcingFunctions(self):
-        ##  self.__rules__ = {}
-        ##  try:
-            ##  ff = self.__function_forced_str__.split('\n')
-            ##  for f in ff:
-                ##  if f != '':
-                    ##  f =  f.split('=')
-                    ##  f[0] = f[0].replace('self.','')
-                    ##  f[1] = f[1].replace('self.','')
-                    ##  self.__rules__.setdefault(self.__cleanString__(f[0]), self.__cleanString__(f[1]))
-        ##  except Exception, ex:
-            ##  pass
-            # print 'No forcing functions (%s).' % ex
+    ##  self.__rules__ = {}
+    ##  try:
+    ##  ff = self.__function_forced_str__.split('\n')
+    ##  for f in ff:
+    ##  if f != '':
+    ##  f =  f.split('=')
+    ##  f[0] = f[0].replace('self.','')
+    ##  f[1] = f[1].replace('self.','')
+    ##  self.__rules__.setdefault(self.__cleanString__(f[0]), self.__cleanString__(f[1]))
+    ##  except Exception, ex:
+    ##  pass
+    # print 'No forcing functions (%s).' % ex
 
     def setDescription(self, txt):
         self.description = str(txt)
@@ -1006,7 +1070,11 @@ class NewCore(NewCoreBase):
     def setGlobalUnits(self, **kwargs):
         for un in list(kwargs.keys()):
             self.__uDict__[un] = (kwargs[un][0], kwargs[un][1])
-            if self.__DEBUG__: print("Modified \"%s\" to be %i*%s*10**%i" % (un, kwargs[un][0], un, kwargs[un][1]))
+            if self.__DEBUG__:
+                print(
+                    "Modified \"%s\" to be %i*%s*10**%i"
+                    % (un, kwargs[un][0], un, kwargs[un][1])
+                )
 
     def getGlobalUnits(self):
         return self.__uDict__
@@ -1015,7 +1083,8 @@ class NewCore(NewCoreBase):
         if not update:
             self.piecewise_functions = []
             for pw in list(self.__piecewises__.keys()):
-                if self.__DEBUG__: print('Info: adding piecewise function:%s' % pw)
+                if self.__DEBUG__:
+                    print('Info: adding piecewise function:%s' % pw)
                 P = PieceWise(self.__piecewises__[pw])
                 P.setName(pw)
                 P.__setattr__('_TIME_', self.__getattribute__('_TIME_'))
@@ -1025,8 +1094,6 @@ class NewCore(NewCoreBase):
             for pw in self.piecewise_functions:
                 for a in pw._names:
                     pw.__setattr__(a, self.__getattribute__(a))
-
-
 
     def addOneCompartment(self, name, size, dimensions, compartment=None, area=None):
         C = Compartment(name, compartment)
@@ -1039,20 +1106,30 @@ class NewCore(NewCoreBase):
         self.compartments = []
         for C in self.__compartments__:
             c2 = self.__compartments__[C]
-            if self.__DEBUG__: print('Adding compartment %s' % c2['name'])
-            self.addOneCompartment(c2['name'], c2['size'], c2['dimensions'],
-                            compartment=c2['compartment'], area=None)
+            if self.__DEBUG__:
+                print('Adding compartment %s' % c2['name'])
+            self.addOneCompartment(
+                c2['name'],
+                c2['size'],
+                c2['dimensions'],
+                compartment=c2['compartment'],
+                area=None,
+            )
 
-    def addOneSpecies(self, species, value, fix=False, comp=None, amount=False, fullName=None):
+    def addOneSpecies(
+        self, species, value, fix=False, comp=None, amount=False, fullName=None
+    ):
         s = Species(species, value)
         ##  if comp != None:
         s.setCompartment(comp)
         s.setAmount(amount)
         s.setAnnotation('sbml_name', fullName)
-        if fix: s.fixed = True
+        if fix:
+            s.fixed = True
         self.__setattr__(species, s)
         self.species.append(s)
-        if not fix: self.species_variable.append(s)
+        if not fix:
+            self.species_variable.append(s)
         if comp != None:
             comp.addSpecies(s)
 
@@ -1077,7 +1154,9 @@ class NewCore(NewCoreBase):
             fullName = None
             if 'fullName' in self.__sDict__[s]:
                 fullName = self.__sDict__[s]['fullName']
-            self.addOneSpecies(name, val, fix=fix, comp=comp, amount=amount, fullName=fullName)
+            self.addOneSpecies(
+                name, val, fix=fix, comp=comp, amount=amount, fullName=fullName
+            )
 
     def addOneFunction(self, name, args, formula):
         func = Function(name)
@@ -1089,12 +1168,11 @@ class NewCore(NewCoreBase):
         self.functions.append(func)
         self.__setattr__(name, func)
 
-
     def addFunctions(self):
         for f in list(self.__functions__.keys()):
-            self.addOneFunction(f,\
-                                self.__functions__[f]['args'],\
-                                self.__functions__[f]['formula'])
+            self.addOneFunction(
+                f, self.__functions__[f]['args'], self.__functions__[f]['formula']
+            )
 
     def addOneReaction(self, rDict):
         r = Reaction(rDict['name'])
@@ -1110,11 +1188,12 @@ class NewCore(NewCoreBase):
         # TODO: make better
         setattr(r, '_TIME_', self._TIME_)
         if rDict['RateEq'] != None:
-            r.addFormula(rDict['RateEq'].replace('self.',''))
+            r.addFormula(rDict['RateEq'].replace('self.', ''))
         else:
             r.addFormula('J')
             self.addParameter('J')
-        if rDict['Type'] == 'Irrev': r.reversible = False
+        if rDict['Type'] == 'Irrev':
+            r.reversible = False
         # now we can add formulas that occured in the rate equation
         if len(r._functions) > 0:
             for func in r._functions:
@@ -1124,30 +1203,34 @@ class NewCore(NewCoreBase):
                     print(ex)
                     print('\nHave you added the function objects yet (addFunctions())')
 
-        #fxnames = self.hasFixedSpecies()
+        # fxnames = self.hasFixedSpecies()
         processed_parameter = []
 
         # where parameters are defined `locally' per reaction
         for p in rDict['Params']:
-            p = p.replace('self.','')
-            if p not in self.hasGlobalParameters() and not (p in self.hasFixedSpecies() or p in self.__compartments__):
-                if self.__DEBUG__: print("Adding parameter %s from networkdict" % p)
+            p = p.replace('self.', '')
+            if p not in self.hasGlobalParameters() and not (
+                p in self.hasFixedSpecies() or p in self.__compartments__
+            ):
+                if self.__DEBUG__:
+                    print("Adding parameter %s from networkdict" % p)
                 self.addParameter(p)
                 par = self.__getattribute__(p)
                 par.setAssociation(r)
                 r.addParameter(par)
                 processed_parameter.append(p)
             elif not (p in self.hasFixedSpecies() or p in self.__compartments__):
-                if self.__DEBUG__: print("Updating parameter %s from networkdict" % p)
+                if self.__DEBUG__:
+                    print("Updating parameter %s from networkdict" % p)
                 pidx = self.hasGlobalParameters().index(p)
                 self.global_parameters[pidx].setAssociation(r)
                 r.addParameter(self.global_parameters[pidx])
                 processed_parameter.append(p)
 
-        #print self.hasGlobalParameters()
+        # print self.hasGlobalParameters()
         # where parameters are not `locally' defined and are extracted from Req (ie from SBML)
         for p in r._names:
-            p = p.replace('self.','')
+            p = p.replace('self.', '')
             if p == '_TIME_':
                 pass
             elif p in [pw.name for pw in self.piecewise_functions]:
@@ -1158,10 +1241,15 @@ class NewCore(NewCoreBase):
                 # TODO: this will work until isParameterOf is called on a compartment object
                 r.addParameter(C)
                 # dirty alternative
-                #setattr(r, C.name, C)
+                # setattr(r, C.name, C)
                 processed_parameter.append(p)
-            elif p not in processed_parameter and p not in self.hasGlobalParameters() and p not in self.hasSpecies():
-                if self.__DEBUG__: print("Adding parameter %s from global" % p)
+            elif (
+                p not in processed_parameter
+                and p not in self.hasGlobalParameters()
+                and p not in self.hasSpecies()
+            ):
+                if self.__DEBUG__:
+                    print("Adding parameter %s from global" % p)
                 self.addParameter(p)
                 par = self.__getattribute__(p)
                 par.setAssociation(r)
@@ -1169,7 +1257,8 @@ class NewCore(NewCoreBase):
                 processed_parameter.append(p)
 
             elif p not in processed_parameter and p not in self.hasSpecies():
-                if self.__DEBUG__: print("Updating parameter %s from global" % p)
+                if self.__DEBUG__:
+                    print("Updating parameter %s from global" % p)
                 pidx = self.hasGlobalParameters().index(p)
                 self.global_parameters[pidx].setAssociation(r)
                 r.addParameter(self.global_parameters[pidx])
@@ -1184,7 +1273,8 @@ class NewCore(NewCoreBase):
                 par = Parameter(name, self.__InitDict__[name])
             else:
                 par = Parameter(name, 0.0)
-                if name not in self.__not_inited__: self.__not_inited__.append(name)
+                if name not in self.__not_inited__:
+                    self.__not_inited__.append(name)
             self.global_parameters.append(par)
             self.__setattr__(name, par)
 
@@ -1192,10 +1282,13 @@ class NewCore(NewCoreBase):
         self.reactions = []
         for r in self.__model__.reactions:
             self.addOneReaction(self.__nDict__[r])
-        non_parameters = self.hasGlobalParameters()+self.hasSpecies()+self.hasFixedSpecies()
+        non_parameters = (
+            self.hasGlobalParameters() + self.hasSpecies() + self.hasFixedSpecies()
+        )
         for k in list(self.__InitDict__.keys()):
             if k not in non_parameters:
-                if self.__DEBUG__: print('Adding new parameter:', k)
+                if self.__DEBUG__:
+                    print('Adding new parameter:', k)
                 self.addParameter(k)
 
     def replaceParameterWithRule(self, ar):
@@ -1244,12 +1337,20 @@ class NewCore(NewCoreBase):
         self.__setattr__(ar.name, ar)
 
     def setAssignmentRules(self):
-        aps = [self.__rules__[ar]['name'] for ar in self.__rules__ if self.__rules__[ar]['type'] == 'assignment']
+        aps = [
+            self.__rules__[ar]['name']
+            for ar in self.__rules__
+            if self.__rules__[ar]['type'] == 'assignment'
+        ]
         ##  for p in self.global_parameters + [self.get(fs) for fs in self.hasFixedSpecies()]:
         for p in self.global_parameters + self.species:
-            #print p.name
+            # print p.name
             if p.name in aps:
-                if self.__DEBUG__: print('Assigning: %s = %s' % (p.name, self.__rules__[p.name]['formula']))
+                if self.__DEBUG__:
+                    print(
+                        'Assigning: %s = %s'
+                        % (p.name, self.__rules__[p.name]['formula'])
+                    )
                 p2 = None
                 # TODO: make better
                 if p.name in self.hasGlobalParameters():
@@ -1267,11 +1368,13 @@ class NewCore(NewCoreBase):
                     setattr(p2, '_TIME_', self._TIME_)
                     self.replaceSpeciesWithRule(p2)
 
-                assert isinstance(p2, AssignmentRule) or isinstance(p2, SpeciesAssignmentRule), "\nHappy assertion error"
-                #print type(p2)
+                assert isinstance(p2, AssignmentRule) or isinstance(
+                    p2, SpeciesAssignmentRule
+                ), "\nHappy assertion error"
+                # print type(p2)
                 p2.addFormula(self.__rules__[p.name]['formula'])
                 ##  print p2._names
-                for n in p2._names+p2._functions:
+                for n in p2._names + p2._functions:
                     p2.addModelAttr(self.__getattribute__(n))
                 ##  # setup initial values
                 ##  p2.value_initial = self.p2()
@@ -1283,23 +1386,30 @@ class NewCore(NewCoreBase):
                 for ar in p._names:
                     if ar in self.hasAssignmentRules():
                         setattr(p, ar, self.__getattribute__(ar))
-        #TODO this is where things will go wrong if fs --> ar contains nested ar's
+        # TODO this is where things will go wrong if fs --> ar contains nested ar's
 
     def setRateRules(self):
         # TODO mayvbe split into two methods for now read from self.__rules__
         # TODO add functions to rules
-        ars = [self.__rules__[ar]['name'] for ar in self.__rules__ if self.__rules__[ar]['type'] == 'rate']
+        ars = [
+            self.__rules__[ar]['name']
+            for ar in self.__rules__
+            if self.__rules__[ar]['type'] == 'rate'
+        ]
         self.rate_rules = []
         for rr in ars:
             rrobj = RateRule(self.__rules__[rr]['name'], self.__rules__[rr]['formula'])
             ##  print 'RR:', rrobj.name, rrobj._names, rrobj._functions
-            for symb in  rrobj._names+rrobj._functions:
+            for symb in rrobj._names + rrobj._functions:
                 rrobj.addModelAttr(self.__getattribute__(symb))
             self.rate_rules.append(rrobj)
             # TODO investgiate this as it is problematic, the rate rule
             # is not a model property as such more an ODE property
             ##  self.__setattr__(rrobj.name, rrobj)
-            if self.__DEBUG__: print('Adding RateRule %s with formula: %s' % (rrobj.name, rrobj.formula))
+            if self.__DEBUG__:
+                print(
+                    'Adding RateRule %s with formula: %s' % (rrobj.name, rrobj.formula)
+                )
 
     def addOneEvent(self, e):
         """Add a single event using an event dictionary """
@@ -1312,11 +1422,11 @@ class NewCore(NewCoreBase):
         # TODO: check that this still works
         ev.setTriggerAttributes(self)
         ##  for n in ev._names:
-            ##  setattr(ev, n, self.__getattribute__(n))
+        ##  setattr(ev, n, self.__getattribute__(n))
         # for each assignment
         for ass in e['assignments']:
             ev.setAssignment(self.__getattribute__(ass), e['assignments'][ass])
-            assref = getattr(ev, '_'+ass) # don\t like this at all :-(
+            assref = getattr(ev, '_' + ass)  # don\t like this at all :-(
             # associate model attributes with assignment
             for n in assref._names:
                 setattr(assref, n, self.__getattribute__(n))
@@ -1337,27 +1447,48 @@ class NewCore(NewCoreBase):
             if self.netStoich:
                 for reag in self.__nDict__[reac.name]['Reagents']:
                     if self.__nDict__[reac.name]['Reagents'][reag] < 0.0:
-                        reac.addSubstrate(self.__getattribute__(reag.replace('self.','')))
-                        self.__getattribute__(reag.replace('self.','')).setSubstrate(self.__getattribute__(reac.name))
+                        reac.addSubstrate(
+                            self.__getattribute__(reag.replace('self.', ''))
+                        )
+                        self.__getattribute__(reag.replace('self.', '')).setSubstrate(
+                            self.__getattribute__(reac.name)
+                        )
                     else:
-                        reac.addProduct(self.__getattribute__(reag.replace('self.','')))
-                        self.__getattribute__(reag.replace('self.','')).setProduct(self.__getattribute__(reac.name))
-                    reac.stoichiometry.setdefault(reag.replace('self.',''), self.__nDict__[reac.name]['Reagents'][reag])
+                        reac.addProduct(
+                            self.__getattribute__(reag.replace('self.', ''))
+                        )
+                        self.__getattribute__(reag.replace('self.', '')).setProduct(
+                            self.__getattribute__(reac.name)
+                        )
+                    reac.stoichiometry.setdefault(
+                        reag.replace('self.', ''),
+                        self.__nDict__[reac.name]['Reagents'][reag],
+                    )
             else:
                 for reag in self.__nDict__[reac.name]['AllReagents']:
                     if reag[1] < 0.0:
-                        reac.addSubstrate(self.__getattribute__(reag[0].replace('self.','')))
-                        self.__getattribute__(reag[0].replace('self.','')).setSubstrate(self.__getattribute__(reac.name))
+                        reac.addSubstrate(
+                            self.__getattribute__(reag[0].replace('self.', ''))
+                        )
+                        self.__getattribute__(
+                            reag[0].replace('self.', '')
+                        ).setSubstrate(self.__getattribute__(reac.name))
                     else:
-                        reac.addProduct(self.__getattribute__(reag[0].replace('self.','')))
-                        self.__getattribute__(reag[0].replace('self.','')).setProduct(self.__getattribute__(reac.name))
-                    reac.multistoich.append((reag[0].replace('self.',''), reag[1]))
-                    if reag[0].replace('self.','') in reac.stoichiometry:
+                        reac.addProduct(
+                            self.__getattribute__(reag[0].replace('self.', ''))
+                        )
+                        self.__getattribute__(reag[0].replace('self.', '')).setProduct(
+                            self.__getattribute__(reac.name)
+                        )
+                    reac.multistoich.append((reag[0].replace('self.', ''), reag[1]))
+                    if reag[0].replace('self.', '') in reac.stoichiometry:
                         reac.multistoich_enabled = True
-                    reac.stoichiometry.setdefault(reag[0].replace('self.',''), reag[1])
+                    reac.stoichiometry.setdefault(reag[0].replace('self.', ''), reag[1])
             for mod in self.__nDict__[reac.name]['Modifiers']:
-                reac.addModifier(self.__getattribute__(mod.replace('self.','')))
-                self.__getattribute__(mod.replace('self.','')).setModifier(self.__getattribute__(reac.name))
+                reac.addModifier(self.__getattribute__(mod.replace('self.', '')))
+                self.__getattribute__(mod.replace('self.', '')).setModifier(
+                    self.__getattribute__(reac.name)
+                )
             ##  print 'I AM LEGEND'
             ##  print reac.stoichiometry
             ##  print reac.multistoich
@@ -1368,16 +1499,18 @@ class NewCore(NewCoreBase):
     def setStoichiometricMatrix(self):
         vspec = self.hasVariableSpecies()
         react = self.hasReactions()
-        nm = numpy.zeros((len(vspec), len(react)),'d')
+        nm = numpy.zeros((len(vspec), len(react)), 'd')
         for sp in vspec:
             for r in self.get(sp).isReagentOf():
                 nm[vspec.index(sp)][react.index(r)] = self.get(r).stoichiometry[sp]
             # this is if absolute stoichiometry value is used
             ##  for r in self.get(sp).isSubstrateOf():
-                ##  nm[vspec.index(sp)][react.index(r)] = abs(self.get(r).stoichiometry[sp])
+            ##  nm[vspec.index(sp)][react.index(r)] = abs(self.get(r).stoichiometry[sp])
             ##  for r in self.get(sp).isProductOf():
-                ##  nm[vspec.index(sp)][react.index(r)] = -abs(self.get(r).stoichiometry[sp])
-        self.stoichiometric_matrix = StructMatrix(nm, list(range(len(vspec))), list(range(len(react))))
+            ##  nm[vspec.index(sp)][react.index(r)] = -abs(self.get(r).stoichiometry[sp])
+        self.stoichiometric_matrix = StructMatrix(
+            nm, list(range(len(vspec))), list(range(len(react)))
+        )
         self.stoichiometric_matrix.setRow(vspec)
         self.stoichiometric_matrix.setCol(react)
 
@@ -1386,22 +1519,35 @@ class NewCore(NewCoreBase):
         for varspec in self.stoichiometric_matrix.row:
             if self.struct != None:
                 if varspec not in self.struct.Nr.row:
-                    if self.__DEBUG__: print('Creating dependent ODE_%s' % varspec)
+                    if self.__DEBUG__:
+                        print('Creating dependent ODE_%s' % varspec)
                     ode = ODE(self.get(varspec), independent=False)
                 else:
-                    if self.__DEBUG__: print('Creating independent ODE_%s' % varspec)
+                    if self.__DEBUG__:
+                        print('Creating independent ODE_%s' % varspec)
                     ode = ODE(self.get(varspec), independent=True)
             else:
-                if self.__DEBUG__: print('Creating independent* ODE_%s (*assumed - no structural information available)' % varspec)
+                if self.__DEBUG__:
+                    print(
+                        'Creating independent* ODE_%s (*assumed - no structural information available)'
+                        % varspec
+                    )
                 ode = ODE(self.get(varspec), independent=True)
             mrow = self.stoichiometric_matrix.getRowsByName(varspec)
             for e in range(len(mrow[0])):
-                if mrow[0,e] != 0.0:
-                    print('Adding term: %s*%s' % (mrow[0,e], self.stoichiometric_matrix.col[e]))
-                    ode.addReaction(self.get(self.stoichiometric_matrix.col[e]), mrow[0,e])
+                if mrow[0, e] != 0.0:
+                    print(
+                        'Adding term: %s*%s'
+                        % (mrow[0, e], self.stoichiometric_matrix.col[e])
+                    )
+                    ode.addReaction(
+                        self.get(self.stoichiometric_matrix.col[e]), mrow[0, e]
+                    )
             self.__setattr__(ode.name, ode)
             self.ODEs.append(ode)
-            self.__setattr__('xcode_'+ode.name, compile(ode.getGlobalFormula(), '<string>', 'exec'))
+            self.__setattr__(
+                'xcode_' + ode.name, compile(ode.getGlobalFormula(), '<string>', 'exec')
+            )
 
     def hasODEs(self):
         return MapList([o.name for o in self.ODEs])
@@ -1410,7 +1556,7 @@ class NewCore(NewCoreBase):
         return [v() for v in odes]
 
     def evalXcode(self, ode):
-        exec(self.__getattribute__('xcode_'+ode.name))
+        exec(self.__getattribute__('xcode_' + ode.name))
         return sdot
 
     def hasFunctions(self):
@@ -1440,10 +1586,22 @@ class NewCore(NewCoreBase):
         return MapList(p.name for p in self.global_parameters)
 
     def hasAssignmentRules(self):
-        return MapList([ar.name for ar in self.global_parameters+self.species if hasattr(ar, 'type')=='assignemnt'])
+        return MapList(
+            [
+                ar.name
+                for ar in self.global_parameters + self.species
+                if hasattr(ar, 'type') == 'assignemnt'
+            ]
+        )
 
     def hasAssignmentRules(self):
-        return MapList([ar.name for ar in self.global_parameters+self.species if hasattr(ar, 'type')=='rate'])
+        return MapList(
+            [
+                ar.name
+                for ar in self.global_parameters + self.species
+                if hasattr(ar, 'type') == 'rate'
+            ]
+        )
 
     def hasEvents(self):
         return MapList(e.name for e in self.events)
@@ -1451,15 +1609,13 @@ class NewCore(NewCoreBase):
     def hasCompartments(self):
         return MapList(c.name for c in self.compartments)
 
+
 ##  if __psyco_active__:
-    ##  psyco.bind(NewCoreBase)
-    ##  psyco.bind(NumberBase)
-    ##  psyco.bind(Species)
-    ##  psyco.bind(Parameter)
-    ##  psyco.bind(AssignmentRule)
-    ##  psyco.bind(Reaction)
-    ##  psyco.bind(ODE)
-    ##  psyco.bind(NewCore)
-
-
-
+##  psyco.bind(NewCoreBase)
+##  psyco.bind(NumberBase)
+##  psyco.bind(Species)
+##  psyco.bind(Parameter)
+##  psyco.bind(AssignmentRule)
+##  psyco.bind(Reaction)
+##  psyco.bind(ODE)
+##  psyco.bind(NewCore)

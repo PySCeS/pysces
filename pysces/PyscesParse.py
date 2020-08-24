@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = "PySCeS parser module -- uses  PLY 1.5 or newer"
 
 
@@ -29,200 +30,201 @@ from getpass import getuser
 from time import sleep, strftime
 
 try:
-    from importlib import reload   # Python 3
+    from importlib import reload  # Python 3
 except ImportError:
     pass
 
 # use net stoichiometry, disable for StomPy
 __USE_NET_STOICH__ = True
 
-RESERVEDTERMS = (\
-     'Vvec',\
-     '__CDvarUpString__',\
-     '__SALL__',\
-     '__SI__',\
-     '__epmatrix__',\
-     '__evmatrix__',\
-     '__fixed_species__',\
-     '__kmatrix__',\
-     '__kzeromatrix__',\
-     '__lmatrix__',\
-     '__lzeromatrix__',\
-     '__mapFunc_R__',\
-     '__mapFunc__',\
-     '__mode_suppress_info__',\
-     '__modifiers__',\
-     '__nmatrix__',\
-     '__nrmatrix__',\
-     '__parameters__',\
-     '__reactions__',\
-     '__s_varFunc__',\
-     '__species__',\
-     '__vFunc__',\
-     'cc_all',\
-     'cc_all_col',\
-     'cc_all_row',\
-     'cc_conc',\
-     'cc_conc_col',\
-     'cc_conc_row',\
-     'cc_flux',\
-     'cc_flux_col',\
-     'cc_flux_row',\
-     'conservation_matrix',\
-     'conservation_matrix_col',\
-     'conservation_matrix_row',\
-     'display_debug',\
-     'eModeExe_dbl',\
-     'eModeExe_int',\
-     'elas_epar_upsymb',\
-     'elas_evar_upsymb',\
-     'elas_par',\
-     'elas_par_col',\
-     'elas_par_row',\
-     'elas_par_u',\
-     'elas_var',\
-     'elas_var_col',\
-     'elas_var_row',\
-     'elas_var_u',\
-     'emode_file',\
-     'emode_intmode',\
-     'emode_userout',\
-     'fintslv_range',\
-     'fintslv_rmult',\
-     'fintslv_step',\
-     'fintslv_tol',\
-     'fixed_species',\
-     'hybrd_epsfcn',\
-     'hybrd_factor',\
-     'hybrd_maxfev',\
-     'hybrd_mesg',\
-     'hybrd_xtol',\
-     'info_flux_conserve',\
-     'info_moiety_conserve',\
-     'init_species_array',\
-     'kel_unscaled',\
-     'kmatrix',\
-     'kmatrix_col',\
-     'kmatrix_row',\
-     'kmatrix_scaled',\
-     'kzeromatrix',\
-     'kzeromatrix_col',\
-     'kzeromatrix_row',\
-     'lmatrix',\
-     'lmatrix_col',\
-     'lmatrix_row',\
-     'lmatrix_scaled',\
-     'lsoda_atol',\
-     'lsoda_h0',\
-     'lsoda_hmax',\
-     'lsoda_hmin',\
-     'lsoda_mesg',\
-     'lsoda_mxordn',\
-     'lsoda_mxords',\
-     'lsoda_mxstep',\
-     'lsoda_rtol',\
-     'lzeromatrix',\
-     'lzeromatrix_col',\
-     'lzeromatrix_row',\
-     'mach_floateps',\
-     'mca_ccall_altout',\
-     'mca_ccall_concout',\
-     'mca_ccall_fluxout',\
-     'mca_ccj_upsymb',\
-     'mca_ccs_upsymb',\
-     'mca_ci',\
-     'mca_ci_col',\
-     'mca_ci_row',\
-     'mca_cjd',\
-     'mca_cjd_col',\
-     'mca_cjd_row',\
-     'mca_csd',\
-     'mca_csd_col',\
-     'mca_csd_row',\
-     'misc_write_arr_lflush',\
-     'mode_eigen_output',\
-     'mode_elas_deriv',\
-     'mode_elas_deriv_dx',\
-     'mode_elas_deriv_factor',\
-     'mode_elas_deriv_min',\
-     'mode_elas_deriv_order',\
-     'mode_mca_scaled',\
-     'mode_number_format',\
-     'mode_sim_init',\
-     'mode_sim_max_iter',\
-     'mode_solver',\
-     'mode_solver_fallback',\
-     'mode_solver_fallback_integration',\
-     'mode_state_init',\
-     'mode_state_init2_array',\
-     'mode_state_init3_factor',\
-     'mode_state_mesg',\
-     'modifiers',\
-     'nleq2_ibdamp',\
-     'nleq2_iormon',\
-     'nleq2_iscal',\
-     'nleq2_iter',\
-     'nleq2_jacgen',\
-     'nleq2_mesg',\
-     'nleq2_mprerr',\
-     'nleq2_nonlin',\
-     'nleq2_qnscal',\
-     'nleq2_qrank1',\
-     'nleq2_rtol',\
-     'nmatrix',\
-     'nmatrix_col',\
-     'nmatrix_row',\
-     'nrmatrix',\
-     'nrmatrix_col',\
-     'nrmatrix_row',\
-     'parameters',\
-     'pitcon_abs_tol',\
-     'pitcon_allow_badstate',\
-     'pitcon_filter_neg',\
-     'pitcon_filter_neg_res',\
-     'pitcon_fix_small',\
-     'pitcon_flux_gen',\
-     'pitcon_init_par',\
-     'pitcon_iter',\
-     'pitcon_jac_opt',\
-     'pitcon_jac_upd',\
-     'pitcon_limit_point_idx',\
-     'pitcon_limit_points',\
-     'pitcon_max_grow',\
-     'pitcon_max_step',\
-     'pitcon_max_steps',\
-     'pitcon_min_step',\
-     'pitcon_output_lvl',\
-     'pitcon_par_opt',\
-     'pitcon_par_space',\
-     'pitcon_rel_tol',\
-     'pitcon_start_dir',\
-     'pitcon_start_step',\
-     'pitcon_targ_val',\
-     'pitcon_targ_val_idx',\
-     'pitcon_target_points',\
-     'reactions',\
-     'scan1_dropbad',\
-     'scan1_mca_mode',\
-     'scan_in',\
-     'scan_out',\
-     'scan_res',\
-     'sim_end',\
-     'sim_points',\
-     'sim_res',\
-     'sim_start',\
-     'sim_time',\
-     'species',\
-     'state_flux',\
-     'state_set_conserve',\
-     'state_species',\
-     'write_array_header',\
-     'write_array_html_footer',\
-     'write_array_html_format',\
-     'write_array_html_header',\
-     'write_array_spacer',\
-     'zero_val',\
-    )
+RESERVEDTERMS = (
+    'Vvec',
+    '__CDvarUpString__',
+    '__SALL__',
+    '__SI__',
+    '__epmatrix__',
+    '__evmatrix__',
+    '__fixed_species__',
+    '__kmatrix__',
+    '__kzeromatrix__',
+    '__lmatrix__',
+    '__lzeromatrix__',
+    '__mapFunc_R__',
+    '__mapFunc__',
+    '__mode_suppress_info__',
+    '__modifiers__',
+    '__nmatrix__',
+    '__nrmatrix__',
+    '__parameters__',
+    '__reactions__',
+    '__s_varFunc__',
+    '__species__',
+    '__vFunc__',
+    'cc_all',
+    'cc_all_col',
+    'cc_all_row',
+    'cc_conc',
+    'cc_conc_col',
+    'cc_conc_row',
+    'cc_flux',
+    'cc_flux_col',
+    'cc_flux_row',
+    'conservation_matrix',
+    'conservation_matrix_col',
+    'conservation_matrix_row',
+    'display_debug',
+    'eModeExe_dbl',
+    'eModeExe_int',
+    'elas_epar_upsymb',
+    'elas_evar_upsymb',
+    'elas_par',
+    'elas_par_col',
+    'elas_par_row',
+    'elas_par_u',
+    'elas_var',
+    'elas_var_col',
+    'elas_var_row',
+    'elas_var_u',
+    'emode_file',
+    'emode_intmode',
+    'emode_userout',
+    'fintslv_range',
+    'fintslv_rmult',
+    'fintslv_step',
+    'fintslv_tol',
+    'fixed_species',
+    'hybrd_epsfcn',
+    'hybrd_factor',
+    'hybrd_maxfev',
+    'hybrd_mesg',
+    'hybrd_xtol',
+    'info_flux_conserve',
+    'info_moiety_conserve',
+    'init_species_array',
+    'kel_unscaled',
+    'kmatrix',
+    'kmatrix_col',
+    'kmatrix_row',
+    'kmatrix_scaled',
+    'kzeromatrix',
+    'kzeromatrix_col',
+    'kzeromatrix_row',
+    'lmatrix',
+    'lmatrix_col',
+    'lmatrix_row',
+    'lmatrix_scaled',
+    'lsoda_atol',
+    'lsoda_h0',
+    'lsoda_hmax',
+    'lsoda_hmin',
+    'lsoda_mesg',
+    'lsoda_mxordn',
+    'lsoda_mxords',
+    'lsoda_mxstep',
+    'lsoda_rtol',
+    'lzeromatrix',
+    'lzeromatrix_col',
+    'lzeromatrix_row',
+    'mach_floateps',
+    'mca_ccall_altout',
+    'mca_ccall_concout',
+    'mca_ccall_fluxout',
+    'mca_ccj_upsymb',
+    'mca_ccs_upsymb',
+    'mca_ci',
+    'mca_ci_col',
+    'mca_ci_row',
+    'mca_cjd',
+    'mca_cjd_col',
+    'mca_cjd_row',
+    'mca_csd',
+    'mca_csd_col',
+    'mca_csd_row',
+    'misc_write_arr_lflush',
+    'mode_eigen_output',
+    'mode_elas_deriv',
+    'mode_elas_deriv_dx',
+    'mode_elas_deriv_factor',
+    'mode_elas_deriv_min',
+    'mode_elas_deriv_order',
+    'mode_mca_scaled',
+    'mode_number_format',
+    'mode_sim_init',
+    'mode_sim_max_iter',
+    'mode_solver',
+    'mode_solver_fallback',
+    'mode_solver_fallback_integration',
+    'mode_state_init',
+    'mode_state_init2_array',
+    'mode_state_init3_factor',
+    'mode_state_mesg',
+    'modifiers',
+    'nleq2_ibdamp',
+    'nleq2_iormon',
+    'nleq2_iscal',
+    'nleq2_iter',
+    'nleq2_jacgen',
+    'nleq2_mesg',
+    'nleq2_mprerr',
+    'nleq2_nonlin',
+    'nleq2_qnscal',
+    'nleq2_qrank1',
+    'nleq2_rtol',
+    'nmatrix',
+    'nmatrix_col',
+    'nmatrix_row',
+    'nrmatrix',
+    'nrmatrix_col',
+    'nrmatrix_row',
+    'parameters',
+    'pitcon_abs_tol',
+    'pitcon_allow_badstate',
+    'pitcon_filter_neg',
+    'pitcon_filter_neg_res',
+    'pitcon_fix_small',
+    'pitcon_flux_gen',
+    'pitcon_init_par',
+    'pitcon_iter',
+    'pitcon_jac_opt',
+    'pitcon_jac_upd',
+    'pitcon_limit_point_idx',
+    'pitcon_limit_points',
+    'pitcon_max_grow',
+    'pitcon_max_step',
+    'pitcon_max_steps',
+    'pitcon_min_step',
+    'pitcon_output_lvl',
+    'pitcon_par_opt',
+    'pitcon_par_space',
+    'pitcon_rel_tol',
+    'pitcon_start_dir',
+    'pitcon_start_step',
+    'pitcon_targ_val',
+    'pitcon_targ_val_idx',
+    'pitcon_target_points',
+    'reactions',
+    'scan1_dropbad',
+    'scan1_mca_mode',
+    'scan_in',
+    'scan_out',
+    'scan_res',
+    'sim_end',
+    'sim_points',
+    'sim_res',
+    'sim_start',
+    'sim_time',
+    'species',
+    'state_flux',
+    'state_set_conserve',
+    'state_species',
+    'write_array_header',
+    'write_array_html_footer',
+    'write_array_html_format',
+    'write_array_html_header',
+    'write_array_spacer',
+    'zero_val',
+)
+
 
 class PySCeSParser:
     """The original PySCeS parser has been rewritten and extended to include
@@ -230,152 +232,203 @@ class PySCeSParser:
     function definitions, assignment/rate rules and events."""
 
     MathmlToNumpy_funcs = {
-        'pow' : 'pow', 'root' : 'pow', 'abs' : 'abs',
-        'exp' : 'math.exp', 'ln' : 'math.log', 'log' : 'math.log10',
-        'floor' : 'numpy.floor', 'ceiling' : 'numpy.ceil', 'factorial' : None,
-        'sin' : 'numpy.sin', 'cos' : 'numpy.cos', 'tan' : 'numpy.tan',
-        'sec' : None, 'csc' : None, 'cot' : None,
-        'sinh' : 'numpy.sinh', 'cosh' : 'numpy.cosh','tanh' : 'numpy.tanh',
-        'sech' : None, 'csch' : None, 'coth' : None,
-        'arcsin' : 'numpy.arcsin', 'arccos' : 'numpy.arccos', 'arctan' : 'numpy.arctan',
-        'arcsec' : None, 'arccsc' : None, 'arccot' : None,
-        'arcsinh' : 'numpy.arcsinh', 'arccosh' : 'numpy.arccosh', 'arctanh' : 'numpy.arctanh',
-        'arcsech' : None, 'arccsch' : None, 'arccoth' : None,
-        'eq' : 'operator.eq', 'neq' : 'operator.ne',
-        'gt' : 'operator.gt', 'geq' : 'operator.ge',
-        'lt' : 'operator.lt', 'leq' : 'operator.le',
-        'ceil' : 'numpy.ceil', 'sqrt' : 'numpy.sqrt',        # libsbml aliases
-        'equal' : 'operator.eq', 'not_equal' : 'operator.ne',   # numpy2numpy aliases
-        'greater' : 'operator.gt', 'greater_equal' : 'operator.ge', # numpy2numpy aliases
-        'less' : 'operator.lt', 'less_equal' : 'operator.le', # numpy2numpy aliases
-        'ne' : 'operator.ne', 'ge' : 'operator.ge', 'le' : 'operator.le', # operator2operator
-        'xor' : 'operator.xor', 'piecewise' : 'self._piecewise_', '_piecewise_' : 'self._piecewise_',
-        'not' : 'operator.not_', 'not_' : 'operator.not_',
-        'max':'max', 'min' : 'min'
+        'pow': 'pow',
+        'root': 'pow',
+        'abs': 'abs',
+        'exp': 'math.exp',
+        'ln': 'math.log',
+        'log': 'math.log10',
+        'floor': 'numpy.floor',
+        'ceiling': 'numpy.ceil',
+        'factorial': None,
+        'sin': 'numpy.sin',
+        'cos': 'numpy.cos',
+        'tan': 'numpy.tan',
+        'sec': None,
+        'csc': None,
+        'cot': None,
+        'sinh': 'numpy.sinh',
+        'cosh': 'numpy.cosh',
+        'tanh': 'numpy.tanh',
+        'sech': None,
+        'csch': None,
+        'coth': None,
+        'arcsin': 'numpy.arcsin',
+        'arccos': 'numpy.arccos',
+        'arctan': 'numpy.arctan',
+        'arcsec': None,
+        'arccsc': None,
+        'arccot': None,
+        'arcsinh': 'numpy.arcsinh',
+        'arccosh': 'numpy.arccosh',
+        'arctanh': 'numpy.arctanh',
+        'arcsech': None,
+        'arccsch': None,
+        'arccoth': None,
+        'eq': 'operator.eq',
+        'neq': 'operator.ne',
+        'gt': 'operator.gt',
+        'geq': 'operator.ge',
+        'lt': 'operator.lt',
+        'leq': 'operator.le',
+        'ceil': 'numpy.ceil',
+        'sqrt': 'numpy.sqrt',  # libsbml aliases
+        'equal': 'operator.eq',
+        'not_equal': 'operator.ne',  # numpy2numpy aliases
+        'greater': 'operator.gt',
+        'greater_equal': 'operator.ge',  # numpy2numpy aliases
+        'less': 'operator.lt',
+        'less_equal': 'operator.le',  # numpy2numpy aliases
+        'ne': 'operator.ne',
+        'ge': 'operator.ge',
+        'le': 'operator.le',  # operator2operator
+        'xor': 'operator.xor',
+        'piecewise': 'self._piecewise_',
+        '_piecewise_': 'self._piecewise_',
+        'not': 'operator.not_',
+        'not_': 'operator.not_',
+        'max': 'max',
+        'min': 'min',
     }
 
     MathmlToNumpy_symb = {
-        'notanumber' : 'numpy.NaN', 'pi' : 'numpy.pi',
-        'infinity' : 'numpy.Infinity', 'exponentiale' : 'numpy.e',
-        'true' : 'True', 'false' : 'False', 'True' : 'True', 'False' : 'False'
+        'notanumber': 'numpy.NaN',
+        'pi': 'numpy.pi',
+        'infinity': 'numpy.Infinity',
+        'exponentiale': 'numpy.e',
+        'true': 'True',
+        'false': 'False',
+        'True': 'True',
+        'False': 'False',
     }
 
     SymbolReplacements = None
 
     MathmlToInfix = {
-        'and' : 'and', 'or' : 'or', 'true' : 'True', 'false' : 'False', 'xor' : 'xor'
+        'and': 'and',
+        'or': 'or',
+        'true': 'True',
+        'false': 'False',
+        'xor': 'xor',
     }
 
-    BOOLEANTRUE = ('True','TRUE','true')
-    BOOLEANFALSE = ('False','False','false')
+    BOOLEANTRUE = ('True', 'TRUE', 'true')
+    BOOLEANFALSE = ('False', 'False', 'false')
 
     precedence = (
-        ('left',  'PLUS', 'MINUS'),
-        ('left',  'TIMES', 'DIVIDE'),
-        ('left',  'POWER'),
-        ('right', 'UMINUS')
-        )
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE'),
+        ('left', 'POWER'),
+        ('right', 'UMINUS'),
+    )
 
     # List of token names
-    tokens = ('FIXDEC',
-              'FUNCDEC',
-              'EVENTDEC',
-              'COMPDEC',
-              'RRULEDEC',
-              'OBJFUNCDEC',
-              'FLUXBNDDEC',
-              'USERCNSTRDEC',
-              'IRREV',
-              'REAL',
-              'INT',
-              'PLUS',
-              'MINUS',
-              'TIMES',
-              'DIVIDE',
-              'POWER',
-              'LPAREN',
-              'RPAREN',
-              'EQUALS',
-              'SYMBEQUI',
-              'COMMA',
-              'REACTION_ID',
-              'STOICH_COEF',
-              'NAME',
-              'FORCEFUNC',
-              'TIMEFUNC',
-              'USERFUNC',
-              'INITFUNC',
-              'IN',
-              'POOL',
-              'KEYWORD',
-              'KEYWORDB',
-              'UNIT',
-              'MULTICOMMENT')
+    tokens = (
+        'FIXDEC',
+        'FUNCDEC',
+        'EVENTDEC',
+        'COMPDEC',
+        'RRULEDEC',
+        'OBJFUNCDEC',
+        'FLUXBNDDEC',
+        'USERCNSTRDEC',
+        'IRREV',
+        'REAL',
+        'INT',
+        'PLUS',
+        'MINUS',
+        'TIMES',
+        'DIVIDE',
+        'POWER',
+        'LPAREN',
+        'RPAREN',
+        'EQUALS',
+        'SYMBEQUI',
+        'COMMA',
+        'REACTION_ID',
+        'STOICH_COEF',
+        'NAME',
+        'FORCEFUNC',
+        'TIMEFUNC',
+        'USERFUNC',
+        'INITFUNC',
+        'IN',
+        'POOL',
+        'KEYWORD',
+        'KEYWORDB',
+        'UNIT',
+        'MULTICOMMENT',
+    )
 
     ReservedTerms = RESERVEDTERMS
 
-#################################################################
-#################################################################
+    #################################################################
+    #################################################################
 
-    def __init__(self,debug=0):
+    def __init__(self, debug=0):
         self.display_debug = debug
         # Lists
-        self.LexErrors = []   # List of lexing errors
+        self.LexErrors = []  # List of lexing errors
         self.ParseErrors = []
         self.SymbolErrors = []
         self.ParseOK = True
         self.LexOK = True
         self.ModelUsesNumpyFuncs = False
 
-        self.ReactionIDs = [] # List of reaction names
-        self.Names = []       # List of all reagent, parameter and function names
-        self.nDict = {}    # Dictionary containing all reaction information
-        self.InDict = {}         # spatial dictionary
+        self.ReactionIDs = []  # List of reaction names
+        self.Names = []  # List of all reagent, parameter and function names
+        self.nDict = {}  # Dictionary containing all reaction information
+        self.InDict = {}  # spatial dictionary
         self.sDict = {}
-        self.pDict = {}    #parameter dict
-        self.uDict = {'substance': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'mole'},
-                       'volume': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'litre'},
-                       'time': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'second'},
-                       'length': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
-                       'area': {'exponent': 2, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'}
-                      }
-        self.KeyWords = {'Modelname' : None,
-                         'Description' : None,
-                         'Species_In_Conc' : None,
-                         'Output_In_Conc' : None
-                         }
+        self.pDict = {}  # parameter dict
+        self.uDict = {
+            'substance': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'mole'},
+            'volume': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'litre'},
+            'time': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'second'},
+            'length': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
+            'area': {'exponent': 2, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
+        }
+        self.KeyWords = {
+            'Modelname': None,
+            'Description': None,
+            'Species_In_Conc': None,
+            'Output_In_Conc': None,
+        }
         self.compartments = {}
-        self.InitStrings = []    # Initialisation strings
-        self.Inits = []          # Initialised entities
-        self.Reagents = []       # All reagents found during parsing of reactions
-        self.species = []    # Variable reagents that occur in reactions
+        self.InitStrings = []  # Initialisation strings
+        self.Inits = []  # Initialised entities
+        self.Reagents = []  # All reagents found during parsing of reactions
+        self.species = []  # Variable reagents that occur in reactions
         self.FixedReagents = []  # Fixed reagents
-        self.ReacParams = []     # Temporary list of reaction parameters
-        self.InitParams = []     # Initialised parameters
+        self.ReacParams = []  # Temporary list of reaction parameters
+        self.InitParams = []  # Initialised parameters
 
-        self.ForceFunc = []        # Forcing function definition
-        self.TimeFunc = []    # Time function definition
-        self.UserFunc = []    # User function definition
-        self.InitFunc = []    # Intitialization function definition
-        self.Functions = {}   # new Function blocks
-        self.Events = {}       # new event blocks
-        self.AssignmentRules = {}   # new forcing function blocks
-        self.UserFuncs = {}   # new user function blocks
-        self.ModelInit = {}   # new model initialisation blocks
+        self.ForceFunc = []  # Forcing function definition
+        self.TimeFunc = []  # Time function definition
+        self.UserFunc = []  # User function definition
+        self.InitFunc = []  # Intitialization function definition
+        self.Functions = {}  # new Function blocks
+        self.Events = {}  # new event blocks
+        self.AssignmentRules = {}  # new forcing function blocks
+        self.UserFuncs = {}  # new user function blocks
+        self.ModelInit = {}  # new model initialisation blocks
         self.cbm_FluxBounds = {}  # flux bounds in a CB model
-        self.cbm_ObjectiveFunctions = {} # objective functions for a CB model
-        self.cbm_UserFluxConstraints = {} # objective functions for a CB model
-
+        self.cbm_ObjectiveFunctions = {}  # objective functions for a CB model
+        self.cbm_UserFluxConstraints = {}  # objective functions for a CB model
 
         self.mach_spec_eps2k = 2.2204460492503131e-14
-        self.AllRateEqsGiven = 1 # Flag to check that all rate equations have been given
+        self.AllRateEqsGiven = (
+            1  # Flag to check that all rate equations have been given
+        )
         self.Debug = 0
 
         # elementary regular expressions used as building blocks
-        self.Int = r'\d+'                                      # Integer
-        self.Dec = self.Int + '\.' + self.Int                            # Decimal
-        self.Exp = r'([E|e][\+|\-]?)' + self.Int                    # Exponent
-        self.Real = self.Dec  + '(' + self.Exp + ')?' + '|' + self.Int + self.Exp  # Real - dec w/o optional exp or int with exp
+        self.Int = r'\d+'  # Integer
+        self.Dec = self.Int + '\.' + self.Int  # Decimal
+        self.Exp = r'([E|e][\+|\-]?)' + self.Int  # Exponent
+        self.Real = (
+            self.Dec + '(' + self.Exp + ')?' + '|' + self.Int + self.Exp
+        )  # Real - dec w/o optional exp or int with exp
 
         # Simple tokens
         self.t_IRREV = r'>'
@@ -393,27 +446,27 @@ class PySCeSParser:
         self.t_POOL = r'\$pool'
         self.t_IN = r'@'
 
-    t_ignore = ' \t\r'    # Ignore spaces and tabs --- and windows return - brett 20040229
+    t_ignore = ' \t\r'  # Ignore spaces and tabs --- and windows return - brett 20040229
 
-    def t_comment(self,t):
-        r'\#.+\n'       # Match from # to newline
-        t.lineno += 1   # Increment line number
+    def t_comment(self, t):
+        r'\#.+\n'  # Match from # to newline
+        t.lineno += 1  # Increment line number
 
-    def t_multilinecomment(self,t):
+    def t_multilinecomment(self, t):
         r'"""(.|\n)*?"""'
         t.type = 'MULTICOMMENT'
 
-    def t_newline(self,t):
-        r'\n+'          # Match newline
-        t.lineno += len(t.value) # Increment with number of consecutive newlines
+    def t_newline(self, t):
+        r'\n+'  # Match newline
+        t.lineno += len(t.value)  # Increment with number of consecutive newlines
 
-    def t_SYMBEQUI(self,t):
+    def t_SYMBEQUI(self, t):
         r'!=|<'
         t.type = 'SYMBEQUI'
         print('t', t)
         return t
 
-    def t_FIXDEC(self,t):
+    def t_FIXDEC(self, t):
         r'FIX:'
         t.type = 'FIXDEC'
         t.value = 'FIX:'
@@ -464,67 +517,66 @@ class PySCeSParser:
         t.type = 'EVENTDEC'
         return t
 
-    def t_OBJFUNCDEC(self,t):
+    def t_OBJFUNCDEC(self, t):
         r'ObjectiveFunctions:(.|\n)*?}'
         t.type = 'OBJFUNCDEC'
         return t
 
-    def t_FLUXBNDDEC(self,t):
+    def t_FLUXBNDDEC(self, t):
         r'FluxBounds:(.|\n)*?}'
         t.type = 'FLUXBNDDEC'
         return t
 
-    def t_USERCNSTRDEC(self,t):
+    def t_USERCNSTRDEC(self, t):
         r'UserFluxConstraints:(.|\n)*?}'
         t.type = 'USERCNSTRDEC'
         return t
 
-
     def t_COMPDEC(self, t):
-        r'Compartment:.+\n' # match from cc<space> to end of line
+        r'Compartment:.+\n'  # match from cc<space> to end of line
         t.type = 'COMPDEC'
         return t
 
-    def t_FORCEFUNC(self,t):
-        r'!F\ .+\n' # match from !F<space> to end of line
+    def t_FORCEFUNC(self, t):
+        r'!F\ .+\n'  # match from !F<space> to end of line
         t.type = 'FORCEFUNC'
-        t.lineno += 1   # Increment line number
+        t.lineno += 1  # Increment line number
         t.value = t.value[3:]
         return t
 
-    def t_TIMEFUNC(self,t):
-        r'!T\ .+\n' # match from !T<space> to end of line
+    def t_TIMEFUNC(self, t):
+        r'!T\ .+\n'  # match from !T<space> to end of line
         t.type = 'TIMEFUNC'
-        t.lineno += 1   # Increment line number
+        t.lineno += 1  # Increment line number
         t.value = t.value[3:]
         return t
 
-    def t_USERFUNC(self,t):
-        r'!U\ .+\n' # match from !U<space> to end of line
+    def t_USERFUNC(self, t):
+        r'!U\ .+\n'  # match from !U<space> to end of line
         t.type = 'USERFUNC'
-        t.lineno += 1   # Increment line number
+        t.lineno += 1  # Increment line number
         t.value = t.value[3:]
         return t
 
-    def t_INITFUNC(self,t):
-        r'!I\ .+\n' # match from !I<space> to end of line
+    def t_INITFUNC(self, t):
+        r'!I\ .+\n'  # match from !I<space> to end of line
         t.type = 'INITFUNC'
-        t.lineno += 1   # Increment line number
+        t.lineno += 1  # Increment line number
         t.value = t.value[3:]
         return t
 
-    def t_REACTION_ID(self,t):
-        r'[a-zA-Z_][\w@]*:' # Match any letter in [a-zA-Z0-9_] up to a colon
-                            # allow "_" to startswith - brett 20050823
+    def t_REACTION_ID(self, t):
+        r'[a-zA-Z_][\w@]*:'  # Match any letter in [a-zA-Z0-9_] up to a colon
+        # allow "_" to startswith - brett 20050823
         t.type = 'REACTION_ID'
         t.value = t.value[:-1]  # remove the colon
 
-        #print t.value, self.ReactionIDs
-        #sleep(1)
+        # print t.value, self.ReactionIDs
+        # sleep(1)
         if '@' in t.value:
             ts = t.value.split('@')
             t.value = ts[0]
-            self.InDict.update({ts[0] : ts[1]})
+            self.InDict.update({ts[0]: ts[1]})
         if t.value in self.ReactionIDs:
             # brett I think this is hyperactive reporting ... removing 20050321
             # self.LexErrors.append(('Duplicate ReactionID ', t.lineno, t.value, t.type))
@@ -532,11 +584,11 @@ class PySCeSParser:
         else:
             self.ReactionIDs.append(t.value)
         # possible alternative to above - brett
-        #if t.value not in self.ReactionIDs:
+        # if t.value not in self.ReactionIDs:
         #    self.ReactionIDs.append(t.value)
         return t
 
-    def t_STOICH_COEF(self,t):
+    def t_STOICH_COEF(self, t):
         r'\{[\d+|\.|E|e|\+|\-]+\}'
 
         # old regex upgraded to handle anything that resembles a number, might cause downstream problems
@@ -545,13 +597,13 @@ class PySCeSParser:
         t.value = t.value[1:-1]  # Remove left and right curly brackets
         return t
 
-    def t_NAME(self,t):
+    def t_NAME(self, t):
         r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
         SciCons = False
         if '@' in t.value:
             ts = t.value.split('@')
             t.value = ts[0]
-            self.InDict.update({ts[0] : ts[1]})
+            self.InDict.update({ts[0]: ts[1]})
         if t.value in self.MathmlToNumpy_symb:
             if self.MathmlToNumpy_symb[t.value] == None:
                 self.SymbolErrors.append(t.value)
@@ -566,26 +618,36 @@ class PySCeSParser:
         elif self.SymbolReplacements != None and t.value in self.SymbolReplacements:
             if t.value not in self.Names:
                 self.Names.append('self.' + self.SymbolReplacements[t.value])
-            gt = 'self.' +  self.SymbolReplacements[t.value]
+            gt = 'self.' + self.SymbolReplacements[t.value]
             t.value = gt
-        elif t.value not in self.Names and t.value != '_TIME_': # Only add to list if absent in list
+        elif (
+            t.value not in self.Names and t.value != '_TIME_'
+        ):  # Only add to list if absent in list
             self.Names.append('self.' + t.value)
-        if t.value[:6] == 'numpy.' or t.value[:5] == 'math.' or t.value[:9] == 'operator.' or t.value[:7] == 'random.':
+        if (
+            t.value[:6] == 'numpy.'
+            or t.value[:5] == 'math.'
+            or t.value[:9] == 'operator.'
+            or t.value[:7] == 'random.'
+        ):
             pass
-        elif t.value not in self.MathmlToNumpy_funcs and not SciCons: # make class attributes, ignore function names
+        elif (
+            t.value not in self.MathmlToNumpy_funcs and not SciCons
+        ):  # make class attributes, ignore function names
             gt = 'self.' + t.value
             t.value = gt
         t.type = 'NAME'
         return t
 
-    def t_error(self,t):
-        ##  try:
-            ##  self.LexErrors.append(('Lexer error ', t.lineno, t.value, t.type))
-        ##  except:
-            ##  print 'Lexer error'
-        ##  #print 'Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0])
-        ##  t.skip(1)
-
+    def t_error(self, t):
+        '''
+        try:
+            self.LexErrors.append(('Lexer error ', t.lineno, t.value, t.type))
+        except:
+            print 'Lexer error'
+           #print 'Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0])
+        t.skip(1)
+        '''
         print("Illegal character '%s'" % t.value[0])
         self.LexErrors.append(t.value[0])
         self.LexOK = False
@@ -595,11 +657,11 @@ class PySCeSParser:
     # The parser #
     ##############
 
-    def Show(self,name,tok):
+    def Show(self, name, tok):
         if self.Debug:
-            print(name,tok)
+            print(name, tok)
 
-    def p_error(self,t):
+    def p_error(self, t):
         try:
             ##  self.ParseErrors.append(('Syntax error ', t.lineno, t.value, t.type))
             self.ParseErrors.append(t)
@@ -611,13 +673,13 @@ class PySCeSParser:
         self.ParseOK = False
         return tok
 
-    def p_model(self,t):
+    def p_model(self, t):
         '''Model : Statement
                  | Model Statement '''
 
-        self.Show('Model',t[0])
+        self.Show('Model', t[0])
 
-    def p_statement(self,t):
+    def p_statement(self, t):
         '''Statement : Fixed
                      | FunctionDec
                      | RateRuleDec
@@ -638,7 +700,7 @@ class PySCeSParser:
                      | Unit
                      | MultiComment
                      | SymbEqui'''
-        self.Show('Statement',t[0])
+        self.Show('Statement', t[0])
 
     def p_nameinname(self, t):
         '''NameInName : NAME IN NAME'''
@@ -651,16 +713,16 @@ class PySCeSParser:
 
     def p_multicomment(self, t):
         '''MultiComment : MULTICOMMENT'''
-        self.Show('KeyWord:',t[0])
+        self.Show('KeyWord:', t[0])
 
     def p_keyword(self, t):
         '''KeyWord : KEYWORD'''
         ##  print 'KeyWord:', t[:]
         kpair = [e.strip() for e in t[1].split(':')]
         if kpair[0] in self.KeyWords:
-            self.KeyWords.update({kpair[0] : kpair[1]})
+            self.KeyWords.update({kpair[0]: kpair[1]})
         ##  print self.KeyWords
-        self.Show('KeyWord:',t[0])
+        self.Show('KeyWord:', t[0])
 
     def p_keywordboolean(self, t):
         '''KeyWordB : KEYWORDB'''
@@ -668,11 +730,11 @@ class PySCeSParser:
         kpair = [e.strip() for e in t[1].split(':')]
         if kpair[0] in self.KeyWords:
             if kpair[1] in self.BOOLEANTRUE:
-                self.KeyWords.update({kpair[0] : True})
+                self.KeyWords.update({kpair[0]: True})
             elif kpair[1] in self.BOOLEANFALSE:
-                self.KeyWords.update({kpair[0] : False})
+                self.KeyWords.update({kpair[0]: False})
         ##  print self.KeyWords
-        self.Show('KeyWordB:',t[0])
+        self.Show('KeyWordB:', t[0])
 
     def p_unit(self, t):
         '''Unit : UNIT'''
@@ -682,57 +744,47 @@ class PySCeSParser:
         u.append(u[0][1])
         u[0] = u[0][0].lower()
         ##  print u
-        u[0] = u[0].replace('unit','')
+        u[0] = u[0].replace('unit', '')
         ##  print u
         for i in range(len(u)):
             u[i] = u[i].strip()
-            if i in [1,2,3]:
+            if i in [1, 2, 3]:
                 u[i] = float(u[i])
         ##  print u
-        self.uDict.update({u[0] : {'multiplier': u[1],
-                                    'scale': u[2],
-                                    'exponent': u[3],
-                                    'kind': u[4]
-                                    }
-                           })
-        self.Show('Unit:',t[0])
+        self.uDict.update(
+            {u[0]: {'multiplier': u[1], 'scale': u[2], 'exponent': u[3], 'kind': u[4]}}
+        )
+        self.Show('Unit:', t[0])
 
-    def p_fixed(self,t):
+    def p_fixed(self, t):
         '''Fixed : FIXDEC FixList'''
-        self.Show('Fixed:',t[0])
+        self.Show('Fixed:', t[0])
 
     def p_functiondec(self, t):
         '''FunctionDec : FUNCDEC'''
         ##  print 'p_functiondec', t[:]
-        rawf = t[1].replace('Function:','').lstrip()
-        args = rawf[:rawf.find('{')].strip().split(',')
+        rawf = t[1].replace('Function:', '').lstrip()
+        args = rawf[: rawf.find('{')].strip().split(',')
         name = args.pop(0)
-        func = rawf[rawf.find('{')+1:rawf.find('}')]
-        self.Functions.update({name : {
-                                      'name' : name,
-                                      'args' : args,
-                                      'formula' : func
-                                    }
-                            })
-        self.Show('FunctionDec:',t[0])
+        func = rawf[rawf.find('{') + 1 : rawf.find('}')]
+        self.Functions.update({name: {'name': name, 'args': args, 'formula': func}})
+        self.Show('FunctionDec:', t[0])
 
     def p_rateruledec(self, t):
         '''RateRuleDec : RRULEDEC'''
         ##  print 'p_functiondec', t[:]
-        rawf = t[1].replace('RateRule:','').lstrip()
-        name = rawf[:rawf.find('{')].strip()
-        func = rawf[rawf.find('{')+1:rawf.find('}')]
-        self.AssignmentRules.update({name : {'name' : name,
-                                              'formula' : func.strip(),
-                                              'type' : 'rate'
-                                            }
-                                    })
-        self.Show('RateRuleDec:',t[0])
+        rawf = t[1].replace('RateRule:', '').lstrip()
+        name = rawf[: rawf.find('{')].strip()
+        func = rawf[rawf.find('{') + 1 : rawf.find('}')]
+        self.AssignmentRules.update(
+            {name: {'name': name, 'formula': func.strip(), 'type': 'rate'}}
+        )
+        self.Show('RateRuleDec:', t[0])
 
     def p_eventdec(self, t):
         '''EventDec : EVENTDEC'''
-        rawf = t[1].replace('Event:','').lstrip()
-        args = rawf[:rawf.find('{')].strip().split(',')
+        rawf = t[1].replace('Event:', '').lstrip()
+        args = rawf[: rawf.find('{')].strip().split(',')
         name = args.pop(0)
         delay = float(args.pop(-1))
         trigger = ''
@@ -740,26 +792,32 @@ class PySCeSParser:
             trigger = trigger + a + ','
         trigger = trigger[:-1]
 
-        rawF = rawf[rawf.find('{')+1:rawf.find('}')].split('\n')
+        rawF = rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
         assignments = {}
         for ass in rawF:
             if len(ass.strip()) > 0:
                 ass = ass.split('=')
-                assignments.update({ass[0].strip() : ass[1].strip()})
-        self.Events.update({name : { 'delay' : delay,
-                                      'name' : name,
-                                      'trigger' : trigger,
-                                      'assignments' : assignments,
-                                      'tsymb' : None
-                                    }
-                            })
-        self.Show('EventDec:',t[0])
+                assignments.update({ass[0].strip(): ass[1].strip()})
+        self.Events.update(
+            {
+                name: {
+                    'delay': delay,
+                    'name': name,
+                    'trigger': trigger,
+                    'assignments': assignments,
+                    'tsymb': None,
+                }
+            }
+        )
+        self.Show('EventDec:', t[0])
 
     def p_objfuncdec(self, t):
         '''ObjFuncDec : OBJFUNCDEC'''
-        rawf = t[1].replace('ObjectiveFunctions:','').lstrip()
-        args = rawf[:rawf.find('{')].strip().split(',')
-        rawf = [r.strip() for r in rawf[rawf.find('{')+1:rawf.find('}')].split('\n')]
+        rawf = t[1].replace('ObjectiveFunctions:', '').lstrip()
+        args = rawf[: rawf.find('{')].strip().split(',')
+        rawf = [
+            r.strip() for r in rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
+        ]
         objectives = {}
         for oo in rawf:
             print(rawf)
@@ -769,18 +827,25 @@ class PySCeSParser:
                 active = False
                 if oS[0] == args[0]:
                     active = True
-                objectives.update({oS[0] : {'id' : oS[0],
-                                             'active' : active,
-                                             'osense' : oS[1],
-                                             'fluxes' : oS[2]}
-                                            })
+                objectives.update(
+                    {
+                        oS[0]: {
+                            'id': oS[0],
+                            'active': active,
+                            'osense': oS[1],
+                            'fluxes': oS[2],
+                        }
+                    }
+                )
         self.cbm_ObjectiveFunctions.update(objectives)
-        self.Show('ObjFuncDec:',t[0])
+        self.Show('ObjFuncDec:', t[0])
 
     def p_fluxbnddec(self, t):
         '''FluxBndDec : FLUXBNDDEC'''
-        rawf = t[1].replace('FluxBounds:','').lstrip()
-        rawf = [r.strip() for r in rawf[rawf.find('{')+1:rawf.find('}')].split('\n')]
+        rawf = t[1].replace('FluxBounds:', '').lstrip()
+        rawf = [
+            r.strip() for r in rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
+        ]
 
         fluxbnds = {}
         cntr = 0
@@ -790,26 +855,26 @@ class PySCeSParser:
                 lhs = None
                 rhs = None
                 fid = 'fbnd_%i' % cntr
-                for oper in ['>=','<=','>','<','=']:
-                    if  oper in oo:
+                for oper in ['>=', '<=', '>', '<', '=']:
+                    if oper in oo:
                         bnd = oo.split(oper)
                         operator = oper
                         lhs = bnd[0].strip()
                         rhs = float(bnd[1].strip())
                         break
-                fluxbnds.update({fid : {'id' : fid,
-                                           'flux' : lhs,
-                                           'rhs' : rhs,
-                                           'operator' : operator}
-                                          })
+                fluxbnds.update(
+                    {fid: {'id': fid, 'flux': lhs, 'rhs': rhs, 'operator': operator}}
+                )
                 cntr += 1
         self.cbm_FluxBounds.update(fluxbnds)
-        self.Show('FluxBndDec:',t[0])
+        self.Show('FluxBndDec:', t[0])
 
     def p_usercnstrdec(self, t):
         '''UserCnstrDec : USERCNSTRDEC'''
-        rawf = t[1].replace('UserFluxConstraints:','').lstrip()
-        rawf = [r.strip() for r in rawf[rawf.find('{')+1:rawf.find('}')].split('\n')]
+        rawf = t[1].replace('UserFluxConstraints:', '').lstrip()
+        rawf = [
+            r.strip() for r in rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
+        ]
 
         fluxcnstr = {}
         for oo in rawf:
@@ -819,8 +884,8 @@ class PySCeSParser:
                 operator = None
                 lhs = None
                 rhs = None
-                for oper in ['>=','<=','>','<','=']:
-                    if  oper in oS[1]:
+                for oper in ['>=', '<=', '>', '<', '=']:
+                    if oper in oS[1]:
                         cnstr = oS[1].split(oper)
                         operator = oper
                         lhs = [c.strip() for c in cnstr[0].split(',')]
@@ -833,29 +898,27 @@ class PySCeSParser:
                             else:
                                 coeff = c[0]
                                 val = c[1]
-                            lhs2.append((float(coeff),val))
+                            lhs2.append((float(coeff), val))
                         rhs = float(cnstr[1].strip())
                         break
-                fluxcnstr.update({oS[0] : {'id' : oS[0],
-                                             'constraint' : tuple(lhs2),
-                                             'rhs' : rhs,
-                                             'operator' : operator}
-                                            })
+                fluxcnstr.update(
+                    {
+                        oS[0]: {
+                            'id': oS[0],
+                            'constraint': tuple(lhs2),
+                            'rhs': rhs,
+                            'operator': operator,
+                        }
+                    }
+                )
         self.cbm_UserFluxConstraints.update(fluxcnstr)
-        self.Show('UserCnstrDec:',t[0])
+        self.Show('UserCnstrDec:', t[0])
 
+        self.Show('UserCnstrDec:', t[0])
 
-
-
-        self.Show('UserCnstrDec:',t[0])
-
-
-
-
-
-    def p_compartmentdec(self,t):
+    def p_compartmentdec(self, t):
         '''CompartmentDec : COMPDEC'''
-        rawf = t[1].strip().replace('Compartment:','')
+        rawf = t[1].strip().replace('Compartment:', '')
         strAr = [st.strip() for st in rawf.split(',')]
         if len(strAr) <= 3:
             name = strAr[0]
@@ -866,54 +929,56 @@ class PySCeSParser:
         else:
             area = None
 
-        self.compartments.update({name:{'name':name,
-                                         'size': float(size),
-                                         'dimensions' : int(dimensions),
-                                         'compartment': None,
-                                         'area' : None
-                                         ##  'volume' : None
-                                          }})
+        self.compartments.update(
+            {
+                name: {
+                    'name': name,
+                    'size': float(size),
+                    'dimensions': int(dimensions),
+                    'compartment': None,
+                    'area': None
+                    ##  'volume' : None
+                }
+            }
+        )
 
-    def p_forcedfunc(self,t):
+    def p_forcedfunc(self, t):
         '''Forcedfunc : FORCEFUNC'''
         self.ForceFunc.append(t[1])
         ar = t[1].split('=')
-        name = ar[0].replace('self.','').strip()
-        func = ar[1].replace('self.','').strip()
-        self.AssignmentRules.update({name : {'name' : name,
-                                              'formula' : func,
-                                              'type' : 'assignment'
-                                            }
-                                    })
-        self.Show('Forcedfunc:',t[0])
+        name = ar[0].replace('self.', '').strip()
+        func = ar[1].replace('self.', '').strip()
+        self.AssignmentRules.update(
+            {name: {'name': name, 'formula': func, 'type': 'assignment'}}
+        )
+        self.Show('Forcedfunc:', t[0])
 
-    def p_timefunc(self,t):
+    def p_timefunc(self, t):
         '''Timefunc : TIMEFUNC'''
         self.TimeFunc.append(t[1])
-        self.Show('Timefunc:',t[0])
+        self.Show('Timefunc:', t[0])
 
-    def p_userfunc(self,t):
+    def p_userfunc(self, t):
         '''Userfunc : USERFUNC'''
         self.UserFunc.append(t[1])
         ar = t[1].split('=')
-        name = ar[0].replace('self.','').strip()
-        func = ar[1].replace('self.','').strip()
-        self.UserFuncs.update({name : {'name' : name,
-                                            'formula' : func,
-                                            'type' : 'userfuncs'}
-                                    })
-        self.Show('Userfunc:',t[0])
+        name = ar[0].replace('self.', '').strip()
+        func = ar[1].replace('self.', '').strip()
+        self.UserFuncs.update(
+            {name: {'name': name, 'formula': func, 'type': 'userfuncs'}}
+        )
+        self.Show('Userfunc:', t[0])
 
-    def p_initfunc(self,t):
+    def p_initfunc(self, t):
         '''Initfunc : INITFUNC'''
         self.InitFunc.append(t[1])
         ar = t[1].split('=')
-        name = ar[0].replace('self.','').strip()
-        value = ar[1].replace('self.','').replace('\'','').replace('"','').strip()
-        self.ModelInit.update({name : value})
-        self.Show('Initfunc:',t[0])
+        name = ar[0].replace('self.', '').strip()
+        value = ar[1].replace('self.', '').replace('\'', '').replace('"', '').strip()
+        self.ModelInit.update({name: value})
+        self.Show('Initfunc:', t[0])
 
-    def p_fixedreagents(self,t):
+    def p_fixedreagents(self, t):
         '''FixList : NAME
                    | NAME FixList'''
         if t[1] != None:
@@ -926,10 +991,10 @@ class PySCeSParser:
         self.Show('FixList', t[0])
 
     # TODO:
-    def p_initialise(self,t):
+    def p_initialise(self, t):
         '''Initialise : NAME EQUALS Expression'''
         value = None
-        name = t[1].replace('self.','')
+        name = t[1].replace('self.', '')
         try:
             value = eval(t[3])
             # 20090402 we need to keep track of species parameter initialisations and then
@@ -939,37 +1004,40 @@ class PySCeSParser:
             print('Initialisation error: %s' % t[3])
             print(ex)
 
-        self.sDict.update({name : {'name' : name,
-                                    'initial' : value
-                                   }
-                           })
+        self.sDict.update({name: {'name': name, 'initial': value}})
         t[0] = t[1] + t[2] + t[3]
 
         self.InitStrings.append(t[0])
         self.Inits.append(t[1])
-        self.Show('Initialisation',t[0])
+        self.Show('Initialisation', t[0])
 
-    def p_reaction_line(self,t):
+    def p_reaction_line(self, t):
         '''ReactionLine : REACTION_ID ReactionEq
                         | REACTION_ID ReactionEq Expression'''
 
-        #global AllRateEqsGiven, self.ReacParams
+        # global AllRateEqsGiven, self.ReacParams
         ReacID = t[1]
         if ReacID in self.nDict:
             self.ParseErrors.append(('Duplicate Reaction ', t.lineno, ReacID, None))
-        self.nDict[ReacID] = {} # Reaction dictionary for ReacID
+        self.nDict[ReacID] = {}  # Reaction dictionary for ReacID
         ##  self.nDict[ReacID]['Reagents'] = {} # Reagent dictionary within ReacID
-        self.nDict[ReacID].update({'Reagents' : {}, 'name' : ReacID})
+        self.nDict[ReacID].update({'Reagents': {}, 'name': ReacID})
         # a list of all reagents specified in the stoichiometry, unmodified and not taken into consideration for anything
-        self.nDict[ReacID].update({'AllReagents' : t[2][0]})
+        self.nDict[ReacID].update({'AllReagents': t[2][0]})
 
         # brett: if an index exists sum the coefficients instead of adding a new one
         # this seems to deal with multiple definitions like X + X > Y and 2{X} + Y > Z + X
-        for i in t[2][0]: # First tuple member of ReactionEq contains list of (name,stoichcoef)
+        for i in t[2][
+            0
+        ]:  # First tuple member of ReactionEq contains list of (name,stoichcoef)
             if i[0] in self.nDict[ReacID]['Reagents']:
-                self.nDict[ReacID]['Reagents'][i[0]] = self.nDict[ReacID]['Reagents'][i[0]] + i[1]
+                self.nDict[ReacID]['Reagents'][i[0]] = (
+                    self.nDict[ReacID]['Reagents'][i[0]] + i[1]
+                )
             else:
-                self.nDict[ReacID]['Reagents'][i[0]] = i[1] # Key for reagent with stoichcoef value
+                self.nDict[ReacID]['Reagents'][i[0]] = i[
+                    1
+                ]  # Key for reagent with stoichcoef value
         killList = []
         if __USE_NET_STOICH__:
             # brett: however for the case of X + Y > Y + Z where the sum of the coefficients
@@ -977,27 +1045,29 @@ class PySCeSParser:
             for i in self.nDict[ReacID]['Reagents']:
                 if abs(self.nDict[ReacID]['Reagents'][i]) < self.mach_spec_eps2k:
                     killList.append(i)
-                    #print self.mach_spec_eps2k, self.nDict[ReacID]['Reagents']
-            #print killList, self.nDict[ReacID]['Reagents']
+                    # print self.mach_spec_eps2k, self.nDict[ReacID]['Reagents']
+            # print killList, self.nDict[ReacID]['Reagents']
             # brett: and the easiest way of doing this is putting the zero keys in a list
             # and deleting them out of the dictionary
             if len(killList) != 0:
                 for i in killList:
                     del self.nDict[ReacID]['Reagents'][i]
-            #print killList, self.nDict[ReacID]['Reagents']
+            # print killList, self.nDict[ReacID]['Reagents']
 
-        self.nDict[ReacID]['Type'] = t[2][1] # Second tuple member of ReactionEq contains type
-        try: # Save rate equation and create parameter list
-            self.nDict[ReacID]['RateEq']   = t[3]
-            self.nDict[ReacID]['Params']   = self.ReacParams
-            self.ReacParams = [] # Reset global self.ReacParams list
+        self.nDict[ReacID]['Type'] = t[2][
+            1
+        ]  # Second tuple member of ReactionEq contains type
+        try:  # Save rate equation and create parameter list
+            self.nDict[ReacID]['RateEq'] = t[3]
+            self.nDict[ReacID]['Params'] = self.ReacParams
+            self.ReacParams = []  # Reset global self.ReacParams list
         except:
-            self.nDict[ReacID]['RateEq']   = ''
-            self.nDict[ReacID]['Params']   = []
-            self.AllRateEqsGiven = 0 # Set global flag to false
-        self.Show('ReactionLine',t[0])
+            self.nDict[ReacID]['RateEq'] = ''
+            self.nDict[ReacID]['Params'] = []
+            self.AllRateEqsGiven = 0  # Set global flag to false
+        self.Show('ReactionLine', t[0])
 
-    def p_reaction_eq(self,t):
+    def p_reaction_eq(self, t):
         '''ReactionEq : LeftHalfReaction EQUALS RightHalfReaction
                       | LeftHalfReaction IRREV  RightHalfReaction
                       | POOL EQUALS  RightHalfReaction
@@ -1006,7 +1076,7 @@ class PySCeSParser:
                       | LeftHalfReaction IRREV POOL'''
 
         ReacType = ''
-        if   t[2] == '=':
+        if t[2] == '=':
             ReacType = 'Rever'
         elif t[2] == '>':
             ReacType = 'Irrev'
@@ -1020,10 +1090,10 @@ class PySCeSParser:
             t[0] = (t[1], ReacType)
         else:
             t[0] = (t[1] + t[3], ReacType)
-        #print 'reaction_eq',t[0]
-        self.Show('ReactionEq',t[0])
+        # print 'reaction_eq',t[0]
+        self.Show('ReactionEq', t[0])
 
-    def p_left_half_reaction(self,t):
+    def p_left_half_reaction(self, t):
         ''' LeftHalfReaction : SubstrateTerm
                              | SubstrateTerm PLUS LeftHalfReaction'''
         # Make a list of substrate terms
@@ -1034,7 +1104,7 @@ class PySCeSParser:
             pass
         self.Show('LeftHalfReaction', t[0])
 
-    def p_right_half_reaction(self,t):
+    def p_right_half_reaction(self, t):
         ''' RightHalfReaction : ProductTerm
                               | ProductTerm PLUS RightHalfReaction'''
 
@@ -1046,7 +1116,7 @@ class PySCeSParser:
             pass
         self.Show('RightHalfReaction', t[0])
 
-    def p_substrate_term(self,t):
+    def p_substrate_term(self, t):
         '''SubstrateTerm : STOICH_COEF NAME
                          | NAME'''
 
@@ -1054,30 +1124,30 @@ class PySCeSParser:
         # (< 0 because substrate)
         try:
             t[0] = (t[2], -float(t[1]))
-            if t[2] not in self.Reagents:# and t[2] != 'self.pool':
+            if t[2] not in self.Reagents:  # and t[2] != 'self.pool':
                 self.Reagents.append(t[2])
         except:
             t[0] = (t[1], -1.0)
-            if t[1] not in self.Reagents:#  and t[1] != 'self.pool':
+            if t[1] not in self.Reagents:  #  and t[1] != 'self.pool':
                 self.Reagents.append(t[1])
         self.Show('SubstrateTerm', t[0])
 
-    def p_product_term(self,t):
+    def p_product_term(self, t):
         '''ProductTerm : STOICH_COEF NAME
                        | NAME'''
         # Make tuple of NAME and stoichiometric coefficient
         # (> 0 because product)
         try:
             t[0] = (t[2], float(t[1]))
-            if t[2] not in self.Reagents:# and t[2] != 'self.pool':
+            if t[2] not in self.Reagents:  # and t[2] != 'self.pool':
                 self.Reagents.append(t[2])
         except:
             t[0] = (t[1], 1.0)
-            if t[1] not in self.Reagents:# and t[1] != 'self.pool':
+            if t[1] not in self.Reagents:  # and t[1] != 'self.pool':
                 self.Reagents.append(t[1])
         self.Show('ProductTerm', t[0])
 
-    def p_rate_eq(self,t):
+    def p_rate_eq(self, t):
         '''Expression : Expression PLUS Expression
                       | Expression MINUS Expression
                       | Expression TIMES Expression
@@ -1085,32 +1155,32 @@ class PySCeSParser:
                       | Power
                       | Number
                       | Func'''
-                    # |UMINUS : add if the
-                    #  alternative for p_uminus is used
+        # |UMINUS : add if the
+        #  alternative for p_uminus is used
 
-        if len(t.slice)==4:
+        if len(t.slice) == 4:
             t[0] = t[1] + t[2] + t[3]
         else:
             t[0] = t[1]
 
-    def p_power(self,t):
+    def p_power(self, t):
         '''Power : Expression POWER Expression'''
 
-        t[0] = 'pow('+ t[1] + ',' + t[3] + ')' #changed to make it DeriVar compatible
+        t[0] = 'pow(' + t[1] + ',' + t[3] + ')'  # changed to make it DeriVar compatible
         ##  t[0] = t[1] + '**' + t[3]
 
-    def p_uminus(self,t):
+    def p_uminus(self, t):
         '''Expression : MINUS Expression %prec UMINUS'''
         # Alternative '''UMINUS : MINUS Expression'''
 
         t[0] = t[1] + t[2]
 
-    def p_number(self,t):
+    def p_number(self, t):
         '''Number : REAL
                   | INT
                   | NAME'''
 
-    # Build list of entities
+        # Build list of entities
         ttype = 'param'
         try:
             tx = float(t[1])
@@ -1118,36 +1188,53 @@ class PySCeSParser:
         except ValueError as v:
             pass
             ##  try:
-                ##  t[1] = complex(t[1])
-                ##  ttype = 'complex'
+            ##  t[1] = complex(t[1])
+            ##  ttype = 'complex'
             ##  except:
-                ##  pass
-        if ttype in ['complex','float']:
+            ##  pass
+        if ttype in ['complex', 'float']:
             t[1] = str(tx)
         else:
             # if this is not a number add it as a parameter EXCEPT if it is a function's
             # name or numpy.constant
-            if (t[1] not in self.ReacParams) and\
-                (t[1].replace('numpy.','').replace('math.','').replace('operator.','') not in self.MathmlToNumpy_funcs) and\
-                (t[1].replace('numpy.','').replace('math.','').replace('operator.','') not in self.MathmlToNumpy_symb): # ignore function names and duplications
+            if (
+                (t[1] not in self.ReacParams)
+                and (
+                    t[1]
+                    .replace('numpy.', '')
+                    .replace('math.', '')
+                    .replace('operator.', '')
+                    not in self.MathmlToNumpy_funcs
+                )
+                and (
+                    t[1]
+                    .replace('numpy.', '')
+                    .replace('math.', '')
+                    .replace('operator.', '')
+                    not in self.MathmlToNumpy_symb
+                )
+            ):  # ignore function names and duplications
                 self.ReacParams.append(t[1])
         t[0] = t[1]
 
-     # new Core2 based InfixParser code
-    def p_function(self,t):
+    # new Core2 based InfixParser code
+    def p_function(self, t):
         '''Func : LPAREN ArgList RPAREN
                 | NAME LPAREN ArgList RPAREN'''
 
         # convert root(degree,<expr>) to pow(<expr>, 1/degree)
         if t[1].strip() == 'root':
             t[1] = self.MathmlToNumpy_funcs[t[1]]
-            t[3] = '%s, %s' % (t[3][t[3].index(',')+1:], 1.0/float(t[3][:t[3].index(',')])  )
+            t[3] = '%s, %s' % (
+                t[3][t[3].index(',') + 1 :],
+                1.0 / float(t[3][: t[3].index(',')]),
+            )
             t[0] = t[1] + t[2] + t[3] + t[4]
         elif t[1] in self.MathmlToNumpy_funcs:
             if self.MathmlToNumpy_funcs[t[1]] == None:
                 self.SymbolErrors.append(t[1])
                 print('\nFunction \"%s\" not supported by PySCeS' % t[1])
-                t[0] = 'unknown_function_'+t[1] + t[2] + t[3] + t[4]
+                t[0] = 'unknown_function_' + t[1] + t[2] + t[3] + t[4]
             else:
                 try:
                     t[0] = self.MathmlToNumpy_funcs[t[1]] + t[2] + t[3] + t[4]
@@ -1160,7 +1247,9 @@ class PySCeSParser:
             t[0] = t[1] + t[2] + t[3]
         else:
             # assume some arbitrary function definition
-            if t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.': # NEW UNTESTED
+            if (
+                t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.'
+            ):  # NEW UNTESTED
                 t[0] = t[1] + t[2] + t[3] + t[4]
             else:
                 t[0] = t[1] + t[2] + t[3] + t[4]
@@ -1168,7 +1257,7 @@ class PySCeSParser:
     # arbitrary number of arguments in an argument list
     # adapted from Andrew Dalke's GardenSnake
     # http://www.dalkescientific.com/writings/diary/GardenSnake.py
-    def p_arglist(self,t):
+    def p_arglist(self, t):
         '''ArgList : Expression
                    | ArgList COMMA Expression'''
         try:
@@ -1181,10 +1270,10 @@ class PySCeSParser:
         except Exception as EX:
             print('Function ArgList error (please report!)\n', EX)
 
-###################################################################
-###################################################################
+    ###################################################################
+    ###################################################################
 
-    def ParsePSC(self,modelfile,modeldir,modeloutput):
+    def ParsePSC(self, modelfile, modeldir, modeloutput):
         """
         ParsePSC(modelfile,modeldir,modeloutput)
 
@@ -1196,33 +1285,35 @@ class PySCeSParser:
 
         """
         # we clear stuff so we have a shiny new instance
-        self.nDict = {}    # Dictionary containing all reaction information
+        self.nDict = {}  # Dictionary containing all reaction information
         self.InDict = {}
         self.sDict = {}
-        self.pDict = {}    #parameter dict
-        self.uDict = {'substance': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'mole'},
-                       'volume': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'litre'},
-                       'time': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'second'},
-                       'length': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
-                       'area': {'exponent': 2, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'}
-                      }
-        self.KeyWords = {'Modelname' : None,
-                         'Description' : None,
-                         'Species_In_Conc' : None,
-                         'Output_In_Conc' : None,
-                         'ModelType' : None
-                         }
+        self.pDict = {}  # parameter dict
+        self.uDict = {
+            'substance': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'mole'},
+            'volume': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'litre'},
+            'time': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'second'},
+            'length': {'exponent': 1, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
+            'area': {'exponent': 2, 'multiplier': 1.0, 'scale': 0, 'kind': 'metre'},
+        }
+        self.KeyWords = {
+            'Modelname': None,
+            'Description': None,
+            'Species_In_Conc': None,
+            'Output_In_Conc': None,
+            'ModelType': None,
+        }
         self.compartments = {}
-        self.ReactionIDs = [] # List of reaction names
-        self.InitStrings = []    # Initialisation strings
-        self.species = []    # Variable reagents that occur in reactions
+        self.ReactionIDs = []  # List of reaction names
+        self.InitStrings = []  # Initialisation strings
+        self.species = []  # Variable reagents that occur in reactions
         self.FixedReagents = []  # Fixed reagents
-        self.InitParams = []     # Initialised parameters
-        self.Names = []       # List of all reagent, parameter and function names
-        self.Inits = []          # Initialised entities
-        self.Reagents = []       # All reagents found during parsing of reactions
-        self.ReacParams = []     # Temporary list of reaction parameters
-        self.LexErrors = []   # List of lexing errors
+        self.InitParams = []  # Initialised parameters
+        self.Names = []  # List of all reagent, parameter and function names
+        self.Inits = []  # Initialised entities
+        self.Reagents = []  # All reagents found during parsing of reactions
+        self.ReacParams = []  # Temporary list of reaction parameters
+        self.LexErrors = []  # List of lexing errors
         self.ParseErrors = []
         self.SymbolErrors = []
         self.ForceFunc = []
@@ -1235,8 +1326,8 @@ class PySCeSParser:
         self.UserFuncs = {}
         self.ModelInit = {}
         self.cbm_FluxBounds = {}  # flux bounds in a CB model
-        self.cbm_ObjectiveFunctions = {} # objective functions for a CB model
-        self.cbm_UserFluxConstraints = {} # objective functions for a CB model
+        self.cbm_ObjectiveFunctions = {}  # objective functions for a CB model
+        self.cbm_UserFluxConstraints = {}  # objective functions for a CB model
 
         self.ModelUsesNumpyFuncs = False
 
@@ -1251,10 +1342,10 @@ class PySCeSParser:
         self.LexOK = True
 
         # check to see if the last line of the file is an os defined empty line
-        self.CheckLastLine(os.path.join(modeldir,modelfile))
+        self.CheckLastLine(os.path.join(modeldir, modelfile))
 
         # load model data from file
-        Data = open(os.path.join(modeldir,modelfile),'r')
+        Data = open(os.path.join(modeldir, modelfile), 'r')
         self.__Model = Data.read()
         Data.close()
 
@@ -1290,19 +1381,23 @@ class PySCeSParser:
 
         self.__lexer = pysces.lib.lex.lex(module=self, debug=self.display_debug)
         self.__lexer.input(self.__Model)
-        self.__parser = pysces.lib.yacc.yacc(module=self,
-                debug=self.display_debug,
-                debugfile=self.debugfile,
-                tabmodule=self.tabmodule,
-                outputdir=tempDir)
+        self.__parser = pysces.lib.yacc.yacc(
+            module=self,
+            debug=self.display_debug,
+            debugfile=self.debugfile,
+            tabmodule=self.tabmodule,
+            outputdir=tempDir,
+        )
 
         while 1:
             tok = self.__lexer.token()
-            if not tok: break
+            if not tok:
+                break
 
         while 1:
             p = self.__parser.parse(self.__Model)
-            if not p: break
+            if not p:
+                break
 
         # get to our work directory
         os.chdir(modeloutput)
@@ -1340,7 +1435,7 @@ class PySCeSParser:
         self.TimeFunc = Tstr
         self.UserFunc = Ustr
         self.InitFunc = Istr
-        del Fstr,Tstr,Ustr,Istr
+        del Fstr, Tstr, Ustr, Istr
 
         # Create list of variable species
         for reag in self.Reagents:
@@ -1350,55 +1445,66 @@ class PySCeSParser:
         # Warn if no reagents have been fixed
         if self.FixedReagents == []:
             print('Info: No reagents have been fixed')
-        else: # Warn if a fixed reagent does not occur in a reaction equation
+        else:  # Warn if a fixed reagent does not occur in a reaction equation
             for reag in self.FixedReagents:
                 if reag not in self.Reagents:
-                    print('Warning: species "%s" (fixed) does not occur in any reaction' % reag.replace('self.',''))
+                    print(
+                        'Warning: species "%s" (fixed) does not occur in any reaction'
+                        % reag.replace('self.', '')
+                    )
 
         # for the initialised ones
         for s in list(self.sDict.keys()):
-            if 'self.'+s in self.FixedReagents+self.Reagents:
+            if 'self.' + s in self.FixedReagents + self.Reagents:
                 fixed = False
                 compartment = None
                 isamount = False
                 initial = self.sDict[s]['initial']
                 name = self.sDict[s]['name']
 
-                if 'self.'+s in self.FixedReagents:
+                if 'self.' + s in self.FixedReagents:
                     fixed = True
                 if s in list(self.InDict.keys()):
                     compartment = self.InDict[s]
-                self.sDict.update({s : {'name' : name,
-                                        'initial' : initial,
-                                        'compartment' : compartment,
-                                        'fixed' : fixed,
-                                        'isamount' : isamount
-                                        }})
+                self.sDict.update(
+                    {
+                        s: {
+                            'name': name,
+                            'initial': initial,
+                            'compartment': compartment,
+                            'fixed': fixed,
+                            'isamount': isamount,
+                        }
+                    }
+                )
             else:
-                self.pDict.update({s : self.sDict.pop(s)})
-
+                self.pDict.update({s: self.sDict.pop(s)})
 
         # for the uninitialised ones
         ##  print self.FixedReagents, self.Reagents, self.Inits
-        for s in self.species+self.FixedReagents:
-            if s.replace('self.','') not in self.sDict:
+        for s in self.species + self.FixedReagents:
+            if s.replace('self.', '') not in self.sDict:
                 fixed = False
                 compartment = None
                 isamount = False
                 initial = None
-                name = s.replace('self.','')
+                name = s.replace('self.', '')
 
                 if s in self.FixedReagents:
                     fixed = True
                 if name in list(self.InDict.keys()):
                     compartment = self.InDict[name]
-                self.sDict.update({name : {'name' : name,
-                                        'initial' : initial,
-                                        'compartment' : compartment,
-                                        'fixed' : fixed,
-                                        'isamount' : isamount
-                                        }})
-
+                self.sDict.update(
+                    {
+                        name: {
+                            'name': name,
+                            'initial': initial,
+                            'compartment': compartment,
+                            'fixed': fixed,
+                            'isamount': isamount,
+                        }
+                    }
+                )
 
         # Create list of initialised parameters
         # eventually this must be switched over to pDict
@@ -1413,11 +1519,11 @@ class PySCeSParser:
         # In self.nDict, clean rate equation pameter list of variables that occur in that reaction
         for id in list(self.nDict.keys()):
             # create 'Modifiers' key for each reaction - brett 20050606
-            self.nDict[id].update({'Modifiers':[]})
+            self.nDict[id].update({'Modifiers': []})
             reagcomp = None
             if id in list(self.InDict.keys()):
                 reagcomp = self.InDict[id]
-            self.nDict[id].update({'compartment' : reagcomp})
+            self.nDict[id].update({'compartment': reagcomp})
             for reag in self.species:
                 if reag in self.nDict[id]['Params']:
                     # if the reagent is a reaction reagent delete - brett 20050606
@@ -1425,7 +1531,7 @@ class PySCeSParser:
                         self.nDict[id]['Params'].remove(reag)
                     # if not it is a modifier ... add to modifiers and delete - brett 20050606
                     else:
-                        #print 'INFO: variable modifier \"' + reag.replace('self.','') + '\" detected in', id
+                        # print 'INFO: variable modifier \"' + reag.replace('self.','') + '\" detected in', id
                         self.nDict[id]['Modifiers'].append(reag)
                         self.nDict[id]['Params'].remove(reag)
 
@@ -1435,19 +1541,31 @@ class PySCeSParser:
             for param in self.nDict[id]['Params']:
                 ##  print param
                 ##  print self.InitParams
-                if param not in self.InitParams and param.replace('self.','') not in cnames:
+                if (
+                    param not in self.InitParams
+                    and param.replace('self.', '') not in cnames
+                ):
                     ##  print param, self.InitParams, self.pDict
-                    print('Warning: %s parameter "%s"  has not been initialised' % (id, param.replace('self.','')))
-                    pname = param.replace('self.','')
-                    self.pDict.update({pname : {'name':pname, 'initial':None}})
+                    print(
+                        'Warning: %s parameter "%s"  has not been initialised'
+                        % (id, param.replace('self.', ''))
+                    )
+                    pname = param.replace('self.', '')
+                    self.pDict.update({pname: {'name': pname, 'initial': None}})
                     self.InitParams.append(param)
 
         # Check whether all variable reagents have been initialised
-        for reag in self.species+self.FixedReagents:
+        for reag in self.species + self.FixedReagents:
             if reag not in self.Inits and reag in self.species:
-                print('Warning: species "%s" has not been initialised' % reag.replace('self.',''))
+                print(
+                    'Warning: species "%s" has not been initialised'
+                    % reag.replace('self.', '')
+                )
             if reag not in self.Inits and reag in self.FixedReagents:
-                print('Warning: species "%s" (fixed) has not been initialised' % reag.replace('self.',''))
+                print(
+                    'Warning: species "%s" (fixed) has not been initialised'
+                    % reag.replace('self.', '')
+                )
 
         # Check that all initialised parameters actually occur in self.Inits
         known = 0
@@ -1458,7 +1576,11 @@ class PySCeSParser:
                     break
                 else:
                     known = 0
-            if not known: print('Info: "%s" has been initialised but does not occur in a rate equation' % param.replace('self.',''))
+            if not known:
+                print(
+                    'Info: "%s" has been initialised but does not occur in a rate equation'
+                    % param.replace('self.', '')
+                )
 
         # find modifiers for each reaction - brett 20050606
         self.modifiers = []
@@ -1466,18 +1588,20 @@ class PySCeSParser:
             for j in self.nDict[i]['Params']:
                 if j in self.FixedReagents and j not in self.nDict[i]['Reagents']:
                     self.nDict[i]['Modifiers'].append(j)
-            self.modifiers.append((i,tuple([j.replace('self.','') for j in self.nDict[i]['Modifiers']])))
+            self.modifiers.append(
+                (i, tuple([j.replace('self.', '') for j in self.nDict[i]['Modifiers']]))
+            )
 
         self.fixed_species = copy.copy(self.FixedReagents)
         self.parameters = copy.copy(self.InitParams)
         self.reactions = copy.copy(self.ReactionIDs)
 
         for x in range(len(self.fixed_species)):
-            self.fixed_species[x] = self.fixed_species[x].replace('self.','')
+            self.fixed_species[x] = self.fixed_species[x].replace('self.', '')
         for x in range(len(self.species)):
-            self.species[x] = self.species[x].replace('self.','')
+            self.species[x] = self.species[x].replace('self.', '')
         for x in range(len(self.parameters)):
-            self.parameters[x] = self.parameters[x].replace('self.','')
+            self.parameters[x] = self.parameters[x].replace('self.', '')
 
         if self.display_debug == 1:
             print(self.fixed_species)
@@ -1501,7 +1625,7 @@ class PySCeSParser:
             print(self.nDict)
             print('\n\n')
 
-    def KeywordCheck(self,inputarr,bad=[]):
+    def KeywordCheck(self, inputarr, bad=[]):
         """
         KeywordCheck(inputarr,bad=[])
 
@@ -1514,12 +1638,12 @@ class PySCeSParser:
 
         """
         for x in inputarr:
-            if x.replace('self.','') in self.ReservedTerms:
-                bad.append(x.replace('self.',''))
-                print(x.replace('self.',''), '\t\tERROR: keyword')
+            if x.replace('self.', '') in self.ReservedTerms:
+                bad.append(x.replace('self.', ''))
+                print(x.replace('self.', ''), '\t\tERROR: keyword')
         return bad
 
-    def CheckLastLine(self,name):
+    def CheckLastLine(self, name):
         """
         CheckLastLine(name)
 
@@ -1530,8 +1654,8 @@ class PySCeSParser:
         name: filename of the PySCeS input file
 
         """
-        F = open(name,'r+')
-        #F.seek(-1,2)
+        F = open(name, 'r+')
+        # F.seek(-1,2)
         F.seek(0, os.SEEK_END)
         F.seek(F.tell() - 1, os.SEEK_SET)
         if F.read() != '\n':
@@ -1544,10 +1668,12 @@ class PySCeSParser:
             print('Adding \\n to input file')
         F.close()
 
-##      # you REALLY do NOT want to know what this was for! - brett
-##      if gc.isenabled() == 1:
-##          gc.collect()
-##          del gc.garbage[:]
-##          gc.set_debug(0)
-##          print 'gc debug level = ' + `gc.get_debug()`
 
+'''
+# you REALLY do NOT want to know what this was for! - brett
+if gc.isenabled() == 1:
+    gc.collect()
+    del gc.garbage[:]
+    gc.set_debug(0)
+    print 'gc debug level = ' + `gc.get_debug()`
+'''

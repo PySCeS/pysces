@@ -32,54 +32,61 @@ __doc__ = '''
 try:
     import configparser  # Py 3
 except ImportError:
-    import ConfigParser as configparser   # Py 2
+    import ConfigParser as configparser  # Py 2
 
 import string
 import os
 
 if os.sys.platform == 'win32':
     __DefaultWin = {
-        "install_dir"  : os.path.join(os.sys.prefix,'lib','site-packages','pysces'),
-        "model_dir"    : os.path.join(os.getenv('USERPROFILE'),'Pysces','psc'),
-        "output_dir"   : os.path.join(os.getenv('USERPROFILE'),'Pysces'),
-        "gnuplot_dir"  : None,
-        "pitcon"       : True,
-        "nleq2"        : True,
-        "gnuplot"      : False,
-        "matplotlib"   : True,
-        "matplotlib_backend"   : 'TKagg',
-        "silentstart"  : False
-        }
+        "install_dir": os.path.join(os.sys.prefix, 'lib', 'site-packages', 'pysces'),
+        "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
+        "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
+        "gnuplot_dir": None,
+        "pitcon": True,
+        "nleq2": True,
+        "gnuplot": False,
+        "matplotlib": True,
+        "matplotlib_backend": 'TKagg',
+        "silentstart": False,
+    }
     __DefaultWinUsr = {
-        "model_dir"    : os.path.join(os.getenv('USERPROFILE'),'Pysces','psc'),
-        "output_dir"   : os.path.join(os.getenv('USERPROFILE'),'Pysces'),
-        "silentstart"  : False
-        }
+        "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
+        "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
+        "silentstart": False,
+    }
 else:
     if hasattr(os.sys, 'lib'):
         lib = os.sys.lib
     else:
         lib = 'lib'
     __DefaultPosix = {
-        "install_dir"  : os.path.join(os.sys.prefix,lib,"python%d.%d" % tuple(os.sys.version_info[:2]) ,'site-packages','pysces'),
-        "model_dir"    : os.path.join(os.path.expanduser('~'),'Pysces','psc'),
-        "output_dir"   : os.path.join(os.path.expanduser('~'),'Pysces'),
-        "gnuplot_dir"  : None,
-        "pitcon"       : True,
-        "nleq2"        : True,
-        "gnuplot"      : False,
-        "matplotlib"   : True,
-        "matplotlib_backend"   : 'TKagg',
-        "silentstart"  : False
-        }
+        "install_dir": os.path.join(
+            os.sys.prefix,
+            lib,
+            "python%d.%d" % tuple(os.sys.version_info[:2]),
+            'site-packages',
+            'pysces',
+        ),
+        "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
+        "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
+        "gnuplot_dir": None,
+        "pitcon": True,
+        "nleq2": True,
+        "gnuplot": False,
+        "matplotlib": True,
+        "matplotlib_backend": 'TKagg',
+        "silentstart": False,
+    }
     __DefaultPosixUsr = {
-        "model_dir"    : os.path.join(os.path.expanduser('~'),'Pysces','psc'),
-        "output_dir"   : os.path.join(os.path.expanduser('~'),'Pysces'),
-        "silentstart"  : False
-        }
+        "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
+        "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
+        "silentstart": False,
+    }
     # OSX patch by AF
     if os.sys.platform == 'darwin':
         __DefaultPosix["matplotlib_backend"] = 'MacOSX'
+
 
 def ReadConfig(file_path, config={}):
     """
@@ -88,7 +95,7 @@ def ReadConfig(file_path, config={}):
     - *file_path*	full path to file
     - *config [default={}]* configuration data
     """
-    filein = open(file_path,'r')
+    filein = open(file_path, 'r')
     cp = configparser.ConfigParser()
     cp.readfp(filein)
     for sec in cp.sections():
@@ -97,6 +104,7 @@ def ReadConfig(file_path, config={}):
             config[opt.lower()] = cp.get(sec, opt).strip()
     filein.close()
     return config
+
 
 def WriteConfig(file_path, config={}, section='Pysces'):
     """
@@ -107,7 +115,7 @@ def WriteConfig(file_path, config={}, section='Pysces'):
     - *section* [default='Pysces']: default man section name
 
     """
-    cfgfile = open(file_path,'w')
+    cfgfile = open(file_path, 'w')
     cp = configparser.ConfigParser()
     cp.add_section(section)
     for key in config:

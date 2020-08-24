@@ -26,8 +26,9 @@ __doc__ = 'PySCeS contrib module loader'
 
 import os
 import pysces
+
 tempdir = os.getcwd()
-mod_path = os.path.join(pysces.install_dir,'contrib')
+mod_path = os.path.join(pysces.install_dir, 'contrib')
 
 os.chdir(mod_path)
 mod_dir_list = [dir for dir in os.listdir(mod_path) if os.path.isdir(dir)]
@@ -35,48 +36,56 @@ mod_load_list = []
 mod_dict = {}
 
 mod_os = os.name
-#mod_os = 'posix' # transform a windows machine into a posix one
+# mod_os = 'posix' # transform a windows machine into a posix one
 
 print('\nAdding contrib modules ...')
 for mod in mod_dir_list:
-	status = 0
-	author = ''
-	email = ''
-	base = ''
-	web = ''
-	try:
-		exec('import ' + mod + ' as CurMod')
-		author = getattr(CurMod,'pysx_author')
-		email = getattr(CurMod,'pysx_email')
-		base = getattr(CurMod,'pysx_base_class')
-		web = getattr(CurMod,'pysx_web')
-		if mod_os in getattr(CurMod,'pysx_oscompat'):
-			print('Including module \"' + mod + '\"')
-			if email != '':
-				print('\tAuthor(s): ' + author + ', (' + email + ')')
-			else:
-				print('\tAuthor(s): ' + author)
-			if web != '':
-				print('\t' + web)
-			status = 1
-			mod_load_list.append(mod)
-		else:
-			print('\t' + getattr(CurMod,'pysx_name') + ' only available on '\
-			+ str(getattr(CurMod,'pysx_oscompat')))
-			print('\tMaintainer ' + author + email)
-			status = 0
-		del CurMod
-	except Exception as e:
-		print('\nModule ' + mod + ' *not* included')
-		print('\t',e,'\n')
-	mod_dict.update({mod:{}})
-	mod_dict[mod].update({'status':status,\
-						'path':os.path.abspath(os.path.join(mod_path,mod,'__init__.py')),\
-						'author':author,\
-						'email':email,\
-						'base':base})
+    status = 0
+    author = ''
+    email = ''
+    base = ''
+    web = ''
+    try:
+        exec('import ' + mod + ' as CurMod')
+        author = getattr(CurMod, 'pysx_author')
+        email = getattr(CurMod, 'pysx_email')
+        base = getattr(CurMod, 'pysx_base_class')
+        web = getattr(CurMod, 'pysx_web')
+        if mod_os in getattr(CurMod, 'pysx_oscompat'):
+            print('Including module \"' + mod + '\"')
+            if email != '':
+                print('\tAuthor(s): ' + author + ', (' + email + ')')
+            else:
+                print('\tAuthor(s): ' + author)
+            if web != '':
+                print('\t' + web)
+            status = 1
+            mod_load_list.append(mod)
+        else:
+            print(
+                '\t'
+                + getattr(CurMod, 'pysx_name')
+                + ' only available on '
+                + str(getattr(CurMod, 'pysx_oscompat'))
+            )
+            print('\tMaintainer ' + author + email)
+            status = 0
+        del CurMod
+    except Exception as e:
+        print('\nModule ' + mod + ' *not* included')
+        print('\t', e, '\n')
+    mod_dict.update({mod: {}})
+    mod_dict[mod].update(
+        {
+            'status': status,
+            'path': os.path.abspath(os.path.join(mod_path, mod, '__init__.py')),
+            'author': author,
+            'email': email,
+            'base': base,
+        }
+    )
 print(' ')
 
 os.chdir(tempdir)
 
-del pysces,os,tempdir
+del pysces, os, tempdir

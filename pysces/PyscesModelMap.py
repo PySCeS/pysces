@@ -14,12 +14,15 @@ this distribution for specifics.
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Brett G. Olivier
 """
+
 from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = '''PySCeS ModelMap module: useful for exploring model component relations'''
+
 
 class ModelMapBase(object):
     name = None
@@ -27,7 +30,7 @@ class ModelMapBase(object):
     def getName(self):
         return self.name
 
-    def setName(self,name):
+    def setName(self, name):
         self.name = name
 
     def get(self, attr):
@@ -38,12 +41,14 @@ class ModelMapBase(object):
             print("%s is not an attribute of this instance" % attr)
             return None
 
+
 class MapList(list):
     def __init__(self, *args):
-        list.__init__(self,*args)
+        list.__init__(self, *args)
 
     def asSet(self):
         return set(self.__getslice__(0, self.__len__()))
+
 
 class ModelMap(ModelMapBase):
     __nDict__ = None
@@ -70,13 +75,13 @@ class ModelMap(ModelMapBase):
         self.__parameter_store__ = []
         self.__not_inited__ = []
 
-        #operational shortcuts
+        # operational shortcuts
         self.addSpecies()
         self.addReactions()
         self.generateMappings()
         self.addCompartments()
 
-    def __cleanString__(self,s):
+    def __cleanString__(self, s):
         s = s.lstrip()
         s = s.rstrip()
         return s
@@ -84,41 +89,60 @@ class ModelMap(ModelMapBase):
     def addOneSpecies(self, species, fix=False):
         s = Species(species)
         s.setValue(self.__InitDict__[s.name])
-        if fix: s.fixed = True
+        if fix:
+            s.fixed = True
         setattr(self, species, s)
         self.species.append(s)
-        if fix: self.species_fixed.append(s)
+        if fix:
+            self.species_fixed.append(s)
 
     def addCompartments(self):
         self.compartments = []
         for c in self.__model__.__compartments__:
-            co = Compartment(self.__model__.__compartments__[c]['name'], self.__model__.__compartments__[c]['size'])
+            co = Compartment(
+                self.__model__.__compartments__[c]['name'],
+                self.__model__.__compartments__[c]['size'],
+            )
             self.compartments.append(co)
             setattr(self, c, co)
         cname = [c.name for c in self.compartments]
         for s in list(self.__model__.__sDict__.keys()):
             if self.__model__.__sDict__[s]['compartment'] in cname:
-                getattr(self, self.__model__.__sDict__[s]['compartment']).setComponent(getattr(self, s))
-                getattr(self, s).compartment = getattr(self, self.__model__.__sDict__[s]['compartment'])
+                getattr(self, self.__model__.__sDict__[s]['compartment']).setComponent(
+                    getattr(self, s)
+                )
+                getattr(self, s).compartment = getattr(
+                    self, self.__model__.__sDict__[s]['compartment']
+                )
         for r in list(self.__model__.__nDict__.keys()):
             if self.__model__.__nDict__[r]['compartment'] in cname:
-                getattr(self, self.__model__.__nDict__[r]['compartment']).setComponent(getattr(self, r))
-                getattr(self, r).compartment = getattr(self, self.__model__.__nDict__[r]['compartment'])
+                getattr(self, self.__model__.__nDict__[r]['compartment']).setComponent(
+                    getattr(self, r)
+                )
+                getattr(self, r).compartment = getattr(
+                    self, self.__model__.__nDict__[r]['compartment']
+                )
 
     def addOneReaction(self, reaction):
         r = Reaction(reaction)
-        r.addFormula(self.__nDict__[r.name]['RateEq'].replace('self.',''))
-        if self.__nDict__[r.name]['Type'] == 'Irrev': r.reversible = False
+        r.addFormula(self.__nDict__[r.name]['RateEq'].replace('self.', ''))
+        if self.__nDict__[r.name]['Type'] == 'Irrev':
+            r.reversible = False
 
         fxnames = self.hasFixedSpecies()
         for p in self.__nDict__[r.name]['Params']:
-            p = p.replace('self.','')
-            if p not in self.hasGlobalParameters() and p not in fxnames and p not in self.__compartments__:
+            p = p.replace('self.', '')
+            if (
+                p not in self.hasGlobalParameters()
+                and p not in fxnames
+                and p not in self.__compartments__
+            ):
                 if p in self.__InitDict__:
                     par = Parameter(p, self.__InitDict__[p])
                 else:
                     par = Parameter(p)
-                    if p not in self.__not_inited__: self.__not_inited__.append(p)
+                    if p not in self.__not_inited__:
+                        self.__not_inited__.append(p)
                 par.setAssociation(r)
                 self.global_parameters.append(par)
                 setattr(self, p, par)
@@ -147,15 +171,24 @@ class ModelMap(ModelMapBase):
         for reac in self.reactions:
             for reag in self.__nDict__[reac.name]['Reagents']:
                 if self.__nDict__[reac.name]['Reagents'][reag] < 0.0:
-                    reac.addSubstrate(getattr(self, reag.replace('self.','')))
-                    getattr(self, reag.replace('self.','')).setSubstrate(getattr(self, reac.name))
+                    reac.addSubstrate(getattr(self, reag.replace('self.', '')))
+                    getattr(self, reag.replace('self.', '')).setSubstrate(
+                        getattr(self, reac.name)
+                    )
                 else:
-                    reac.addProduct(getattr(self, reag.replace('self.','')))
-                    getattr(self, reag.replace('self.','')).setProduct(getattr(self, reac.name))
-                reac.stoichiometry.setdefault(reag.replace('self.',''), self.__nDict__[reac.name]['Reagents'][reag])
+                    reac.addProduct(getattr(self, reag.replace('self.', '')))
+                    getattr(self, reag.replace('self.', '')).setProduct(
+                        getattr(self, reac.name)
+                    )
+                reac.stoichiometry.setdefault(
+                    reag.replace('self.', ''),
+                    self.__nDict__[reac.name]['Reagents'][reag],
+                )
             for mod in self.__nDict__[reac.name]['Modifiers']:
-                reac.addModifier(getattr(self, mod.replace('self.','')))
-                getattr(self, mod.replace('self.','')).setModifier(getattr(self, reac.name))
+                reac.addModifier(getattr(self, mod.replace('self.', '')))
+                getattr(self, mod.replace('self.', '')).setModifier(
+                    getattr(self, reac.name)
+                )
 
     def hasReactions(self):
         return MapList([r.name for r in self.reactions])
@@ -176,6 +209,7 @@ class ModelMap(ModelMapBase):
 
     def hasGlobalParameters(self):
         return MapList(p.name for p in self.global_parameters)
+
 
 class Reaction(ModelMapBase):
     modifiers = None
@@ -229,6 +263,7 @@ class Reaction(ModelMapBase):
     def hasReagents(self):
         return MapList(self.hasSubstrates() + self.hasProducts())
 
+
 class NumberBase(ModelMapBase):
     value = None
 
@@ -240,6 +275,7 @@ class NumberBase(ModelMapBase):
 
     def setValue(self, v):
         self.value = v
+
 
 class Species(NumberBase):
     subs = None
@@ -298,6 +334,7 @@ class Parameter(NumberBase):
     def setFormula(self, formula):
         self.formula = formula
 
+
 class Compartment(NumberBase):
     components = None
 
@@ -314,9 +351,9 @@ class Compartment(NumberBase):
         return MapList([a.name for a in self.components])
 
 
-
 if __name__ == '__main__':
     import pysces
+
     M = pysces.model('pysces_model_linear1')
     M.doLoad()
 
@@ -340,12 +377,13 @@ if __name__ == '__main__':
     print(' ')
     print('R2 stoich\n', modmap.R2.stoichiometry)
     print(' ')
-    print('findReactionsThatIncludeAllSpecifiedReagents(A, B):', modmap.findReactionsThatIncludeAllSpecifiedReagents('s1','s2'))
-
+    print(
+        'findReactionsThatIncludeAllSpecifiedReagents(A, B):',
+        modmap.findReactionsThatIncludeAllSpecifiedReagents('s1', 's2'),
+    )
 
     print('\nmodmap.hasGlobalParameters\n', modmap.hasGlobalParameters())
 
     print('\nParameter associations')
     for p in modmap.global_parameters:
         print('%s.isParameterOf() %s' % (p.name, p.isParameterOf()))
-

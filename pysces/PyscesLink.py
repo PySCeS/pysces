@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = '''
           PyscesLink
           ----------
@@ -33,19 +34,34 @@ except NameError:
 
 # for METATOOLlink
 import os, re, io
+
 # for SBWWebLink
 try:
-    from urllib.request import ProxyHandler, build_opener, HTTPHandler, install_opener, urlopen   #Py 3
+    from urllib.request import (
+        ProxyHandler,
+        build_opener,
+        HTTPHandler,
+        install_opener,
+        urlopen,
+    )  # Py 3
 except ImportError:
-    from urllib2 import ProxyHandler, build_opener, HTTPHandler, install_opener, urlopen    #Py 2
+    from urllib2 import (
+        ProxyHandler,
+        build_opener,
+        HTTPHandler,
+        install_opener,
+        urlopen,
+    )  # Py 2
 
 try:
-    from urllib.parse import urlencode  #Py 3
+    from urllib.parse import urlencode  # Py 3
 except ImportError:
-    from urllib import urlencode #Py 2
+    from urllib import urlencode  # Py 2
+
 
 class SBWlink(object):
     """Generic access for local SBW services using SBWPython """
+
     sbw = None
     psbw = None
     sbwModuleProxy = None
@@ -56,6 +72,7 @@ class SBWlink(object):
         try:
             import SBW as SBW
             import SBW.psbw as psbw
+
             ##  reload(SBW)
             ##  reload(psbw)
             self.sbw = SBW
@@ -88,7 +105,7 @@ class SBWlink(object):
         for id in list(self.moduleDict.keys()):
             if id not in idlist:
                 self.moduleDict.pop(id)
-        for name in range(len(self.modules)-1,-1,-1):
+        for name in range(len(self.modules) - 1, -1, -1):
             if self.modules[name] not in namelst:
                 delattr(self, self.modules[name])
                 self.modules.pop(name)
@@ -100,15 +117,23 @@ class SBWlink(object):
     def SBW_loadModule(self, module_name):
         ans = 'Y'
         if module_name[-3:] == 'GUI':
-            ans = input('Warning! This may hang the console\n\yPress \'Y\' to continue: ')
+            ans = input(
+                'Warning! This may hang the console\n\yPress \'Y\' to continue: '
+            )
         if ans == 'Y':
             module_id = self.psbw.SBWGetModuleInstance(module_name)
             assert module_id != None, '\nUnknow module, %s' % module_name
             module = self.sbwModuleProxy.ModuleProxy(module_id)
             self.SBW_exposeAll(module)
             if module_id not in self.moduleDict:
-                print('<PySCeS_SBW> Adding ' + module.pythonName + ' to ModuleProxy (id=' + str(module_id) + ')')
-                self.moduleDict.update({module_id : module})
+                print(
+                    '<PySCeS_SBW> Adding '
+                    + module.pythonName
+                    + ' to ModuleProxy (id='
+                    + str(module_id)
+                    + ')'
+                )
+                self.moduleDict.update({module_id: module})
             if module.pythonName not in self.modules:
                 print('<PySCeS_SBW> Adding ' + module.pythonName + ' to SBWlink')
                 self.modules.append(module.pythonName)
@@ -116,8 +141,10 @@ class SBWlink(object):
         else:
             print('\nModule %s not loaded' % module_name)
 
+
 class SBWLayoutWebLink(object):
     """Enables access to DrawNetwork and SBMLLayout web services at www.sys-bio.org"""
+
     sbwhost = '128.208.17.26'
     sbml = None
     sbmllayout = None
@@ -139,12 +166,13 @@ class SBWLayoutWebLink(object):
         """
         proxy_info = {}
         for k in list(kwargs.keys()):
-            proxy_info.update({k : kwargs[k]})
+            proxy_info.update({k: kwargs[k]})
 
         if 'user' in proxy_info and 'pwd' not in proxy_info:
-            proxy_info.update({'pwd' : getpass.getpass()})
-        proxy_support = ProxyHandler({"http" :
-                    "http://%(user)s:%(pwd)s@%(host)s:%(port)d" % proxy_info})
+            proxy_info.update({'pwd': getpass.getpass()})
+        proxy_support = ProxyHandler(
+            {"http": "http://%(user)s:%(pwd)s@%(host)s:%(port)d" % proxy_info}
+        )
         opener = build_opener(proxy_support, HTTPHandler)
         install_opener(opener)
         del proxy_info, proxy_support
@@ -176,7 +204,7 @@ class SBWLayoutWebLink(object):
         return True
 
     def urlGET(self, host, urlpath):
-        url = 'http://%s%s' % (host,urlpath)
+        url = 'http://%s%s' % (host, urlpath)
         con = urlopen(url)
         resp = con.read()
         if self.DEBUGMODE:
@@ -201,15 +229,15 @@ class SBWLayoutWebLink(object):
     def getVersion(self):
         print('Inspector.getVersion()')
         ver = self.urlGET(self.sbwhost, '/generate/Inspector.asmx/getVersion')
-        ver = ver.replace('<?xml version="1.0" encoding="utf-8"?>','')
-        ver = ver.replace('<string xmlns="http://www.sys-bio.org/">','')
-        ver = ver.replace('</string>','')
+        ver = ver.replace('<?xml version="1.0" encoding="utf-8"?>', '')
+        ver = ver.replace('<string xmlns="http://www.sys-bio.org/">', '')
+        ver = ver.replace('</string>', '')
         return ver
 
     def drawNetworkLoadSBML(self):
         print('DrawNetwork.loadSBML()')
         assert self.sbml != None, '\nNo SBML file loaded'
-        data = {'var0' : self.sbml}
+        data = {'var0': self.sbml}
         self.DRAWNETWORKLOADED = True
         return self.urlPOST(self.sbwhost, '/generate/DrawNetwork.asmx/loadSBML', data)
 
@@ -217,28 +245,33 @@ class SBWLayoutWebLink(object):
         print('DrawNetwork.getSBML()')
         assert self.DRAWNETWORKLOADED, '\nSBML not loaded into DrawNetwork module'
         sbml = self.urlGET(self.sbwhost, '/generate/DrawNetwork.asmx/getSBML')
-        sbml = sbml.replace('&gt;','>')
-        sbml = sbml.replace('&lt;','<')
-        sbml = sbml.replace('''<string xmlns="http://www.sys-bio.org/"><?xml version="1.0" encoding="utf-8"?>''','')
-        sbml = sbml.replace('</string>','')
+        sbml = sbml.replace('&gt;', '>')
+        sbml = sbml.replace('&lt;', '<')
+        sbml = sbml.replace(
+            '''<string xmlns="http://www.sys-bio.org/"><?xml version="1.0" encoding="utf-8"?>''',
+            '',
+        )
+        sbml = sbml.replace('</string>', '')
         self.sbmllayout = sbml
         return True
 
     def layoutModuleLoadSBML(self):
         print('SBMLLayoutModule.loadSBML()')
         assert self.sbmllayout != None, '\nNo SBML Layout loaded'
-        data = {'var0' : self.sbmllayout}
+        data = {'var0': self.sbmllayout}
         self.LAYOUTMODULELOADED = True
-        return self.urlPOST(self.sbwhost, '/generate/SBMLLayoutModule.asmx/loadSBML', data)
+        return self.urlPOST(
+            self.sbwhost, '/generate/SBMLLayoutModule.asmx/loadSBML', data
+        )
 
     def layoutModuleGetSVG(self):
         assert self.LAYOUTMODULELOADED, '\nSBML not loaded into SBMLLayout module'
         svg = self.urlGET(self.sbwhost, '/generate/SBMLLayoutModule.asmx/getSVG')
-        svg = svg.replace('&gt;','>')
-        svg = svg.replace('&lt;','<')
-        svg = svg.replace('''<string xmlns="http://www.sys-bio.org/">''','')
-        svg = svg.replace('''<?xml version="1.0" encoding="utf-8"?>''','')
-        svg = svg.replace('</string>','')
+        svg = svg.replace('&gt;', '>')
+        svg = svg.replace('&lt;', '<')
+        svg = svg.replace('''<string xmlns="http://www.sys-bio.org/">''', '')
+        svg = svg.replace('''<?xml version="1.0" encoding="utf-8"?>''', '')
+        svg = svg.replace('</string>', '')
         self.svg = svg
         return True
 
@@ -263,7 +296,7 @@ class METATOOLlink(object):
     __emode_userout__ = 0
     __emode_file__ = None
     __metatool_file__ = None
-    #EModes = ''
+    # EModes = ''
 
     def __init__(self, mod, __metatool_path__=None):
         # Initialise elementary modes
@@ -277,11 +310,17 @@ class METATOOLlink(object):
         self.__emode_file__ = self.__mod__.ModelFile[:-4] + '_emodes'
         self.__metatool_file__ = self.__mod__.ModelFile[:-4] + '_metatool'
         if os.sys.platform == 'win32':
-            self.__emode_exe_int__ = os.path.join(self.__metatool_path__,'meta43_int.exe')
-            self.__emode_exe_dbl__ = os.path.join(self.__metatool_path__,'meta43_double.exe')
+            self.__emode_exe_int__ = os.path.join(
+                self.__metatool_path__, 'meta43_int.exe'
+            )
+            self.__emode_exe_dbl__ = os.path.join(
+                self.__metatool_path__, 'meta43_double.exe'
+            )
         else:
-            self.__emode_exe_int__ = os.path.join(self.__metatool_path__,'meta43_int')
-            self.__emode_exe_dbl__ = os.path.join(self.__metatool_path__,'meta43_double')
+            self.__emode_exe_int__ = os.path.join(self.__metatool_path__, 'meta43_int')
+            self.__emode_exe_dbl__ = os.path.join(
+                self.__metatool_path__, 'meta43_double'
+            )
 
         if os.path.exists(self.__emode_exe_int__):
             print('Using METATOOL int', end=' ')
@@ -293,7 +332,9 @@ class METATOOLlink(object):
             self.__emode_intmode__ = False
         else:
             self.__emode_exe_dbl__ = None
-        assert self.__emode_exe_dbl__ != None or self.__emode_exe_int__ != None, "\nMETATOOL binaries not available"
+        assert (
+            self.__emode_exe_dbl__ != None or self.__emode_exe_int__ != None
+        ), "\nMETATOOL binaries not available"
 
     def doEModes(self):
         """
@@ -309,9 +350,15 @@ class METATOOLlink(object):
         None
 
         """
-        print('METATOOL is a C program developed from 1998 to 2000 by Thomas Pfeiffer (Berlin)')
-        print('in cooperation with Stefan Schuster and Ferdinand Moldenhauer (Berlin) and Juan Carlos Nuno (Madrid).')
-        print('http://www.biologie.hu-berlin.de/biophysics/Theory/tpfeiffer/metatool.html')
+        print(
+            'METATOOL is a C program developed from 1998 to 2000 by Thomas Pfeiffer (Berlin)'
+        )
+        print(
+            'in cooperation with Stefan Schuster and Ferdinand Moldenhauer (Berlin) and Juan Carlos Nuno (Madrid).'
+        )
+        print(
+            'http://www.biologie.hu-berlin.de/biophysics/Theory/tpfeiffer/metatool.html'
+        )
 
         goMode = 0
         fileIn = 'pysces_metatool.dat'
@@ -320,14 +367,14 @@ class METATOOLlink(object):
         goMode = 1
         if goMode == 1:
             # Build MetaTool input file
-            File = open(os.path.join(self.__mod__.ModelOutput,fileIn),'w')
+            File = open(os.path.join(self.__mod__.ModelOutput, fileIn), 'w')
             # Determine type of reaction
             out1 = []
             for key in self.__mod__.__nDict__:
-                #print key
-                #print self.__mod__.__nDict__[key]['Type']
-                out1.append((key,self.__mod__.__nDict__[key]['Type']))
-            #print '\nExtracting metatool information from network dictionary ...\n'
+                # print key
+                # print self.__mod__.__nDict__[key]['Type']
+                out1.append((key, self.__mod__.__nDict__[key]['Type']))
+            # print '\nExtracting metatool information from network dictionary ...\n'
             File.write('-ENZREV\n')
             for x in out1:
                 if x[1] == 'Rever':
@@ -353,37 +400,37 @@ class METATOOLlink(object):
                 reList = self.__mod__.__nDict__[x]['Reagents']
                 subs = ''
                 prods = ''
-                #print 'Reaction: ' + x
+                # print 'Reaction: ' + x
                 for y in reList:
-                    if self.__emode_intmode__ == 1: # use int elementary modes
-                        if abs(int(reList[y]))/abs(float(reList[y])) != 1.0:
+                    if self.__emode_intmode__ == 1:  # use int elementary modes
+                        if abs(int(reList[y])) / abs(float(reList[y])) != 1.0:
                             print('INFO: Coefficient not integer = ' + repr(reList[y]))
                             allInt = 0
                         if reList[y] < 0:
-                            #print y.replace('self.','') + ' : substrate'
+                            # print y.replace('self.','') + ' : substrate'
                             if abs(int(reList[y])) != 1:
                                 subs += repr(abs(int(reList[y]))) + ' '
-                            subs += y.replace('self.','')
+                            subs += y.replace('self.', '')
                             subs += ' + '
                         else:
-                            #print y.replace('self.','') + ' : product '
+                            # print y.replace('self.','') + ' : product '
                             if abs(int(reList[y])) != 1:
                                 prods += repr(abs(int(reList[y]))) + ' '
-                            prods += y.replace('self.','')
+                            prods += y.replace('self.', '')
                             prods += ' + '
-                        #output.append(x + ' : ' + subs[:-3] + ' = ' + prods[:-3] + ' .')
-                    else: # use float/double elementary mode
+                        # output.append(x + ' : ' + subs[:-3] + ' = ' + prods[:-3] + ' .')
+                    else:  # use float/double elementary mode
                         if reList[y] < 0.0:
-                            #print y.replace('self.','') + ' : substrate'
+                            # print y.replace('self.','') + ' : substrate'
                             if abs(float(reList[y])) != 1.0:
                                 subs += repr(abs(float(reList[y]))) + ' '
-                            subs += y.replace('self.','')
+                            subs += y.replace('self.', '')
                             subs += ' + '
                         else:
-                            #print y.replace('self.','') + ' : product '
+                            # print y.replace('self.','') + ' : product '
                             if abs(float(reList[y])) != 1.0:
                                 prods += repr(abs(float(reList[y]))) + ' '
-                            prods += y.replace('self.','')
+                            prods += y.replace('self.', '')
                             prods += ' + '
                 output.append(x + ' : ' + subs[:-3] + ' = ' + prods[:-3] + ' .')
 
@@ -405,23 +452,29 @@ class METATOOLlink(object):
                 ######### UPDATE:
                 # Actually works fine on windows and posix - johann 20081128
                 print('Generic run')
-                os.spawnl(os.P_WAIT, eModeExe, eModeExe, os.path.join(self.__mod__.ModelOutput,fileIn), os.path.join(self.__mod__.ModelOutput,fileOut))
+                os.spawnl(
+                    os.P_WAIT,
+                    eModeExe,
+                    eModeExe,
+                    os.path.join(self.__mod__.ModelOutput, fileIn),
+                    os.path.join(self.__mod__.ModelOutput, fileOut),
+                )
                 print('\nMetatool analysis complete\n')
 
                 # Parse MetaTool output file and store the result in a string
                 go = 0
-                go2  = 0
+                go2 = 0
                 result = ''
                 end = ''
 
                 try:
-                    file2 = open(os.path.join(self.__mod__.ModelOutput,fileOut), 'r')
+                    file2 = open(os.path.join(self.__mod__.ModelOutput, fileOut), 'r')
                     for line in file2:
-                        c = re.match('ELEMENTARY MODES',line)
-                        d = re.match(' enzymes',line)
-                        e = re.match('The elementary mode',line)
-                        f = re.match('\n',line)
-                        g = re.match('The elementary',line)
+                        c = re.match('ELEMENTARY MODES', line)
+                        d = re.match(' enzymes', line)
+                        e = re.match('The elementary mode', line)
+                        f = re.match('\n', line)
+                        g = re.match('The elementary', line)
                         if c != None:
                             go = 1
                             go2 = 0
@@ -430,12 +483,12 @@ class METATOOLlink(object):
                         if e != None:
                             go2 = 0
                         if go == 1 and go2 == 1 and f == None:
-                            line = line.replace('reversible','\n  reversible\n')
-                            line = line.replace('ir\n  ','\n  ir')
+                            line = line.replace('reversible', '\n  reversible\n')
+                            line = line.replace('ir\n  ', '\n  ir')
                             if self.__emode_intmode__ == 1:
-                                line = line.replace('] ',']\n ')
+                                line = line.replace('] ', ']\n ')
                             else:
-                                line = line.replace(') ',')\n ',1)
+                                line = line.replace(') ', ')\n ', 1)
                             result += line
                         if go == 1 and g != None:
                             end += line
@@ -445,31 +498,53 @@ class METATOOLlink(object):
                     file2.close()
 
                     if self.__emode_userout__ == 1:
-                        fileo = open(os.path.join(self.__mod__.ModelOutput,self.__metatool_file__) + '.in','w')
-                        filer = open(os.path.join(self.__mod__.ModelOutput,fileIn),'r')
+                        fileo = open(
+                            os.path.join(
+                                self.__mod__.ModelOutput, self.__metatool_file__
+                            )
+                            + '.in',
+                            'w',
+                        )
+                        filer = open(
+                            os.path.join(self.__mod__.ModelOutput, fileIn), 'r'
+                        )
                         for line in filer:
                             fileo.write(line)
                         fileo.write('\n\n')
                         filer.close()
                         fileo.close()
-                        filer = open(os.path.join(self.__mod__.ModelOutput,fileOut),'r')
-                        fileo = open(os.path.join(self.__mod__.ModelOutput,self.__metatool_file__) + '.out','w')
+                        filer = open(
+                            os.path.join(self.__mod__.ModelOutput, fileOut), 'r'
+                        )
+                        fileo = open(
+                            os.path.join(
+                                self.__mod__.ModelOutput, self.__metatool_file__
+                            )
+                            + '.out',
+                            'w',
+                        )
                         for line in filer:
                             fileo.write(line)
                         filer.close()
                         fileo.close()
-                    os.remove(os.path.join(self.__mod__.ModelOutput,fileIn))
-                    os.remove(os.path.join(self.__mod__.ModelOutput,fileOut))
+                    os.remove(os.path.join(self.__mod__.ModelOutput, fileIn))
+                    os.remove(os.path.join(self.__mod__.ModelOutput, fileOut))
                 except Exception as EX:
                     print('doEmode:', EX)
-                    print('WARNING: Unable to open MetaTool output file\nPlease check the MetaTool executables: ')
+                    print(
+                        'WARNING: Unable to open MetaTool output file\nPlease check the MetaTool executables: '
+                    )
                     if os.name == 'posix':
-                        print('/MetaTool/meta43_double /MetaTool/meta43_int\nand their permissions')
+                        print(
+                            '/MetaTool/meta43_double /MetaTool/meta43_int\nand their permissions'
+                        )
                     else:
                         print('/MetaTool/meta43_double.exe /MetaTool/meta43_int.exe')
             else:
-                print('\nINFO: non-integer coefficients\
-                \nTry using the double eMode function: self.__emode_intmode__=0')
+                print(
+                    '\nINFO: non-integer coefficients\
+                \nTry using the double eMode function: self.__emode_intmode__=0'
+                )
                 result = 'Elementary modes not calculated\n'
         else:
             print('\nNo elementary mode calculation possible - no meta43_xxx.exe')
@@ -490,8 +565,12 @@ class METATOOLlink(object):
             FF.reset()
             output = []
             for line in FF:
-                if re.match('  ',line) and not re.match('  reversible',line) and not re.match('  irreversible',line):
-                    tmp = [el for el in line.replace('\n','').split(' ') if el != '']
+                if (
+                    re.match('  ', line)
+                    and not re.match('  reversible', line)
+                    and not re.match('  irreversible', line)
+                ):
+                    tmp = [el for el in line.replace('\n', '').split(' ') if el != '']
                     tmpOut = []
                     skip = False
                     for el in range(len(tmp)):
@@ -500,7 +579,7 @@ class METATOOLlink(object):
                         elif tmp[el][0] != '(':
                             tmpOut.append(tmp[el])
                         elif tmp[el][0] == '(':
-                            tmpOut.append(tmp[el]+')'+tmp[el+1][:-1])
+                            tmpOut.append(tmp[el] + ')' + tmp[el + 1][:-1])
                             skip = True
                     output.append(tmpOut)
             return output
@@ -508,7 +587,7 @@ class METATOOLlink(object):
             print(atx)
             print('\nINFO: Please run doEModes() first\n')
 
-    def showEModes(self,File=None):
+    def showEModes(self, File=None):
         """
         showEModes(File=None)
 
@@ -521,9 +600,14 @@ class METATOOLlink(object):
         """
         try:
             if File != None:
-                #assert type(File) == file, 'showEmodes() needs an open file object'
+                # assert type(File) == file, 'showEmodes() needs an open file object'
                 print('\nElementary modes written to file\n')
-                f = open(os.path.join(self.__mod__.ModelOutput,self.__emode_file__ + '.out'),'w')
+                f = open(
+                    os.path.join(
+                        self.__mod__.ModelOutput, self.__emode_file__ + '.out'
+                    ),
+                    'w',
+                )
                 f.write('\n## Elementary modes\n')
                 f.write(self.EModes)
                 f.close()
@@ -533,13 +617,6 @@ class METATOOLlink(object):
         except AttributeError as atx:
             print(atx)
             print('\nINFO: Please run doEModes() first\n')
-
-
-
-
-
-
-#stochsim link
 
 
 '''
@@ -1379,15 +1456,3 @@ if not _HAVE_STOMPY:
     PysMod.StochSimPlot = nofunc
 
 '''
-
-
-
-
-
-
-
-
-
-
-
-

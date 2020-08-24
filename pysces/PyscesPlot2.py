@@ -23,6 +23,7 @@ from pysces import __SILENT_START__
 import subprocess, os, shutil, time, math, itertools, copy
 from getpass import getuser
 import numpy, scipy
+
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
@@ -37,15 +38,14 @@ __doc__ = '''
             backends via a common user interface.
             '''
 
+
 class PlotBase(object):
     """
     Abstract class defining the Unified Plotting Interface methods. These methods should
     be overridden and the class extended by interface specific subclasses.
     """
 
-    CommonStyleDefs = {'points' : '',
-                       'lines' :  ''
-                      }
+    CommonStyleDefs = {'points': '', 'lines': ''}
 
     def plot(self, data, x, y, title='', format=''):
         """
@@ -227,10 +227,11 @@ class GnuPlotUPI(PlotBase):
 
     GnuPlot backend to the Unified Plotting Interface.
     """
+
     __G_SUBPROC__ = None
     __ECHO__ = False
     __DATA_FILE_NAME__ = '_gnuplot.dat'
-    __WORK_DIR__  = None
+    __WORK_DIR__ = None
     __DATA_FILE_PATH__ = None
     DATF_FORMAT = '%.8e'
     __LAST_COMMAND__ = ''
@@ -243,14 +244,14 @@ class GnuPlotUPI(PlotBase):
     ##  datFbuffsize = 5
     ##  datFcache = None
 
-    CommonStyleDefs = {'points' : 'w p',
-                       'lines' :  'w l'
-                      }
+    CommonStyleDefs = {'points': 'w p', 'lines': 'w l'}
 
-    Terminals =    {'x11' : '', 'windows' : '',
-                    'png' : 'medium size 800,600'
-                    # 'xffffff x000000 x404040 xff0000 xffa500 x66cdaa xcdb5cd xadd8e6 x0000ff xdda0dd x9500d3'
-                    }
+    Terminals = {
+        'x11': '',
+        'windows': '',
+        'png': 'medium size 800,600'
+        # 'xffffff x000000 x404040 xff0000 xffa500 x66cdaa xcdb5cd xadd8e6 x0000ff xdda0dd x9500d3'
+    }
 
     def __init__(self, work_dir=None, gnuplot_dir=None):
         if gnuplot_dir != None or not os.path.exists(gnuplot_dir):
@@ -264,7 +265,9 @@ class GnuPlotUPI(PlotBase):
             self.__GNUPLOT_EXE_PATH__ = os.path.join(GNUPLOT_PATH, 'gnuplot')
             self.__DISP_TERMINAL__ = 'x11'
         try:
-            self.__G_SUBPROC__ = subprocess.Popen(self.__GNUPLOT_EXE_PATH__, stdin=subprocess.PIPE)
+            self.__G_SUBPROC__ = subprocess.Popen(
+                self.__GNUPLOT_EXE_PATH__, stdin=subprocess.PIPE
+            )
         except Exception as ex:
             print('\nGnuPlot load failure\n')
             print(ex)
@@ -291,9 +294,10 @@ class GnuPlotUPI(PlotBase):
 
         - *cmd* the GnuPlot command
         """
-        cmd = cmd.replace('\\','/')
+        cmd = cmd.replace('\\', '/')
         self.last_command = cmd
-        if self.__ECHO__: print('SENT: %s' % cmd)
+        if self.__ECHO__:
+            print('SENT: %s' % cmd)
 
         self.__G_SUBPROC__.stdin.write("""%s\n""" % cmd)
 
@@ -308,8 +312,9 @@ class GnuPlotUPI(PlotBase):
         if dfmt == None:
             dfmt = self.DATF_FORMAT
         numpy.savetxt(self.__DATA_FILE_PATH__, arr, fmt=dfmt, delimiter=' ')
-        if self.__ECHO__: print('WROTE: %s' % self.__DATA_FILE_PATH__)
-        self.g_pause() # multiplot protection
+        if self.__ECHO__:
+            print('WROTE: %s' % self.__DATA_FILE_PATH__)
+        self.g_pause()  # multiplot protection
 
     def g_file_write_array3D(self, arr, yaxis=1, dfmt=None):
         """
@@ -323,7 +328,7 @@ class GnuPlotUPI(PlotBase):
         """
         outlist = []
         set_idx = 0
-        curr_y = arr[0,yaxis]
+        curr_y = arr[0, yaxis]
         for r in range(arr.shape[0]):
             if arr[r, yaxis] != curr_y:
                 outlist.append(arr[set_idx:r, :])
@@ -343,7 +348,8 @@ class GnuPlotUPI(PlotBase):
                 F.write(' \n')
             F.flush()
             F.close()
-            if self.__ECHO__: print('WROTE: %s' % self.__DATA_FILE_PATH__)
+            if self.__ECHO__:
+                print('WROTE: %s' % self.__DATA_FILE_PATH__)
         del outlist
         self.g_pause()
 
@@ -352,7 +358,7 @@ class GnuPlotUPI(PlotBase):
         A small pause defined by *self.PAUSE_TIME* (multiplied by 2 when in multiplot).
         """
         if self.__MULTIPLOT__:
-            time.sleep(self.PAUSE_TIME*2.0)
+            time.sleep(self.PAUSE_TIME * 2.0)
         else:
             time.sleep(self.PAUSE_TIME)
 
@@ -376,7 +382,7 @@ class GnuPlotUPI(PlotBase):
             title = ['X', title]
         if format == '':
             format = 'w l'
-        self.plotLines(data, x, [y], title, [format]*data.shape[1])
+        self.plotLines(data, x, [y], title, [format] * data.shape[1])
 
     def plotLines(self, data, x, y=[], titles=[], formats=['w l']):
         """
@@ -397,12 +403,15 @@ class GnuPlotUPI(PlotBase):
             y = list(range(data.shape[1]))
             y.pop(x)
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print("len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1]))
+            print(
+                "len(titles) must be one or equal the number data columns (%s) using: %s"
+                % (data.shape[1], formats[-1])
+            )
             formats = [formats[-1]]
         elif formats[0] == '' or formats[0] == None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
-            formats = data.shape[1]*formats
+            formats = data.shape[1] * formats
         cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
@@ -412,7 +421,13 @@ class GnuPlotUPI(PlotBase):
 
         cmd = '''plot '''
         for yi in y:
-            cmd += '''"%s" u %s:%s t "%s" %s, ''' % (self.__DATA_FILE_PATH__,  x+1, yi+1, titles[yi], formats[yi])
+            cmd += '''"%s" u %s:%s t "%s" %s, ''' % (
+                self.__DATA_FILE_PATH__,
+                x + 1,
+                yi + 1,
+                titles[yi],
+                formats[yi],
+            )
         cmd = cmd[:-2]
         self.g_write(cmd)
         self.setKey(True)
@@ -435,10 +450,12 @@ class GnuPlotUPI(PlotBase):
         if titles == '':
             titles = []
         else:
-            assert len(titles) == data.shape[1], '\nTitle list must match number of columns'
+            assert (
+                len(titles) == data.shape[1]
+            ), '\nTitle list must match number of columns'
         if format == '':
             format = 'w l'
-        self.splotSurfaces(data, x, y, [z], titles, [format]*data.shape[1])
+        self.splotSurfaces(data, x, y, [z], titles, [format] * data.shape[1])
 
     def splotSurfaces(self, data, x, y, z=[], titles=[], formats=['w l']):
         """
@@ -459,24 +476,34 @@ class GnuPlotUPI(PlotBase):
         if len(z) == 0:
             z = list(range(data.shape[1]))
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print("len(titles) must be one or equal the number data columns (%s) using: %s" % (data.shape[1], formats[-1]))
+            print(
+                "len(titles) must be one or equal the number data columns (%s) using: %s"
+                % (data.shape[1], formats[-1])
+            )
             formats = [formats[-1]]
         elif formats[0] == '' or formats[0] == None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
-            formats = data.shape[1]*formats
+            formats = data.shape[1] * formats
         cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
                 formats[f] = self.CommonStyleDefs[formats[f]]
         if len(titles) == 0:
-            titles = ['col%s' % (s+1) for s in range(data.shape[1])]
+            titles = ['col%s' % (s + 1) for s in range(data.shape[1])]
 
         cmd = '''splot '''
 
         for zi in z:
-            if zi not in (x,y):
-                cmd += '''"%s" u %s:%s:%s t "%s" %s, ''' % (self.__DATA_FILE_PATH__,  x+1, y+1, zi+1, titles[zi], formats[zi])
+            if zi not in (x, y):
+                cmd += '''"%s" u %s:%s:%s t "%s" %s, ''' % (
+                    self.__DATA_FILE_PATH__,
+                    x + 1,
+                    y + 1,
+                    zi + 1,
+                    titles[zi],
+                    formats[zi],
+                )
         cmd = cmd[:-2]
         print(cmd)
         self.g_write(cmd)
@@ -496,13 +523,21 @@ class GnuPlotUPI(PlotBase):
         else:
             out_n = os.path.join(self.__WORK_DIR__, name)
         self.g_write('save "%s.plt"' % out_n)
-        shutil.copy(os.path.join(self.__WORK_DIR__, self.__DATA_FILE_NAME__), "%s.dat" % out_n)
-        F = open('%s.plt'% out_n, 'r')
-        fnew = F.read().replace('_gnuplot.dat','%s.dat' % name)
-        fnew = fnew.replace('noequal_axes','') # fixes the "noequal_axes" bug in gnuplot save
-        fnew = fnew.replace('#!/gnuplot','#!/gnuplot\n#\n# Plot created using PySCeS %s (http://pysces.sourceforge.net)' % __version__) # fixes the "noequal_axes" bug in gnuplot save
+        shutil.copy(
+            os.path.join(self.__WORK_DIR__, self.__DATA_FILE_NAME__), "%s.dat" % out_n
+        )
+        F = open('%s.plt' % out_n, 'r')
+        fnew = F.read().replace('_gnuplot.dat', '%s.dat' % name)
+        fnew = fnew.replace(
+            'noequal_axes', ''
+        )  # fixes the "noequal_axes" bug in gnuplot save
+        fnew = fnew.replace(
+            '#!/gnuplot',
+            '#!/gnuplot\n#\n# Plot created using PySCeS %s (http://pysces.sourceforge.net)'
+            % __version__,
+        )  # fixes the "noequal_axes" bug in gnuplot save
         F.close()
-        F = open('%s.plt'% out_n, 'w')
+        F = open('%s.plt' % out_n, 'w')
         F.write(fnew)
         F.flush()
         F.close()
@@ -570,7 +605,7 @@ class GnuPlotUPI(PlotBase):
             max = '%s' % max
         for ax in axout:
             if ax != None:
-                self.set('%srange' % ax, '[ %s : %s ]' % (min,max))
+                self.set('%srange' % ax, '[ %s : %s ]' % (min, max))
 
     def setGrid(self, value):
         """
@@ -633,7 +668,7 @@ class GnuPlotUPI(PlotBase):
         if type.lower() == 'png':
             if name[-4:] != '.%s' % type:
                 name += '.%s' % type
-            if directory!=None and os.path.exists(directory):
+            if directory != None and os.path.exists(directory):
                 imgPath = os.path.join(directory, name)
             else:
                 imgPath = os.path.join(os.getcwd(), name)
@@ -643,7 +678,9 @@ class GnuPlotUPI(PlotBase):
             self.setTerminal(type, self.Terminals[type])
             self.replot()
             self.set('output')
-            self.setTerminal(self.__DISP_TERMINAL__, self.Terminals[self.__DISP_TERMINAL__])
+            self.setTerminal(
+                self.__DISP_TERMINAL__, self.Terminals[self.__DISP_TERMINAL__]
+            )
             print('Image exported as \"%s\"' % imgPath)
         else:
             print('Image not exported as type \"%s\"' % type)
@@ -719,6 +756,7 @@ class MatplotlibUPI(PlotBase):
 
     - *work_dir* (optional) working directory
     """
+
     __MODE_INTERACTIVE__ = True
     __MODE_NEW_FIGURE__ = True
     __FIGURE_GENERATOR__ = None
@@ -728,16 +766,46 @@ class MatplotlibUPI(PlotBase):
     __ARRAY_DATA__ = None
     __WORK_DIR__ = None
     pyplot = None
-    #__ENABLE_HTML5__ = False
+    # __ENABLE_HTML5__ = False
 
-    CommonStyleDefs = {'points' : 'o',
-                       'lines' :  '-'
-                      }
-    __BACKENDS__ = ('GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',\
-                     'agg', 'nbAgg', 'cairo', 'emf', 'gdk', 'pdf', 'ps', 'svg', 'template')
+    CommonStyleDefs = {'points': 'o', 'lines': '-'}
+    __BACKENDS__ = (
+        'GTK',
+        'GTKAgg',
+        'GTKCairo',
+        'FltkAgg',
+        'MacOSX',
+        'QtAgg',
+        'Qt4Agg',
+        'TkAgg',
+        'WX',
+        'WXAgg',
+        'CocoaAgg',
+        'agg',
+        'nbAgg',
+        'cairo',
+        'emf',
+        'gdk',
+        'pdf',
+        'ps',
+        'svg',
+        'template',
+    )
 
-    __INTERACTIVE_BACKENDS__ = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX', 'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg',\
-                                'CocoaAgg', 'nbAgg']
+    __INTERACTIVE_BACKENDS__ = [
+        'GTK',
+        'GTKAgg',
+        'GTKCairo',
+        'FltkAgg',
+        'MacOSX',
+        'QtAgg',
+        'Qt4Agg',
+        'TkAgg',
+        'WX',
+        'WXAgg',
+        'CocoaAgg',
+        'nbAgg',
+    ]
 
     __BACKEND__ = None
 
@@ -748,9 +816,11 @@ class MatplotlibUPI(PlotBase):
             self.__WORK_DIR__ = os.getcwd()
         try:
             import matplotlib
+
             if self.isnotebook():
-                backend='nbAgg'
+                backend = 'nbAgg'
                 import pysces
+
                 pysces.__MATPLOTLIB_BACKEND__ = 'nbAgg'
             if backend in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
@@ -759,46 +829,62 @@ class MatplotlibUPI(PlotBase):
                     print(('Matplotlib backend set to: \"{}\"'.format(backend)))
             else:
                 if backend == 'native':
-                    print(('Using natively configured Matplotlib backend: \"{}\"'.format(matplotlib.get_backend())))
+                    print(
+                        (
+                            'Using natively configured Matplotlib backend: \"{}\"'.format(
+                                matplotlib.get_backend()
+                            )
+                        )
+                    )
                     self.__BACKEND__ = matplotlib.get_backend()
                 else:
                     matplotlib.use('TkAgg')
                     self.__BACKEND__ = 'TkAgg'
-                    print(('Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(backend, 'TkAgg')))
+                    print(
+                        (
+                            'Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(
+                                backend, 'TkAgg'
+                            )
+                        )
+                    )
 
-            #if self.__ENABLE_HTML5__:
-                #matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
-            #else:
-                #matplotlib.use('TKagg', warn=False)
+            # if self.__ENABLE_HTML5__:
+            # matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
+            # else:
+            # matplotlib.use('TKagg', warn=False)
         except Exception as ex:
             print(ex)
-            print("\nPySCeS defaults to matplotlib's TKagg backend if not specified \
-                     in the user configuration file, set \"matplotlib_backend = <backend>\" ")
+            print(
+                "\nPySCeS defaults to matplotlib's TKagg backend if not specified \
+                     in the user configuration file, set \"matplotlib_backend = <backend>\" "
+            )
 
         from matplotlib import pyplot
         from matplotlib import pylab
+
         ##  self.pyplot = pyplot
         self.pyplot = pylab
-        if self.__MODE_INTERACTIVE__: self.pyplot.ion()
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.ion()
         self._setNewFigureGenerator(self.MAX_OPEN_WINDOWS)
-    
+
     def isnotebook(self):
         try:
             shell = get_ipython().__class__.__name__
             if shell == 'ZMQInteractiveShell':
-                return True   # Jupyter notebook or qtconsole
+                return True  # Jupyter notebook or qtconsole
             elif shell == 'TerminalInteractiveShell':
                 return False  # Terminal running IPython
             else:
                 return False  # Other type (?)
         except NameError:
-            return False      # Probably standard Python interpreter    
+            return False  # Probably standard Python interpreter
 
     def _setNewFigureGenerator(self, num):
         """
         Create a figure_generator with range [1,num+1]
         """
-        self.__FIGURE_GENERATOR__ = itertools.cycle(list(range(1,num+1)))
+        self.__FIGURE_GENERATOR__ = itertools.cycle(list(range(1, num + 1)))
         self.MAX_OPEN_WINDOWS = num
 
     def _setActiveFigure(self, fignum):
@@ -845,10 +931,10 @@ class MatplotlibUPI(PlotBase):
         if title == '':
             title = []
         else:
-            title = data.shape[1]*[title]
-        #print(title)
+            title = data.shape[1] * [title]
+        # print(title)
 
-        self.plotLines(data, x, [y], title, [format]*data.shape[1])
+        self.plotLines(data, x, [y], title, [format] * data.shape[1])
 
     def plotLines(self, data, x, y=[], titles=[], formats=['-']):
         """
@@ -866,18 +952,22 @@ class MatplotlibUPI(PlotBase):
         self.__ARRAY_DATA__ = data
         if self.__MODE_NEW_FIGURE__:
             self._setNewFigure()
-        if not self.__MODE_HOLD__: self.pyplot.clf()
+        if not self.__MODE_HOLD__:
+            self.pyplot.clf()
         if len(y) == 0:
             y = list(range(self.__ARRAY_DATA__.shape[1]))
             y.pop(x)
 
         if len(formats) != 1 and len(formats) != data.shape[1]:
-            print("len(titles) must be one or equal the number data columns (%s) using: \"%s\"" % (data.shape[1], formats[-1]))
+            print(
+                "len(titles) must be one or equal the number data columns (%s) using: \"%s\""
+                % (data.shape[1], formats[-1])
+            )
             formats = [copy.copy(formats[-1])]
         elif formats[0] == '' or formats[0] == None:
             formats = ['-']
         if len(formats) == 1 and data.shape[1] > 1:
-            formats = data.shape[1]*formats
+            formats = data.shape[1] * formats
         cFormats = list(self.CommonStyleDefs.keys())
         for f in range(len(formats)):
             if formats[f] in cFormats:
@@ -887,13 +977,19 @@ class MatplotlibUPI(PlotBase):
 
         self.pyplot.ioff()
         for yi in y:
-            #print(self.__ARRAY_DATA__.take([x],axis=1))
-            #print(self.__ARRAY_DATA__.take([yi],axis=1))
-            self.pyplot.plot(self.__ARRAY_DATA__.take([x],axis=1), self.__ARRAY_DATA__.take([yi],axis=1), formats[yi], label=titles[yi])
-        if self.__MODE_INTERACTIVE__: self.pyplot.ion()
+            # print(self.__ARRAY_DATA__.take([x],axis=1))
+            # print(self.__ARRAY_DATA__.take([yi],axis=1))
+            self.pyplot.plot(
+                self.__ARRAY_DATA__.take([x], axis=1),
+                self.__ARRAY_DATA__.take([yi], axis=1),
+                formats[yi],
+                label=titles[yi],
+            )
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.ion()
         self.pyplot.legend()
-        #if self.__ENABLE_HTML5__:
-            #self.pyplot.show()
+        # if self.__ENABLE_HTML5__:
+        # self.pyplot.show()
 
     def setLogScale(self, axis):
         """
@@ -904,9 +1000,10 @@ class MatplotlibUPI(PlotBase):
         axout = self.axisInputStringToList(axis)
         A = self.pyplot.gca()
         for ax in axout:
-            if ax != None and ax in ['x','y']:
+            if ax != None and ax in ['x', 'y']:
                 getattr(A, 'set_%sscale' % ax)('log')
-        if self.__MODE_INTERACTIVE__: self.pyplot.draw()
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.draw()
 
     def setNoLogScale(self, axis):
         """
@@ -917,9 +1014,10 @@ class MatplotlibUPI(PlotBase):
         axout = self.axisInputStringToList(axis)
         A = self.pyplot.gca()
         for ax in axout:
-            if ax != None and ax in ['x','y']:
+            if ax != None and ax in ['x', 'y']:
                 getattr(A, 'set_%sscale' % ax)('linear')
-        if self.__MODE_INTERACTIVE__: self.pyplot.draw()
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.draw()
 
     def setRange(self, axis, min=None, max=None):
         """
@@ -931,7 +1029,7 @@ class MatplotlibUPI(PlotBase):
         """
         axout = self.axisInputStringToList(axis)
         for ax in axout:
-            if ax != None and ax in ['x','y']:
+            if ax != None and ax in ['x', 'y']:
                 getattr(self.pyplot, '%slim' % ax)(min, max)
         ##  if self.__MODE_INTERACTIVE__: self.pyplot.draw()
 
@@ -962,7 +1060,8 @@ class MatplotlibUPI(PlotBase):
             L._visible = True
         else:
             L._visible = False
-        if self.__MODE_INTERACTIVE__: self.pyplot.draw()
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.draw()
 
     def setAxisLabel(self, axis, label=''):
         """
@@ -975,7 +1074,7 @@ class MatplotlibUPI(PlotBase):
         """
         axout = self.axisInputStringToList(axis)
         for ax in axout:
-            if ax in ['x','y']:
+            if ax in ['x', 'y']:
                 getattr(self.pyplot, '%slabel' % ax)(label)
 
     def save(self, name, directory=None, dfmt='%.8e'):
@@ -1008,7 +1107,7 @@ class MatplotlibUPI(PlotBase):
         if type.lower() in terminals:
             if name[-4:] != '.%s' % type:
                 name += '.%s' % type
-            if directory!=None and os.path.exists(directory):
+            if directory != None and os.path.exists(directory):
                 imgPath = os.path.join(directory, name)
             else:
                 imgPath = os.path.join(os.getcwd(), name)
@@ -1017,7 +1116,6 @@ class MatplotlibUPI(PlotBase):
         else:
             print('Image not exported as type \"%s\"' % type)
 
-
     def setLineWidth(self, width=1):
         """
         Sets the line width for current axis
@@ -1025,8 +1123,8 @@ class MatplotlibUPI(PlotBase):
         - *width* the line width
         """
         [l.set_linewidth(width) for l in self.pyplot.gca().get_lines()]
-        if self.__MODE_INTERACTIVE__: self.pyplot.draw()
-
+        if self.__MODE_INTERACTIVE__:
+            self.pyplot.draw()
 
 
 class PyscesUPI(PlotBase):
@@ -1042,6 +1140,7 @@ class PyscesUPI(PlotBase):
     If anybody has an idea how I can generate this class automatically please let
     me know ;-)
     """
+
     g = None
     m = None
     __USE_GNUPLOT__ = False
@@ -1076,7 +1175,10 @@ class PyscesUPI(PlotBase):
 
         - *interface* one of ['matplotlib','gnuplot']
         """
-        if interface in self.__GINTERFACES__ and self.__getattribute__('%s' % interface[0]) != None:
+        if (
+            interface in self.__GINTERFACES__
+            and self.__getattribute__('%s' % interface[0]) != None
+        ):
             self.__setattr__('__USE_%s__' % interface.upper(), True)
         else:
             print('Cannot activate \"%s\"interface' % interface)
@@ -1261,12 +1363,11 @@ class PyscesUPI(PlotBase):
             self.m.closeAll()
 
 
-
-
 class FIFOBuffer:
     """
     Simple fixed size FIFO buffer.
     """
+
     def __init__(self, size):
         self.data = [None for i in range(size)]
 
@@ -1276,6 +1377,7 @@ class FIFOBuffer:
 
     def get(self):
         return self.data
+
 
 # The following code will be adapted used in future for higher level
 # graphics operations.

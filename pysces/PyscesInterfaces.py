@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = """
           PyscesInterfaces
           ----------------
@@ -29,12 +30,19 @@ __doc__ = """
 import os
 from pysces import model_dir, output_dir
 from pysces.core2.PyscesCore2 import NewCore
-from pysces.core2.PyscesCore2Interfaces import PscToCore, SbmlToCore, CoreToPsc, CoreToSBML
+from pysces.core2.PyscesCore2Interfaces import (
+    PscToCore,
+    SbmlToCore,
+    CoreToPsc,
+    CoreToSBML,
+)
+
 
 class Core2interfaces(object):
     """
     Defines interfaces for translating PySCeS model objects into and from other formats.
     """
+
     core = None
     sbml = None
     core2sbml = None
@@ -73,7 +81,9 @@ class Core2interfaces(object):
         self.core2sbml.setEvents()
         self.core2sbml.setRules()
 
-    def writeMod2PSC(self, mod, filename=None, directory=None, iValues=True, getstrbuf=False):
+    def writeMod2PSC(
+        self, mod, filename=None, directory=None, iValues=True, getstrbuf=False
+    ):
         """
         Writes a PySCeS model object to a PSC file.
 
@@ -91,14 +101,24 @@ class Core2interfaces(object):
             self.core2psc.PARAMETER_CURRENT_VALUE = True
 
         self.__buildPscComponents__()
-        if filename == None: filename = self.core.name
-        if filename[-4:] != '.psc': filename += '.psc'
+        if filename == None:
+            filename = self.core.name
+        if filename[-4:] != '.psc':
+            filename += '.psc'
         if not getstrbuf:
             self.core2psc.write(filename, directory, getstrbuf)
         else:
             return self.core2psc.write(filename, directory, getstrbuf)
 
-    def writeMod2SBML(self, mod, filename=None, directory=None, iValues=True, getdocument=False, getstrbuf=False):
+    def writeMod2SBML(
+        self,
+        mod,
+        filename=None,
+        directory=None,
+        iValues=True,
+        getdocument=False,
+        getstrbuf=False,
+    ):
         """
         Writes a PySCeS model object to an SBML file.
 
@@ -116,8 +136,10 @@ class Core2interfaces(object):
         self.core2sbml.version = self.sbml_version
         assert self.core2sbml.SBML != None, "\nProblems loading SBML/Python interface"
         self.__buildSbmlComponents__()
-        if filename == None: filename = self.core.name
-        if filename[-4:] != '.xml': filename += '.xml'
+        if filename == None:
+            filename = self.core.name
+        if filename[-4:] != '.xml':
+            filename += '.xml'
         if getdocument:
             return self.core2sbml.getSBMLdocument()
         elif getstrbuf:
@@ -164,8 +186,10 @@ class Core2interfaces(object):
         ##  print 'Using existing self.core'
         self.core2psc = CoreToPsc(self.core)
         self.__buildPscComponents__()
-        if filename == None: filename = self.core.name
-        if filename[-4:] != '.psc': filename += '.psc'
+        if filename == None:
+            filename = self.core.name
+        if filename[-4:] != '.psc':
+            filename += '.psc'
         if not getstrbuf:
             self.core2psc.write(filename, directory, getstrbuf)
         else:
@@ -186,8 +210,10 @@ class Core2interfaces(object):
         self.core2sbml.version = self.sbml_version
         assert self.core2sbml.SBML != None, "\nProblems loading SBML/Python interface"
         self.__buildSbmlComponents__()
-        if filename == None: filename = self.core.name
-        if filename[-4:] != '.xml': filename += '.xml'
+        if filename == None:
+            filename = self.core.name
+        if filename[-4:] != '.xml':
+            filename += '.xml'
         if not getdocument:
             self.core2sbml.writeSBML2file(filename, directory)
         else:
@@ -204,34 +230,17 @@ class Core2interfaces(object):
         """
         if sbmldir == None or not os.path.exists(sbmldir):
             sbmldir = os.getcwd()
-        if not os.path.exists(os.path.join(sbmldir,sbmlfile)):
-            raise RuntimeError('\nSBML file \"%s\" does not exist!' % os.path.join(sbmldir,sbmlfile))
+        if not os.path.exists(os.path.join(sbmldir, sbmlfile)):
+            raise RuntimeError(
+                '\nSBML file \"%s\" does not exist!' % os.path.join(sbmldir, sbmlfile)
+            )
         if pscdir == None or not os.path.exists(pscdir):
             pscdir = model_dir
         if pscfile == None:
             pscfile = '%s.psc' % sbmlfile
         self.readSBMLToCore(filename=sbmlfile, directory=sbmldir)
         self.writeCore2PSC(filename=pscfile, directory=pscdir, getstrbuf=False)
-        print('\nSBML2PSC\nin : %s\nout: %s' % (os.path.join(sbmldir,sbmlfile),os.path.join(pscdir,pscfile)))
-
-    # coming soon for now use writeMod2SBML
-    ##  def convertPSC2SBML(self, pscfile, pscdir=None, sbmlfile=None, sbmldir=None):
-        ##  """
-        ##  Convert an SBML file to a PySCeS MDL input file.
-
-        ##  - *pscfile*: the input PSC file name
-        ##  - *pscdir*: the PSC input directory (if None pysces.model_dir is used)
-        ##  - *sbmlfile*: the SBML file name (if None *pscfile*.xml is used)
-        ##  - *sbmldir*: the directory of the SBML output file (if None the pysces.output_dir is used)
-        ##  """
-        ##  if pscdir == None or not os.path.exists(pscdir):
-            ##  pscdir = model_dir
-        ##  if not os.path.exists(os.path.join(pscdir,pscfile)):
-            ##  raise RuntimeError, '\nPSC file \"%s\" does not exist!' % os.path.join(pscdir,pscfile)
-        ##  if sbmldir == None or not os.path.exists(sbml):
-            ##  sbmldir = output_dir
-        ##  if sbmlfile == None:
-            ##  sbmlfile = '%s.xml' % pscfile
-        ##  self.readSBMLToCore(filename=sbmlfile, directory=sbmldir)
-        ##  self.writeCore2PSC(filename=pscfile, directory=pscdir, getstrbuf=False)
-        ##  print '\nSBML2PSC\nin : %s\nout: %s' % (os.path.join(sbmldir,sbmlfile),os.path.join(pscdir,pscfile))
+        print(
+            '\nSBML2PSC\nin : %s\nout: %s'
+            % (os.path.join(sbmldir, sbmlfile), os.path.join(pscdir, pscfile))
+        )

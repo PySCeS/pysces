@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = '''PySCeS plotting module'''
 
 import numpy, scipy
@@ -27,8 +28,10 @@ import itertools
 from time import strftime
 from getpass import getuser
 
+
 class PyscesGPlot:
     '''Prototype plotting class which wraps gnuplot functions and adds some stuff'''
+
     __version__ = __version__
     save_html_header = 1
     save_html_footer = 1
@@ -36,9 +39,12 @@ class PyscesGPlot:
 
     def __init__(self):
         import scipy.sandbox.gplt as gnuplot
+
         self.gnuplot = gnuplot
 
-    def plot2D(self,ginput,x,ylist,cmdout=0,name=None,fmt='w l',ykey=None,log=0):
+    def plot2D(
+        self, ginput, x, ylist, cmdout=0, name=None, fmt='w l', ykey=None, log=0
+    ):
         """
         plot2D(ginput,x,ylist,cmdout=0,name=None,fmt='w l',ykey=None,log=0)
 
@@ -66,16 +72,18 @@ class PyscesGPlot:
 
         pltcmd = 'self.gnuplot.plot('
         for dep in range(len(ylist)):
-            pltcmd += 'ginput[:,' + str(int(x)) + '],ginput[:,' + str(int(ylist[dep])) + '],'
+            pltcmd += (
+                'ginput[:,' + str(int(x)) + '],ginput[:,' + str(int(ylist[dep])) + '],'
+            )
             if ykey != None:
                 tstr = str(ykey[dep])
             else:
                 tstr = str(ylist[dep])
             pltcmd += '\'t \"' + tstr + '\" ' + fmt + '\','
         pltcmd += ')'
-        #print pltcmd
+        # print pltcmd
         if cmdout and name != None:
-            return pltcmd.replace('ginput',str(name))
+            return pltcmd.replace('ginput', str(name))
         elif cmdout:
             return pltcmd
         else:
@@ -87,8 +95,19 @@ class PyscesGPlot:
                 self.gnuplot.logx('off')
                 self.gnuplot.logy('off')
 
-
-    def plot3D(self,ginput,x,y,z,cmdout=0,name=None,fmt='w l',zkey=None,arrayout=0,log=0):
+    def plot3D(
+        self,
+        ginput,
+        x,
+        y,
+        z,
+        cmdout=0,
+        name=None,
+        fmt='w l',
+        zkey=None,
+        arrayout=0,
+        log=0,
+    ):
         """
         plot3D(ginput,x,y,z,cmdout=0,name=None,fmt='w l',zkey=None,arrayout=0,log=0)
 
@@ -125,19 +144,19 @@ class PyscesGPlot:
         pltcmd += ')'
 
         plotfile = []
-        plotfile.append(ginput[:,x])
-        plotfile.append(ginput[:,y])
-        plotfile.append(ginput[:,z])
+        plotfile.append(ginput[:, x])
+        plotfile.append(ginput[:, y])
+        plotfile.append(ginput[:, z])
         ginput = scipy.transpose(scipy.array(plotfile))
 
         if cmdout and name != None:
             if arrayout:
-                return pltcmd.replace('ginput',str(name)),ginput
+                return pltcmd.replace('ginput', str(name)), ginput
             else:
-                return pltcmd.replace('ginput',str(name))
+                return pltcmd.replace('ginput', str(name))
         elif cmdout:
             if arrayout:
-                return pltcmd,ginput
+                return pltcmd, ginput
             else:
                 return pltcmd
         else:
@@ -149,8 +168,7 @@ class PyscesGPlot:
                 self.gnuplot.logx('off')
                 self.gnuplot.logy('off')
 
-
-    def plotX(self,ginput,cmdout=0,name=None,fmt='w l',log=0):
+    def plotX(self, ginput, cmdout=0, name=None, fmt='w l', log=0):
         """
         plotX(ginput,cmdout=0,name=None,fmt='w l',log=0)
 
@@ -165,19 +183,21 @@ class PyscesGPlot:
         log [default=0]: set x and y axis to linear (0) or log (1) scales
 
         """
-        assert ginput.shape[0] >= 1 and ginput.shape[1] > 1, 'array must have at least dim(1,2)'
+        assert (
+            ginput.shape[0] >= 1 and ginput.shape[1] > 1
+        ), 'array must have at least dim(1,2)'
 
-        row,col = ginput.shape
+        row, col = ginput.shape
         pltcmd = 'self.gnuplot.plot('
-        for x in range(1,col):
+        for x in range(1, col):
             pltcmd += 'ginput[:,0],ginput[:,' + str(x) + '],'
             pltcmd += '\'t \"' + str(x) + '\" ' + fmt + '\''
-            if x < col-1:
+            if x < col - 1:
                 pltcmd += ','
         pltcmd += ')'
 
         if cmdout and name != None:
-            return pltcmd.replace('ginput',str(name))
+            return pltcmd.replace('ginput', str(name))
         elif cmdout:
             return pltcmd
         else:
@@ -189,7 +209,7 @@ class PyscesGPlot:
                 self.gnuplot.logx('off')
                 self.gnuplot.logy('off')
 
-    def __save_command__(self,FileName):
+    def __save_command__(self, FileName):
         """
         __save_command__(FileName)
 
@@ -201,14 +221,17 @@ class PyscesGPlot:
 
         """
         if self.mode_gnuplot4:
-            self.gnuplot.output(FileName,'png',options=\
-                              'medium size 640,480 xffffff x000000 x404040\
+            self.gnuplot.output(
+                FileName,
+                'png',
+                options='medium size 640,480 xffffff x000000 x404040\
                               xff0000 xffa500 x66cdaa xcdb5cd\
-                              xadd8e6 x0000ff xdda0dd x9500d3')
+                              xadd8e6 x0000ff xdda0dd x9500d3',
+            )
         else:
             self.gnuplot.save(FileName)
 
-    def save(self,filename,path=None):
+    def save(self, filename, path=None):
         """
         save(filename,path=None)
 
@@ -228,13 +251,12 @@ class PyscesGPlot:
             pass
 
         if path != None:
-            filename = os.path.join(path,filename)
+            filename = os.path.join(path, filename)
         else:
-            filename = os.path.join(os.getcwd(),filename)
+            filename = os.path.join(os.getcwd(), filename)
         self.__save_command__(filename)
 
-
-    def save_html(self,imagename,File=None,path=None,name=None,close_file=1):
+    def save_html(self, imagename, File=None, path=None, name=None, close_file=1):
         """
         save_html(imagename,File=None,path=None,name=None,close_file=1)
 
@@ -262,28 +284,47 @@ class PyscesGPlot:
             pass
 
         if path != None:
-            imagenameout = os.path.join(path,imagename)
+            imagenameout = os.path.join(path, imagename)
             if File == None:
-                File = open(os.path.join(path,imagename[:-3]+'html'),'w')
+                File = open(os.path.join(path, imagename[:-3] + 'html'), 'w')
         else:
-            imagenameout = os.path.join(os.getcwd(),imagename)
+            imagenameout = os.path.join(os.getcwd(), imagename)
             if File == None:
-                File = open(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
+                File = open(os.path.join(os.getcwd(), imagename[:-3] + 'html'), 'w')
         self.__save_command__(imagename)
 
-        fname = 'PySCeS generated image - '+imagename+'" generated from model file: ' + strftime("%H:%M:%S")
+        fname = (
+            'PySCeS generated image - '
+            + imagename
+            + '" generated from model file: '
+            + strftime("%H:%M:%S")
+        )
 
         if File != None:
-            assert File != file, 'WriteArray(input,File=None,Row=None,Col=None,close_file=0)'
+            assert (
+                File != file
+            ), 'WriteArray(input,File=None,Row=None,Col=None,close_file=0)'
             header = '\n'
-            header += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
+            header += (
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
+            )
             header += '<html>\n'
             header += '<head>\n'
-            header += '<title>PySCeS generated image - ' +imagename+ ' - ' + strftime("%H:%M:%S (%Z)") + '</title>\n'
+            header += (
+                '<title>PySCeS generated image - '
+                + imagename
+                + ' - '
+                + strftime("%H:%M:%S (%Z)")
+                + '</title>\n'
+            )
             header += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">\n'
             header += '</head>\n'
             header += '<body bgcolor="#FFFFCC">\n\n'
-            header += '<h4><a href="http://pysces.sourceforge.net">PySCeS</a> generated image - '+imagename+'</h4>\n\n'
+            header += (
+                '<h4><a href="http://pysces.sourceforge.net">PySCeS</a> generated image - '
+                + imagename
+                + '</h4>\n\n'
+            )
 
             if self.save_html_header:
                 File.write(header)
@@ -291,7 +332,9 @@ class PyscesGPlot:
 
             File.write('<p align="center">\n')
 
-            File.write('<img src="'+imagename+'" width="640" height="480" border="2">\n')
+            File.write(
+                '<img src="' + imagename + '" width="640" height="480" border="2">\n'
+            )
 
             if name != None:
                 File.write('<br><font size="3">' + str(name) + '</font>\n')
@@ -299,13 +342,27 @@ class PyscesGPlot:
             File.write('</p>\n\n')
             if self.save_html_footer:
                 try:
-                    File.write('<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '+self.__version__+\
-                               '</font></a><font size="2"> HTML output (image <i>'+imagename+\
-                               '</i> produced at '+strftime("%H:%M:%S")+' by <i>'+getuser()+'</i>)</font></p>\n')
+                    File.write(
+                        '<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '
+                        + self.__version__
+                        + '</font></a><font size="2"> HTML output (image <i>'
+                        + imagename
+                        + '</i> produced at '
+                        + strftime("%H:%M:%S")
+                        + ' by <i>'
+                        + getuser()
+                        + '</i>)</font></p>\n'
+                    )
                 except:
-                    File.write('<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '+__version__+\
-                               '</font></a><font size="2"> HTML output (model <i>'+imagename+\
-                               '</i> produced at '+strftime("%H:%M:%S - %Z")+')</font></p>\n')
+                    File.write(
+                        '<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '
+                        + __version__
+                        + '</font></a><font size="2"> HTML output (model <i>'
+                        + imagename
+                        + '</i> produced at '
+                        + strftime("%H:%M:%S - %Z")
+                        + ')</font></p>\n'
+                    )
                 File.write('</body>\n')
                 File.write('</html>\n')
             else:
@@ -313,8 +370,6 @@ class PyscesGPlot:
 
             if close_file:
                 File.close()
-
-
 
     def gridon(self):
         """
@@ -440,7 +495,7 @@ class PyscesGPlot:
         self.gnuplot.logx('off')
         self.gnuplot.logy('on')
 
-    def xrng(self,start,end):
+    def xrng(self, start, end):
         """
         xrng(start,end)
 
@@ -452,9 +507,9 @@ class PyscesGPlot:
         end: upper value
 
         """
-        self.gnuplot.xaxis((float(start),float(end)))
+        self.gnuplot.xaxis((float(start), float(end)))
 
-    def yrng(self,start,end):
+    def yrng(self, start, end):
         """
         yrng(start,end)
 
@@ -466,9 +521,9 @@ class PyscesGPlot:
         end: upper value
 
         """
-        self.gnuplot.yaxis((float(start),float(end)))
+        self.gnuplot.yaxis((float(start), float(end)))
 
-    def zrng(self,start,end):
+    def zrng(self, start, end):
         """
         zrng(start,end)
 
@@ -480,9 +535,9 @@ class PyscesGPlot:
         end: upper value
 
         """
-        self.gnuplot.zaxis((float(start),float(end)))
+        self.gnuplot.zaxis((float(start), float(end)))
 
-    def xlabel(self,l=''):
+    def xlabel(self, l=''):
         """
         xlabel(l='')
 
@@ -495,7 +550,7 @@ class PyscesGPlot:
         """
         self.gnuplot.xtitle(str(l))
 
-    def ylabel(self,l=''):
+    def ylabel(self, l=''):
         """
         ylabel(l='')
 
@@ -508,7 +563,7 @@ class PyscesGPlot:
         """
         self.gnuplot.ytitle(str(l))
 
-    def zlabel(self,l=''):
+    def zlabel(self, l=''):
         """
         zlabel(l='')
 
@@ -521,7 +576,7 @@ class PyscesGPlot:
         """
         self.gnuplot.ztitle(str(l))
 
-    def title(self,l=''):
+    def title(self, l=''):
         """
         title(l='')
 
@@ -534,7 +589,7 @@ class PyscesGPlot:
         """
         self.gnuplot.title(str(l))
 
-    def ticslevel(self,x=0.0):
+    def ticslevel(self, x=0.0):
         """
         ticslevel(x=0.0)
 
@@ -557,14 +612,16 @@ class LineObj(object):
     def __init__(self, data, idx, **kwargs):
         self.idx = idx
         self.data = data
-        self.prop ={'label' : None,
-                    'linewidth' : None,
-                    'colour' : None,
-                    'style' : None,
-                    }
+        self.prop = {
+            'label': None,
+            'linewidth': None,
+            'colour': None,
+            'style': None,
+        }
         for k in list(kwargs.keys()):
             if k in self.prop:
                 self.prop[k] = kwargs[k]
+
 
 class AxisObj(object):
     __id__ = None
@@ -575,12 +632,14 @@ class AxisObj(object):
     def __init__(self, data, idx, **kwargs):
         self.idx = idx
         self.data = data
-        self.prop ={'label' : None,
-                    'log' : False,
-                    }
+        self.prop = {
+            'label': None,
+            'log': False,
+        }
         for k in list(kwargs.keys()):
             if k in self.prop:
                 self.prop[k] = kwargs[k]
+
 
 class GraphicsObj(object):
     xaxis = None
@@ -598,61 +657,70 @@ class GraphicsObj(object):
         self.data = data
         self.data_shape = data.shape
         self.data_type = data.dtype.char
-        self.scalars = numpy.zeros((data.shape[0],1),'d')
+        self.scalars = numpy.zeros((data.shape[0], 1), 'd')
         self.resetAxis()
-        self.setDataLabels(['l'+str(l) for l in range(self.data_shape[1])])
+        self.setDataLabels(['l' + str(l) for l in range(self.data_shape[1])])
 
     def setDataLabels(self, labels):
         assert len(labels) == self.data_shape[1], '\nList unacceptable length.'
         if self.data_lines != None:
-            [self.__delattr__(n) for n in self.data_lines ]
+            [self.__delattr__(n) for n in self.data_lines]
         self.data_lines = []
         for l in range(len(labels)):
             self.data_lines.append(labels[l])
             ##  lo = LineObj(self.data[:,l].reshape(self.data_shape[0], 1), l, label=labels[l])
-            lo = LineObj(numpy.take(self.data,[l],axis=1), l, label=labels[l])
-            setattr(self,labels[l], lo)
+            lo = LineObj(numpy.take(self.data, [l], axis=1), l, label=labels[l])
+            setattr(self, labels[l], lo)
 
     def setAxis(self, **kwargs):
         ##  print kwargs
         for key in list(kwargs.keys()):
-            if key in ['x','y'] and kwargs[key] in self.var_idx:
-                if getattr(self, key+'axis') != None:
-                    self.var_idx.append(getattr(self, key+'axis').idx)
+            if key in ['x', 'y'] and kwargs[key] in self.var_idx:
+                if getattr(self, key + 'axis') != None:
+                    self.var_idx.append(getattr(self, key + 'axis').idx)
                     self.var_idx.sort()
                     ##  print '\t', self.var_idx
                 ##  ao = AxisObj(self.data[:,kwargs[key]].reshape(self.data_shape[0], 1), kwargs[key], label=key)
-                ao = AxisObj(numpy.take(self.data,[kwargs[key]],axis=1), kwargs[key], label=key)
-                setattr(self, key+'axis', ao)
+                ao = AxisObj(
+                    numpy.take(self.data, [kwargs[key]], axis=1), kwargs[key], label=key
+                )
+                setattr(self, key + 'axis', ao)
                 a = self.var_idx.pop(self.var_idx.index(kwargs[key]))
                 ##  print '\tkey idx :', key, kwargs[key]
         ##  print 'var_idx', self.var_idx
-
 
     def resetAxis(self):
         self.xaxis = self.yaxis = None
         self.var_idx = list(range(self.data_shape[1]))
 
     def getIdx(self, label):
-        assert label in self.data_lines, '\n%s is not a valid data line.\nSelect one of %s' % (label, self.data_lines)
+        assert (
+            label in self.data_lines
+        ), '\n%s is not a valid data line.\nSelect one of %s' % (label, self.data_lines)
         return self.data_lines.index(label)
 
     def setData2Scalar(self, idx):
-        self.scalars = self.data.take([idx],axis=1)
+        self.scalars = self.data.take([idx], axis=1)
 
     def dataMinMax(self, idx):
         return (numpy.min(self.data[:, idx]), numpy.max(self.data[:, idx]))
 
     def dataLog10(self, idx):
-        self.data[:,idx] = numpy.log10(self.data[:,idx])
+        self.data[:, idx] = numpy.log10(self.data[:, idx])
 
     def getVarData(self):
         return self.data.take(self.var_idx, axis=1)
 
     def getRawData(self):
-        return {'data':self.data, 'scalars':self.scalars,\
-                'x_idx':self.xaxis.idx, 'y_idx':self.yaxis.idx, 'var_idx':self.var_idx,\
-                'data_lines':self.data_lines}
+        return {
+            'data': self.data,
+            'scalars': self.scalars,
+            'x_idx': self.xaxis.idx,
+            'y_idx': self.yaxis.idx,
+            'var_idx': self.var_idx,
+            'data_lines': self.data_lines,
+        }
+
 
 class Graphics2dObj(GraphicsObj):
     title = 'Graph'
@@ -665,8 +733,10 @@ class Graphics2dObj(GraphicsObj):
 
     def __init__(self, data, xidx=None, labels=None, selected=None):
         self.setData(data)
-        if xidx != None: self.setAxis(x=xidx)
-        if labels != None: self.setDataLabels(labels)
+        if xidx != None:
+            self.setAxis(x=xidx)
+        if labels != None:
+            self.setDataLabels(labels)
         if selected != None:
             self.selected = selected
         else:
@@ -674,7 +744,7 @@ class Graphics2dObj(GraphicsObj):
 
     # working on this ... think I'm almost finished now
     def getNewByIndex(self, x, lines):
-        data = self.data.take([x]+lines, axis=1)
+        data = self.data.take([x] + lines, axis=1)
         G = Graphics2dObj(data, 0)
         G.setDataLabels([self.data_lines[x]] + [self.data_lines[i] for i in lines])
         return G
@@ -682,6 +752,7 @@ class Graphics2dObj(GraphicsObj):
     # working on this ... think I'm almost finished now
     def getNewByName(self, x, lines):
         return self.getNewByIndex(self.getIdx(x), [self.getIdx(l) for l in lines])
+
 
 class Graphics3dObj(Graphics2dObj):
     ztitle = 'z'
@@ -692,10 +763,12 @@ class Graphics3dObj(Graphics2dObj):
         self.setData(data)
         self.setAxis(x=xidx, y=yidx)
 
+
 class PyscesGPlot2MPL:
     """
     Old 'gnuplot' plotting functions using a matplotlib backend
     """
+
     mode_interactive = True
     mode_create_new_figure = True
     new_figure_generator = None
@@ -708,23 +781,28 @@ class PyscesGPlot2MPL:
 
     def __init__(self):
         import matplotlib
+
         try:
             matplotlib.use('TKagg')
         except Exception as ex:
             print(ex)
-            print("\nPySCeS uses matplotlib's TKagg backend for interactive plotting please enable this backend when compiling matplotlib")
+            print(
+                "\nPySCeS uses matplotlib's TKagg backend for interactive plotting please enable this backend when compiling matplotlib"
+            )
         ## import matplotlib.axes3d
         import pylab
+
         ## self._matplotlib_axes3d_ = matplotlib.axes3d
         self.P = pylab
-        if self.mode_interactive: self.P.ion()
+        if self.mode_interactive:
+            self.P.ion()
         self.setNewFigureGenerator(self.max_open_windows)
 
     def setNewFigureGenerator(self, num):
         """
         Create a new_figure_generator with range [1,num+1]
         """
-        self.new_figure_generator = itertools.cycle(list(range(1,num+1)))
+        self.new_figure_generator = itertools.cycle(list(range(1, num + 1)))
         self.max_open_windows = num
 
     def setActiveFigure(self, fignum):
@@ -741,16 +819,20 @@ class PyscesGPlot2MPL:
         assert type(ylist) == list, '\nylist must be a list'
         if self.mode_create_new_figure:
             self.setNewFigure()
-        if not self.mode_hold: self.P.clf()
+        if not self.mode_hold:
+            self.P.clf()
         D = Graphics2dObj(data, x)
-        if labels != None: D.setDataLabels(labels)
+        if labels != None:
+            D.setDataLabels(labels)
         if len(ylist) == 0:
             print('ylist empty plotting all data vs (%s)' % x)
             ylist = list(range(data.shape[1]))
             ylist.pop(ylist.index(x))
         if len(ylist) > 0:
-            ylt = (numpy.array(ylist) < D.data_shape[1])
-            assert type(ylt) == numpy.ndarray, '\nInvalid y list this can be caused by a forgotten keyword labels='
+            ylt = numpy.array(ylist) < D.data_shape[1]
+            assert (
+                type(ylt) == numpy.ndarray
+            ), '\nInvalid y list this can be caused by a forgotten keyword labels='
             assert ylt.all(), '\nInvalid y index'
             D = D.getNewByIndex(x, ylist)
         self.P.ioff()
@@ -765,9 +847,9 @@ class PyscesGPlot2MPL:
                     self.P.plot(D.xaxis.data, L.data, style, label=L.prop['label'])
                 else:
                     self.P.plot(D.xaxis.data, L.data, label=L.prop['label'])
-        if self.mode_interactive: self.P.ion()
+        if self.mode_interactive:
+            self.P.ion()
         self.P.legend()
-
 
     def plot3D(self, *args, **kwargs):
         print("*****\nplot3D not implemented yet.\n*****")
@@ -775,7 +857,8 @@ class PyscesGPlot2MPL:
     def plotX(self, data):
         if self.mode_create_new_figure:
             self.setNewFigure()
-        if not self.mode_hold: self.P.clf()
+        if not self.mode_hold:
+            self.P.clf()
         D = Graphics2dObj(data, None)
         ##  print type(D)
         ##  print D.var_idx
@@ -784,7 +867,8 @@ class PyscesGPlot2MPL:
 
     def save(self, fname, path=None):
         fname += '.png'
-        if path != None: fname = os.path.join(path, fname)
+        if path != None:
+            fname = os.path.join(path, fname)
         self.P.savefig(fname)
 
     def legendOff(self):
@@ -806,41 +890,48 @@ class PyscesGPlot2MPL:
     def logy(self):
         A = self.P.gca()
         A.set_yscale('log')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def linx(self):
         A = self.P.gca()
         A.set_xscale('linear')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def liny(self):
         A = self.P.gca()
         A.set_yscale('linear')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def linxy(self):
         A = self.P.gca()
         A.set_xscale('linear')
         A.set_yscale('linear')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def logxy(self):
         A = self.P.gca()
         A.set_xscale('log')
         A.set_yscale('log')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def logxliny(self):
         A = self.P.gca()
         A.set_xscale('log')
         A.set_yscale('linear')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def linxlogy(self):
         A = self.P.gca()
         A.set_xscale('linear')
         A.set_yscale('log')
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
     def xrng(self, start, end):
         self.P.xlim(start, end)
@@ -870,9 +961,10 @@ class PyscesGPlot2MPL:
         'set line width for current axis'
         A = self.P.gca()
         [l.set_linewidth(w) for l in A.get_lines()]
-        if self.mode_interactive: self.P.draw()
+        if self.mode_interactive:
+            self.P.draw()
 
-    def save_html(self,imagename,File=None,path=None,name=None,close_file=1):
+    def save_html(self, imagename, File=None, path=None, name=None, close_file=1):
         imagename = str(imagename)
         if name != None:
             name = str(name)
@@ -886,28 +978,47 @@ class PyscesGPlot2MPL:
             pass
 
         if path != None:
-            imagenameout = os.path.join(path,imagename)
+            imagenameout = os.path.join(path, imagename)
             if File == None:
-                File = open(os.path.join(path,imagename[:-3]+'html'),'w')
+                File = open(os.path.join(path, imagename[:-3] + 'html'), 'w')
         else:
-            imagenameout = os.path.join(os.getcwd(),imagename)
+            imagenameout = os.path.join(os.getcwd(), imagename)
             if File == None:
-                File = open(os.path.join(os.getcwd(),imagename[:-3]+'html'),'w')
-        self.P.savefig(imagenameout,dpi=80)
+                File = open(os.path.join(os.getcwd(), imagename[:-3] + 'html'), 'w')
+        self.P.savefig(imagenameout, dpi=80)
 
-        fname = 'PySCeS generated image - '+imagename+'" generated from model file: ' + strftime("%H:%M:%S")
+        fname = (
+            'PySCeS generated image - '
+            + imagename
+            + '" generated from model file: '
+            + strftime("%H:%M:%S")
+        )
 
         if File != None:
-            assert File != file, 'WriteArray(input,File=None,Row=None,Col=None,close_file=0)'
+            assert (
+                File != file
+            ), 'WriteArray(input,File=None,Row=None,Col=None,close_file=0)'
             header = '\n'
-            header += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
+            header += (
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
+            )
             header += '<html>\n'
             header += '<head>\n'
-            header += '<title>PySCeS generated image - ' +imagename+ ' - ' + strftime("%H:%M:%S (%Z)") + '</title>\n'
+            header += (
+                '<title>PySCeS generated image - '
+                + imagename
+                + ' - '
+                + strftime("%H:%M:%S (%Z)")
+                + '</title>\n'
+            )
             header += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">\n'
             header += '</head>\n'
             header += '<body bgcolor="#FFFFCC">\n\n'
-            header += '<h4><a href="http://pysces.sourceforge.net">PySCeS</a> generated image - '+imagename+'</h4>\n\n'
+            header += (
+                '<h4><a href="http://pysces.sourceforge.net">PySCeS</a> generated image - '
+                + imagename
+                + '</h4>\n\n'
+            )
 
             if self.save_html_header:
                 File.write(header)
@@ -915,7 +1026,9 @@ class PyscesGPlot2MPL:
 
             File.write('<p align="center">\n')
 
-            File.write('<img src="'+imagename+'" width="640" height="480" border="2">\n')
+            File.write(
+                '<img src="' + imagename + '" width="640" height="480" border="2">\n'
+            )
 
             if name != None:
                 File.write('<br><font size="3">' + str(name) + '</font>\n')
@@ -923,13 +1036,27 @@ class PyscesGPlot2MPL:
             File.write('</p>\n\n')
             if self.save_html_footer:
                 try:
-                    File.write('<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '+self.__version__+\
-                               '</font></a><font size="2"> HTML output (image <i>'+imagename+\
-                               '</i> produced at '+strftime("%H:%M:%S")+' by <i>'+getuser()+'</i>)</font></p>\n')
+                    File.write(
+                        '<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '
+                        + self.__version__
+                        + '</font></a><font size="2"> HTML output (image <i>'
+                        + imagename
+                        + '</i> produced at '
+                        + strftime("%H:%M:%S")
+                        + ' by <i>'
+                        + getuser()
+                        + '</i>)</font></p>\n'
+                    )
                 except:
-                    File.write('<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '+__version__+\
-                               '</font></a><font size="2"> HTML output (model <i>'+imagename+\
-                               '</i> produced at '+strftime("%H:%M:%S - %Z")+')</font></p>\n')
+                    File.write(
+                        '<p><a href="http://pysces.sourceforge.net"><font size="3">PySCeS '
+                        + __version__
+                        + '</font></a><font size="2"> HTML output (model <i>'
+                        + imagename
+                        + '</i> produced at '
+                        + strftime("%H:%M:%S - %Z")
+                        + ')</font></p>\n'
+                    )
                 File.write('</body>\n')
                 File.write('</html>\n')
             else:
@@ -938,12 +1065,14 @@ class PyscesGPlot2MPL:
             if close_file:
                 File.close()
 
+
 class PyscesGPlot2MplExt(PyscesGPlot2MPL):
     def __init__(self):
         PyscesGPlot2MPL.__init__(self)
 
     def plotLines2DX(self, data, x, labels=None):
-        if not self.mode_hold: self.P.clf()
+        if not self.mode_hold:
+            self.P.clf()
         ##  F = self.P.figure(1)
         ##  S = self.P.subplot(1,1,1)
         D = Graphics2dObj(data, x)

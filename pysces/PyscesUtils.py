@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysces.version import __version__
+
 __doc__ = '''
             PyscesUtils
             -----------
@@ -29,10 +30,8 @@ __doc__ = '''
             '''
 
 import fileinput
-import os,sys
+import os, sys
 import time
-
-
 
 
 def VersionCheck(ver='0.1.5'):
@@ -46,24 +45,30 @@ def str2bool(s):
     - *s* True if 'True', 'true' or'1' else False
 
     """
-    if s in ['True','true', '1']:
+    if s in ['True', 'true', '1']:
         return True
     else:
         return False
+
 
 class TimerBox:
     """
     A timer "container" class that can be used to hold user defined timers
 
     """
+
     __go__ = 1
 
     def __init__(self):
         if os.sys.version_info[0] < 2 or os.sys.version_info[1] < 3:
-            print('Your version of Python (' + str(os.sys.version_info[:3]) + ') might be too old\
-            to use this class. Python 2.2 or newer is required')
+            print(
+                'Your version of Python ('
+                + str(os.sys.version_info[:3])
+                + ') might be too old\
+            to use this class. Python 2.2 or newer is required'
+            )
 
-    def normal_timer(self,name):
+    def normal_timer(self, name):
         """
         normal_timer(name)
 
@@ -74,14 +79,16 @@ class TimerBox:
 
         """
         assert type(name) == str or type(name) == unicode
+
         def timer(startTime=time.time()):
             while self.__go__:
-                ms = divmod(time.time() - startTime,60)
+                ms = divmod(time.time() - startTime, 60)
                 nowTime = str(int(ms[0])) + ' min ' + str(int(ms[1])) + ' sec'
                 yield nowTime
-        setattr(self,name,timer())
 
-    def step_timer(self,name,maxsteps):
+        setattr(self, name, timer())
+
+    def step_timer(self, name, maxsteps):
         """
         step_timer(name,maxsteps)
 
@@ -95,16 +102,27 @@ class TimerBox:
         assert type(name) == str, 'Name is a string representing the timer name'
         assert type(maxsteps) == int or type(maxsteps) == float, 'int or float needed'
 
-        setattr(self,name+'_cstep',0)
-        def timer(startTime=time.time(),maxS=maxsteps):
-            while self.__go__:
-                ms = divmod(time.time() - startTime,60)
-                nowStep = 'step ' + str(getattr(self,name+'_cstep')) + ' of ' + str(maxS)+ ' ('+\
-                    str(int(ms[0])) + ' min ' + str(int(ms[1])) + ' sec)'
-                yield nowStep
-        setattr(self,name,timer())
+        setattr(self, name + '_cstep', 0)
 
-    def stop(self,name):
+        def timer(startTime=time.time(), maxS=maxsteps):
+            while self.__go__:
+                ms = divmod(time.time() - startTime, 60)
+                nowStep = (
+                    'step '
+                    + str(getattr(self, name + '_cstep'))
+                    + ' of '
+                    + str(maxS)
+                    + ' ('
+                    + str(int(ms[0]))
+                    + ' min '
+                    + str(int(ms[1]))
+                    + ' sec)'
+                )
+                yield nowStep
+
+        setattr(self, name, timer())
+
+    def stop(self, name):
         """
         Delete the timer <name> from the TimerBox instance
 
@@ -113,12 +131,12 @@ class TimerBox:
         """
         delattr(self, name)
         try:
-            getattr(self,name+'_cstep')
-            delattr(self,name+'_cstep')
+            getattr(self, name + '_cstep')
+            delattr(self, name + '_cstep')
         except:
             pass
 
-    def reset_step(self,name):
+    def reset_step(self, name):
         """
         Reset the number of steps of timer <name> in the TimerBox to zero
 
@@ -126,13 +144,15 @@ class TimerBox:
 
         """
         try:
-            getattr(self,name+'_cstep')
-            setattr(self,name+'_cstep',0)
+            getattr(self, name + '_cstep')
+            setattr(self, name + '_cstep', 0)
         except:
             pass
 
+
 def CopyTestModels(*args, **kwargs):
     print("moved to PyscesTest")
+
 
 def CopyModels(*args, **kwargs):
     print("dead")
@@ -145,14 +165,15 @@ def ConvertFileD2U(Filelist):
     - *Filelist* a file or list of files to convert
 
     """
-    for line in fileinput.input(Filelist,inplace=1):
+    for line in fileinput.input(Filelist, inplace=1):
         try:
             if line[-2] == '\r':
-                print(line[:-2]+'\n', end=' ')
+                print(line[:-2] + '\n', end=' ')
             else:
                 print(line, end=' ')
         except:
             print(line, end=' ')
+
 
 def ConvertFileU2D(Filelist):
     """
@@ -161,14 +182,15 @@ def ConvertFileU2D(Filelist):
     - *Filelist* a file or list of files to convert
 
     """
-    for line in fileinput.input(Filelist,inplace=1):
+    for line in fileinput.input(Filelist, inplace=1):
         try:
             if line[-2] != '\r':
-                print(line[:-1]+'\n', end=' ')
+                print(line[:-1] + '\n', end=' ')
             else:
                 print(line, end=' ')
         except:
             print('\n', end=' ')
+
 
 class WriteOutput(object):
     """
@@ -193,17 +215,19 @@ class WriteOutput(object):
 
         """
         if names != None:
-            assert arr.shape[0] == len(names), '\n ...  rows must equal number of names!'
+            assert arr.shape[0] == len(
+                names
+            ), '\n ...  rows must equal number of names!'
         F = open(fname, 'w')
         cntr = 0
         for r in range(arr.shape[0]):
             if names != None:
-                F.write(('%s'+sep) % names[r])
+                F.write(('%s' + sep) % names[r])
             for c in range(arr.shape[1]):
-                if c < arr.shape[1]-1:
-                    F.write((format+sep) % arr[r,c])
+                if c < arr.shape[1] - 1:
+                    F.write((format + sep) % arr[r, c])
                 else:
-                    F.write((format+'\n') % arr[r,c])
+                    F.write((format + '\n') % arr[r, c])
             cntr += 1
             if cntr >= 250:
                 F.flush()
@@ -213,7 +237,9 @@ class WriteOutput(object):
         F.close()
         print('exported to %s' % fname)
 
-    def exportLabelledArrayWithHeader(self, arr, names, header, fname, sep=',', format='%f'):
+    def exportLabelledArrayWithHeader(
+        self, arr, names, header, fname, sep=',', format='%f'
+    ):
         """
         Export an array with row names and header
 
@@ -227,29 +253,33 @@ class WriteOutput(object):
 
         """
         if names != None:
-            assert arr.shape[0] == len(names), '\n ...  rows must equal number of names!'
+            assert arr.shape[0] == len(
+                names
+            ), '\n ...  rows must equal number of names!'
         if header != None:
-            assert arr.shape[1] == len(header), '\n ...  cols must equal number of header names!'
+            assert arr.shape[1] == len(
+                header
+            ), '\n ...  cols must equal number of header names!'
         F = open(fname, 'w')
         cntr = 0
         if header != None:
             if names != None:
-                hstr = ' '+sep
+                hstr = ' ' + sep
             else:
                 hstr = ''
             for h in header:
-                hstr += str(h)+sep
-            hstr = hstr[:-1]+'\n'
+                hstr += str(h) + sep
+            hstr = hstr[:-1] + '\n'
             F.write(hstr)
             del hstr
         for r in range(arr.shape[0]):
             if names != None:
-                F.write(('%s'+sep) % names[r])
+                F.write(('%s' + sep) % names[r])
             for c in range(arr.shape[1]):
-                if c < arr.shape[1]-1:
-                    F.write((format+sep) % arr[r,c])
+                if c < arr.shape[1] - 1:
+                    F.write((format + sep) % arr[r, c])
                 else:
-                    F.write((format+'\n') % arr[r,c])
+                    F.write((format + '\n') % arr[r, c])
             cntr += 1
             if cntr >= 250:
                 F.flush()
@@ -259,8 +289,9 @@ class WriteOutput(object):
         F.close()
         print('exported to %s' % fname)
 
-
-    def exportLabelledLinkedList(self, arr, fname, names=None, sep=',', format='%s', appendlist=False):
+    def exportLabelledLinkedList(
+        self, arr, fname, names=None, sep=',', format='%s', appendlist=False
+    ):
         """
         Write a 2D linked list [[...],[...],[...],[...]] and optionally a list of row labels to file:
 
@@ -281,25 +312,25 @@ class WriteOutput(object):
         cntr = 0
         for r in range(len(arr)):
             if names != None:
-                F.write(('%s'+sep) % names[r])
+                F.write(('%s' + sep) % names[r])
             col_l = len(arr[0])
             for c in range(col_l):
-                if c < col_l-1:
+                if c < col_l - 1:
                     if arr[r][c] == 0.0:
-                        F.write('0.0'+sep)
+                        F.write('0.0' + sep)
                     else:
                         try:
-                            F.write((format+sep) % arr[r][c])
+                            F.write((format + sep) % arr[r][c])
                         except UnicodeEncodeError:
-                            F.write((format+sep) % 'uError')
+                            F.write((format + sep) % 'uError')
                 else:
                     if arr[r][c] == 0.0:
                         F.write('0.0\n')
                     else:
                         try:
-                            F.write((format+'\n') % arr[r][c])
+                            F.write((format + '\n') % arr[r][c])
                         except UnicodeEncodeError:
-                            F.write((format+'\n') % 'uError')
+                            F.write((format + '\n') % 'uError')
             cntr += 1
             if cntr >= 250:
                 F.flush()
@@ -322,7 +353,9 @@ class WriteOutput(object):
 
         """
         fname += '.csv'
-        self.exportLabelledArrayWithHeader(arr, names, header, fname, sep=',', format='%f')
+        self.exportLabelledArrayWithHeader(
+            arr, names, header, fname, sep=',', format='%f'
+        )
 
     def exportLabelledArray2CSV(self, arr, names, fname):
         """
@@ -348,7 +381,6 @@ class WriteOutput(object):
         fname += '.csv'
         self.exportLabelledArray(arr, None, fname, sep=',', format='%f')
 
-
     def exportLabelledArrayWithHeader2TXT(self, arr, names, header, fname):
         """
         Export an array with row names and header to fname.txt
@@ -360,7 +392,9 @@ class WriteOutput(object):
 
         """
         fname += '.txt'
-        self.exportLabelledArrayWithHeader(arr, names, header, fname, sep='\t', format='%f')
+        self.exportLabelledArrayWithHeader(
+            arr, names, header, fname, sep='\t', format='%f'
+        )
 
     def exportLabelledArray2TXT(self, arr, names, fname):
         """

@@ -24,8 +24,10 @@ from .version import __version__
 from pysces.PyscesStoich import Stoich
 from .PyscesCore2 import StructMatrix
 
+
 class PyscesEnhancedStoich(Stoich):
     """PySCeS stoichiometry class for use with core2"""
+
     N = None
     Nr = None
     K = None
@@ -44,7 +46,7 @@ class PyscesEnhancedStoich(Stoich):
         self.AnalyseL()
 
     def testNullSpaces(self):
-        #TODO: build in nullspace validity checks from PyscesModel
+        # TODO: build in nullspace validity checks from PyscesModel
         pass
 
     def setStructMatrices(self):
@@ -60,7 +62,9 @@ class PyscesEnhancedStoich(Stoich):
         self.K.setRow(self.reactions)
         self.K.setCol(self.reactions)
 
-        self.K0 = StructMatrix(self.kzeromatrix, self.kzeromatrix_row, self.kzeromatrix_col)
+        self.K0 = StructMatrix(
+            self.kzeromatrix, self.kzeromatrix_row, self.kzeromatrix_col
+        )
         self.K0.setRow(self.reactions)
         self.K0.setCol(self.reactions)
 
@@ -68,14 +72,21 @@ class PyscesEnhancedStoich(Stoich):
         self.L.setRow(self.species)
         self.L.setCol(self.species)
 
-        self.L0 = StructMatrix(self.lzeromatrix, self.lzeromatrix_row, self.lzeromatrix_col)
+        self.L0 = StructMatrix(
+            self.lzeromatrix, self.lzeromatrix_row, self.lzeromatrix_col
+        )
         self.L0.setRow(self.species)
         self.L0.setCol(self.species)
 
         if self.info_moiety_conserve:
-            self.Gamma = StructMatrix(self.conservation_matrix, self.conservation_matrix_row, self.conservation_matrix_col)
+            self.Gamma = StructMatrix(
+                self.conservation_matrix,
+                self.conservation_matrix_row,
+                self.conservation_matrix_col,
+            )
             self.Gamma.setRow(self.species)
             self.Gamma.setCol(self.species)
+
 
 class StructuralModule(object):
     core = None
@@ -97,68 +108,73 @@ class StructuralModule(object):
         self.struct.getNullSpaces()
         self.struct.setStructMatrices()
 
+
 # Integration Module
 import numpy
 
-##  class StateDataObj(object):
-    ##  flux = None
-    ##  flux_labels = None
-    ##  species = None
-    ##  species_labels = None
-    ##  valid = True
-    ##  _suffix = None
-    ##  _prefix = None
+"""
+class StateDataObj(object):
+    flux = None
+    flux_labels = None
+    species = None
+    species_labels = None
+    valid = True
+    _suffix = None
+    _prefix = None
 
-    ##  def __init__(self):
-        ##  self.species_labels = []
-        ##  self.flux_labels = []
+    def __init__(self):
+        self.species_labels = []
+        self.flux_labels = []
 
-    ##  def setSpecies(self, name, value, suffix=None):
-        ##  if suffix != None:
-            ##  name = name + suffix
-        ##  if name not in self.species_labels:
-            ##  self.species_labels.append(name)
-        ##  self._suffix = suffix
-        ##  setattr(self, name, value)
+    def setSpecies(self, name, value, suffix=None):
+        if suffix != None:
+            name = name + suffix
+        if name not in self.species_labels:
+            self.species_labels.append(name)
+        self._suffix = suffix
+        setattr(self, name, value)
 
-    ##  def setFlux(self, name, value, prefix=None):
-        ##  if prefix != None:
-            ##  name = prefix + name
-        ##  if name not in self.flux_labels:
-            ##  self.flux_labels.append(name)
-        ##  self._prefix = prefix
-        ##  setattr(self, name, value)
+    def setFlux(self, name, value, prefix=None):
+        if prefix != None:
+            name = prefix + name
+        if name not in self.flux_labels:
+            self.flux_labels.append(name)
+        self._prefix = prefix
+        setattr(self, name, value)
 
-    ##  def setAllSpecies(self, species_labels, species, suffix=None):
-        ##  assert len(species_labels) == len(species), '\nThis aint gonna work1'
-        ##  self.species_labels = []
-        ##  #  self.species_labels = tuple(species_labels)
-        ##  self.species = species.copy()
-        ##  for S in range(len(species_labels)):
-            ##  self.setSpecies(species_labels[S], species[S], suffix)
+    def setAllSpecies(self, species_labels, species, suffix=None):
+        assert len(species_labels) == len(species), '\nThis aint gonna work1'
+        self.species_labels = []
+        #  self.species_labels = tuple(species_labels)
+        self.species = species.copy()
+        for S in range(len(species_labels)):
+            self.setSpecies(species_labels[S], species[S], suffix)
 
-    ##  def setAllFluxes(self, flux_labels, flux, prefix=None):
-        ##  assert len(flux_labels) == len(flux), '\nThis aint gonna work2'
-        ##  self.flux_labels = []
-        ##  #  self.flux_labels = tuple(flux_labels)
-        ##  self.flux = flux.copy()
-        ##  for J in range(len(flux_labels)):
-            ##  self.setFlux(flux_labels[J], flux[J], prefix)
+    def setAllFluxes(self, flux_labels, flux, prefix=None):
+        assert len(flux_labels) == len(flux), '\nThis aint gonna work2'
+        self.flux_labels = []
+        #  self.flux_labels = tuple(flux_labels)
+        self.flux = flux.copy()
+        for J in range(len(flux_labels)):
+            self.setFlux(flux_labels[J], flux[J], prefix)
 
-    ##  def getFlux(self, name):
-        ##  if prefix != None:
-            ##  name = prefix + name
-        ##  return getattr(self, name)
+    def getFlux(self, name):
+        if prefix != None:
+            name = prefix + name
+        return getattr(self, name)
 
-    ##  def getSpecies(self, name):
-        ##  if suffix != None:
-            ##  name = name + suffix
-        ##  return getattr(self, name)
+    def getSpecies(self, name):
+        if suffix != None:
+            name = name + suffix
+        return getattr(self, name)
+"""
+
 
 class StateDataObj(object):
     """
     New class used to store steady-state data.
     """
+
     fluxes = None
     species = None
     rules = None
@@ -172,15 +188,6 @@ class StateDataObj(object):
     HAS_RULES = False
     HAS_XDATA = False
     IS_VALID = True
-
-    ##  def setLabels(self, species=None, fluxes=None, rules=None):
-        ##  """set the species, rate and rule label lists"""
-        ##  if species != None:
-            ##  self.species_labels = species
-        ##  if fluxes != None:
-            ##  self.flux_labels = fluxes
-        ##  if rules != None:
-            ##  self.rules_labels = rules
 
     def setSpecies(self, species, lbls=None):
         """Set the species array"""
@@ -322,122 +329,125 @@ class StateDataObj(object):
         else:
             return numpy.array(output), lout
 
-##  class IntegrationDataObj(object):
-    ##  """
-    ##  This class is specifically designed to store the results of a time simulation
-    ##  It has methods for setting the Time, Labels, Species and Rate data and
-    ##  getting Time, Species and Rate (including time) arrays. However, of more use:
-    ##  - getOutput(*arg) feed this method species/rate labels and it will return
-      ##  an array of [time, sp1, r1, ....]
-    ##  - getDataAtTime(time) the data generated at time point "time".
-    ##  - getDataInTimeInterval(time, bounds=None) more intelligent version of the above
-      ##  returns an array of all data points where: time-bounds <= time <= time+bounds
-      ##  where bounds defaults to stepsize.
-    ##  """
-    ##  time = None
-    ##  rates = None
-    ##  species = None
-    ##  rate_labels = None
-    ##  species_labels = None
 
-    ##  def setLabels(self, species, rates):
-        ##  """set the species and rate label lists"""
-        ##  self.species_labels = species
-        ##  self.rate_labels = rates
+'''
+class IntegrationDataObj(object):
+    """
+    This class is specifically designed to store the results of a time simulation
+    It has methods for setting the Time, Labels, Species and Rate data and
+    getting Time, Species and Rate (including time) arrays. However, of more use:
+    - getOutput(*arg) feed this method species/rate labels and it will return
+      an array of [time, sp1, r1, ....]
+    - getDataAtTime(time) the data generated at time point "time".
+    - getDataInTimeInterval(time, bounds=None) more intelligent version of the above
+      returns an array of all data points where: time-bounds <= time <= time+bounds
+      where bounds defaults to stepsize.
 
-    ##  def setTime(self, time):
-        ##  """Set the time vector"""
-        ##  self.time = time.reshape(len(time), 1)
+    time = None
+    rates = None
+    species = None
+    rate_labels = None
+    species_labels = None
 
-    ##  def setSpecies(self, species):
-        ##  """Set the species array"""
-        ##  self.species = species
+    def setLabels(self, species, rates):
+        """set the species and rate label lists"""
+        self.species_labels = species
+        self.rate_labels = rates
 
-    ##  def setRates(self, rates):
-        ##  """set the rate array"""
-        ##  self.rates = rates
+    def setTime(self, time):
+        """Set the time vector"""
+        self.time = time.reshape(len(time), 1)
 
-    ##  def getTime(self):
-        ##  """return the time vector"""
-        ##  assert self.time != None, "\nNo time"
-        ##  return self.time.reshape(len(self.time),)
+    def setSpecies(self, species):
+        """Set the species array"""
+        self.species = species
 
-    ##  def getSpecies(self):
-        ##  """return time+species array"""
-        ##  assert self.species != None, "\nNo species"
-        ##  return numpy.hstack((self.time, self.species))
+    def setRates(self, rates):
+        """set the rate array"""
+        self.rates = rates
 
-    ##  def getRates(self):
-        ##  """return time+rate array"""
-        ##  assert self.rates != None, "\nNo rates"
-        ##  return numpy.hstack((self.time, self.rates))
+    def getTime(self):
+        """return the time vector"""
+        assert self.time != None, "\nNo time"
+        return self.time.reshape(len(self.time),)
 
-    ##  def getDataAtTime(self, time):
-        ##  """Return all data generated at "time" """
-        ##  t = None
-        ##  sp = None
-        ##  ra = None
-        ##  temp_t = self.time.reshape(len(self.time),)
-        ##  for tt in range(len(temp_t)):
-            ##  if temp_t[tt] == time:
-                ##  t = tt
-                ##  if self.species is not None:
-                    ##  sp = self.species.take([tt], axis=0)
-                ##  if self.rates is not None:
-                    ##  ra = self.rates.take([tt], axis=0)
-                ##  break
-        ##  output = None
-        ##  if t is not None:
-            ##  output = numpy.array([[temp_t[t]]])
-            ##  if sp is not None:
-                ##  output = numpy.hstack((output,sp))
-            ##  if ra is not None:
-                ##  output = numpy.hstack((output,ra))
-        ##  return output
+    def getSpecies(self):
+        """return time+species array"""
+        assert self.species != None, "\nNo species"
+        return numpy.hstack((self.time, self.species))
 
-    ##  def getDataInTimeInterval(self, time, bounds=None):
-        ##  """
-         ##  getDataInTimeInterval(time, bounds=None) returns an array of all
-         ##  data points where: time-bounds <= time <= time+bounds
-         ##  where bound defaults to stepsize
-        ##  """
-        ##  temp_t = self.time.reshape(len(self.time),)
-        ##  if bounds == None:
-            ##  bounds = temp_t[1] - temp_t[0]
-        ##  c1 = (temp_t >= time-bounds)
-        ##  c2 = (temp_t <= time+bounds)
-        ##  print 'Searching (%s:%s:%s)' % (time-bounds, time, time+bounds)
+    def getRates(self):
+        """return time+rate array"""
+        assert self.rates != None, "\nNo rates"
+        return numpy.hstack((self.time, self.rates))
 
-        ##  t = []
-        ##  sp = None
-        ##  ra = None
+    def getDataAtTime(self, time):
+        """Return all data generated at "time" """
+        t = None
+        sp = None
+        ra = None
+        temp_t = self.time.reshape(len(self.time),)
+        for tt in range(len(temp_t)):
+            if temp_t[tt] == time:
+                t = tt
+                if self.species is not None:
+                    sp = self.species.take([tt], axis=0)
+                if self.rates is not None:
+                    ra = self.rates.take([tt], axis=0)
+                break
+        output = None
+        if t is not None:
+            output = numpy.array([[temp_t[t]]])
+            if sp is not None:
+                output = numpy.hstack((output,sp))
+            if ra is not None:
+                output = numpy.hstack((output,ra))
+        return output
 
-        ##  for tt in range(len(c1)):
-            ##  if c1[tt] and c2[tt]:
-                ##  t.append(tt)
-        ##  output = None
-        ##  if len(t) > 0:
-            ##  output = self.time.take(t)
-            ##  output = output.reshape(len(output),1)
-            ##  if self.species is not None:
-                ##  output = numpy.hstack((output, self.species.take(t, axis=0)))
-            ##  if self.rates is not None:
-                ##  output = numpy.hstack((output, self.rates.take(t, axis=0)))
-        ##  return output
+    def getDataInTimeInterval(self, time, bounds=None):
+        """
+         getDataInTimeInterval(time, bounds=None) returns an array of all
+         data points where: time-bounds <= time <= time+bounds
+         where bound defaults to stepsize
+        """
+        temp_t = self.time.reshape(len(self.time),)
+        if bounds == None:
+            bounds = temp_t[1] - temp_t[0]
+        c1 = (temp_t >= time-bounds)
+        c2 = (temp_t <= time+bounds)
+        print 'Searching (%s:%s:%s)' % (time-bounds, time, time+bounds)
 
-    ##  def getOutput(self, *args):
-        ##  """getOutput(*arg) feed this method species/rate labels and it
-        ##  will return an array of [time, sp1, r1, ....]
-        ##  """
-        ##  output = self.time
-        ##  for roc in args:
-            ##  if roc in self.species_labels:
-                ##  assert self.species != None, "\nNo species"
-                ##  output = numpy.hstack((output, self.species.take([self.species_labels.index(roc)], axis=-1)))
-            ##  if roc in self.rate_labels:
-                ##  assert self.rates != None, "\nNo rates"
-                ##  output = numpy.hstack((output, self.rates.take([self.rate_labels.index(roc)], axis=-1)))
-        ##  return output
+        t = []
+        sp = None
+        ra = None
+
+        for tt in range(len(c1)):
+            if c1[tt] and c2[tt]:
+                t.append(tt)
+        output = None
+        if len(t) > 0:
+            output = self.time.take(t)
+            output = output.reshape(len(output),1)
+            if self.species is not None:
+                output = numpy.hstack((output, self.species.take(t, axis=0)))
+            if self.rates is not None:
+                output = numpy.hstack((output, self.rates.take(t, axis=0)))
+        return output
+
+    def getOutput(self, *args):
+        """getOutput(*arg) feed this method species/rate labels and it
+        will return an array of [time, sp1, r1, ....]
+        """
+        output = self.time
+        for roc in args:
+            if roc in self.species_labels:
+                assert self.species != None, "\nNo species"
+                output = numpy.hstack((output, self.species.take([self.species_labels.index(roc)], axis=-1)))
+            if roc in self.rate_labels:
+                assert self.rates != None, "\nNo rates"
+                output = numpy.hstack((output, self.rates.take([self.rate_labels.index(roc)], axis=-1)))
+        return output
+'''
 
 
 class IntegrationDataObj(object):
@@ -452,6 +462,7 @@ class IntegrationDataObj(object):
     - getDataInTimeInterval(time, bounds=None) more intelligent version of the above
       returns an array of all data points where: time-bounds <= time <= time+bounds
     """
+
     time = None
     rates = None
     species = None
@@ -529,7 +540,7 @@ class IntegrationDataObj(object):
         output = None
         if self.HAS_SPECIES:
             output = numpy.hstack((self.time, self.species))
-            labels = [self.time_label]+self.species_labels
+            labels = [self.time_label] + self.species_labels
         else:
             output = self.time
             labels = [self.time_label]
@@ -543,7 +554,7 @@ class IntegrationDataObj(object):
         output = None
         if self.HAS_RATES:
             output = numpy.hstack((self.time, self.rates))
-            labels = [self.time_label]+self.rate_labels
+            labels = [self.time_label] + self.rate_labels
         else:
             output = self.time
             labels = [self.time_label]
@@ -558,7 +569,7 @@ class IntegrationDataObj(object):
         output = None
         if self.HAS_RULES:
             output = numpy.hstack((self.time, self.rules))
-            labels = [self.time_label]+self.rules_labels
+            labels = [self.time_label] + self.rules_labels
         else:
             output = self.time
             labels = [self.time_label]
@@ -573,7 +584,7 @@ class IntegrationDataObj(object):
         output = None
         if self.HAS_XDATA:
             output = numpy.hstack((self.time, self.xdata))
-            labels = [self.time_label]+self.xdata_labels
+            labels = [self.time_label] + self.xdata_labels
         else:
             output = self.time
             labels = [self.time_label]
@@ -582,10 +593,9 @@ class IntegrationDataObj(object):
         else:
             return output, labels
 
-
     def getDataAtTime(self, time):
         """Return all data generated at "time" """
-        #TODO add rate rule data
+        # TODO add rate rule data
         t = None
         sp = None
         ra = None
@@ -609,13 +619,13 @@ class IntegrationDataObj(object):
         if t is not None:
             output = numpy.array([[temp_t[t]]])
             if sp is not None:
-                output = numpy.hstack((output,sp))
+                output = numpy.hstack((output, sp))
             if ra is not None:
-                output = numpy.hstack((output,ra))
+                output = numpy.hstack((output, ra))
             if ru is not None:
-                output = numpy.hstack((output,ru))
+                output = numpy.hstack((output, ru))
             if xd is not None:
-                output = numpy.hstack((output,xd))
+                output = numpy.hstack((output, xd))
 
         return output
 
@@ -625,13 +635,13 @@ class IntegrationDataObj(object):
          data points where: time-bounds <= time <= time+bounds
          where bound defaults to stepsize
         """
-        #TODO add rate rule data
+        # TODO add rate rule data
         temp_t = self.time.reshape(len(self.time),)
         if bounds == None:
             bounds = temp_t[1] - temp_t[0]
-        c1 = (temp_t >= time-bounds)
-        c2 = (temp_t <= time+bounds)
-        print('Searching (%s:%s:%s)' % (time-bounds, time, time+bounds))
+        c1 = temp_t >= time - bounds
+        c2 = temp_t <= time + bounds
+        print('Searching (%s:%s:%s)' % (time - bounds, time, time + bounds))
 
         t = []
         sp = None
@@ -643,7 +653,7 @@ class IntegrationDataObj(object):
         output = None
         if len(t) > 0:
             output = self.time.take(t)
-            output = output.reshape(len(output),1)
+            output = output.reshape(len(output), 1)
             if self.HAS_SPECIES and self.HAS_TIME:
                 output = numpy.hstack((output, self.species.take(t, axis=0)))
             if self.HAS_RATES:
@@ -662,7 +672,7 @@ class IntegrationDataObj(object):
         """
         return self.getSimData(*args)
 
-    def getAllSimData(self,lbls=False):
+    def getAllSimData(self, lbls=False):
         """
         Return all available data as time+species+rates+rules
         if lbls=True returns (array,lables) else just array
@@ -673,7 +683,7 @@ class IntegrationDataObj(object):
             labels += self.species_labels
         if self.HAS_RATES:
             output = numpy.hstack((output, self.rates))
-            labels +=self.rate_labels
+            labels += self.rate_labels
         if self.HAS_RULES:
             output = numpy.hstack((output, self.rules))
             labels += self.rules_labels
@@ -699,22 +709,34 @@ class IntegrationDataObj(object):
         for roc in args:
             if self.HAS_SPECIES and roc in self.species_labels:
                 lout.append(roc)
-                output = numpy.hstack((output, self.species.take([self.species_labels.index(roc)], axis=-1)))
+                output = numpy.hstack(
+                    (
+                        output,
+                        self.species.take([self.species_labels.index(roc)], axis=-1),
+                    )
+                )
             if self.HAS_RATES and roc in self.rate_labels:
                 lout.append(roc)
-                output = numpy.hstack((output, self.rates.take([self.rate_labels.index(roc)], axis=-1)))
+                output = numpy.hstack(
+                    (output, self.rates.take([self.rate_labels.index(roc)], axis=-1))
+                )
             if self.HAS_RULES and roc in self.rules_labels:
                 lout.append(roc)
-                output = numpy.hstack((output, self.rules.take([self.rules_labels.index(roc)], axis=-1)))
+                output = numpy.hstack(
+                    (output, self.rules.take([self.rules_labels.index(roc)], axis=-1))
+                )
             if self.HAS_XDATA and roc in self.xdata_labels:
                 lout.append(roc)
-                output = numpy.hstack((output, self.xdata.take([self.xdata_labels.index(roc)], axis=-1)))
+                output = numpy.hstack(
+                    (output, self.xdata.take([self.xdata_labels.index(roc)], axis=-1))
+                )
         if not lbls:
             return output
         else:
             return output, lout
 
-#TODO:
+
+# TODO:
 class IntegrationBase(object):
     name = None
     core = None
@@ -724,7 +746,6 @@ class IntegrationBase(object):
     sim_end = None
     sim_point = None
     initial_value_vector = None
-
 
     def setName(self, name):
         self.name = name
@@ -742,9 +763,3 @@ class IntegrationBase(object):
 
     def getData(self):
         return self.data
-
-
-
-
-
-

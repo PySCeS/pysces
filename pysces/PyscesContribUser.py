@@ -27,5 +27,5 @@ to allow for automated module loading and instantiation.
 '''
 
 from pysces.version import __version__
-__doc__ = '''pysx unofficial user contributed module interface'''
 
+__doc__ = '''pysx unofficial user contributed module interface'''

@@ -34,7 +34,7 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool()
 
     # load stuff from the pickle
-    F = open(sys.argv[2],'rb')
+    F = open(sys.argv[2], 'rb')
     mod, scanpartition, seqpartition, genorder, useroutputlist = pickle.load(F)
     F.close()
 
@@ -42,7 +42,19 @@ if __name__ == '__main__':
     # append tasks to asynchronous results list
     arl = []
     for i in range(len(scanpartition)):
-        arl.append(pool.apply_async(Analyze, (scanpartition[i], seqpartition[i], genorder, MODE, useroutputlist, mod)))
+        arl.append(
+            pool.apply_async(
+                Analyze,
+                (
+                    scanpartition[i],
+                    seqpartition[i],
+                    genorder,
+                    MODE,
+                    useroutputlist,
+                    mod,
+                ),
+            )
+        )
 
     print("Submitted tasks:", len(arl))
     print("\nPARALLEL COMPUTATION\n--------------------")
