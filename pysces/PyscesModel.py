@@ -107,8 +107,9 @@ if (
 else:
     if not __SILENT_START__:
         print(
-            'You are using NumPy (%s) with SciPy (%s)'
-            % (numpy.__version__, scipy.__version__)
+            'You are using NumPy ({}) with SciPy ({})'.format(
+                numpy.__version__, scipy.__version__
+            )
         )
 
 _HAVE_PYSUNDIALS = False
@@ -120,7 +121,7 @@ try:
         print('PySundials available')
     _HAVE_PYSUNDIALS = True
 except Exception as ex:
-    _PYSUNDIALS_LOAD_ERROR = '%s' % ex
+    _PYSUNDIALS_LOAD_ERROR = '{}'.format(ex)
     _HAVE_PYSUNDIALS = False
 
 # We now welcome a prototype StomPy interface to PySCeS which will provide expanding stochastic simulation support.
@@ -700,7 +701,7 @@ class StateDataObj(object):
                 lout.append(roc)
                 output.append(self.xdata[self.xdata_labels.index(roc)])
             else:
-                print('I don\'t have an attribute %s ... ignoring.' % roc)
+                print('I don\'t have an attribute {} ... ignoring.'.format(roc))
         if not lbls:
             return output
         else:
@@ -898,7 +899,7 @@ class IntegrationDataObj(object):
             bounds = temp_t[1] - temp_t[0]
         c1 = temp_t >= time - bounds
         c2 = temp_t <= time + bounds
-        print('Searching (%s:%s:%s)' % (time - bounds, time, time + bounds))
+        print('Searching ({}:{}:{})'.format(time - bounds, time, time + bounds))
 
         t = []
         sp = None
@@ -1072,10 +1073,12 @@ class ReactionObj(NewCoreBase):
         formula = InfixParser.output
         # this code has to stay together #
         for pw in InfixParser.piecewises:
-            formula = formula.replace('self.mod.%s' % pw, 'self.mod.%s()' % pw)
+            formula = formula.replace(
+                'self.mod.{}'.format(pw), 'self.mod.{}()'.format(pw)
+            )
         # this code has to stay together #
-        self.code_string = 'self.rate=%s' % formula
-        self.xcode = compile(self.code_string, 'Req: %s' % self.name, 'exec')
+        self.code_string = 'self.rate={}'.format(formula)
+        self.xcode = compile(self.code_string, 'Req: {}'.format(self.name), 'exec')
         self.formula = (
             kl.replace(klrepl, '')
             .replace('numpy.', '')
@@ -1132,8 +1135,8 @@ class Function(NewCoreBase):
         self.piecewises = InfixParser.piecewises
         self.symbols = InfixParser.names
         self.functions = InfixParser.functions
-        self.code_string = 'self.value=%s' % InfixParser.output
-        self.xcode = compile(self.code_string, 'Func: %s' % self.name, 'exec')
+        self.code_string = 'self.value={}'.format(InfixParser.output)
+        self.xcode = compile(self.code_string, 'Func: {}'.format(self.name), 'exec')
 
 
 # adapted from core2
@@ -1155,7 +1158,7 @@ class EventAssignment(NumberBase):
     def __call__(self):
         setattr(self.mod, self.variable, self.value)
         if self.__DEBUG__:
-            print('\tAssigning %s = %s' % (self.variable, self.value))
+            print('\tAssigning {} = {}'.format(self.variable, self.value))
         return True
 
     def __init__(self, name, mod):
@@ -1172,8 +1175,8 @@ class EventAssignment(NumberBase):
         InfixParser.parse(formula)
         self.piecewises = InfixParser.piecewises
         self.symbols = InfixParser.names
-        self.code_string = 'self.value=%s' % InfixParser.output
-        self.xcode = compile(self.code_string, 'EvAs: %s' % self.name, 'exec')
+        self.code_string = 'self.value={}'.format(InfixParser.output)
+        self.xcode = compile(self.code_string, 'EvAs: {}'.format(self.name), 'exec')
         ##  print '\t', self.name, self.code_string
 
     def evaluateAssignment(self):
@@ -1222,15 +1225,16 @@ class Event(NewCoreBase):
             self._need_action = True
             self._ASS_TIME_ = time + self.delay
             if self.__DEBUG__:
-                print('\nevent %s is evaluating at %s' % (self.name, time))
+                print('\nevent {} is evaluating at {}'.format(self.name, time))
             ret = True
         if self._need_action and self._TIME_ >= self._ASS_TIME_:
             for ass in self.assignments:
                 ass()
             if self.__DEBUG__:
                 print(
-                    'event %s is assigning at %s (delay=%s)'
-                    % (self.name, time, self.delay)
+                    'event {} is assigning at {} (delay={})'.format(
+                        self.name, time, self.delay
+                    )
                 )
             self._need_action = False
             ret = True
@@ -1248,8 +1252,8 @@ class Event(NewCoreBase):
         InfixParser.parse(formula)
         self.piecewises = InfixParser.piecewises
         self.symbols = InfixParser.names
-        self.code_string = 'self.state=%s' % InfixParser.output
-        self.xcode = compile(self.code_string, 'Ev: %s' % self.name, 'exec')
+        self.code_string = 'self.state={}'.format(InfixParser.output)
+        self.xcode = compile(self.code_string, 'Ev: {}'.format(self.name), 'exec')
         ##  print self.name, self.code_string
 
     def setAssignment(self, var, formula):
@@ -1290,7 +1294,9 @@ class PieceWise(NewCoreBase):
         pwd = pwd.copy()
         self.mod = mod
         if pwd['other'] != None:
-            other = 'self.value = %s' % pwd.pop('other').replace('self.', 'self.mod.')
+            other = 'self.value = {}'.format(
+                pwd.pop('other').replace('self.', 'self.mod.')
+            )
         else:
             other = 'pass'
             pwd.pop('other')
@@ -1309,10 +1315,8 @@ class PieceWise(NewCoreBase):
             ##  InfixParser.setNameStr('self.mod.', '')
             ##  InfixParser.parse(thenStat)
             ##  thenStat = InfixParser.output
-            self.code_string = 'if %s:\n    self.value = %s\nelse:\n    %s' % (
-                formula,
-                thenStat,
-                other,
+            self.code_string = 'if {}:\n    self.value = {}\nelse:\n    {}'.format(
+                formula, thenStat, other,
             )
             self.formula = self.code_string.replace('self.', '')
         else:
@@ -1327,7 +1331,7 @@ class PieceWise(NewCoreBase):
             ##  InfixParser.setNameStr('self.mod.', '')
             ##  InfixParser.parse(thenStat)
             ##  thenStat = InfixParser.output
-            self.code_string = 'if %s:\n    self.value = %s\n' % (formula, thenStat)
+            self.code_string = 'if {}:\n    self.value = {}\n'.format(formula, thenStat)
             pwd.pop(0)
             for p in pwd:
                 formula = pwd[p][0]
@@ -1342,11 +1346,10 @@ class PieceWise(NewCoreBase):
                 ##  InfixParser.setNameStr('self.mod.', '')
                 ##  InfixParser.parse(thenStat)
                 ##  thenStat = InfixParser.output
-                self.code_string += 'elif %s:\n    self.value = %s\n' % (
-                    formula,
-                    thenStat,
+                self.code_string += 'elif {}:\n    self.value = {}\n'.format(
+                    formula, thenStat,
                 )
-            self.code_string += 'else:\n    %s' % other
+            self.code_string += 'else:\n    .format'.format(other)
             self.formula = self.code_string.replace('self.', '')
         self.xcode = compile(self.code_string, 'PieceWise', 'exec')
 
@@ -1659,7 +1662,7 @@ class PysMod(object):
         if piecewises != None and len(list(piecewises.keys())) > 0:
             self.__HAS_PIECEWISE__ = True
             for p in piecewises:
-                print('Info: adding piecewise object: %s' % p)
+                print('Info: adding piecewise object: {}'.format(p))
                 # if len(piecewises[p].keys()) == 2:
                 # piecewises[p][0].reverse() # only for libsbml generated infix
                 self.__piecewises__.update({p: piecewises[p]})
@@ -1699,7 +1702,7 @@ class PysMod(object):
             print('Assuming extension is .psc')
             self.ModelFile += '.psc'
 
-        print('\nParsing file: %s' % os.path.join(self.ModelDir, self.ModelFile))
+        print('\nParsing file: {}'.format(os.path.join(self.ModelDir, self.ModelFile)))
 
         pscParser.ParsePSC(self.ModelFile, self.ModelDir, self.ModelOutput)
         print(' ')
@@ -1822,7 +1825,7 @@ class PysMod(object):
             print('\nERROR: model parsing error, please check input file.\n')
         # added in a check for model correctness and human error reporting (1=ok, 0=error)
         if len(pscParser.SymbolErrors) != 0:
-            print('\nUndefined symbols:\n%s' % self.SymbolErrors)
+            print('\nUndefined symbols:\n{}'.format(pscParser.SymbolErrors))
         if not pscParser.ParseOK:
             print(
                 '\n\n*****\nModel parsing errors detected in input file '
@@ -1877,7 +1880,9 @@ class PysMod(object):
                 formula = InfixParser.output
                 # this code has to stay together #
                 for pw in InfixParser.piecewises:
-                    formula = formula.replace('self.%s' % pw, 'self.%s()' % pw)
+                    formula = formula.replace(
+                        'self.{}'.format(pw), 'self.{}()'.format(pw)
+                    )
                 self.__ParsePiecewiseFunctions__(InfixParser.piecewises)
                 # this code has to stay together #
                 assignment_rules[ar]['code_string'] = formula
@@ -1898,9 +1903,8 @@ class PysMod(object):
                 keep += dep
                 rules = indep
             for ar in indep + keep:
-                evalCode = 'self.%s = %s\n' % (
-                    assignment_rules[ar]['name'],
-                    assignment_rules[ar]['code_string'],
+                evalCode = 'self.{} = {}\n'.format(
+                    assignment_rules[ar]['name'], assignment_rules[ar]['code_string'],
                 )
                 self._NewRuleXCode.update({assignment_rules[ar]['name']: evalCode})
                 code_string += evalCode
@@ -1920,7 +1924,9 @@ class PysMod(object):
                 formula = InfixParser.output
                 # this code has to stay together #
                 for pw in InfixParser.piecewises:
-                    formula = formula.replace('self.%s' % pw, 'self.%s()' % pw)
+                    formula = formula.replace(
+                        'self.{}'.format(pw), 'self.{}()'.format(pw)
+                    )
                 self.__ParsePiecewiseFunctions__(InfixParser.piecewises)
                 # this code has to stay together #
                 symbR.update({assignment_rules[ass]['name']: formula})
@@ -1959,17 +1965,19 @@ class PysMod(object):
                 rate_rules[ar]['symbols'] = InfixParser.names
                 # this code has to stay together #
                 for pw in InfixParser.piecewises:
-                    formula = formula.replace('self.%s' % pw, 'self.%s()' % pw)
+                    formula = formula.replace(
+                        'self.{}'.format(pw), 'self.{}()'.format(pw)
+                    )
                 self.__ParsePiecewiseFunctions__(InfixParser.piecewises)
                 # this code has to stay together #
                 rate_rules[ar]['code_string'] = formula
                 self.__rate_rules__.append(name)
-                rr_code_block += 'self.__rrule__[%s] = %s\n' % (cntr, formula)
+                rr_code_block += 'self.__rrule__[{}] = {}\n'.format(cntr, formula)
                 ##  rr_code_block += 'self.%s = self.__rrule__[%s]\n' % (name, cntr)
-                rr_map_block += 'self.%s = self.__rrule__[%s]\n' % (name, cntr)
+                rr_map_block += 'self.{} = self.__rrule__[{}]\n'.format(name, cntr)
                 cntr += 1
                 # create mod.<rule name>_init attributes
-                setattr(self, '%s_init' % name, getattr(self, name))
+                setattr(self, '{}_init'.format(name), getattr(self, name))
             os.chdir(self.ModelOutput)
             print('Rate rule(s) detected.')
         else:
@@ -2134,9 +2142,10 @@ class PysMod(object):
         else:
             print('\nStoichiometric override active\n')
 
-        assert len(self.__nmatrix__) > 0, (
-            '\nUnable to generate Stoichiometric Matrix! model has:\n%s reactions\n%s species\nwhat did you have in mind?\n'
-            % (len(self.__reactions__), len(self.__species__))
+        assert (
+            len(self.__nmatrix__) > 0
+        ), '\nUnable to generate Stoichiometric Matrix! model has:\n{} reactions\n{} species\nwhat did you have in mind?\n'.format(
+            len(self.__reactions__), len(self.__species__)
         )
 
         self.__Nshape__ = self.__nmatrix__.shape  # Get the shape of N
@@ -2537,7 +2546,7 @@ class PysMod(object):
                 ##  self.__settings__['compartment_fudge_factor'] = 10.0**round(numpy.log10(tmp))
                 self.__settings__[
                     'compartment_fudge_factor'
-                ] = tmp  # sneaky b%*))_)%$^&*@rds
+                ] = tmp  # sneaky b*))_)$^&*@rds
                 ##  print 'compartment_fudge_factor', self.__settings__['compartment_fudge_factor']
             for c in list(self.__compartments__.keys()):
                 if self.__settings__['compartment_fudge_factor'] < startFudging:
@@ -2546,8 +2555,9 @@ class PysMod(object):
                         / self.__settings__['compartment_fudge_factor']
                     )
                     print(
-                        'INFO: Rescaling compartment with size %s to %s'
-                        % (self.__compartments__[c]['size'], newsize)
+                        'INFO: Rescaling compartment with size {} to {}'.format(
+                            self.__compartments__[c]['size'], newsize
+                        )
                     )
                     self.__compartments__[c]['size'] = newsize
                     self.__compartments__[c].update(
@@ -2561,7 +2571,7 @@ class PysMod(object):
                 )
                 setattr(
                     self,
-                    '%s_init' % self.__compartments__[c]['name'],
+                    '{}_init'.format(self.__compartments__[c]['name']),
                     self.__compartments__[c]['size'],
                 )
         if self.__HAS_COMPARTMENTS__:
@@ -2574,8 +2584,7 @@ class PysMod(object):
                         list(self.__compartments__.keys())[0]
                     ]['name']
                     print(
-                        'COMPARTMENT WARNING: this model has a compartment defined %s but \"%s\" is not in it ... I\'ll try it for now'
-                        % (
+                        'COMPARTMENT WARNING: this model has a compartment defined {} but \"{}\" is not in it ... I\'ll try it for now'.format(
                             [
                                 self.__compartments__[c]['name']
                                 for c in list(self.__compartments__.keys())
@@ -3214,7 +3223,7 @@ class PysMod(object):
                         if init not in symbolsX:
                             symbolsX.append(init)
                         functions = InfixParser.functions
-                        code_string = 'self.%s = %s' % (init, InfixParser.output)
+                        code_string = 'self.{} = {}'.format(init, InfixParser.output)
                         xcode = compile(code_string, '_InitAss_', 'exec')
                         exprsAss.append((init, xcode, symbols))
                         # setattr(self, init, eval(xcode))
@@ -3269,10 +3278,9 @@ class PysMod(object):
         mapString = ''
         mapString_R = ''
         for x in range(0, len(self.__species__)):
-            mapString += 'self.%s = s[%s]\n' % (self.__species__[x], x)
-            mapString_R += 'self.__inspec__[%s] = self.%s_init\n' % (
-                x,
-                self.__species__[x],
+            mapString += 'self.{} = s[{}]\n'.format(self.__species__[x], x)
+            mapString_R += 'self.__inspec__[{}] = self.{}_init\n'.format(
+                x, self.__species__[x],
             )
         ##  print mapString_R
         # this creates the mapping string for the derivative functions
@@ -3306,7 +3314,7 @@ class PysMod(object):
         for x in range(0, len(self.__reactions__)):
             req1 = self.__nDict__[self.__reactions__[x]]['RateEq']
             ##  DvOrder.append(self.__reactions__[x])
-            vString += 'Vtemp[%s] = self.%s()\n' % (x, self.__reactions__[x])
+            vString += 'Vtemp[{}] = self.{}()\n'.format(x, self.__reactions__[x])
 
             # Core update inspired by Core2, lambda functions replaced by Reaction instances
 
@@ -3340,7 +3348,9 @@ class PysMod(object):
                     rrobj.compartment == None
                     and self.__settings__['display_compartment_warnings']
                 ):
-                    warnings += "# %s is not located in a compartment.\n" % rrobj.name
+                    warnings += "# {} is not located in a compartment.\n".format(
+                        rrobj.name
+                    )
                 else:
                     for comp in cnames:
                         if comp in rrobj.symbols:
@@ -3349,9 +3359,8 @@ class PysMod(object):
                         else:
                             warn = True
                     if warn:
-                        warnings += (
-                            "# %s: %s\n#  assuming kinetic constants are flow constants.\n"
-                            % (rr, rrobj.formula)
+                        warnings += "# {}: {}\n#  assuming kinetic constants are flow constants.\n".format(
+                            rr, rrobj.formula
                         )
             if warnings != '' and self.__settings__['display_compartment_warnings']:
                 print('\n# -- COMPARTMENT WARNINGS --')
@@ -3407,10 +3416,10 @@ class PysMod(object):
             key = self.__species__[x]
             ##  self.__inspec__[x] = eval(key)
             self.__inspec__[x] = getattr(self, key)
-            mvarString += 'self.__inspec__[%s] = float(self.%s)\n' % (x, key)
-            self.__remaps += 'self.%s = self.%s_ss\n' % (key, key)
+            mvarString += 'self.__inspec__[{}] = float(self.{})\n'.format(x, key)
+            self.__remaps += 'self.{} = self.{}_ss\n'.format(key, key)
             sOrder.append('self.' + key)
-            DvarUpString += 'self.%s = input[%s]\n' % (self.__species__[x], x)
+            DvarUpString += 'self.{} = input[{}]\n'.format(self.__species__[x], x)
 
         if self.__settings__['display_debug'] == 1:
             print('s_initDeriv')
@@ -3444,8 +3453,10 @@ class PysMod(object):
         par_map2store = ''
         par_remap = ''
         for x in range(len(self.__parameters__)):
-            par_map2store += 'parVal_hold[%s] = self.%s\n' % (x, self.__parameters__[x])
-            par_remap += 'self.%s = parVal_hold[%s]\n' % (self.__parameters__[x], x)
+            par_map2store += 'parVal_hold[{}] = self.{}\n'.format(
+                x, self.__parameters__[x]
+            )
+            par_remap += 'self.{} = parVal_hold[{}]\n'.format(self.__parameters__[x], x)
 
         if self.__settings__['display_debug'] == 1:
             print('par_map2store')
@@ -3675,8 +3686,9 @@ class PysMod(object):
         sim_res, rates, simOK = self.CVODE(None)
         Tsim1 = time.time()
         print(
-            "%s time for %s points: %s"
-            % (self.mode_integrator, len(self.sim_time), Tsim1 - Tsim0)
+            "{} time for {} points: {}".format(
+                self.mode_integrator, len(self.sim_time), Tsim1 - Tsim0
+            )
         )
 
         if self.__HAS_RATE_RULES__:
@@ -3711,9 +3723,10 @@ class PysMod(object):
         initial: vector containing initial species concentrations
 
         """
-        assert _HAVE_PYSUNDIALS, (
-            '\nPySundials is not installed or did not import correctly\n%s'
-            % _PYSUNDIALS_LOAD_ERROR
+        assert (
+            _HAVE_PYSUNDIALS
+        ), '\nPySundials is not installed or did not import correctly\n{}'.format(
+            _PYSUNDIALS_LOAD_ERROR
         )
         Vtemp = numpy.zeros((self.__Nshape__[1]))
 
@@ -3782,8 +3795,9 @@ class PysMod(object):
                     out.append(d)
                 else:
                     print(
-                        '\nWarning: CVODE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species or rate.\n'
-                        % d
+                        '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
+                            d
+                        )
                     )
             if len(out) > 0:
                 self.CVODE_extra_output = out
@@ -3880,8 +3894,8 @@ class PysMod(object):
                 cvode.CVodeSetTolerances(
                     self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
                 )
-                ##  print '\nCVODE: new tolerance set:\nreltol=%s' % reltol.value
-                ##  print '\nAbs tolerance:\n%s' % abstol
+                ##  print '\nCVODE: new tolerance set:\nreltol={}'.format(reltol.value)
+                ##  print '\nAbs tolerance:\n{}'.format(abstol)
                 TOL_ADJUSTER = 0
             if (st in cvode_scale_range) and self.__settings__["cvode_auto_tol_adjust"]:
                 for s in range(len(self.__CVODE_y__)):
@@ -3890,7 +3904,7 @@ class PysMod(object):
                         abstol[s] = MIN_ABS_TOL
                     else:
                         abstol[s] = newVal
-                ##  print '\nCVODE: new tolerance set, abstol:\n%s' % abstol
+                ##  print '\nCVODE: new tolerance set, abstol:\n{}'.format(abstol)
                 cvode.CVodeSetTolerances(
                     self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
                 )
@@ -4090,8 +4104,9 @@ class PysMod(object):
                         output[st] = numpy.NaN
                         break
                     print(
-                        'mxstep warning (%s) mxstep set to %s'
-                        % (flag, self.__settings__["cvode_mxstep"])
+                        'mxstep warning ({}) mxstep set to {}'.format(
+                            flag, self.__settings__["cvode_mxstep"]
+                        )
                     )
                     cvode.CVodeSetMaxNumSteps(
                         self.__CVODE_mem__, self.__settings__["cvode_mxstep"]
@@ -4129,15 +4144,15 @@ class PysMod(object):
 
             print("\nFinal Statistics:")
             print(
-                "nst = %-6i nfe  = %-6i nsetups = %-6i nfeLS = %-6i nje = %i"
-                % (nst, nfe, nsetups, nfeLS, nje)
+                "nst = {} nfe  = {} nsetups = {} nfeLS = {} nje = {}".format(
+                    nst, nfe, nsetups, nfeLS, nje
+                )
             )
             print(
-                "nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n "
-                % (nni, ncfn, netf, nge)
+                "nni = {} ncfn = {} netf = {} nge = {}\n ".format(nni, ncfn, netf, nge)
             )
-            print('reltol = %s' % reltol)
-            print('abstol:\n%s' % abstol)
+            print('reltol = {}'.format(reltol))
+            print('abstol:\n{}'.format(abstol))
 
         if cvode.CV_SUCCESS >= 0:
             return output, rates, True
@@ -4452,11 +4467,11 @@ class PysMod(object):
         while GO:
             if BRETT_DEBUG_MODE:
                 print('s_scale', s_scale)
-                print('ierr(%s) = %s' % (iter, ierr))
-                print('rtol(%s) = %s' % (iter, rtol))
-                print('nitmax(%s) = %s' % (iter, iwk[30]))
-                print('s_scale(%s) = %s' % (iter, s_scale))
-                print('max_iter(%s) = %s' % (iter, max_iter))
+                print('ierr({}) = {}'.format(iter, ierr))
+                print('rtol({}) = {}'.format(iter, rtol))
+                print('nitmax({}) = {}'.format(iter, iwk[30]))
+                print('s_scale({}) = {}'.format(iter, s_scale))
+                print('max_iter({}) = {}'.format(iter, max_iter))
 
             res, s_scale, rtol, iopt, ierr = nleq2.nleq2(
                 func, jacfunc, initial, s_scale, rtol, iopt, iwk, rwk
@@ -4479,13 +4494,13 @@ class PysMod(object):
             iter += 1
 
         if BRETT_DEBUG_MODE and ierr > 0:
-            print('ierr = %s' % (ierr))
+            print('ierr = {}'.format(ierr))
             print(res)
             time.sleep(5)
 
         if ierr > 0:
             if self.__settings__['nleq2_mesg']:
-                print('(nleq2) exits with ierr = %s' % ierr)
+                print('(nleq2) exits with ierr = {}'.format(ierr))
         else:
             if self.__settings__['nleq2_mesg']:
                 print('(nleq2) The solution converged.')
@@ -4827,9 +4842,11 @@ class PysMod(object):
         # initialise __rrule__ to mod.<rule>_init
         if self.__HAS_RATE_RULES__:
             for r in range(len(self.__rate_rules__)):
-                self.__rrule__[r] = getattr(self, '%s_init' % self.__rate_rules__[r])
+                self.__rrule__[r] = getattr(
+                    self, '{}_init'.format(self.__rate_rules__[r])
+                )
         for c in range(len(self.__CsizeAllIdx__)):
-            cval = getattr(self, '%s_init' % self.__CsizeAllIdx__[c])
+            cval = getattr(self, '{}_init'.format(self.__CsizeAllIdx__[c]))
             setattr(self, self.__CsizeAllIdx__[c], cval)
             self.__CsizeAll__[c] = cval
         # set initialisation array to amounts
@@ -4907,8 +4924,9 @@ class PysMod(object):
         Tsim1 = time.time()
         if self.__settings__['lsoda_mesg']:
             print(
-                "%s time for %s points: %s"
-                % (self.mode_integrator, len(self.sim_time), Tsim1 - Tsim0)
+                "{} time for {} points: {}".format(
+                    self.mode_integrator, len(self.sim_time), Tsim1 - Tsim0
+                )
             )
 
         if self.__HAS_RATE_RULES__:
@@ -4971,10 +4989,12 @@ class PysMod(object):
         # initialise __rrule__ to mod.<rule>_init
         if self.__HAS_RATE_RULES__:
             for r in range(len(self.__rate_rules__)):
-                self.__rrule__[r] = getattr(self, '%s_init' % self.__rate_rules__[r])
+                self.__rrule__[r] = getattr(
+                    self, '{}_init'.format(self.__rate_rules__[r])
+                )
         # set compartment values to initial values
         for c in range(len(self.__CsizeAllIdx__)):
-            cval = getattr(self, '%s_init' % self.__CsizeAllIdx__[c])
+            cval = getattr(self, '{}_init'.format(self.__CsizeAllIdx__[c]))
             setattr(self, self.__CsizeAllIdx__[c], cval)
             self.__CsizeAll__[c] = cval
         # set initialisation array to amounts
@@ -5086,9 +5106,10 @@ class PysMod(object):
             available_solvers.append('FINTSLV')
 
         if not self.mode_solver_fallback == 1:
-            assert self.mode_solver in available_solvers, (
-                '\nERROR: %s is not a valid (%s) solver!'
-                % (solver, str(available_solvers))
+            assert (
+                self.mode_solver in available_solvers
+            ), '\nERROR: {} is not a valid ({}) solver!'.format(
+                solver, str(available_solvers)
             )
             available_solvers = [self.mode_solver]
 
@@ -5111,8 +5132,9 @@ class PysMod(object):
                     out.append(d)
                 else:
                     print(
-                        '\nWARNING: STATE is ignoring extra data (%s), it either doesn\'t exist or it\'s a species, rate or rule.\n'
-                        % d
+                        '\nWARNING: STATE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species, rate or rule.\n'.format(
+                            d
+                        )
                     )
             if len(out) > 0:
                 self.STATE_extra_output = out
@@ -5157,8 +5179,9 @@ class PysMod(object):
                     slv_idx = available_solvers.index(solver)
                     if slv_idx != len(available_solvers) - 1:
                         print(
-                            'INFO: STATE is switching to %s solver.'
-                            % available_solvers[slv_idx + 1]
+                            'INFO: STATE is switching to {} solver.'.format(
+                                available_solvers[slv_idx + 1]
+                            )
                         )
                     else:
                         print('INFO: STATE calculation failed!')
@@ -5352,7 +5375,7 @@ class PysMod(object):
         """
         Ostr = ''
         for row in range(self.__kzeromatrix__.shape[0]):
-            Ostr += "%s =" % self.reactions[self.kzeromatrix_row[row]]
+            Ostr += "{} =".format(self.reactions[self.kzeromatrix_row[row]])
             for col in range(self.__kzeromatrix__.shape[1]):
                 if self.__kzeromatrix__[row, col] != 0.0:
                     if self.__kzeromatrix__[row, col] > 0.0:
@@ -5530,8 +5553,9 @@ class PysMod(object):
             for x in range(len(input2)):
                 if abs(input2[x]) <= val:
                     print(
-                        'Info: zero flux detected: J_%s set to %s'
-                        % (self.reactions[x], val)
+                        'Info: zero flux detected: J_{} set to {}'.format(
+                            self.reactions[x], val
+                        )
                     )
                     input2[x] = val
         if self.__settings__['elas_zero_conc_fix']:
@@ -5539,8 +5563,9 @@ class PysMod(object):
             for x in range(len(input)):
                 if abs(input[x]) <= val:
                     print(
-                        'Info: zero concentration detected: %s set to %s'
-                        % (self.species[x], val)
+                        'Info: zero concentration detected: {} set to {}'.format(
+                            self.species[x], val
+                        )
                     )
                     input[x] = val
 
@@ -5572,9 +5597,10 @@ class PysMod(object):
                 # this modification should make this independant of a steady state - finally implimented july2004
                 # eval('self.'+ self.__species__[met] + '_ss'),order=self.__settings__['mode_elas_deriv_order'],dx=hstep,n=1,\
                 try:
-                    """ I got the idea of scaling the stepsize to So from Herbert Sauro's Jarnac TModel.uEEOp function
-
-                    brett - 20040818"""
+                    """
+                    I borrowed the idea of scaling the stepsize to So from Herbert Sauro's Jarnac TModel.uEEOp function
+                    brett - 2004-08-18
+                    """
 
                     hstep = (
                         input[met] * self.__settings__['mode_elas_deriv_factor']
@@ -5643,8 +5669,9 @@ class PysMod(object):
                 Dj[x, x] = 1.0 / input2[x]
                 if self.__settings__['elas_scaling_div0_fix'] and numpy.isinf(Dj[x, x]):
                     print(
-                        'Infinite elasticity detected during scaling setting to zero (%s)'
-                        % self.reactions[x]
+                        'Infinite elasticity detected during scaling setting to zero ({})'.format(
+                            self.reactions[x]
+                        )
                     )
                     Dj[x, x] = 1.0e-16
             # print Dj
@@ -5855,8 +5882,9 @@ class PysMod(object):
                 Dj[x, x] = 1.0 / input2[x]
                 if self.__settings__['elas_scaling_div0_fix'] and numpy.isinf(Dj[x, x]):
                     print(
-                        'Infinite elasticity detected during scaling setting to zero (%s)'
-                        % self.reactions[x]
+                        'Infinite elasticity detected during scaling setting to zero ({})'.format(
+                            self.reactions[x]
+                        )
                     )
                     Dj[x, x] = 1.0e-16
             # print Dj
@@ -7648,8 +7676,9 @@ class PysMod(object):
             out_list.append('\n# Assignment rules\n')
             for ass in self.__rules__:
                 out_list.append(
-                    '!F %s = %s\n'
-                    % (self.__rules__[ass]['name'], self.__rules__[ass]['formula'])
+                    '!F {} = {}\n'.format(
+                        self.__rules__[ass]['name'], self.__rules__[ass]['formula']
+                    )
                 )
             out_list.append('\n')
         if File != None:
@@ -7730,9 +7759,8 @@ class PysMod(object):
         if self.__HAS_RATE_RULES__:
             odes += "\n## Rate Rules:\n"
             for rule in self.__rate_rules__:
-                odes += "d%s | %s\n" % (
-                    rule,
-                    self.__rules__[rule]['formula'].replace('()', ''),
+                odes += "d{} | {}\n".format(
+                    rule, self.__rules__[rule]['formula'].replace('()', ''),
                 )
             odes += '\n'
 
@@ -7831,9 +7859,8 @@ class PysMod(object):
         if self.__HAS_RATE_RULES__:
             odes += "\n## Rate Rules:\n"
             for rule in self.__rate_rules__:
-                odes += "d%s | %s\n" % (
-                    rule,
-                    self.__rules__[rule]['formula'].replace('()', ''),
+                odes += "d{} | {}\n".format(
+                    rule, self.__rules__[rule]['formula'].replace('()', ''),
                 )
             odes += '\n'
 
@@ -8791,7 +8818,7 @@ class PysMod(object):
         allowedplots = ['all', 'species', 'rates']
         if type(plot) != list and plot not in allowedplots:
             raise RuntimeError(
-                '\nPlot must be one of %s not \"%s\"' % (str(allowedplots), plot)
+                '\nPlot must be one of {} not \"{}\"'.format(str(allowedplots), plot)
             )
         if plot == 'all':
             data, labels = self.data_sim.getAllSimData(lbls=True)
@@ -8836,13 +8863,13 @@ class PysMod(object):
         plt.setAxisLabel('x', xu)
 
         if plot == 'all':
-            yl = 'Rates, %s' % M
+            yl = 'Rates, {}'.format(M)
         elif plot == 'rates':
             yl = 'Rate'
         elif plot == 'species':
-            yl = '%s' % M
+            yl = '{}'.format(M)
         else:
-            yl = 'Rates, %s' % M
+            yl = 'Rates, {}'.format(M)
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
@@ -8950,19 +8977,21 @@ class PysMod(object):
                 elif x in self.reactions:
                     getattr(self.data_sstate, x)
                     print(
-                        "INFO: using steady-state flux for reaction (%s --> J_%s)"
-                        % (x, x)
+                        "INFO: using steady-state flux for reaction ({} --> J_%s)".format(
+                            x, x
+                        )
                     )
-                    self.scan_out[self.scan_out.index(x)] = 'J_%s' % x
+                    self.scan_out[self.scan_out.index(x)] = 'J_{}'.format(x)
                 elif x.startswith('J_'):
                     getattr(self.data_sstate, x[2:])
                 elif x in self.species:
                     getattr(self.data_sstate, x)
                     print(
-                        "INFO: using steady-state concentration for species (%s --> %s_ss)"
-                        % (x, x)
+                        "INFO: using steady-state concentration for species ({} --> {}_ss)".format(
+                            x, x
+                        )
                     )
-                    self.scan_out[self.scan_out.index(x)] = '%s_ss' % x
+                    self.scan_out[self.scan_out.index(x)] = '{}_ss'.format(x)
                 elif x.endswith('_ss'):
                     getattr(self.data_sstate, x[:-3])
                 else:
@@ -9161,7 +9190,7 @@ class PysMod(object):
 
         for p in [p1, p2]:
             if not hasattr(self, p[0]):
-                raise RuntimeError('\"%s\" is not a valid model attribute' % p[0])
+                raise RuntimeError('\"{}\" is not a valid model attribute'.format(p[0]))
 
         p1 = list(p1) + [log, False]
         p2 = list(p2) + [log, False]
@@ -9201,7 +9230,7 @@ class PysMod(object):
                 'PySCeS Scan2D ('
                 + self.ModelFile
                 + ') '
-                + time.strftime("%a, %d %b %Y %H:%M:%S")
+                + time.strftime("4a, %d %b %Y %H:%M:%S")
             )
         else:
             plt.setGraphTitle(title)
