@@ -126,7 +126,6 @@ except Exception as ex:
 
 # We now welcome a prototype StomPy interface to PySCeS which will provide expanding stochastic simulation support.
 
-
 # for future fun
 _HAVE_VPYTHON = False
 _VPYTHON_LOAD_ERROR = ''
@@ -8341,7 +8340,7 @@ class PysMod(object):
         self.__settings__['mode_number_format'] = '%2.4e'
 
     def Write_array(
-        self, input, File=None, Row=None, Col=None, close_file=0, separator='  '
+        self, inputd, File=None, Row=None, Col=None, close_file=0, separator='  '
     ):
         """
         Write_array(input,File=None,Row=None,Col=None,close_file=0,separator='  ')
@@ -8371,16 +8370,16 @@ class PysMod(object):
         )
 
         # seeing as row indexes are now tuples and not arrays - brett 20050713
-        if type(input) == tuple or type(input) == list:
-            input = numpy.array(input)
+        if type(inputd) == tuple or type(inputd) == list:
+            inputd = numpy.array(inputd)
 
         if Row != None:
             assert (
-                len(Row) == input.shape[0]
+                len(Row) == inputd.shape[0]
             ), 'len(Row) must be equal to len(input_row)'
         if Col != None:
             assert (
-                len(Col) == input.shape[1]
+                len(Col) == inputd.shape[1]
             ), 'len(Col) must be equal to len(input_col)'
 
         if File != None:
@@ -8394,18 +8393,18 @@ class PysMod(object):
                 File.write('#')
                 try:
                     input_width = (
-                        len(self.__settings__['mode_number_format'] % input[0, 0])
+                        len(self.__settings__['mode_number_format'] % inputd[0, 0])
                         + 1
                         + len(str(separator))
                     )
                 except:
                     input_width = (
-                        len(self.__settings__['mode_number_format'] % input[0])
+                        len(self.__settings__['mode_number_format'] % inputd[0])
                         + 1
                         + len(str(separator))
                     )
                 for x in Col:
-                    if len(str(x)) <= len(str(input[0, 0])):
+                    if len(str(x)) <= len(str(inputd[0, 0])):
                         spacer = (input_width - len(str(x))) * ' '
                         File.write(str(x) + spacer)
                     else:
@@ -8419,19 +8418,19 @@ class PysMod(object):
                 if self.__settings__['write_arr_lflush'] < 2:
                     print('INFO: LineFlush must be >= 2')
                     self.__settings__['write_arr_lflush'] = 2
-                for x in range(input.shape[0]):
+                for x in range(inputd.shape[0]):
                     flush_count += 1
-                    for y in range(input.shape[1]):
-                        if input[x, y] < 0.0:
+                    for y in range(inputd.shape[1]):
+                        if inputd[x, y] < 0.0:
                             File.write(
-                                self.__settings__['mode_number_format'] % input[x, y]
+                                self.__settings__['mode_number_format'] % inputd[x, y]
                             )
                         else:
                             File.write(
                                 ' '
-                                + self.__settings__['mode_number_format'] % input[x, y]
+                                + self.__settings__['mode_number_format'] % inputd[x, y]
                             )
-                        if y < input.shape[1] - 1:
+                        if y < inputd.shape[1] - 1:
                             File.write(separator)
                     File.write('\n')
                     if flush_count == self.__settings__['write_arr_lflush']:
@@ -8441,9 +8440,9 @@ class PysMod(object):
                 # File.write('\n')
             except IndexError as e:
                 print('\nWriting vector (normal) to file')
-                for x in range(len(input)):
-                    File.write(self.__settings__['mode_number_format'] % input[x])
-                    if x < len(input) - 1:
+                for x in range(len(inputd)):
+                    File.write(self.__settings__['mode_number_format'] % inputd[x])
+                    if x < len(inputd) - 1:
                         File.write(separator)
                 File.write('\n')
             if Row != None:
@@ -8459,7 +8458,7 @@ class PysMod(object):
                 'INFO: You need to supply an open writable file as the 2nd argument to this function'
             )
 
-    def Write_array_latex(self, input, File=None, Row=None, Col=None, close_file=0):
+    def Write_array_latex(self, inputa, File=None, Row=None, Col=None, close_file=0):
         """
         Write_array_latex(input,File=None,Row=None,Col=None,close_file=0)
 
@@ -8475,22 +8474,22 @@ class PysMod(object):
 
         """
         # seeing as row indexes are now tuples and not arrays - brett 20050713
-        if type(input) == tuple or type(input) == list:
-            input = numpy.array(input)
+        if type(inputa) == tuple or type(inputa) == list:
+            inputa = numpy.array(inputa)
 
         try:
-            a = input.shape[1]
+            a = inputa.shape[1]
         except:
-            input.shape = (1, input.shape[0])
+            inputa.shape = (1, inputa.shape[0])
 
         if Row != None:
             assert (
-                len(Row) == input.shape[0]
+                len(Row) == inputa.shape[0]
             ), 'len(Row) must be equal to len(input_row)'
             print('Writing row')
         if Col != None:
             assert (
-                len(Col) == input.shape[1]
+                len(Col) == inputa.shape[1]
             ), 'len(Col) must be equal to len(input_col)'
             print('Writing column')
 
@@ -8508,18 +8507,18 @@ class PysMod(object):
             # assert File != file, 'WriteArray(input,File=None,Row=None,Col=None,close_file=0)'
             File.write('\n%% ' + fname + '\n')
             try:
-                a = input.shape
+                a = inputa.shape
                 print('\nWriting array (LaTeX) to file')
                 File.write('\\[\n')
                 File.write('\\begin{array}{')
                 if Row != None:
                     File.write('r|')
-                for x in range(input.shape[1]):
+                for x in range(inputa.shape[1]):
                     File.write('r')
 
                 File.write('}\n ')
                 flush_count = 0
-                for x in range(input.shape[0]):
+                for x in range(inputa.shape[0]):
                     if Col != None and x == 0:
                         for el in range(len(Col)):
                             elx = str(Col[el]).replace('_', '\_')
@@ -8537,14 +8536,14 @@ class PysMod(object):
                         el2 = str(Row[x]).replace('_', '\\_')
                         File.write('$\\small{' + el2 + '}$ &')
 
-                    for y in range(input.shape[1]):
-                        if input[x, y] < 0.0:
-                            val = '%2.4f' % input[x, y]
+                    for y in range(inputa.shape[1]):
+                        if inputa[x, y] < 0.0:
+                            val = '%2.4f' % inputa[x, y]
                         else:
-                            val = ' ' + '%2.4f' % input[x, y]
+                            val = ' ' + '%2.4f' % inputa[x, y]
 
                         File.write(val)
-                        if y < input.shape[1] - 1:
+                        if y < inputa.shape[1] - 1:
                             File.write(' &')
                     File.write(' \\\\\n ')
                     if flush_count == self.__settings__['write_arr_lflush']:
@@ -8566,7 +8565,7 @@ class PysMod(object):
             )
 
     def Write_array_html(
-        self, input, File=None, Row=None, Col=None, name=None, close_file=0
+        self, inputa, File=None, Row=None, Col=None, name=None, close_file=0
     ):
         """
         Write_array_html(input,File=None,Row=None,Col=None,name=None,close_file=0)
@@ -8588,22 +8587,21 @@ class PysMod(object):
 
         """
         # seeing as row indexes are now tuples and not arrays - brett 20050713
-        if type(input) == tuple or type(input) == list:
-            input = numpy.array(input)
-
+        if type(inputa) == tuple or type(inputa) == list:
+            inputa = numpy.array(inputa)
         try:
-            a = input.shape[1]
+            a = inputa.shape[1]
         except:
-            input.shape = (1, input.shape[0])
+            inputa.shape = (1, inputa.shape[0])
 
         if Row != None:
             assert (
-                len(Row) == input.shape[0]
+                len(Row) == inputa.shape[0]
             ), 'len(Row) must be equal to len(input_row)'
             print('Writing row')
         if Col != None:
             assert (
-                len(Col) == input.shape[1]
+                len(Col) == inputa.shape[1]
             ), 'len(Col) must be equal to len(input_col)'
             print('Writing column')
         if self.__settings__['write_arr_lflush'] < 2:
@@ -8664,7 +8662,7 @@ class PysMod(object):
                 '\n<table border="1" cellpadding="2" cellspacing="2" bgcolor="#FFFFFF">'
             )
             try:
-                a = input.shape
+                a = inputa.shape
                 print('Writing array (HTML) to file')
 
                 double_index = 15
@@ -8679,7 +8677,7 @@ class PysMod(object):
                             + str(col)
                             + '</b></div></td>\n'
                         )
-                    if Row != None and input.shape[1] + 1 >= double_index:
+                    if Row != None and inputa.shape[1] + 1 >= double_index:
                         File.write('  <td>&nbsp;</td>\n')
                     File.write('</tr>')
 
@@ -8688,11 +8686,11 @@ class PysMod(object):
                 colour_count_col = 6
                 rowcntr = 0
                 html_colour = '#FFFFCC'
-                for x in range(input.shape[0]):
+                for x in range(inputa.shape[0]):
                     rowcntr += 1
                     if (
                         rowcntr == colour_count_row
-                        and input.shape[0] > 3 * colour_count_row
+                        and inputa.shape[0] > 3 * colour_count_row
                     ):
                         File.write('\n<tr bgcolor="' + html_colour + '">\n')
                         rowcntr = 0
@@ -8705,18 +8703,18 @@ class PysMod(object):
                             + '</b></div></td>\n'
                         )
                     colcntr = 0
-                    for y in range(input.shape[1]):
+                    for y in range(inputa.shape[1]):
                         colcntr += 1
                         if (
                             colcntr == colour_count_col
-                            and input.shape[1] > 3 * colour_count_row
+                            and inputa.shape[1] > 3 * colour_count_row
                         ):
                             File.write(
                                 '  <td nowrap bgcolor="'
                                 + html_colour
                                 + '">'
                                 + self.__settings__['write_array_html_format']
-                                % input[x, y]
+                                % inputa[x, y]
                                 + '</td>\n'
                             )
                             colcntr = 0
@@ -8724,11 +8722,11 @@ class PysMod(object):
                             File.write(
                                 '  <td nowrap>'
                                 + self.__settings__['write_array_html_format']
-                                % input[x, y]
+                                % inputa[x, y]
                                 + '</td>\n'
                             )
                     ##                        File.write('  <td nowrap>' + self.__settings__['write_array_html_format'] % input[x,y] + '</td>\n')
-                    if Row != None and input.shape[1] + 1 >= double_index:
+                    if Row != None and inputa.shape[1] + 1 >= double_index:
                         File.write(
                             '  <td bgcolor="#CCCCCC"><div align="center"><b>'
                             + Row[x]
@@ -8740,7 +8738,7 @@ class PysMod(object):
                         File.flush()
                         flush_count = 0
                         # print 'flushing'
-                if Col != None and input.shape[0] + 1 >= double_index:
+                if Col != None and inputa.shape[0] + 1 >= double_index:
                     File.write('\n<tr>\n')
                     if Row != None:
                         File.write('  <td>&nbsp;</td>\n')
@@ -8750,7 +8748,7 @@ class PysMod(object):
                             + col
                             + '</b></div></td>\n'
                         )
-                    if Row != None and input.shape[1] + 1 >= double_index:
+                    if Row != None and inputa.shape[1] + 1 >= double_index:
                         File.write('  <td>&nbsp;</td>\n')
                     File.write('</tr>\n')
             except:
@@ -9307,4 +9305,3 @@ __waste_manager = WasteManagement()
 
 if __name__ == '__main__':
     print('\nTo use PySCeS import it from a Python Shell: \n\timport pysces\n')
-    input('Press <enter> to continue')
