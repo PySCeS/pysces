@@ -2696,7 +2696,7 @@ class PysMod(object):
         """
         # TODO killkillkill
         self.__inspec__ = numpy.zeros((len(self.__species__)), 'd')
-        self.__D_s_Order, DvarUpString = self.__initvar__()  # Initialise s[] array
+        self._D_s_Order, DvarUpString = self.__initvar__()  # Initialise s[] array
 
         self.__CDvarUpString__ = compile(DvarUpString, 'DvarUpString', 'exec')
 
@@ -2709,7 +2709,7 @@ class PysMod(object):
         self.__tvec_a__ = None
         self.__tvec_c__ = None
 
-        self.__CVODE_Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
+        self._CVODE_Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
 
         #  #debug
         #  self.display_debugcount = 0
@@ -3819,9 +3819,9 @@ class PysMod(object):
             output[0, :] = out0
 
             if not self.mode_integrate_all_odes:
-                self._EvalODE(out0.copy(), self.__CVODE_Vtemp)
+                self._EvalODE(out0.copy(), self._CVODE_Vtemp)
             else:
-                self._EvalODE_CVODE(out0.copy(), self.__CVODE_Vtemp)
+                self._EvalODE_CVODE(out0.copy(), self._CVODE_Vtemp)
             rates[0] = self.__vvec__
 
             if CVODE_XOUT:
@@ -3995,9 +3995,9 @@ class PysMod(object):
                     # this gets everything into the current tout state
                     tmp = None
                     if not self.mode_integrate_all_odes:
-                        tmp = self._EvalODE(ya.copy(), self.__CVODE_Vtemp)
+                        tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
                     else:
-                        tmp = self._EvalODE_CVODE(ya.copy(), self.__CVODE_Vtemp)
+                        tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
                     del tmp
 
                     # here we regenerate Sd's and fix concentrations
@@ -4048,9 +4048,9 @@ class PysMod(object):
                     # this gets everything into the current tout state
                     tmp = None
                     if not self.mode_integrate_all_odes:
-                        tmp = self._EvalODE(ya.copy(), self.__CVODE_Vtemp)
+                        tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
                     else:
-                        tmp = self._EvalODE_CVODE(ya.copy(), self.__CVODE_Vtemp)
+                        tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
                     del tmp
                     # here we regenerate Sd's and fix concentrations
                     rrules = None
@@ -4165,9 +4165,9 @@ class PysMod(object):
         rrules = []
         tmp = None
         if not self.mode_integrate_all_odes:
-            tmp = self._EvalODE(svec.copy(), self.__CVODE_Vtemp)
+            tmp = self._EvalODE(svec.copy(), self._CVODE_Vtemp)
         else:
-            tmp = self._EvalODE_CVODE(svec.copy(), self.__CVODE_Vtemp)
+            tmp = self._EvalODE_CVODE(svec.copy(), self._CVODE_Vtemp)
         del tmp
         eventFired = False
         for ev in range(len(self.__events__)):
@@ -4262,7 +4262,7 @@ class PysMod(object):
 
             tmp = None
             for r in range(sim_res.shape[0]):
-                tmp = self._EvalODE(sim_res[r].copy(), self.__CVODE_Vtemp)
+                tmp = self._EvalODE(sim_res[r].copy(), self._CVODE_Vtemp)
                 # set with self._EvalODE above
                 rates[r] = self.__vvec__
             del tmp
@@ -5321,14 +5321,14 @@ class PysMod(object):
                         if self.conservation_matrix[Tlist[x], y] > 0.0:
                             # coeff = self.__settings__['mode_number_format'] % (s_init[y]*abs(conservation_matrix[Tlist[x],y]))
                             coeff = fmt % abs(self.conservation_matrix[Tlist[x], y])
-                            met = self.__D_s_Order[self.conservation_matrix_col[y]]
+                            met = self._D_s_Order[self.conservation_matrix_col[y]]
                             ConSumPstr += (
                                 ' + {' + coeff + '}' + met.replace('self.', '')
                             )
                         elif self.conservation_matrix[Tlist[x], y] < 0.0:
                             # coeff = self.__settings__['mode_number_format'] % (s_init[y]*abs(conservation_matrix[Tlist[x],y]))
                             coeff = fmt % abs(self.conservation_matrix[Tlist[x], y])
-                            met = self.__D_s_Order[self.conservation_matrix_col[y]]
+                            met = self._D_s_Order[self.conservation_matrix_col[y]]
                             ConSumPstr += (
                                 ' - {' + coeff + '}' + met.replace('self.', '')
                             )
@@ -5581,8 +5581,8 @@ class PysMod(object):
 
         # create tuples of the rows and columns for the Ev matrix
         self.elas_var_row = tuple(copy.copy(self.__reactions__))
-        col = copy.copy(self.__D_s_Order)
-        for x in range(len(self.__D_s_Order)):
+        col = copy.copy(self._D_s_Order)
+        for x in range(len(self._D_s_Order)):
             col[x] = col[x].replace('self.', '')
         self.elas_var_col = tuple(col)
         del col
@@ -5689,7 +5689,7 @@ class PysMod(object):
             for x in range(0, r):
                 react = self.__reactions__[x]
                 for y in range(0, c):
-                    met = self.__D_s_Order[y]
+                    met = self._D_s_Order[y]
                     if self.__settings__['mode_mca_scaled']:
                         setattr(
                             self,
@@ -5723,7 +5723,7 @@ class PysMod(object):
 
         if self.__settings__['display_debug'] == 1:
             print('\ne_vmatrix')
-            print(repr(self.__D_s_Order).replace('self.', ''))
+            print(repr(self._D_s_Order).replace('self.', ''))
             print(self.__reactions__)
             print(self.__evmatrix__)
 
@@ -5962,7 +5962,7 @@ class PysMod(object):
                         self.__settings__['mode_number_format']
                         % self.__evmatrix__[x, y]
                     )
-                    met = self.__D_s_Order[y]
+                    met = self._D_s_Order[y]
                     if self.__evmatrix__[x, y] != 0.0:
                         if self.__settings__['mode_mca_scaled']:
                             elas = '\\ec{' + react + '}{' + met + '} = ' + rtemp
@@ -6264,7 +6264,7 @@ class PysMod(object):
             Cirow.append(self.__reactions__[self.kmatrix_col[x]])
 
         for x in range(0, len(self.lmatrix_col)):
-            Cirow.append(self.__D_s_Order[self.lmatrix_col[x]].replace('self.', ''))
+            Cirow.append(self._D_s_Order[self.lmatrix_col[x]].replace('self.', ''))
 
         self.mca_ci_row = Cirow
         self.mca_ci_col = Cicol
@@ -6344,14 +6344,14 @@ class PysMod(object):
         xFactor = self.__lmatrix__.shape[0] - self.__lzeromatrix__.shape[0]
         for x in range(self.__lzeromatrix__.shape[0] - 1, -1, -1):
             Lo_row.append(
-                self.__D_s_Order[self.lzeromatrix_row[x]].replace('self.', '')
+                self._D_s_Order[self.lzeromatrix_row[x]].replace('self.', '')
             )
             for y in range(
                 self.__lzeromatrix__.shape[1] - 1, -1, -1
             ):  # this can be replaced by a row slice operation
                 sLo[x, y] = self.lmatrix_scaled[x + xFactor, y]
                 if x == 0:
-                    Lo_col.append(self.__D_s_Order[self.lzeromatrix_col[y]])
+                    Lo_col.append(self._D_s_Order[self.lzeromatrix_col[y]])
 
         Lo_row.reverse()
         Lo_col.reverse()
