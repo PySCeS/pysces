@@ -2597,15 +2597,14 @@ class PysMod(object):
                     self.__sDict__[sp]['compartment'] == None
                     and len(list(self.__compartments__.keys())) > 1
                 ):
-                    assert self.__sDict__[sp]['compartment'] != None, (
-                        '\nCOMPARTMENT ERROR: this model has multiple compartments defined %s but \"%s\" is not in one!'
-                        % (
-                            [
-                                self.__compartments__[c]['name']
-                                for c in list(self.__compartments__.keys())
-                            ],
-                            sp,
-                        )
+                    assert (
+                        self.__sDict__[sp]['compartment'] != None
+                    ), '\nCOMPARTMENT ERROR: this model has multiple compartments defined {} but \"{}\" is not in one!'.format(
+                        [
+                            self.__compartments__[c]['name']
+                            for c in list(self.__compartments__.keys())
+                        ],
+                        sp,
                     )
                 # brett 2008 fudge this!
                 if not self.__KeyWords__['Species_In_Conc'] and I_AM_FUDGING:
@@ -2614,10 +2613,11 @@ class PysMod(object):
                         / self.__settings__['compartment_fudge_factor']
                     )
                     setattr(self, sp, self.__sDict__[sp]['initial'])
-                    setattr(self, '%s_init' % sp, self.__sDict__[sp]['initial'])
+                    setattr(self, '{}_init'.format(sp), self.__sDict__[sp]['initial'])
                     print(
-                        'INFO: Rescaling species (%s) to size %s.'
-                        % (sp, self.__sDict__[sp]['initial'])
+                        'INFO: Rescaling species ({}) to size {}.'.format(
+                            sp, self.__sDict__[sp]['initial']
+                        )
                     )
 
         self.__CsizeAllIdx__ = []
