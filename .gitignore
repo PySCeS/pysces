@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 # C extensions
-# *.so
-# *.dll
+*.so
+*.dll
 
 # backup files
 *.bak
