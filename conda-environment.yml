@@ -1,0 +1,28 @@
+name: psc
+channels:
+  - defaults
+  - sbmlteam  
+  - conda-forge  
+dependencies:
+  - jupyter
+  - ipython
+  - pandas
+  - python-libsbml
+  - python=3.6
+  - scipy
+  - sympy
+  - conda-build
+  - wheel
+  - flask
+  - pyqt
+  - biopython
+  - pip
+  - assimulo
+  - pytest
+  - sundials
+  - numpy
+  - nose
+  - black
+  - matplotlib
+prefix: c:\Anaconda3\envs\psc
+

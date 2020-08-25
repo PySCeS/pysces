@@ -607,7 +607,7 @@ class PySCeSParser:
         if t.value in self.MathmlToNumpy_symb:
             if self.MathmlToNumpy_symb[t.value] == None:
                 self.SymbolErrors.append(t.value)
-                print('\nSymbol \"%s\" not yet supported by PySCeS.' % t.value)
+                print('\nSymbol \"{}\" not yet supported by PySCeS.'.format(t.value))
                 gt = 'unknown_symbol_' + t.value
                 t.value = gt
             else:
@@ -648,7 +648,7 @@ class PySCeSParser:
            #print 'Illegal character, Line ' + str(t.lineno) + ' :' + str(t.value[0])
         t.skip(1)
         '''
-        print("Illegal character '%s'" % t.value[0])
+        print("Illegal character '{}'".format(t.value[0]))
         self.LexErrors.append(t.value[0])
         self.LexOK = False
         t.lexer.skip(1)
@@ -854,7 +854,7 @@ class PySCeSParser:
                 operator = None
                 lhs = None
                 rhs = None
-                fid = 'fbnd_%i' % cntr
+                fid = 'fbnd_{}'.format(cntr)
                 for oper in ['>=', '<=', '>', '<', '=']:
                     if oper in oo:
                         bnd = oo.split(oper)
@@ -1001,7 +1001,7 @@ class PySCeSParser:
             # perform a lookup or implement a proxy class that can store
             # evaluated assignments
         except Exception as ex:
-            print('Initialisation error: %s' % t[3])
+            print('Initialisation error: {}'.format(t[3]))
             print(ex)
 
         self.sDict.update({name: {'name': name, 'initial': value}})
@@ -1225,15 +1225,14 @@ class PySCeSParser:
         # convert root(degree,<expr>) to pow(<expr>, 1/degree)
         if t[1].strip() == 'root':
             t[1] = self.MathmlToNumpy_funcs[t[1]]
-            t[3] = '%s, %s' % (
-                t[3][t[3].index(',') + 1 :],
-                1.0 / float(t[3][: t[3].index(',')]),
+            t[3] = '{}, {}'.format(
+                t[3][t[3].index(',') + 1 :], 1.0 / float(t[3][: t[3].index(',')]),
             )
             t[0] = t[1] + t[2] + t[3] + t[4]
         elif t[1] in self.MathmlToNumpy_funcs:
             if self.MathmlToNumpy_funcs[t[1]] == None:
                 self.SymbolErrors.append(t[1])
-                print('\nFunction \"%s\" not supported by PySCeS' % t[1])
+                print('\nFunction \"{}\" not supported by PySCeS'.format(t[1]))
                 t[0] = 'unknown_function_' + t[1] + t[2] + t[3] + t[4]
             else:
                 try:
@@ -1449,8 +1448,9 @@ class PySCeSParser:
             for reag in self.FixedReagents:
                 if reag not in self.Reagents:
                     print(
-                        'Warning: species "%s" (fixed) does not occur in any reaction'
-                        % reag.replace('self.', '')
+                        'Warning: species "{}" (fixed) does not occur in any reaction'.format(
+                            reag.replace('self.', '')
+                        )
                     )
 
         # for the initialised ones
@@ -1547,8 +1547,9 @@ class PySCeSParser:
                 ):
                     ##  print param, self.InitParams, self.pDict
                     print(
-                        'Warning: %s parameter "%s"  has not been initialised'
-                        % (id, param.replace('self.', ''))
+                        'Warning: {} parameter "{}"  has not been initialised'.format(
+                            id, param.replace('self.', '')
+                        )
                     )
                     pname = param.replace('self.', '')
                     self.pDict.update({pname: {'name': pname, 'initial': None}})
@@ -1558,13 +1559,15 @@ class PySCeSParser:
         for reag in self.species + self.FixedReagents:
             if reag not in self.Inits and reag in self.species:
                 print(
-                    'Warning: species "%s" has not been initialised'
-                    % reag.replace('self.', '')
+                    'Warning: species "{}" has not been initialised'.format(
+                        reag.replace('self.', '')
+                    )
                 )
             if reag not in self.Inits and reag in self.FixedReagents:
                 print(
-                    'Warning: species "%s" (fixed) has not been initialised'
-                    % reag.replace('self.', '')
+                    'Warning: species "{}" (fixed) has not been initialised'.format(
+                        reag.replace('self.', '')
+                    )
                 )
 
         # Check that all initialised parameters actually occur in self.Inits
@@ -1578,8 +1581,9 @@ class PySCeSParser:
                     known = 0
             if not known:
                 print(
-                    'Info: "%s" has been initialised but does not occur in a rate equation'
-                    % param.replace('self.', '')
+                    'Info: "{}" has been initialised but does not occur in a rate equation'.format(
+                        param.replace('self.', '')
+                    )
                 )
 
         # find modifiers for each reaction - brett 20050606
