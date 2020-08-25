@@ -2729,15 +2729,12 @@ class PysMod(object):
         self.__settings__['mach_floateps'] = mach_spec.eps
 
         # PySCeS mode switches
-        self.__settings__[
-            'mode_number_format'
-        ] = '%2.4e'  # this affects number output formatting in PySCeS)
-        self.__settings__[
-            'mode_sim_init'
-        ] = 0  # 0:initval, 1:zeroval, 2:lastss 3:sim_res[-1]
-        self.__settings__[
-            'mode_sim_max_iter'
-        ] = 3  # maximum number of auto-stepsize adjustments
+        # this affects number output formatting in PySCeS)
+        self.__settings__['mode_number_format'] = '%2.4e'
+        # 0:initval, 1:zeroval, 2:lastss 3:sim_res[-1]
+        self.__settings__['mode_sim_init'] = 0
+        # maximum number of auto-stepsize adjustments
+        self.__settings__['mode_sim_max_iter'] = 3
 
         # TODO UPGRADE
         self.mode_state_init = 0  # 0:initval, 1:zeroval, 2:sim, 3:%state
@@ -2745,75 +2742,59 @@ class PysMod(object):
         self.mode_solver_fallback = 1  # 0:Solver failure fails,
         # 1:solver failure falls back to NLEQ2 if present then FINTSLV (see next)
         self.STATE_extra_output = []  # extra data added to data_sstate object
-
-        self.__settings__[
-            'mode_state_init3_factor'
-        ] = 0.1  # factor to multiply the previous ss used as initialiser
-        self.__mode_state_init2_array__ = numpy.logspace(
-            0, 5, 18
-        )  # the simulation array used to initialise the steady state
+        # factor to multiply the previous ss used as initialiser
+        self.__settings__['mode_state_init3_factor'] = 0.1
+        # the simulation array used to initialise the steady state
+        self.__mode_state_init2_array__ = numpy.logspace(0, 5, 18)
         self.__settings__['mode_state_mesg'] = 1  # happy exit message from State()
-        self.__settings__[
-            'mode_state_nan_on_fail'
-        ] = False  # give last best solutions or NaN as solution
-        self.__settings__[
-            'solver_switch_warning'
-        ] = True  # the irritating switching to message
-        self.__settings__[
-            'mode_solver_fallback_integration'
-        ] = 1  # 0:no fallback to forward integration 1:fallback to integration
+        # give last best solutions or NaN as solution
+        self.__settings__['mode_state_nan_on_fail'] = False
+        # the irritating switching to message
+        self.__settings__['solver_switch_warning'] = True
+        # 0:no fallback to forward integration 1:fallback to integration
+        self.__settings__['mode_solver_fallback_integration'] = 1
         # this is now initialised in the model parsing sectiomn ParseModel
-        self.__settings__[
-            'mode_elas_deriv_order'
-        ] = 3  # the order of ScipyDerivative - 3 seems good for most situations
-        self.__settings__[
-            'mode_mca_scaled'
-        ] = 1  # MCA scaling option 0:unscaled E+C+Eig 1:scaled E+C+Eig
-        self.__settings__[
-            'mode_eigen_output'
-        ] = 0  # 0:normal, 1:extended eigen value + left/right vectors
+        # the order of ScipyDerivative - 3 seems good for most situations
+        self.__settings__['mode_elas_deriv_order'] = 3
+        # MCA scaling option 0:unscaled E+C+Eig 1:scaled E+C+Eig
+        self.__settings__['mode_mca_scaled'] = 1
+        # 0:normal, 1:extended eigen value + left/right vectors
+        self.__settings__['mode_eigen_output'] = 0
         # under consideration
-        self.__settings__[
-            'mode_suppress_info'
-        ] = 0  # 0:warnings displayed, 1:warnings suppressed
+        # 0:warnings displayed, 1:warnings suppressed
+        self.__settings__['mode_suppress_info'] = 0
         # new compartment stuff (using dictionary directly) - brett 2008
 
         ##  self.Species_In_Conc = False
 
         # misc settings
-        self.__settings__[
-            'write_array_header'
-        ] = 1  # write an id header before the array
-        self.__settings__[
-            'write_array_spacer'
-        ] = 1  # write a empty line before the array
+        # write an id header before the array
+        self.__settings__['write_array_header'] = 1
+        # write a empty line before the array
+        self.__settings__['write_array_spacer'] = 1
         self.__settings__['write_array_html_header'] = 1  # write html page header
         self.__settings__['write_array_html_footer'] = 1  # write html page footer
         self.__settings__['write_array_html_format'] = '%2.4f'  # html number format
-        self.__settings__[
-            'write_arr_lflush'
-        ] = 5  # lines to write before flushing to disk
+        # lines to write before flushing to disk
+        self.__settings__['write_arr_lflush'] = 5
 
         # Hybrd options (zero value means routine decides)
         self.__settings__['hybrd_xtol'] = 1.0e-12  # relative error tolerance
-        self.__settings__[
-            'hybrd_maxfev'
-        ] = 0  # Maximum number of calls, zero means then 100*(len(species)+1)
+        # Maximum number of calls, zero means then 100*(len(species)+1)
+        self.__settings__['hybrd_maxfev'] = 0
+        # A suitable step length for the forward-difference approximation of the Jacobian
         self.__settings__['hybrd_epsfcn'] = copy.copy(
             self.__settings__['mach_floateps']
-        )  # A suitable step length for the forward-difference approximation of the Jacobian
-        self.__settings__[
-            'hybrd_factor'
-        ] = 100  # A parameter determining the initial step bound in interval (0.1,100)
+        )
+        # A parameter determining the initial step bound in interval (0.1,100)
+        self.__settings__['hybrd_factor'] = 100
         self.__settings__['hybrd_mesg'] = 1  # print the exit status message
 
         # Finstslv options (forward integration solver) - brett (20030331)
-        self.__settings__[
-            'fintslv_tol'
-        ] = 1.0e-3  # max allowed deviation between max(sim_res) to be a steady state
-        self.__settings__[
-            'fintslv_step'
-        ] = 5  # threshold number of steps where deviation < atol to be declared a steady state
+        # max allowed deviation between max(sim_res) to be a steady state
+        self.__settings__['fintslv_tol'] = 1.0e-3
+        # threshold number of steps where deviation < atol to be declared a steady state
+        self.__settings__['fintslv_step'] = 5
         # a "saturation" type range - should be ok for most systems
         self.__fintslv_range__ = numpy.array(
             [
@@ -2844,53 +2825,40 @@ class PysMod(object):
 
         # NLEQ2 options (optional non-linear solver) - brett (20030331)
         # IOPT
-        self.__settings__[
-            'nleq2_advanced_mode'
-        ] = False  # use advanced NLEQ2 features ... may speedup some parameter scans
-        self.__settings__[
-            'nleq2_growth_factor'
-        ] = 10  # nitmax growth factor per nleq2 iteration
-        self.__settings__[
-            'nleq2_iter'
-        ] = 3  # number of itertions to loop the solver through (2 should almost always be sufficient)
-        self.__settings__[
-            'nleq2_iter_max'
-        ] = 10  # maximum numbe rof iterations in advanced mode
+        # use advanced NLEQ2 features ... may speedup some parameter scans
+        self.__settings__['nleq2_advanced_mode'] = False
+        # nitmax growth factor per nleq2 iteration
+        self.__settings__['nleq2_growth_factor'] = 10
+        # number of itertions to loop the solver through (2 should almost always be sufficient)
+        self.__settings__['nleq2_iter'] = 3
+        # maximum numbe rof iterations in advanced mode
+        self.__settings__['nleq2_iter_max'] = 10
 
         self.__settings__['nleq2_rtol'] = 1.0e-8  # automatically calculated by nleq12
         self.__settings__['nleq2_jacgen'] = 2  # 2:numdiff, 3:numdiff+feedback
-        self.__settings__[
-            'nleq2_iscaln'
-        ] = 0  # 0:xscal lower thresholdof scaling vector, 1:always scaling vector
+        # 0:xscal lower thresholdof scaling vector, 1:always scaling vector
+        self.__settings__['nleq2_iscaln'] = 0
         # Dangerous anything not zero seqfaults
         ## self.__settings__['nleq2_mprerr'] = 1       # 0:no output, 1:error, 2:+warning, 3:+info
-        self.__settings__[
-            'nleq2_nonlin'
-        ] = 4  # 1:linear, 2:mildly non-lin, 3:highly non-lin, 4:extremely non-lin
-        self.__settings__[
-            'nleq2_qrank1'
-        ] = 1  # 0:no Broyden approx. rank-1 updates, 1:Broyden approx. rank-1 updates
-        self.__settings__[
-            'nleq2_qnscal'
-        ] = 0  # 0:Automatic row scaling is active, 1:inactive
-        self.__settings__[
-            'nleq2_ibdamp'
-        ] = 0  # 0:auto damping strategy, 1:damping on, 2:damping off
-        self.__settings__[
-            'nleq2_nitmax_growth_factor'
-        ] = 4  # on non-superlinear convergance nitmax *= this (ierr=5)
-        # TODO: chekc this
-        self.__settings__[
-            'nleq2_iormon'
-        ] = 2  # 0:default(2) 1:convergance not checked, 2:+'weak stop', 3:+'hard stop' criterion
+        # 1:linear, 2:mildly non-lin, 3:highly non-lin, 4:extremely non-lin
+        self.__settings__['nleq2_nonlin'] = 4
+        # 0:no Broyden approx. rank-1 updates, 1:Broyden approx. rank-1 updates
+        self.__settings__['nleq2_qrank1'] = 1
+        # 0:Automatic row scaling is active, 1:inactive
+        self.__settings__['nleq2_qnscal'] = 0
+        # 0:auto damping strategy, 1:damping on, 2:damping off
+        self.__settings__['nleq2_ibdamp'] = 0
+        # on non-superlinear convergance nitmax *= this (ierr=5)
+        self.__settings__['nleq2_nitmax_growth_factor'] = 4
+        # 0:default(2) 1:convergance not checked, 2:+'weak stop', 3:+'hard stop' criterion
+        self.__settings__['nleq2_iormon'] = 2
         self.__settings__['nleq2_mesg'] = 1  # print the exit status message
         # TODO:
         self.nleq2_nitmax = 50  # optimized and self adjusting :-)
 
         # Other SteadyState options
-        self.__settings__[
-            'small_concentration'
-        ] = 1.0e-6  # the initial values of 1:zeroval smaller than 1.0e-6 sometimes give problems
+        # the initial values of 1:zeroval smaller than 1.0e-6 sometimes give problems
+        self.__settings__['small_concentration'] = 1.0e-6
         ##  self.__state_set_conserve__ = 1
         self.__StateOK__ = True
 
@@ -2902,26 +2870,20 @@ class PysMod(object):
         self.__scan2d_pars__ = None
 
         # Simulate/lsoda options (zero value means routine decides)
-        self.__settings__[
-            'lsoda_atol'
-        ] = 1.0e-12  # The input parameters rtol and atol determine the error
-        self.__settings__[
-            'lsoda_rtol'
-        ] = 1.0e-7  # control performed by the solver. -- johann 20050217 changed from 1e-5
-        self.__settings__[
-            "lsoda_mxstep"
-        ] = 0  # maximum number (internally defined) steps allowed per point. 0: x <= 500
-        self.__settings__[
-            "lsoda_h0"
-        ] = 0.0  # the step size to be attempted on the first step.
+        # The input parameters rtol and atol determine the error
+        self.__settings__['lsoda_atol'] = 1.0e-12
+        # control performed by the solver. -- johann 20050217 changed from 1e-5
+        self.__settings__['lsoda_rtol'] = 1.0e-7
+        # maximum number (internally defined) steps allowed per point. 0: x <= 500
+        self.__settings__["lsoda_mxstep"] = 0
+        # the step size to be attempted on the first step.
+        self.__settings__["lsoda_h0"] = 0.0
         self.__settings__["lsoda_hmax"] = 0.0  # the maximum absolute step size allowed.
         self.__settings__["lsoda_hmin"] = 0.0  # the minimum absolute step size allowed.
-        self.__settings__[
-            "lsoda_mxordn"
-        ] = 12  # maximum order to be allowed for the nonstiff (Adams) method.
-        self.__settings__[
-            "lsoda_mxords"
-        ] = 5  # maximum order to be allowed for the stiff (BDF) method.
+        # maximum order to be allowed for the nonstiff (Adams) method.
+        self.__settings__["lsoda_mxordn"] = 12
+        # maximum order to be allowed for the stiff (BDF) method.
+        self.__settings__["lsoda_mxords"] = 5
         self.__settings__["lsoda_mesg"] = 1  # print the exit status message
 
         # try to select the best integration algorithm
@@ -2969,9 +2931,8 @@ class PysMod(object):
         self.__settings__["cvode_reltol"] = 1.0e-9  # relative tolerance
         self.__settings__["cvode_auto_tol_adjust"] = True  # auto reduce tolerances
         self.__settings__["cvode_mxstep"] = 1000  # max step default
-        self.__settings__[
-            "cvode_stats"
-        ] = False  # print some pretty stuff after a simulation
+        # print some pretty stuff after a simulation
+        self.__settings__["cvode_stats"] = False
 
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9:
             self.__settings__["cvode_reltol"] = 1.0e-6
@@ -2994,35 +2955,27 @@ class PysMod(object):
         # elasticity options
         self.__settings__["elas_evar_upsymb"] = 1  # attach elasticities
         self.__settings__["elas_epar_upsymb"] = 1  # attach parameter elasticities
-        self.__settings__[
-            "elas_evar_remap"
-        ] = 1  # remap steady state values ... no if SimElas
-        self.__settings__[
-            'mode_elas_deriv_factor'
-        ] = 0.0001  # used to determine a stepsize dx=So*factor
-        self.__settings__[
-            'mode_elas_deriv_min'
-        ] = 1.0e-12  # minimum value dx is allowed to have
-        self.__settings__[
-            'elas_zero_flux_fix'
-        ] = False  # replaces zero fluxes with a very small number
-        self.__settings__[
-            'elas_zero_conc_fix'
-        ] = False  # replaces zero concentrations with a very small number
-        self.__settings__[
-            'elas_scaling_div0_fix'
-        ] = False  # if Infinite values are created when scaling set to zero
+        # remap steady state values ... no if SimElas
+        self.__settings__["elas_evar_remap"] = 1
+        # used to determine a stepsize dx=So*factor
+        self.__settings__['mode_elas_deriv_factor'] = 0.0001
+        # minimum value dx is allowed to have
+        self.__settings__['mode_elas_deriv_min'] = 1.0e-12
+        # replaces zero fluxes with a very small number
+        self.__settings__['elas_zero_flux_fix'] = False
+        # replaces zero concentrations with a very small number
+        self.__settings__['elas_zero_conc_fix'] = False
+        # if Infinite values are created when scaling set to zero
+        self.__settings__['elas_scaling_div0_fix'] = False
 
         # MCA options
         self.__settings__["mca_ccj_upsymb"] = 1  # attach the flux control coefficients
-        self.__settings__[
-            "mca_ccs_upsymb"
-        ] = 1  # attach the concentration control coefficients
+        # attach the concentration control coefficients
+        self.__settings__["mca_ccs_upsymb"] = 1
         self.__settings__["mca_ccall_fluxout"] = 1  # in .showCC() output flux cc's
         self.__settings__["mca_ccall_concout"] = 1  # in .showCC() output conc cc's
-        self.__settings__[
-            "mca_ccall_altout"
-        ] = 0  # in .showCC() all CC's group by reaction
+        # in .showCC() all CC's group by reaction
+        self.__settings__["mca_ccall_altout"] = 0
 
         # gone in 60 seconds brett2008 (Refactored to PyscesLink)
         ##  # Elementary mode options
@@ -3032,27 +2985,20 @@ class PysMod(object):
 
         # pitcon (pitcon 6.1) continuation options - brett 20040429
         # my interface controls
-        self.__settings__[
-            "pitcon_fix_small"
-        ] = 0  # in the REq evaluation values <1.e-15 = 1.e-15
-        # TODO:
-        self.pitcon_par_space = numpy.logspace(
-            -1, 3, 10
-        )  # parameter space that pitcon must search in
-        self.pitcon_iter = (
-            10  # number of iterations to search for every point in par_space
-        )
-
-        self.__settings__[
-            "pitcon_allow_badstate"
-        ] = 0  # initialize with non steady-state values 0:no,1:yes
-        self.__settings__["pitcon_flux_gen"] = 1  # generate fluxes as output
-        self.__settings__[
-            "pitcon_filter_neg"
-        ] = 1  # drop pitcon results containing negative concentrations 0:no,1:yes
-        self.__settings__[
-            "pitcon_filter_neg_res"
-        ] = 0  # drop output results containing negative concentrations 0:no,1:yes
+        # in the REq evaluation values <1.e-15 = 1.e-15
+        self.__settings__["pitcon_fix_small"] = 0
+        # parameter space that pitcon must search in
+        self.pitcon_par_space = numpy.logspace(-1, 3, 10)
+        # number of iterations to search for every point in par_space
+        self.pitcon_iter = 10
+        # initialize with non steady-state values 0:no,1:yes
+        self.__settings__["pitcon_allow_badstate"] = 0
+        # generate fluxes as output
+        self.__settings__["pitcon_flux_gen"] = 1
+        # drop pitcon results containing negative concentrations 0:no,1:yes
+        self.__settings__["pitcon_filter_neg"] = 1
+        # drop output results containing negative concentrations 0:no,1:yes
+        self.__settings__["pitcon_filter_neg_res"] = 0
         self.__settings__["pitcon_max_step"] = 30.0  # Maximum stepsize
         # TODO:
         self.pitcon_target_points = []  # list of calculated target points
@@ -3064,21 +3010,18 @@ class PysMod(object):
 
         # pitcon integer options iwork in pitcon/dpcon61.f
         self.__settings__["pitcon_init_par"] = 1  # Use X(1) for initial parameter
-        self.__settings__[
-            "pitcon_par_opt"
-        ] = 0  # Parameterization option 0:allows program
+        # Parameterization option 0:allows program
+        self.__settings__["pitcon_par_opt"] = 0
         self.__settings__["pitcon_jac_upd"] = 0  # Update jacobian every newton step
         self.__settings__["pitcon_targ_val_idx"] = 0  # Seek target values for X(n)
         self.__settings__["pitcon_limit_point_idx"] = 0  # Seek limit points in X(n)
         self.__settings__["pitcon_output_lvl"] = 0  # Control amount of output.
-        self.__settings__[
-            "pitcon_jac_opt"
-        ] = 1  # Jacobian choice. 0:supply jacobian,1:use forward difference,2:central difference
+        # Jacobian choice. 0:supply jacobian,1:use forward difference,2:central difference
+        self.__settings__["pitcon_jac_opt"] = 1
         # pitcon float options rwork in pitcon/dpcon61.f
         self.__settings__["pitcon_abs_tol"] = 0.00001  # Absolute error tolerance
         self.__settings__["pitcon_rel_tol"] = 0.00001  # Relative error tolerance
         self.__settings__["pitcon_min_step"] = 0.01  # Minimum stepsize
-
         self.__settings__["pitcon_start_step"] = 0.3  # Starting stepsize
         self.__settings__["pitcon_start_dir"] = 1.0  # Starting direction +1.0/-1.0
         self.__settings__["pitcon_max_grow"] = 3.0  # maximum growth factor
@@ -3091,18 +3034,14 @@ class PysMod(object):
         self.scan_out = []
         self._scan = None
         self.scan_res = None
-        self.__settings__[
-            "scan1_mca_mode"
-        ] = 0  # should scan1 run mca analysis 0:no,1:elas,2:cc
-        self.__settings__[
-            "scan1_dropbad"
-        ] = 0  # should scan1 drop invalid steady states (rare)?
-        self.__settings__[
-            "scan1_nan_on_bad"
-        ] = True  # invalid steady states are returned as NaN
-        self.__settings__[
-            "scan1_mesg"
-        ] = True  # print out progress messages for large (>20) scans
+        # should scan1 run mca analysis 0:no,1:elas,2:cc
+        self.__settings__["scan1_mca_mode"] = 0
+        # should scan1 drop invalid steady states (rare)?
+        self.__settings__["scan1_dropbad"] = 0
+        # invalid steady states are returned as NaN
+        self.__settings__["scan1_nan_on_bad"] = True
+        # print out progress messages for large (>20) scans
+        self.__settings__["scan1_mesg"] = True
         self.__scan_errors_par__ = None  # collect errors, parameters values
         self.__scan_errors_idx__ = None  # collect errors, indexes
 
