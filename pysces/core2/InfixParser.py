@@ -202,7 +202,7 @@ class MyInfixLexer:
     def t_EQUISYMB(self, t):
         r'>=|<=|!=|==|>|<'
         t.type = 'EQUISYMB'
-        t.value = ' %s ' % t.value
+        t.value = ' {} '.format(t.value)
         ##  'EQUISYMB', t.value
         return t
 
@@ -216,7 +216,7 @@ class MyInfixLexer:
 
     # Error handling rule
     def t_error(self, t):
-        print("Illegal character '%s'" % t.value[0])
+        print("Illegal character '{}'".format(t.value[0]))
         self.LexErrors.append(t.value[0])
         self.LexOK = False
         t.lexer.skip(1)
@@ -321,7 +321,7 @@ class MyInfixParser(MyInfixLexer):
             if t[1].strip() in self.MathmlToNumpy_symb:
                 if self.MathmlToNumpy_symb[t[1]] == None:
                     self.SymbolErrors.append(t[1])
-                    print('\nSymbol \"%s\" not yet supported by PySCeS.' % t[1])
+                    print('\nSymbol \"{}\" not yet supported by PySCeS.'.format(t[1]))
                     t[0] = 'unknown_symbol_' + t[1]
                 else:
                     t[0] = self.MathmlToNumpy_symb[t[1]]
@@ -349,7 +349,7 @@ class MyInfixParser(MyInfixLexer):
                     and t[1].strip() in self.FunctionReplacements
                 ):
                     # replace symb --> (replacement)
-                    t[0] = '(%s)' % self.FunctionReplacements[t[1]]
+                    t[0] = '({})'.format(self.FunctionReplacements[t[1]])
                 else:
                     if t[1] not in self.names:
                         self.names.append(t[1])
@@ -385,11 +385,11 @@ class MyInfixParser(MyInfixLexer):
             for tt in range(3, len(t)):
                 if t[tt] == ',':
                     if t[1] != 'xor':
-                        t[0] += ' %s ' % t[1]
+                        t[0] += ' {} '.format(t[1])
                     else:
-                        t[0] += ' %s ' % '!='
+                        t[0] += ' {} '.format('!=')
                 else:
-                    t[0] += '%s' % t[tt]
+                    t[0] += '{}'.format(t[tt])
 
     def p_piecewise(self, t):
         '''Piecewise : PIECEWISE LPAREN ArgListSemiCol RPAREN'''
@@ -399,7 +399,7 @@ class MyInfixParser(MyInfixLexer):
         pw = t[3].split(';')
         for p in range(len(pw)):
             pw[p] = pw[p].strip()
-        name = '__pw%s__' % self.__pwcntr__
+        name = '__pw{}__'.format(self.__pwcntr__)
         if len(pw) == 3:
             self.__pwcntr__ += 1
             self.piecewises.update({name: {0: [pw[1], pw[0]], 'other': pw[2]}})
@@ -420,7 +420,7 @@ class MyInfixParser(MyInfixLexer):
         # for now we just remove the delay on the expression
         # updated 201528 now requires a function delayFunc(var, delay) to deal with it
         self.DelayRemoved = True
-        t[0] = '__delayFunc__(%s, %s)' % (t[3], t[5])
+        t[0] = '__delayFunc__({}, {})'.format(t[3], t[5])
 
     def p_function(self, t):
         '''Func : LPAREN ArgList RPAREN
@@ -439,15 +439,14 @@ class MyInfixParser(MyInfixLexer):
         # convert root(degree,<expr>) to pow(<expr>, 1/degree)
         elif t[1].strip() == 'root':
             t[1] = self.MathmlToNumpy_funcs[t[1]]
-            t[3] = '%s, %s' % (
-                t[3][t[3].index(',') + 1 :],
-                1.0 / float(t[3][: t[3].index(',')]),
+            t[3] = '{}, {}'.format(
+                t[3][t[3].index(',') + 1 :], 1.0 / float(t[3][: t[3].index(',')]),
             )
             t[0] = t[1] + t[2] + t[3] + t[4]
         elif t[1].strip() in self.MathmlToNumpy_funcs:
             if self.MathmlToNumpy_funcs[t[1]] == None:
                 self.SymbolErrors.append(t[1])
-                print('\nFunction \"%s\" not supported by PySCeS' % t[1])
+                print('\nFunction \"{}\" not supported by PySCeS'.format(t[1]))
                 t[0] = 'unknown_function_' + t[1] + t[2] + t[3] + t[4]
             else:
                 try:
@@ -511,8 +510,8 @@ class MyInfixParser(MyInfixLexer):
         ##  assert len(self.SymbolErrors) == 0, '\nUndefined symbols:\n%s' % self.SymbolErrors
         ##  if len(self.SymbolErrors) != 0:
         ##  print '\nUndefined symbols:\n%s' % self.SymbolErrors
-        assert self.LexOK, '\nLexer Failure:\n%s' % self.LexErrors
-        assert self.ParseOK, '\nParser Failure:\n%s' % self.ParseErrors
+        assert self.LexOK, '\nLexer Failure:\n{}'.format(self.LexErrors)
+        assert self.ParseOK, '\nParser Failure:\n{}'.format(self.ParseErrors)
         self._runCount += 1
         self.SymbolReplacements = None
         self.FunctionReplacements = None

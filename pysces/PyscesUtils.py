@@ -203,7 +203,7 @@ class WriteOutput(object):
 
     """
 
-    def exportLabelledArray(self, arr, names, fname, sep=',', format='%f'):
+    def exportLabelledArray(self, arr, names, fname, sep=',', sformat='%f'):
         """
         Write a 2D array type object to file
 
@@ -222,12 +222,12 @@ class WriteOutput(object):
         cntr = 0
         for r in range(arr.shape[0]):
             if names != None:
-                F.write(('%s' + sep) % names[r])
+                F.write(('{}' + sep).format(names[r]))
             for c in range(arr.shape[1]):
                 if c < arr.shape[1] - 1:
-                    F.write((format + sep) % arr[r, c])
+                    F.write((sformat + sep) % arr[r, c])
                 else:
-                    F.write((format + '\n') % arr[r, c])
+                    F.write((sformat + '\n') % arr[r, c])
             cntr += 1
             if cntr >= 250:
                 F.flush()
@@ -367,7 +367,7 @@ class WriteOutput(object):
 
         """
         fname += '.csv'
-        self.exportLabelledArray(arr, names, fname, sep=',', format='%f')
+        self.exportLabelledArray(arr, names, fname, sep=',', sformat='%f')
 
     def exportArray2CSV(self, arr, fname):
         """
@@ -379,7 +379,7 @@ class WriteOutput(object):
 
         """
         fname += '.csv'
-        self.exportLabelledArray(arr, None, fname, sep=',', format='%f')
+        self.exportLabelledArray(arr, None, fname, sep=',', sformat='%f')
 
     def exportLabelledArrayWithHeader2TXT(self, arr, names, header, fname):
         """
@@ -406,7 +406,7 @@ class WriteOutput(object):
 
         """
         fname += '.txt'
-        self.exportLabelledArray(arr, names, fname, sep='\t', format='%f')
+        self.exportLabelledArray(arr, names, fname, sep='\t', sformat='%f')
 
     def exportArray2TXT(self, arr, fname):
         """
@@ -418,4 +418,4 @@ class WriteOutput(object):
 
         """
         fname += '.txt'
-        self.exportLabelledArray(arr, None, fname, sep='\t', format='%f')
+        self.exportLabelledArray(arr, None, fname, sep='\t', sformat='%f')
