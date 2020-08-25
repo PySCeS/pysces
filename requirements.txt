@@ -3,3 +3,4 @@ matplotlib
 python-libsbml
 scipy
 nose
+ipython

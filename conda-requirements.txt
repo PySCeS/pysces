@@ -1,0 +1,22 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: win-64
+assimulo>=3.2
+biopython
+black
+conda-build
+ipython
+jupyter
+matplotlib
+nose
+numpy>=1.19.1
+pandas
+pip
+pyparsing
+pyqt
+python=3.6
+python-libsbml>=5.18.0
+scipy>=1.5.2
+setuptools
+sympy
+wheel
