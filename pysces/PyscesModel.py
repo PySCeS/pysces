@@ -121,6 +121,70 @@ try:
     if not __SILENT_START__:
         print('Assimulo CVode available')
     _HAVE_ASSIMULO = True
+
+    class EventsProblem(Explicit_Problem):
+        def __init__(self, mod, **kwargs):
+            Explicit_Problem.__init__(self, **kwargs)
+            self.mod = mod
+            self.name = self.mod.__KeyWords__['Modelname']
+            # needed to track changes in parameters during events for REq evaluation
+            self.parvals = []
+            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+            self.event_times = []
+
+        def state_events(self, t, y, sw):
+            self.events = self.mod.__events__
+            eout = numpy.zeros(len(self.events))
+            self.mod._TIME_ = t
+            for ev in range(len(self.events)):
+                if self.events[ev](t):
+                    eout[ev] = 0
+                else:
+                    eout[ev] = 1
+            if self.mod.__HAS_RATE_RULES__:
+                exec(self.mod.__CODE_raterule)
+            return eout
+
+        def handle_event(self, solver, event_info):
+            self.event_times.append(solver.t)
+            state_info = event_info[0]
+            idx = state_info.index(-1)
+            ev = self.events[idx]
+            if ev._assign_now:
+                for ass in ev.assignments:
+                    if ass.variable in self.mod.L0matrix.getLabels()[1] or (
+                        self.mod.mode_integrate_all_odes
+                        and ass.variable in self.mod.__species__
+                    ):
+                        assVal = ass.getValue()
+                        assIdx = self.mod.__species__.index(ass.variable)
+                        if self.mod.__KeyWords__["Species_In_Conc"]:
+                            solver.y[assIdx] = assVal * getattr(
+                                self.mod, self.mod.__CsizeAllIdx__[assIdx]
+                            )
+                        else:
+                            solver.y[assIdx] = assVal
+                    elif (
+                        not self.mod.mode_integrate_all_odes
+                        and ass.variable in self.mod.L0matrix.getLabels()[0]
+                    ):
+                        print(
+                            'Event assignment to dependent species consider setting\
+"mod.mode_integrate_all_odes = True"'
+                        )
+                    elif (
+                        self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
+                    ):
+                        assVal = ass.getValue()
+                        rrIdx = self.mod.__rate_rules__.index(ass.variable)
+                        self.mod.__rrule__[rrIdx] = assVal
+                        solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                        setattr(self.mod, ass.variable, assVal)
+                    else:
+                        ass()
+            # track any parameter changes
+            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+
 except Exception as ex:
     _ASSIMULO_LOAD_ERROR = '{}'.format(ex)
     _HAVE_ASSIMULO = False
@@ -1266,70 +1330,6 @@ class Event(NewCoreBase):
         self.state = False
         self._TIME_ = 0.0
         self._ASS_TIME_ = 0.0
-
-
-class EventsProblem(Explicit_Problem):
-    def __init__(self, mod, **kwargs):
-        Explicit_Problem.__init__(self, **kwargs)
-        self.mod = mod
-        self.name = self.mod.__KeyWords__['Modelname']
-        # needed to track changes in parameters during events for REq evaluation
-        self.parvals = []
-        self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
-        self.event_times = []
-
-    def state_events(self, t, y, sw):
-        self.events = self.mod.__events__
-        eout = numpy.zeros(len(self.events))
-        self.mod._TIME_ = t
-        for ev in range(len(self.events)):
-            if self.events[ev](t):
-                eout[ev] = 0
-            else:
-                eout[ev] = 1
-        if self.mod.__HAS_RATE_RULES__:
-            exec(self.mod.__CODE_raterule)
-        return eout
-
-    def handle_event(self, solver, event_info):
-        self.event_times.append(solver.t)
-        state_info = event_info[0]
-        idx = state_info.index(-1)
-        ev = self.events[idx]
-        if ev._assign_now:
-            for ass in ev.assignments:
-                if ass.variable in self.mod.L0matrix.getLabels()[1] or (
-                    self.mod.mode_integrate_all_odes
-                    and ass.variable in self.mod.__species__
-                ):
-                    assVal = ass.getValue()
-                    assIdx = self.mod.__species__.index(ass.variable)
-                    if self.mod.__KeyWords__["Species_In_Conc"]:
-                        solver.y[assIdx] = assVal * getattr(
-                            self.mod, self.mod.__CsizeAllIdx__[assIdx]
-                        )
-                    else:
-                        solver.y[assIdx] = assVal
-                elif (
-                    not self.mod.mode_integrate_all_odes
-                    and ass.variable in self.mod.L0matrix.getLabels()[0]
-                ):
-                    print(
-                        'Event assignment to dependent species consider setting\
-"mod.mode_integrate_all_odes = True"'
-                    )
-                elif (
-                    self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
-                ):
-                    assVal = ass.getValue()
-                    rrIdx = self.mod.__rate_rules__.index(ass.variable)
-                    self.mod.__rrule__[rrIdx] = assVal
-                    solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
-                    setattr(self.mod, ass.variable, assVal)
-                else:
-                    ass()
-        # track any parameter changes
-        self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
 
 class PieceWise(NewCoreBase):
