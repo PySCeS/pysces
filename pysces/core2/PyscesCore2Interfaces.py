@@ -25,6 +25,7 @@ from getpass import getuser
 from xml.etree import ElementTree
 import io
 import itertools
+import math
 
 CurrentDirectory = os.getcwd()  # temporary thing
 
@@ -730,6 +731,9 @@ class CoreToSBML(object):
             comp_def.setId(cs.name)
             comp_def.setName(cs.name)
             comp_def.setVolume(float(cs.size))
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                comp_def.setConstant(False)
 
     def setDescription(self, txt=None):
         '''
@@ -828,6 +832,7 @@ class CoreToSBML(object):
                 s.setConstant(True)
             else:
                 s.setBoundaryCondition(False)
+                s.setConstant(False)
             ##  print 'FUCK (%s) %s' % (spe.getName(), spe())
             if spe() == None:
                 print(
@@ -846,7 +851,15 @@ class CoreToSBML(object):
             p = self.model.createParameter()
             p.setId(par.name)
             p.setName(par.name)
-            p.setValue(par())
+            try:
+                p.setValue(par())
+            except (AttributeError, TypeError):
+                print(
+                    'Parameter set evaluation failure {}: \"{}\" setting to initial? value {}'.format(
+                        par.name, par.code_string, par.value
+                    )
+                )
+                p.setValue(par.value)
             # first attempt, check for a formula ... could be done with introspection
             if hasattr(par, 'formula'):
                 p.setConstant(False)
@@ -857,6 +870,9 @@ class CoreToSBML(object):
                 )
                 formula = self.infixPSC2SBML(formula)
                 r.setFormula(par.formula)
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                p.setConstant(False)
 
     def infixPSC2SBML(self, infix):
         """replace NumPy infix with libSBMl infix"""
@@ -876,6 +892,7 @@ class CoreToSBML(object):
         etree = ElementTree.parse(strBuf)
         root = etree.getroot()
         counter = itertools.count(1)
+        strBuf.close()
 
         def idxNode(node, idx=0):
             if node.text != None and node.text.strip() == '_TIME_':
@@ -893,10 +910,11 @@ class CoreToSBML(object):
 
         idxNode(root, idx=0)
 
-        strBuf = io.StringIO()
-        etree.write(strBuf)
-        strBuf.seek(0)
-        mathMLout = strBuf.read()
+        # read the etree into a ByteBuffer and read the content to string
+        byteBuf = io.BytesIO()
+        etree.write(byteBuf)
+        byteBuf.seek(0)
+        mathMLout = byteBuf.read().decode()
         return self.SBML.readMathMLFromString(mathMLout)
 
     def setRules(self):
@@ -926,7 +944,7 @@ class CoreToSBML(object):
                 InfixParser.SymbolReplacements = req_replacements
                 InfixParser.parse(form)
                 form = InfixParser.output
-            ASTnode = self.SBML.parseFormula(form)
+            ASTnode = self.SBML.parseL3Formula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
             if self.__DEBUG__:
                 print('Adding RateRule: %s = %s' % (rule.getName(), form))
@@ -953,12 +971,19 @@ class CoreToSBML(object):
 
             ##  print ev.formula
             # replace PySCeS infix with libSBML infix
-            form = ev.code_string.split('=')[1].replace('self.', '').replace('()', '')
+            if self.__DEBUG__:
+                print(ev.code_string)
+            form = (
+                ev.code_string.split('=', 1)[1].replace('self.', '').replace('()', '')
+            )
             form = self.infixPSC2SBML(form)
             if self.__DEBUG__:
+                print(form)
                 print('\tTrigger: %s' % form)
-            print('\tTrigger: %s' % form)
-            ASTnode = self.SBML.parseFormula(form)
+
+            # switched using L3parser
+            ASTnode = self.SBML.parseL3Formula(form)
+
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
             # set _TIME_ ASTnode tag to <csymbol> time
             ASTnode = self.astSetCSymbolTime(ASTnode)
@@ -970,16 +995,17 @@ class CoreToSBML(object):
                 if self.__DEBUG__:
                     print('\tAssignment: %s = %s' % (ass.getName(), ass.formula))
                 form = self.infixPSC2SBML(ass.formula)
-                ASTnode = self.SBML.parseFormula(form)
+                ASTnode = self.SBML.parseL3Formula(form)
                 # eass = self.SBML.EventAssignment(ass.getName(), ASTnode)
                 eass = self.SBML.EventAssignment(self.level, self.version)
                 eass.setMath(ASTnode)
                 EV.addEventAssignment(eass)
             if ev.delay != 0:
                 dform = self.infixPSC2SBML(ev.delay)
-                ASTnodeD = self.SBML.parseFormula(dform)
+                ASTnodeD = self.SBML.parseL3Formula(dform)
                 ASTnodeD = self.astSetCSymbolTime(ASTnodeD)
-                D = self.SBML.Delay(ASTnodeD)
+                D = self.SBML.Delay(self.level, self.version)
+                D.setMath(ASTnodeD)
                 EV.setDelay(D)
 
     def setReactions(self):
@@ -989,7 +1015,13 @@ class CoreToSBML(object):
             SBML_R.setId(rxn.name)
             SBML_R.setName(rxn.name)
             for s in rxn.substrates:
-                ##  print '\t' + rxn.name +' has substrate: ' + s.name + ' (%s)' % abs(rxn.stoichiometry[s.name])
+                # print(
+                #'\t'
+                # + rxn.name
+                # + ' has substrate: '
+                # + s.name
+                # + ' (%s)' % abs(rxn.stoichiometry[s.name])
+                # )
                 if self.SBML.getLibSBMLVersion() < 40000:
                     sref = self.SBML.SpeciesReference(
                         s.name, abs(rxn.stoichiometry[s.name])
@@ -998,9 +1030,18 @@ class CoreToSBML(object):
                     sref = self.SBML.SpeciesReference(self.level, self.version)
                     sref.setStoichiometry(abs(rxn.stoichiometry[s.name]))
                     sref.setSpecies(s.name)
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    sref.setConstant(True)
                 SBML_R.addReactant(sref)
             for p in rxn.products:
-                ##  print '\t' + rxn.name +' has product: ' + p.name + ' (%s)' % abs(rxn.stoichiometry[p.name])
+                # print(
+                #'\t'
+                # + rxn.name
+                # + ' has product: '
+                # + p.name
+                # + ' (%s)' % abs(rxn.stoichiometry[p.name])
+                # )
                 if self.SBML.getLibSBMLVersion() < 40000:
                     pref = self.SBML.SpeciesReference(
                         p.name, abs(rxn.stoichiometry[p.name])
@@ -1009,6 +1050,10 @@ class CoreToSBML(object):
                     pref = self.SBML.SpeciesReference(self.level, self.version)
                     pref.setStoichiometry(abs(rxn.stoichiometry[p.name]))
                     pref.setSpecies(p.name)
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    pref.setConstant(True)
+                # print(pref.toSBML())
                 SBML_R.addProduct(pref)
             if not rxn.multistoich_enabled:
                 for m in rxn.modifiers:
@@ -1034,6 +1079,11 @@ class CoreToSBML(object):
                 SBML_R.setReversible(True)
             else:
                 SBML_R.setReversible(False)
+
+            # TODO: check if this needs to be refined
+            if self.level == 3:
+                SBML_R.setFast(False)
+            # print(SBML_R.toSBML())
 
     def getSBMLmodel(self):
         return self.model
