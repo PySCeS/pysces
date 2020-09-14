@@ -776,8 +776,18 @@ class EventAssignment(NumberBase):
 
 
 class Event(NewCoreBase):
+    """
+    A refactored Event handling class
+
+    TODO: still need to implememt priorities on Events
+
+    """
+
     trigger = None
     delay = 0.0
+    init_state = False
+    persistent = False
+    useValuesFromTriggerTime = True
 
     formula = None
     code_string = None
@@ -793,9 +803,10 @@ class Event(NewCoreBase):
     _names = None
     _time_symbol = None
 
-    def __init__(self, name):
+    def __init__(self, name, useValuesFromTriggerTime=True):
         self.setName(name)
         self.assignments = []
+        self.useValuesFromTriggerTime = useValuesFromTriggerTime
 
     def __call__(self, time):
         self._TIME_.set(time)
@@ -820,9 +831,11 @@ class Event(NewCoreBase):
                 )
             self._need_action = False
 
-    def setTrigger(self, formula, delay=0.0):
+    def setTrigger(self, formula, delay=0.0, init_state=False, persistent=False):
         self.formula = formula
         self.delay = delay
+        self.init_state = init_state
+        self.persistent = persistent
         InfixParser.setNameStr('self.', '()')
         ##  print self._time_symbol
         if self._time_symbol != None:
