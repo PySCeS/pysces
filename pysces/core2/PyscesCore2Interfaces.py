@@ -990,6 +990,10 @@ class CoreToSBML(object):
             # tr = self.SBML.Trigger(ASTnode)
             tr = self.SBML.Trigger(self.level, self.version)
             tr.setMath(ASTnode)
+            if self.level >= 3:
+                tr.setInitialValue(ev.init_state)
+                tr.setPersistent(ev.persistent)
+                EV.setUseValuesFromTriggerTime(ev.useValuesFromTriggerTime)
             EV.setTrigger(tr)
             for ass in ev.assignments:
                 if self.__DEBUG__:
