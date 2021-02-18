@@ -2733,6 +2733,8 @@ class PysMod(object):
 
     # add event types to model
     def InitialiseEvents(self):
+        # return all event time points, even if not in self.sim_time
+        self.__settings__['cvode_return_event_timepoints'] = True
         self.__events__ = []
         # for each event
         for e in self.__eDict__:
@@ -4282,9 +4284,9 @@ See: https://jmodelica.org/assimulo'
         sim.rtol = self.__settings__["cvode_reltol"]
         t, sim_res = sim.simulate(self.sim_end, ncp=0, ncp_list=self.sim_time)
         # needed because CVode adds extra time points around discontinuity
-        self.sim_time = numpy.array(t)
+        t = numpy.array(t)
         # divide m.sim_time into segments between event firings
-        idx = [0] + [numpy.max(numpy.where(self.sim_time == i)) for i in
+        idx = [0] + [numpy.max(numpy.where(t == i)) for i in
                      problem.event_times] + [len(t)]
 
         # initialise rates array
@@ -4339,6 +4341,13 @@ See: https://jmodelica.org/assimulo'
                     sim_res[x] = self._SpeciesAmountToConc(sim_res[x])
             if self.__HAS_RATE_RULES__:
                 sim_res = numpy.concatenate([sim_res, rrules], axis=1)
+
+        if self.__settings__['cvode_return_event_timepoints']:
+            self.sim_time = t
+        else:
+            tidx = [numpy.where(t==i)[0][0] for i in self.sim_time]
+            sim_res = sim_res[tidx]
+            rates = rates[tidx]
 
         return sim_res, rates, True
 
