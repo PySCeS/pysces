@@ -26,10 +26,11 @@ from xml.etree import ElementTree
 import io
 import itertools
 
-CurrentDirectory = os.getcwd()  # temporary thing
-
-# this is a PySCeS specific hack
-from pysces import output_dir as CurrentDirectory
+from .. import output_dir, __CHGDIR_ON_START__
+if __CHGDIR_ON_START__:
+    CWD = output_dir
+else:
+    CWD = os.getcwd()
 
 from .InfixParser import MyInfixParser
 
@@ -39,12 +40,11 @@ InfixParser.buildparser(
     debug=0,
     debugfile='infix.dbg',
     tabmodule='infix_tabmodule',
-    outputdir=CurrentDirectory,
+    outputdir=output_dir,
 )
 InfixParser.setNameStr('self.', '()')
 
-# print 'CurrentDirectory', CurrentDirectory
-
+os.chdir(CWD)
 
 class CoreToPsc(object):
     core = None

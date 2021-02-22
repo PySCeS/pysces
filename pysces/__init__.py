@@ -141,6 +141,8 @@ for key in __config_dict:
             GNUPLOT_DIR = None
     elif key == 'silentstart':
         __SILENT_START__ = str2bool(__config_dict[key])
+    elif key == 'change_dir_on_start':
+        __CHGDIR_ON_START__ = str2bool(__config_dict[key])
 assert inipath != None, '\nNo configuration file found'
 
 if DEBUG:
@@ -217,8 +219,10 @@ for key in __userdict:
             GNUPLOT_DIR = None
     elif key == 'silentstart':
         __SILENT_START__ = str2bool(__userdict[key])
+    elif key == 'change_dir_on_start':
+        __CHGDIR_ON_START__ = str2bool(__userdict[key])
 assert output_dir != None, '\nNo output directory defined'
-assert model_dir != None, '\nNo output directory defined'
+assert model_dir != None, '\nNo model directory defined'
 
 # following is to get the full path when .pys_usercfg.ini specifies CWD as follows:
 # output_dir = ./
@@ -428,7 +432,6 @@ except ImportError as ex:
     SBML = None
     print(ex)
     print("INFO: No SBML library found, SBML support not available")
-
 
 # This has to come at the end
 from .PyscesModel import PysMod as model
