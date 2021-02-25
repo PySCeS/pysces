@@ -49,11 +49,13 @@ if os.sys.platform == 'win32':
         "matplotlib": True,
         "matplotlib_backend": 'TKagg',
         "silentstart": False,
+        "change_dir_on_start": False,
     }
     __DefaultWinUsr = {
         "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
         "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
         "silentstart": False,
+        "change_dir_on_start": False,
     }
 else:
     if hasattr(os.sys, 'lib'):
@@ -77,11 +79,13 @@ else:
         "matplotlib": True,
         "matplotlib_backend": 'TKagg',
         "silentstart": False,
+        "change_dir_on_start": False,
     }
     __DefaultPosixUsr = {
         "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
         "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
         "silentstart": False,
+        "change_dir_on_start": False,
     }
     # OSX patch by AF
     if os.sys.platform == 'darwin':
