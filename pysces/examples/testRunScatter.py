@@ -14,7 +14,7 @@ import time
 m = pysces.model('isola2a')
 
 print("\n\nParallel execution...using RunScatter")
-par2 = pysces.ParScanner(m)
+par2 = pysces.ParScanner(m, engine='ipcluster')
 t5 = time.time()
 par2.addScanParameter('V4', 60, 100, 11)
 par2.addScanParameter('V1', 100, 130, 16)

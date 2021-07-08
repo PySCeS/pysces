@@ -31,22 +31,24 @@ __doc__ = """
 import numpy as np
 from pysces.PyscesUtils import TimerBox
 from pysces.PyscesScan import Scanner
-import multiprocessing
-
 import sys, os, pickle
 
 flush = sys.stdout.flush
 from time import sleep, time
 import subprocess
 
-# this is a cooler way of doing this
-# acutally don't need the _multicorescan import
-# import _multicorescan
-# del _multicorescan
-# print "__file__ is", __file__
+try:
+    import ipyparallel
+except ImportError as ex:
+    print()
+    print(ex)
+    raise ImportError(
+        'PARSCANNER: Requires ipyparallel version >=4.0 (http://ipython.org).'
+    )
+
 MULTISCANFILE = __file__.replace(
     'PyscesParScan', '_multicorescan'
-)  # .replace('.pyc','.py')
+)
 # print 'MULTISCANFILE is', MULTISCANFILE
 __psyco_active__ = 0
 
@@ -87,13 +89,7 @@ class ParScanner(Scanner):
             print('parallel engine: multiproc')
         elif engine == 'ipcluster':
             print('parallel engine: ipcluster')
-            try:
-                from ipyparallel import Client
-            except ImportError as ex:
-                print('\n', ex)
-                raise ImportError(
-                    'PARSCANNER: Requires IPython and ipyparallel version >=4.0 (http://ipython.org) and 0MQ (http://zero.mq).'
-                )
+            from ipyparallel import Client
             try:
                 rc = Client()
                 self.rc = rc
@@ -109,6 +105,8 @@ class ParScanner(Scanner):
             dv.execute('from pysces.PyscesParScan import Analyze, setModValue')
         else:
             raise UserWarning(engine + " is not a valid parallel engine!")
+
+        from ipyparallel.serialize import codeutil
         self.GenDict = {}
         self.GenOrder = []
         self.ScanSpace = []
@@ -179,26 +177,24 @@ class ParScanner(Scanner):
         arl = []  # asynchronous results list
         if self.engine == 'multiproc':
             fN = str(time()).split('.')[0]
-            F = open(fN, 'wb')
-            pickle.dump(
-                (
-                    self.mod,
-                    self.ScanPartition,
-                    self.SeqPartition,
-                    self.GenOrder,
-                    self.UserOutputList,
-                ),
-                F,
-                protocol=-1,
-            )
-            F.close()
+            with open(fN, 'wb') as F:
+                pickle.dump(
+                    (
+                        self.mod,
+                        self.ScanPartition,
+                        self.SeqPartition,
+                        self.GenOrder,
+                        self.UserOutputList,
+                    ),
+                    F,
+                    protocol=-1,
+                )
             fN = os.path.abspath(fN)
             print("Preparation completed:", next(self.scanT.PREP))
             self.scanT.normal_timer('RUN')
             subprocess.call([sys.executable, MULTISCANFILE, self._MODE_, fN])
-            F = open(fN, 'rb')
-            res_list = pickle.load(F)
-            F.close()
+            with open(fN, 'rb') as F:
+                res_list = pickle.load(F)
             os.remove(fN)
             for result in res_list:
                 self.StoreData(result)

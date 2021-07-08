@@ -42,7 +42,6 @@ from pkg_resources import get_build_platform
 from . import PyscesConfig
 from . import PyscesParse
 from . import PyscesLink as link
-from . import codeutil
 from . import PyscesSED as SED
 
 from .PyscesUtils import str2bool

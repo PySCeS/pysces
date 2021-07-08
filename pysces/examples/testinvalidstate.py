@@ -44,7 +44,7 @@ print("States per second: %.1f" % par.statespersecond)
 print("\n Speedup: %.2f" % (par.statespersecond/ser.statespersecond))
 
 print("\n\nParallel execution...with scatter and gather")
-par2 = pysces.ParScanner(m)
+par2 = pysces.ParScanner(m, engine='ipcluster')
 t5=time.time()
 par2.addScanParameter('V4',0.01,200,2000,log=True)
 par2.addUserOutput('J_R1', 'A')

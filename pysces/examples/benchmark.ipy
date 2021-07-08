@@ -10,7 +10,7 @@ import pysces
 
 from timeit import default_timer as clock
 
-from IPython.parallel import Client
+from ipyparallel import Client
 rc=Client()
 dv=rc[:]
 
@@ -26,73 +26,93 @@ m.SetQuiet()
 %px m.scan_out=['J_R1', 'ccJR1_R4']
 %px m.SetQuiet()
 
-scan_range=np.logspace(0.5,1.2,2000)
+scan_range=np.logspace(0.5,1.2,5000)
 
-print "PySCeS parallel scanning benchmark\n==================================\n"
+print("PySCeS parallel scanning benchmark\n==================================\n")
 
-print "Serial execution with Scan1..."
+print("\nSerial execution with Scan1...")
+print("------------------------------")
 t1=clock()
 m.Scan1(scan_range)
 ser_res = m.scan_res
 t2=clock()
-print "Time taken with Scan1:", t2-t1, "s"
-print "States per second:    ", len(scan_range)/(t2-t1)
+print("Time taken with Scan1:", t2-t1, "s")
+print("States per second:    ", len(scan_range)/(t2-t1))
 
-print "Using serial scanner class with Run..."
+print("\nUsing serial scanner class with Run...")
+print("--------------------------------------")
 serrun=pysces.Scanner(m)
 serrun.quietRun=True
-serrun.addScanParameter('V4',10**0.5,10**1.2,2000,log=True)
+serrun.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
 serrun.addUserOutput('J_R1', 'ccJR1_R4')
 t5=clock()
 serrun.Run()
 t6=clock()
-print "Time taken with Scanner class:", t6-t5, "s"
-print "States per second:    ", len(scan_range)/(t6-t5)
+print("Time taken with Scanner class:", t6-t5, "s")
+print("States per second:    ", len(scan_range)/(t6-t5))
 
 
-print "Parallel execution direct code with scatter..."
+print("\nParallel execution direct code with scatter...")
+print("----------------------------------------------")
 t3=clock()
-dv.scatter('scan_range', np.logspace(0.5,1.2,2000))
+dv.scatter('scan_range', np.logspace(0.5,1.2,5000))
 %px m.Scan1(scan_range)
 %px y=m.scan_res
 yloc=dv.gather('y')
 par_res = yloc.get()
 t4=clock()
-print "Time taken for direct parallel execution:", t4-t3, "s"
-print "States per second:                       ", len(scan_range)/(t4-t3)
-print "Number of engines:", len(dv)
-print "Speedup:", (t2-t1)/(t4-t3)
+print("Time taken for direct parallel execution:", t4-t3, "s")
+print("States per second:                       ", len(scan_range)/(t4-t3))
+print("Number of engines:", len(dv))
+print("Speedup:", (t2-t1)/(t4-t3))
 
-print "Using parallel scanner class with RunScatter..."
-parsct=pysces.ParScanner(m)
+print("\nUsing parallel scanner class with RunScatter...")
+print("-----------------------------------------------")
+parsct=pysces.ParScanner(m, engine='ipcluster')
 parsct.quietRun = True
-parsct.addScanParameter('V4',10**0.5,10**1.2,2000,log=True)
+parsct.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
 parsct.addUserOutput('J_R1', 'ccJR1_R4')
 t7=clock()
 parsct.RunScatter()
 t8=clock()
-print "Time taken with RunScatter for ParScanner class:", t8-t7, "s"
-print "States per second:                              ", len(scan_range)/(t8-t7)
-print "Speedup:", (t2-t1)/(t8-t7)
+print("Time taken with RunScatter for ParScanner class:", t8-t7, "s")
+print("States per second:                              ", len(scan_range)/(t8-t7))
+print("Speedup:", (t2-t1)/(t8-t7))
 
-print "Using parallel scanner class with Run..."
-parrun=pysces.ParScanner(m)
+print("\nUsing parallel scanner class with Run...(ipcluster)")
+print("---------------------------------------------------")
+parrun=pysces.ParScanner(m, engine='ipcluster')
 parrun.quietRun = True
 parrun.scans_per_run = 100
-parrun.addScanParameter('V4',10**0.5,10**1.2,2000,log=True)
+parrun.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
 parrun.addUserOutput('J_R1', 'ccJR1_R4')
 t9=clock()
 parrun.Run()
 t10=clock()
-print "Time taken with Run for ParScanner class:", t10-t9, "s"
-print "States per second:                       ", len(scan_range)/(t10-t9)
-print "Speedup:", (t2-t1)/(t10-t9)
+print("Time taken with Run for ParScanner class:", t10-t9, "s")
+print("States per second:                       ", len(scan_range)/(t10-t9))
+print("Speedup:", (t2-t1)/(t10-t9))
 
+print("\nUsing parallel scanner class with Run...(multiprocessing)")
+print("---------------------------------------------------------")
+parrunmp=pysces.ParScanner(m)
+parrunmp.quietRun = True
+parrunmp.scans_per_run = 100
+parrunmp.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
+parrunmp.addUserOutput('J_R1', 'ccJR1_R4')
+t11=clock()
+parrunmp.Run()
+t12=clock()
+print("Time taken with Run for ParScanner class:", t12-t11, "s")
+print("States per second:                       ", len(scan_range)/(t12-t11))
+print("Speedup:", (t2-t1)/(t12-t11))
 
-print "Checking results:"
-print "serial vs parallel:                  ", np.allclose(ser_res,par_res)
-print "serial Scan1 vs scanner class:       ", np.allclose(ser_res,np.hstack((serrun.ScanSpace, serrun.UserOutputResults)))
-print "parallel direct code vs. RunScatter: ", np.allclose(ser_res,np.hstack((parsct.ScanSpace, parsct.UserOutputResults)))
-print "parallel direct code vs. Run (lv)  : ", np.allclose(ser_res,np.hstack((parrun.ScanSpace, parrun.UserOutputResults)))
+print("\nChecking results:")
+print("-----------------")
+print("serial vs parallel:                  ", np.allclose(ser_res,par_res))
+print("serial Scan1 vs scanner class:       ", np.allclose(ser_res,np.hstack((serrun.ScanSpace, serrun.UserOutputResults))))
+print("parallel direct code vs. RunScatter: ", np.allclose(par_res,np.hstack((parsct.ScanSpace, parsct.UserOutputResults))))
+print("parallel direct code vs. Run (ipc) : ", np.allclose(par_res,np.hstack((parrun.ScanSpace, parrun.UserOutputResults))))
+print("parallel direct code vs. Run (mp)  : ", np.allclose(par_res,np.hstack((parrunmp.ScanSpace, parrunmp.UserOutputResults))))
 
 os.chdir(curDir)
