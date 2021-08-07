@@ -43,6 +43,7 @@ except NameError:
 import numpy
 import scipy
 import scipy.linalg
+import scipy.integrate
 
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
@@ -78,8 +79,14 @@ from . import (
     PyscesStoich,
     PyscesParse,
     __SILENT_START__,
+    __CHGDIR_ON_START__,
     SED,
 )
+
+if __CHGDIR_ON_START__:
+    CWD = OUTPUT_DIR
+else:
+    CWD = os.getcwd()
 
 interface = None
 
@@ -1157,7 +1164,7 @@ InfixParser.buildparser(
     debug=0, debugfile='infix.dbg', tabmodule='infix_tabmodule', outputdir=OUTPUT_DIR
 )
 InfixParser.setNameStr('self.', '')
-os.chdir(OUTPUT_DIR)
+os.chdir(CWD)
 
 # adapted from core2
 class Function(NewCoreBase):
@@ -1466,7 +1473,7 @@ class PysMod(object):
 
         self.__settings__ = {}
         self.__settings__.update({'enable_deprecated_attr': True})
-
+        self.WorkDir = CWD
         if loader == 'file':
             self.LoadFromFile(File, dir)
         elif loader == 'string':
@@ -1772,7 +1779,7 @@ class PysMod(object):
 
         print('\nParsing file: {}'.format(os.path.join(self.ModelDir, self.ModelFile)))
 
-        pscParser.ParsePSC(self.ModelFile, self.ModelDir, self.ModelOutput)
+        pscParser.ParsePSC(self.ModelFile, self.ModelDir, self.WorkDir)
         print(' ')
 
         badlist = pscParser.KeywordCheck(pscParser.ReactionIDs)
@@ -1956,7 +1963,6 @@ class PysMod(object):
                 assignment_rules[ar]['code_string'] = formula
                 all_names += InfixParser.names
 
-            os.chdir(self.ModelOutput)
             keep = []
             rules = list(assignment_rules.keys())
             dep = rules
@@ -2046,7 +2052,6 @@ class PysMod(object):
                 cntr += 1
                 # create mod.<rule name>_init attributes
                 setattr(self, '{}_init'.format(name), getattr(self, name))
-            os.chdir(self.ModelOutput)
             print('Rate rule(s) detected.')
         else:
             rr_code_block = 'pass\n'
@@ -2724,7 +2729,6 @@ class PysMod(object):
                 F.setArg(arg.strip())
             F.addFormula(self.__functions__[func]['formula'])
             setattr(self, func, F)
-        os.chdir(self.ModelOutput)
         for func in self.__functions__:
             fobj = getattr(self, func)
             for f in fobj.functions:
@@ -2746,7 +2750,6 @@ class PysMod(object):
                 ev.setAssignment(ass, self.__eDict__[e]['assignments'][ass])
             self.__events__.append(ev)
             setattr(self, ev.name, ev)
-        os.chdir(self.ModelOutput)
         if len(self.__events__) > 0:
             self.__HAS_EVENTS__ = True
             print('Event(s) detected.')
@@ -3436,7 +3439,6 @@ See: https://jmodelica.org/assimulo'
             if warnings != '' and self.__settings__['display_compartment_warnings']:
                 print('\n# -- COMPARTMENT WARNINGS --')
                 print(warnings)
-        os.chdir(self.ModelOutput)
         if self.__settings__['display_debug'] == 1:
             print('vString')
             print(vString)
@@ -4988,6 +4990,13 @@ See: https://jmodelica.org/assimulo'
         if not self.__StoichOK:
             self.Stoichiometry_ReAnalyse()
 
+        # check for zero first point in user-supplied mod.sim_time, add if needed
+        self._sim_time_bak = None
+        if userinit != 0:
+            if self.sim_time[0] != 0:
+                self._sim_time_bak = copy.copy(self.sim_time)
+                self.sim_time = [0.0] + list(self._sim_time_bak)
+
         # initialises self.__inspec__[x] with self.sXi
         if userinit == 1:
             eval(self.__mapFunc_R__)
@@ -5097,6 +5106,11 @@ setting sim_points = 2.0\n*****'
             sim_res, rates, simOK = self.LSODA(copy.copy(s0_sim_init))
         elif self.mode_integrator == 'CVODE':
             sim_res, rates, simOK = self.CVODE(copy.copy(s0_sim_init))
+        # remove zero point from reported simulation data if necessary
+        if self._sim_time_bak is not None:
+            self.sim_time = copy.copy(self._sim_time_bak)
+            sim_res = sim_res[1:]
+            rates = rates[1:]
         Tsim1 = time.time()
         if self.__settings__['lsoda_mesg']:
             print(

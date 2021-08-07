@@ -20,8 +20,7 @@ from __future__ import unicode_literals
 
 import sys, pickle
 import multiprocessing
-from pysces.PyscesParScan import Analyze, setModValue
-from pysces.PyscesUtils import TimerBox
+from pysces.PyscesParScan import Analyze
 from time import sleep
 
 
@@ -34,9 +33,8 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool()
 
     # load stuff from the pickle
-    F = open(sys.argv[2], 'rb')
-    mod, scanpartition, seqpartition, genorder, useroutputlist = pickle.load(F)
-    F.close()
+    with open(sys.argv[2], 'rb') as F:
+        mod, scanpartition, seqpartition, genorder, useroutputlist = pickle.load(F)
 
     mod.SetQuiet()  # kill verbose output during scan
     # append tasks to asynchronous results list
@@ -70,8 +68,8 @@ if __name__ == '__main__':
     res_list = []
     for ar in arl:
         res_list.append(ar.get())
+    pool.close()
     # pickle results_list
-    F = open(sys.argv[2], 'wb')
-    pickle.dump(res_list, F, protocol=-1)
-    F.flush()
-    F.close()
+    with open(sys.argv[2], 'wb') as F:
+        pickle.dump(res_list, F, protocol=-1)
+        F.flush()

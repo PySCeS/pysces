@@ -34,7 +34,7 @@ ser.statespersecond = len(ser.ScanSpace) / (t2 - t1)
 print("States per second: %.1f" % ser.statespersecond)
 
 print("\n\nParallel execution...scans per run =", 100)
-par = pysces.ParScanner(m)
+par = pysces.ParScanner(m, engine='multiproc')
 par.scans_per_run = 100
 t3 = time.time()
 par.addScanParameter('V4', 60, 100, 11)
@@ -55,7 +55,7 @@ print(
 )
 
 print("\n\nParallel execution...using RunScatter")
-par2 = pysces.ParScanner(m)
+par2 = pysces.ParScanner(m, engine='ipcluster')
 t5 = time.time()
 par2.addScanParameter('V4', 60, 100, 11)
 par2.addScanParameter('V1', 100, 160, 16)
