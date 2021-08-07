@@ -43,6 +43,7 @@ except NameError:
 import numpy
 import scipy
 import scipy.linalg
+import scipy.integrate
 
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
@@ -4813,6 +4814,13 @@ class PysMod(object):
         if not self.__StoichOK:
             self.Stoichiometry_ReAnalyse()
 
+        # check for zero first point in user-supplied mod.sim_time, add if needed
+        self._sim_time_bak = None
+        if userinit != 0:
+            if self.sim_time[0] != 0:
+                self._sim_time_bak = copy.copy(self.sim_time)
+                self.sim_time = [0.0] + list(self._sim_time_bak)
+
         # initialises self.__inspec__[x] with self.sXi
         if userinit == 1:
             eval(self.__mapFunc_R__)
@@ -4921,6 +4929,11 @@ class PysMod(object):
             sim_res, rates, simOK = self.LSODA(copy.copy(s0_sim_init))
         elif self.mode_integrator == 'CVODE':
             sim_res, rates, simOK = self.CVODE(copy.copy(s0_sim_init))
+        # remove zero point from reported simulation data if necessary
+        if self._sim_time_bak is not None:
+            self.sim_time = copy.copy(self._sim_time_bak)
+            sim_res = sim_res[1:]
+            rates = rates[1:]
         Tsim1 = time.time()
         if self.__settings__['lsoda_mesg']:
             print(
