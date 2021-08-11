@@ -627,7 +627,7 @@ class CoreToSBML(object):
         'numpy.sin': 'sin',
         'numpy.cos': 'cos',
         'numpy.tan': 'tan',
-        'math.log10': 'log',
+        'math.log10': 'log10',
         'math.log': 'ln',
         'numpy.floor': 'floor',
         'numpy.ceil': 'ceil',
