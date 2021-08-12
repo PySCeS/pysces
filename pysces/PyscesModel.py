@@ -119,17 +119,82 @@ else:
             )
         )
 
-_HAVE_PYSUNDIALS = False
-_PYSUNDIALS_LOAD_ERROR = ''
+_HAVE_ASSIMULO = False
+_ASSIMULO_LOAD_ERROR = ''
 try:
-    from pysundials import cvode
+    from assimulo.solvers import CVode
+    from assimulo.problem import Explicit_Problem
 
     if not __SILENT_START__:
-        print('PySundials available')
-    _HAVE_PYSUNDIALS = True
+        print('Assimulo CVode available')
+    _HAVE_ASSIMULO = True
+
+    class EventsProblem(Explicit_Problem):
+        def __init__(self, mod, **kwargs):
+            Explicit_Problem.__init__(self, **kwargs)
+            self.mod = mod
+            self.name = self.mod.__KeyWords__['Modelname']
+            # needed to track changes in parameters during events for REq evaluation
+            self.parvals = []
+            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+            self.event_times = []
+
+        def state_events(self, t, y, sw):
+            self.events = self.mod.__events__
+            eout = numpy.zeros(len(self.events))
+            self.mod._TIME_ = t
+            for ev in range(len(self.events)):
+                if self.events[ev](t):
+                    eout[ev] = 0
+                else:
+                    eout[ev] = 1
+            if self.mod.__HAS_RATE_RULES__:
+                exec(self.mod.__CODE_raterule)
+            return eout
+
+        def handle_event(self, solver, event_info):
+            self.event_times.append(solver.t)
+            state_info = event_info[0]
+            idx = state_info.index(-1)
+            ev = self.events[idx]
+            if ev._assign_now:
+                for ass in ev.assignments:
+                    if ass.variable in self.mod.L0matrix.getLabels()[1] or (
+                        self.mod.mode_integrate_all_odes
+                        and ass.variable in self.mod.__species__
+                    ):
+                        assVal = ass.getValue()
+                        assIdx = self.mod.__species__.index(ass.variable)
+                        if self.mod.__KeyWords__["Species_In_Conc"]:
+                            solver.y[assIdx] = assVal * getattr(
+                                self.mod, self.mod.__CsizeAllIdx__[assIdx]
+                            )
+                        else:
+                            solver.y[assIdx] = assVal
+                    elif (
+                        not self.mod.mode_integrate_all_odes
+                        and ass.variable in self.mod.L0matrix.getLabels()[0]
+                    ):
+                        print(
+                            'Event assignment to dependent species consider setting\
+"mod.mode_integrate_all_odes = True"'
+                        )
+                    elif (
+                        self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
+                    ):
+                        assVal = ass.getValue()
+                        rrIdx = self.mod.__rate_rules__.index(ass.variable)
+                        self.mod.__rrule__[rrIdx] = assVal
+                        solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                        setattr(self.mod, ass.variable, assVal)
+                    else:
+                        ass()
+            # track any parameter changes
+            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+
 except Exception as ex:
-    _PYSUNDIALS_LOAD_ERROR = '{}'.format(ex)
-    _HAVE_PYSUNDIALS = False
+    _ASSIMULO_LOAD_ERROR = '{}'.format(ex)
+    _HAVE_ASSIMULO = False
 
 # We now welcome a prototype StomPy interface to PySCeS which will provide expanding stochastic simulation support.
 
@@ -1192,7 +1257,7 @@ class EventAssignment(NumberBase):
 # adapted from core2
 class Event(NewCoreBase):
     """
-    Event's have triggers and fire EventAssignments when required.
+    Events have triggers and fire EventAssignments when required.
     Ported from Core2.
     """
 
@@ -1207,6 +1272,7 @@ class Event(NewCoreBase):
     _TIME_ = 0.0
     _ASS_TIME_ = 0.0
     _need_action = False
+    _assign_now = False
     symbols = None
     _time_symbol = None
     piecewises = None
@@ -1234,8 +1300,7 @@ class Event(NewCoreBase):
                 print('\nevent {} is evaluating at {}'.format(self.name, time))
             ret = True
         if self._need_action and self._TIME_ >= self._ASS_TIME_:
-            for ass in self.assignments:
-                ass()
+            self._assign_now = True
             if self.__DEBUG__:
                 print(
                     'event {} is assigning at {} (delay={})'.format(
@@ -1250,7 +1315,6 @@ class Event(NewCoreBase):
         self.formula = formula
         self.delay = delay
         InfixParser.setNameStr('self.mod.', '')
-        ##  print formula, delay
         if self._time_symbol != None:
             InfixParser.SymbolReplacements = {self._time_symbol: '_TIME_'}
         else:
@@ -1260,7 +1324,6 @@ class Event(NewCoreBase):
         self.symbols = InfixParser.names
         self.code_string = 'self.state={}'.format(InfixParser.output)
         self.xcode = compile(self.code_string, 'Ev: {}'.format(self.name), 'exec')
-        ##  print self.name, self.code_string
 
     def setAssignment(self, var, formula):
         ass = EventAssignment(var, mod=self.mod)
@@ -1366,14 +1429,20 @@ class PieceWise(NewCoreBase):
 
 class PysMod(object):
     """
-    Create a model object and instantiate a PySCeS model so that it can be used for further analyses. PySCeS
-    model descriptions can be loaded from files or strings (see the *loader* argument for details).
+    Create a model object and instantiate a PySCeS model so that it can be used for
+    further analyses. PySCeS model descriptions can be loaded from files or strings
+    (see the *loader* argument for details).
 
-    - *File* the name of the PySCeS input file if not explicit a \*.psc extension is assumed.
-    - *dir* if specified, the path to the input file otherwise the default PyscesModel directory (defined in the pys_config.ini file) is assumed.
+    - *File* the name of the PySCeS input file if not explicit a \*.psc extension is
+      assumed.
+    - *dir* if specified, the path to the input file otherwise the default PyscesModel
+      directory (defined in the pys_config.ini file) is assumed.
     - *autoload* autoload the model, pre 0.7.1 call mod.doLoad(). (default=True) **new**
-    - *loader* the default behaviour is to load PSC file, however, if this argument is set to 'string' an input file can be supplied as the *fString* argument (default='file')
-    - *fString* a string containing a PySCeS model file (use with *loader='string'*) the *File* argument now sepcifies the new input file name.
+    - *loader* the default behaviour is to load PSC file, however, if this argument is
+      set to 'string' an input file can be supplied as the *fString* argument
+      (default='file')
+    - *fString* a string containing a PySCeS model file (use with *loader='string'*)
+      the *File* argument now sepcifies the new input file name.
 
     """
 
@@ -2668,6 +2737,8 @@ class PysMod(object):
 
     # add event types to model
     def InitialiseEvents(self):
+        # return all event time points, even if not in self.sim_time
+        self.__settings__['cvode_return_event_timepoints'] = True
         self.__events__ = []
         # for each event
         for e in self.__eDict__:
@@ -2900,47 +2971,47 @@ class PysMod(object):
         # try to select the best integration algorithm
         self.mode_integrator = 'LSODA'  # LSODA/CVODE set the intgration algorithm
         if self.__HAS_EVENTS__:
-            if _HAVE_PYSUNDIALS:
+            if _HAVE_ASSIMULO:
                 print(
-                    '\nINFO: events detected and we have PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').'
+                    '\nINFO: events detected and we have Assimulo installed,\n\
+switching to CVODE (mod.mode_integrator=\'CVODE\').'
                 )
                 self.mode_integrator = 'CVODE'
             else:
                 print(
-                    '\nWARNING: PySCeS needs PySundials installed for event handling, PySCeS will continue with LSODA (NOTE: ALL EVENTS WILL BE IGNORED!).'
+                    '\nWARNING: PySCeS needs Assimulo installed for event handling,\n\
+PySCeS will continue with LSODA (NOTE: ALL EVENTS WILL BE IGNORED!).'
                 )
                 print(
-                    'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
-                )
-                print(
-                    'For other OS\'s see pysundials.sf.net for installation details\n'
+                    'Assimulo may be installed from conda-forge or compiled from source.\n\
+See: https://jmodelica.org/assimulo'
                 )
                 self.__events__ = []
         # if self.__HAS_RATE_RULES__ or self.__HAS_COMPARTMENTS__:
         if self.__HAS_RATE_RULES__:
-            if _HAVE_PYSUNDIALS:
+            if _HAVE_ASSIMULO:
                 print(
-                    'INFO: RateRules detected and PySundials installed, switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
+                    'INFO: RateRules detected and Assimulo installed,\n\
+switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
                 )
                 self.mode_integrator = 'CVODE'
             else:
                 print(
-                    '\nWARNING: RateRules detected! PySCeS prefers CVODE but will continue with LSODA (NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)'
+                    '\nWARNING: RateRules detected! PySCeS prefers CVODE but will continue with LSODA\n\
+(NOTE: VARIABLE COMPARTMENTS ARE NOT SUPPORTED WITH LSODA!)'
                 )
                 print(
-                    'Windows users may install the "pysces_pysundials" package from pysces.sf.net'
-                )
-                print(
-                    'For other OS\'s see pysundials.sf.net for installation details\n'
+                    'Assimulo may be installed from conda-forge or compiled from source.\n\
+See: https://jmodelica.org/assimulo'
                 )
 
-        # pysundials
+        # CVode options
         self.mode_integrate_all_odes = False  # only available with CVODE
         self.__settings__["cvode_abstol"] = 1.0e-15  # absolute tolerance
-        ##  self.__settings__["cvode_abstol_max"]  = 1.0e-3 # not used anymore
-        self.__settings__["cvode_abstol_factor"] = 1.0e-6
+        # self.__settings__["cvode_abstol_max"]  = 1.0e-3  # not used anymore
+        # self.__settings__["cvode_abstol_factor"] = 1.0e-6  # not used in Assimulo
         self.__settings__["cvode_reltol"] = 1.0e-9  # relative tolerance
-        self.__settings__["cvode_auto_tol_adjust"] = True  # auto reduce tolerances
+        # self.__settings__["cvode_auto_tol_adjust"] = True  # not used in Assimulo
         self.__settings__["cvode_mxstep"] = 1000  # max step default
         # print some pretty stuff after a simulation
         self.__settings__["cvode_stats"] = False
@@ -2948,7 +3019,8 @@ class PysMod(object):
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9:
             self.__settings__["cvode_reltol"] = 1.0e-6
             print(
-                'INFO: Piecewise functions detected increasing CVODE tolerance slightly (mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).'
+                'INFO: Piecewise functions detected increasing CVODE tolerance slightly\n\
+(mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).'
             )
 
         # Normal simulation options
@@ -3714,472 +3786,572 @@ class PysMod(object):
         self.CVODE_continuous_result.append(self.data_sim)
         self.__CVODE_initialise__ = True
 
+    # def CVODE(self, initial):
+    #     """
+    #     CVODE(initial)
+    #
+    #     PySCeS interface to the CVODE integration algorithm.
+    #
+    #     Arguments:
+    #     initial: vector containing initial species concentrations
+    #
+    #     """
+    #     assert (
+    #         _HAVE_ASSIMULO
+    #     ), '\nPySundials is not installed or did not import correctly\n{}'.format(
+    #         _ASSIMULO_LOAD_ERROR
+    #     )
+    #     Vtemp = numpy.zeros((self.__Nshape__[1]))
+    #
+    #     def findi(t, y, ydot, f_data):
+    #         self._TIME_ = t
+    #         ydota = self._EvalODE(numpy.array(y), Vtemp)
+    #         ydot[:] = ydota[:]
+    #         return 0  # non-zero return indicates error state
+    #
+    #     def ffull(t, y, ydot, f_data):
+    #         self._TIME_ = t
+    #         ##  ya = numpy.array(y)
+    #         ydota = self._EvalODE_CVODE(numpy.array(y), Vtemp)  # unreduced ODE's
+    #         ydot[:] = ydota[:]
+    #         return 0
+    #
+    #     func = None
+    #     if self.mode_integrate_all_odes:
+    #         func = ffull
+    #     else:
+    #         func = findi
+    #
+    #     if self.__CVODE_initialise__:
+    #         tZero = initial.copy()
+    #         if self.__HAS_RATE_RULES__:
+    #             initial, rrules = numpy.split(initial, [self.Nrmatrix.shape[0]])
+    #             tZero = initial.copy()
+    #         if self.__HAS_MOIETY_CONSERVATION__ and self.mode_integrate_all_odes:
+    #             initial = self.Fix_S_indinput(initial, amounts=True)
+    #             tZero = initial.copy()
+    #         elif self.__HAS_MOIETY_CONSERVATION__:
+    #             tZero = self.Fix_S_indinput(tZero, amounts=True)
+    #         if self.__HAS_RATE_RULES__:
+    #             initial = numpy.concatenate([initial, rrules])
+    #             tZero = numpy.concatenate([tZero, rrules])
+    #     else:
+    #         tZero = None
+    #
+    #     # the following block initialises the cvode integrator, and sets various options
+    #     if self.__CVODE_initialise__:
+    #         self.__CVODE_y__ = cvode.NVector(initial.tolist())
+    #         self.__CVODE_mem__ = cvode.CVodeCreate(
+    #             cvode.CV_BDF, cvode.CV_NEWTON
+    #         )  # initialisation with basic options, newtonian solver etc...
+    #         self.__CVODE_initial_num__ = len(initial)
+    #     del initial
+    #     t = cvode.realtype(0.0)
+    #     rates = numpy.zeros((len(self.sim_time), len(self.__reactions__)))
+    #     output = None
+    #     if self.__HAS_RATE_RULES__:
+    #         output = numpy.zeros(
+    #             (len(self.sim_time), len(self.__rrule__) + len(self.__species__))
+    #         )
+    #     else:
+    #         output = numpy.zeros((len(self.sim_time), len(self.__species__)))
+    #
+    #     CVODE_XOUT = False
+    #     if len(self.CVODE_extra_output) > 0:
+    #         out = []
+    #         for d in self.CVODE_extra_output:
+    #             if (
+    #                 hasattr(self, d)
+    #                 and d
+    #                 not in self.__species__ + self.__reactions__ + self.__rate_rules__
+    #             ):
+    #                 out.append(d)
+    #             else:
+    #                 print(
+    #                     '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
+    #                         d
+    #                     )
+    #                 )
+    #         if len(out) > 0:
+    #             self.CVODE_extra_output = out
+    #             CVODE_XOUT = True
+    #         del out
+    #
+    #     if CVODE_XOUT:
+    #         self.CVODE_xdata = numpy.zeros(
+    #             (len(self.sim_time), len(self.CVODE_extra_output))
+    #         )
+    #
+    #     sim_st = 0
+    #     if self.sim_time[0] == 0.0:
+    #
+    #         if self.__CVODE_initialise__:
+    #             out0 = tZero[:].copy()
+    #         else:
+    #             out0 = numpy.array(self.__CVODE_y__[:])
+    #         output[0, :] = out0
+    #
+    #         if not self.mode_integrate_all_odes:
+    #             self._EvalODE(out0.copy(), self._CVODE_Vtemp)
+    #         else:
+    #             self._EvalODE_CVODE(out0.copy(), self._CVODE_Vtemp)
+    #         rates[0] = self.__vvec__
+    #
+    #         if CVODE_XOUT:
+    #             self.CVODE_xdata[0, :] = self._EvalExtraData(self.CVODE_extra_output)
+    #         sim_st = 1
+    #     del tZero
+    #
+    #     var_store = {}
+    #     if self.__HAS_EVENTS__:
+    #         for ev in self.__events__:
+    #             ev.reset()
+    #             for ass in ev.assignments:
+    #                 var_store.update({ass.variable: getattr(self, ass.variable)})
+    #     TOL_ADJUSTER = 0
+    #     MAX_TOL_CNT = 5
+    #     MAX_REL_TOLERANCE = 1.0e-3
+    #     RELTOL_ADJUST_FACTOR = 1.0e3
+    #     MIN_ABS_TOL = self.__settings__["cvode_abstol"]  # 1.0e-15
+    #     ##  MAX_ABS_TOL = self.__settings__["cvode_abstol_max"] #1.0e-3 not used anymore
+    #     ABSTOL_ADJUST_FACTOR = self.__settings__["cvode_abstol_factor"]  # 1.0e-6
+    #     cvode_sim_range = list(range(sim_st, len(self.sim_time)))
+    #     cvode_scale_range = list(
+    #         range(
+    #             sim_st,
+    #             len(self.sim_time),
+    #             len(self.sim_time) // 4 or len(self.sim_time),
+    #         )
+    #     )
+    #     cvode_scale_range = cvode_scale_range[1:]
+    #     reltol = cvode.realtype(
+    #         self.__settings__["cvode_reltol"]
+    #     )  # relative tolerance must be a realtype
+    #     abstol = cvode.NVector(
+    #         self.__CVODE_initial_num__ * [self.__settings__["cvode_abstol"]]
+    #     )
+    #     for s in range(len(self.__CVODE_y__)):
+    #         newVal = abs(self.__CVODE_y__[s]) * ABSTOL_ADJUST_FACTOR
+    #         if newVal < MIN_ABS_TOL:
+    #             abstol[s] = MIN_ABS_TOL
+    #         else:
+    #             abstol[s] = newVal
+    #     if self.__CVODE_initialise__:
+    #         cvode.CVodeMalloc(
+    #             self.__CVODE_mem__,
+    #             func,
+    #             0.0,
+    #             self.__CVODE_y__,
+    #             cvode.CV_SV,
+    #             reltol,
+    #             abstol,
+    #         )  # set tolerances, specify vector of initial conditions, set integrtion function etc...
+    #         cvode.CVDense(
+    #             self.__CVODE_mem__, self.__CVODE_initial_num__
+    #         )  # set dense option, specify dimension of problem (3)
+    #     if self.__HAS_EVENTS__:
+    #         cvode.CVodeRootInit(
+    #             self.__CVODE_mem__, len(self.__events__), self.CVODE_EVENTS, None
+    #         )  # specify to 'root' conditions, and function that calculates them
+    #
+    #     for st in cvode_sim_range:
+    #         tout = self.sim_time[st]
+    #         errcount = 0
+    #         ##  print TOL_ADJUSTER, MAX_TOL_CNT, abstol, MAX_REL_TOLERANCE
+    #         if (
+    #             self.__settings__["cvode_auto_tol_adjust"]
+    #             and TOL_ADJUSTER >= MAX_TOL_CNT
+    #             and reltol.value < MAX_REL_TOLERANCE
+    #         ):
+    #             reltol.value = reltol.value * RELTOL_ADJUST_FACTOR
+    #             cvode.CVodeSetTolerances(
+    #                 self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
+    #             )
+    #             ##  print '\nCVODE: new tolerance set:\nreltol={}'.format(reltol.value)
+    #             ##  print '\nAbs tolerance:\n{}'.format(abstol)
+    #             TOL_ADJUSTER = 0
+    #         if (st in cvode_scale_range) and self.__settings__["cvode_auto_tol_adjust"]:
+    #             for s in range(len(self.__CVODE_y__)):
+    #                 newVal = abs(self.__CVODE_y__[s]) * ABSTOL_ADJUST_FACTOR
+    #                 if newVal < MIN_ABS_TOL:
+    #                     abstol[s] = MIN_ABS_TOL
+    #                 else:
+    #                     abstol[s] = newVal
+    #             ##  print '\nCVODE: new tolerance set, abstol:\n{}'.format(abstol)
+    #             cvode.CVodeSetTolerances(
+    #                 self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
+    #             )
+    #             ##  cvode.CVodeReInit(self.__CVODE_mem__, func, self.sim_time[st-1], self.__CVODE_y__, cvode.CV_SV, reltol, abstol)
+    #         while True:
+    #             try:
+    #                 flag = cvode.CVode(
+    #                     self.__CVODE_mem__,
+    #                     tout,
+    #                     self.__CVODE_y__,
+    #                     cvode.ctypes.byref(t),
+    #                     cvode.CV_NORMAL,
+    #                 )
+    #             except AssertionError as ex:
+    #                 print('cvode error1', ex)
+    #                 flag = None
+    #             self._TIME_ = tout
+    #             if (
+    #                 flag == cvode.CV_ROOT_RETURN
+    #             ):  # if a root was found before desired time point, output it
+    #                 ya = numpy.array(self.__CVODE_y__)
+    #                 rootsfound = cvode.CVodeGetRootInfo(
+    #                     self.__CVODE_mem__, len(self.__events__)
+    #                 )
+    #                 reInit = False
+    #                 for ev in range(len(self.__events__)):
+    #                     if rootsfound[ev] == 1:
+    #                         for ass in self.__events__[ev].assignments:
+    #                             # only can assign to independent species vector
+    #                             if ass.variable in self.L0matrix.getLabels()[1] or (
+    #                                 self.mode_integrate_all_odes
+    #                                 and ass.variable in self.__species__
+    #                             ):
+    #                                 assVal = ass.getValue()
+    #                                 assIdx = self.__species__.index(ass.variable)
+    #                                 if self.__KeyWords__['Species_In_Conc']:
+    #                                     ##  print self.__CVODE_y__
+    #                                     self.__CVODE_y__[assIdx] = assVal * getattr(
+    #                                         self, self.__CsizeAllIdx__[assIdx]
+    #                                     )
+    #                                     ##  raw_input(self.__CVODE_y__)
+    #                                 else:
+    #                                     self.__CVODE_y__[assIdx] = assVal
+    #                                 reInit = True
+    #                             elif (
+    #                                 not self.mode_integrate_all_odes
+    #                                 and ass.variable in self.L0matrix.getLabels()[0]
+    #                             ):
+    #                                 print(
+    #                                     'Event assignment to dependent species consider setting \"mod.mode_integrate_all_odes = True\"'
+    #                                 )
+    #                             elif (
+    #                                 self.__HAS_RATE_RULES__
+    #                                 and ass.variable in self.__rate_rules__
+    #                             ):
+    #                                 ##  print 'Event is assigning to rate rule'
+    #                                 assVal = ass.getValue()
+    #                                 rrIdx = self.__rate_rules__.index(ass.variable)
+    #                                 ##  print ass.variable, assVal
+    #                                 self.__rrule__[rrIdx] = assVal
+    #                                 ##  print self.L0matrix.shape[1], rrIdx, len(self.__CVODE_y__)
+    #                                 self.__CVODE_y__[
+    #                                     self.L0matrix.shape[1] + rrIdx
+    #                                 ] = assVal
+    #                                 setattr(self, ass.variable, assVal)
+    #                                 reInit = True
+    #                             else:
+    #                                 try:
+    #                                     setattr(self, ass.variable, ass.getValue())
+    #                                     reInit = True
+    #                                 except:
+    #                                     print(
+    #                                         'ERROR: Updating model attribute from event: ',
+    #                                         ass.variable,
+    #                                     )
+    #
+    #                 if reInit:
+    #                     cvode.CVodeReInit(
+    #                         self.__CVODE_mem__,
+    #                         func,
+    #                         tout,
+    #                         self.__CVODE_y__,
+    #                         cvode.CV_SV,
+    #                         reltol,
+    #                         abstol,
+    #                     )
+    #
+    #                 # this gets everything into the current tout state
+    #                 tmp = None
+    #                 if not self.mode_integrate_all_odes:
+    #                     tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
+    #                 else:
+    #                     tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
+    #                 del tmp
+    #
+    #                 # here we regenerate Sd's and fix concentrations
+    #                 rrules = None
+    #                 if (
+    #                     self.__HAS_MOIETY_CONSERVATION__
+    #                     and not self.mode_integrate_all_odes
+    #                 ):
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya, rrules = numpy.split(ya, [self.Nrmatrix.shape[0]])
+    #                     ya = self.Fix_S_indinput(ya, amounts=True)
+    #                     # convert to concentrations
+    #                     if (
+    #                         self.__HAS_COMPARTMENTS__
+    #                         and self.__KeyWords__['Output_In_Conc']
+    #                     ):
+    #                         ya = self._SpeciesAmountToConc(ya)
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya = numpy.concatenate([ya, rrules])
+    #                 else:
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya, rrules = numpy.split(ya, [self.Nmatrix.shape[0]])
+    #                     if (
+    #                         self.__HAS_COMPARTMENTS__
+    #                         and self.__KeyWords__['Output_In_Conc']
+    #                     ):
+    #                         ya = self._SpeciesAmountToConc(ya)
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya = numpy.concatenate([ya, rrules])
+    #
+    #                 output[st] = ya
+    #                 # set with self._EvalODE above
+    #                 rates[st] = self.__vvec__
+    #
+    #                 if CVODE_XOUT:
+    #                     self.CVODE_xdata[st, :] = self._EvalExtraData(
+    #                         self.CVODE_extra_output
+    #                     )
+    #                 # this should adjust the expected time to the new output time time
+    #                 self.sim_time[st] = float(tout)
+    #                 # dont need anymore i think
+    #                 if _HAVE_VPYTHON:
+    #                     self.CVODE_VPYTHON(ya)
+    #                 del ya, rrules
+    #                 break
+    #             if flag == cvode.CV_SUCCESS:
+    #                 ya = numpy.array(self.__CVODE_y__)
+    #                 # this gets everything into the current tout state
+    #                 tmp = None
+    #                 if not self.mode_integrate_all_odes:
+    #                     tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
+    #                 else:
+    #                     tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
+    #                 del tmp
+    #                 # here we regenerate Sd's and fix concentrations
+    #                 rrules = None
+    #                 if (
+    #                     self.__HAS_MOIETY_CONSERVATION__
+    #                     and not self.mode_integrate_all_odes
+    #                 ):
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya, rrules = numpy.split(ya, [self.Nrmatrix.shape[0]])
+    #                     ya = self.Fix_S_indinput(ya, amounts=True)
+    #                     # convert to concentrations
+    #                     if (
+    #                         self.__HAS_COMPARTMENTS__
+    #                         and self.__KeyWords__['Output_In_Conc']
+    #                     ):
+    #                         ya = self._SpeciesAmountToConc(ya)
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya = numpy.concatenate([ya, rrules])
+    #                 else:
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya, rrules = numpy.split(ya, [self.Nmatrix.shape[0]])
+    #                     if (
+    #                         self.__HAS_COMPARTMENTS__
+    #                         and self.__KeyWords__['Output_In_Conc']
+    #                     ):
+    #                         ya = self._SpeciesAmountToConc(ya)
+    #                     if self.__HAS_RATE_RULES__:
+    #                         ya = numpy.concatenate([ya, rrules])
+    #
+    #                 output[st] = ya
+    #                 # set with self._EvalODE above
+    #                 rates[st] = self.__vvec__
+    #
+    #                 if CVODE_XOUT:
+    #                     self.CVODE_xdata[st, :] = self._EvalExtraData(
+    #                         self.CVODE_extra_output
+    #                     )
+    #                 if _HAVE_VPYTHON:
+    #                     self.CVODE_VPYTHON(ya)
+    #                 del ya, rrules
+    #                 break
+    #             elif flag == -1:
+    #                 if self.__settings__["cvode_mxstep"] == 1000:
+    #                     self.__settings__["cvode_mxstep"] = 3000
+    #                     TOL_ADJUSTER += 1
+    #                 elif self.__settings__["cvode_mxstep"] == 3000:
+    #                     self.__settings__["cvode_mxstep"] = 10000
+    #                     TOL_ADJUSTER += 2
+    #                 elif self.__settings__["cvode_mxstep"] == 10000:
+    #                     ##  TOL_ADJUSTER += 1
+    #                     output[st] = numpy.NaN
+    #                     break
+    #                 print(
+    #                     'mxstep warning ({}) mxstep set to {}'.format(
+    #                         flag, self.__settings__["cvode_mxstep"]
+    #                     )
+    #                 )
+    #                 cvode.CVodeSetMaxNumSteps(
+    #                     self.__CVODE_mem__, self.__settings__["cvode_mxstep"]
+    #                 )
+    #             elif flag < -3:
+    #                 print('CVODE error:', flag)
+    #                 print('At ', tout)
+    #                 output[st] = numpy.NaN
+    #                 rates[st] = numpy.NaN
+    #                 if CVODE_XOUT:
+    #                     self.CVODE_xdata[st] = numpy.NaN
+    #                 break
+    #         self.__settings__["cvode_mxstep"] = 1000
+    #         cvode.CVodeSetMaxNumSteps(
+    #             self.__CVODE_mem__, self.__settings__["cvode_mxstep"]
+    #         )
+    #
+    #     if self.__HAS_EVENTS__:
+    #         for ass in list(var_store.keys()):
+    #             # print 'old value', ass, getattr(self, ass)
+    #             setattr(self, ass, var_store[ass])
+    #             # print 'new value', getattr(self, ass)
+    #
+    #     if self.__settings__["cvode_stats"]:
+    #         # print some stats from the intgrator
+    #         nst = cvode.CVodeGetNumSteps(self.__CVODE_mem__)
+    #         nfe = cvode.CVodeGetNumRhsEvals(self.__CVODE_mem__)
+    #         nsetups = cvode.CVodeGetNumLinSolvSetups(self.__CVODE_mem__)
+    #         netf = cvode.CVodeGetNumErrTestFails(self.__CVODE_mem__)
+    #         nni = cvode.CVodeGetNumNonlinSolvIters(self.__CVODE_mem__)
+    #         ncfn = cvode.CVodeGetNumNonlinSolvConvFails(self.__CVODE_mem__)
+    #         nje = cvode.CVDenseGetNumJacEvals(self.__CVODE_mem__)
+    #         nfeLS = cvode.CVDenseGetNumRhsEvals(self.__CVODE_mem__)
+    #         nge = cvode.CVodeGetNumGEvals(self.__CVODE_mem__)
+    #
+    #         print("\nFinal Statistics:")
+    #         print(
+    #             "nst = {} nfe  = {} nsetups = {} nfeLS = {} nje = {}".format(
+    #                 nst, nfe, nsetups, nfeLS, nje
+    #             )
+    #         )
+    #         print(
+    #             "nni = {} ncfn = {} netf = {} nge = {}\n ".format(nni, ncfn, netf, nge)
+    #         )
+    #         print('reltol = {}'.format(reltol))
+    #         print('abstol:\n{}'.format(abstol))
+    #
+    #     if cvode.CV_SUCCESS >= 0:
+    #         return output, rates, True
+    #     else:
+    #         return output, rates, False
+
     def CVODE(self, initial):
         """
         CVODE(initial)
 
-        PySCeS interface to the CVODE integration algorithm.
+        PySCeS interface to the CVode integration algorithm. Given a set of initial
+        conditions.
 
         Arguments:
+
         initial: vector containing initial species concentrations
 
         """
         assert (
-            _HAVE_PYSUNDIALS
-        ), '\nPySundials is not installed or did not import correctly\n{}'.format(
-            _PYSUNDIALS_LOAD_ERROR
+            _HAVE_ASSIMULO
+        ), '\nAssimulo is not installed or did not import correctly\n{}'.format(
+            _ASSIMULO_LOAD_ERROR
         )
-        Vtemp = numpy.zeros((self.__Nshape__[1]))
+        Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
 
-        def findi(t, y, ydot, f_data):
+        def findi(t, s):
             self._TIME_ = t
-            ydota = self._EvalODE(numpy.array(y), Vtemp)
-            ydot[:] = ydota[:]
-            return 0  # non-zero return indicates error state
+            return self._EvalODE(s, Vtemp)
 
-        def ffull(t, y, ydot, f_data):
+        def ffull(t, s):
             self._TIME_ = t
-            ##  ya = numpy.array(y)
-            ydota = self._EvalODE_CVODE(numpy.array(y), Vtemp)  # unreduced ODE's
-            ydot[:] = ydota[:]
-            return 0
+            return self._EvalODE_CVODE(s, Vtemp)  # unreduced ODE's
 
-        func = None
         if self.mode_integrate_all_odes:
-            func = ffull
+            rhs = ffull
         else:
-            func = findi
+            rhs = findi
 
         if self.__CVODE_initialise__:
-            tZero = initial.copy()
             if self.__HAS_RATE_RULES__:
                 initial, rrules = numpy.split(initial, [self.Nrmatrix.shape[0]])
-                tZero = initial.copy()
             if self.__HAS_MOIETY_CONSERVATION__ and self.mode_integrate_all_odes:
                 initial = self.Fix_S_indinput(initial, amounts=True)
-                tZero = initial.copy()
-            elif self.__HAS_MOIETY_CONSERVATION__:
-                tZero = self.Fix_S_indinput(tZero, amounts=True)
             if self.__HAS_RATE_RULES__:
                 initial = numpy.concatenate([initial, rrules])
-                tZero = numpy.concatenate([tZero, rrules])
-        else:
-            tZero = None
 
-        # the following block initialises the cvode integrator, and sets various options
-        if self.__CVODE_initialise__:
-            self.__CVODE_y__ = cvode.NVector(initial.tolist())
-            self.__CVODE_mem__ = cvode.CVodeCreate(
-                cvode.CV_BDF, cvode.CV_NEWTON
-            )  # initialisation with basic options, newtonian solver etc...
-            self.__CVODE_initial_num__ = len(initial)
-        del initial
-        t = cvode.realtype(0.0)
-        rates = numpy.zeros((len(self.sim_time), len(self.__reactions__)))
-        output = None
-        if self.__HAS_RATE_RULES__:
-            output = numpy.zeros(
-                (len(self.sim_time), len(self.__rrule__) + len(self.__species__))
-            )
-        else:
-            output = numpy.zeros((len(self.sim_time), len(self.__species__)))
-
-        CVODE_XOUT = False
-        if len(self.CVODE_extra_output) > 0:
-            out = []
-            for d in self.CVODE_extra_output:
-                if (
-                    hasattr(self, d)
-                    and d
-                    not in self.__species__ + self.__reactions__ + self.__rate_rules__
-                ):
-                    out.append(d)
-                else:
-                    print(
-                        '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
-                            d
-                        )
-                    )
-            if len(out) > 0:
-                self.CVODE_extra_output = out
-                CVODE_XOUT = True
-            del out
-
-        if CVODE_XOUT:
-            self.CVODE_xdata = numpy.zeros(
-                (len(self.sim_time), len(self.CVODE_extra_output))
-            )
-
-        sim_st = 0
-        if self.sim_time[0] == 0.0:
-
-            if self.__CVODE_initialise__:
-                out0 = tZero[:].copy()
-            else:
-                out0 = numpy.array(self.__CVODE_y__[:])
-            output[0, :] = out0
-
-            if not self.mode_integrate_all_odes:
-                self._EvalODE(out0.copy(), self._CVODE_Vtemp)
-            else:
-                self._EvalODE_CVODE(out0.copy(), self._CVODE_Vtemp)
-            rates[0] = self.__vvec__
-
-            if CVODE_XOUT:
-                self.CVODE_xdata[0, :] = self._EvalExtraData(self.CVODE_extra_output)
-            sim_st = 1
-        del tZero
-
-        var_store = {}
-        if self.__HAS_EVENTS__:
-            for ev in self.__events__:
-                ev.reset()
-                for ass in ev.assignments:
-                    var_store.update({ass.variable: getattr(self, ass.variable)})
-        TOL_ADJUSTER = 0
-        MAX_TOL_CNT = 5
-        MAX_REL_TOLERANCE = 1.0e-3
-        RELTOL_ADJUST_FACTOR = 1.0e3
-        MIN_ABS_TOL = self.__settings__["cvode_abstol"]  # 1.0e-15
-        ##  MAX_ABS_TOL = self.__settings__["cvode_abstol_max"] #1.0e-3 not used anymore
-        ABSTOL_ADJUST_FACTOR = self.__settings__["cvode_abstol_factor"]  # 1.0e-6
-        cvode_sim_range = list(range(sim_st, len(self.sim_time)))
-        cvode_scale_range = list(
-            range(
-                sim_st,
-                len(self.sim_time),
-                len(self.sim_time) // 4 or len(self.sim_time),
-            )
-        )
-        cvode_scale_range = cvode_scale_range[1:]
-        reltol = cvode.realtype(
-            self.__settings__["cvode_reltol"]
-        )  # relative tolerance must be a realtype
-        abstol = cvode.NVector(
-            self.__CVODE_initial_num__ * [self.__settings__["cvode_abstol"]]
-        )
-        for s in range(len(self.__CVODE_y__)):
-            newVal = abs(self.__CVODE_y__[s]) * ABSTOL_ADJUST_FACTOR
-            if newVal < MIN_ABS_TOL:
-                abstol[s] = MIN_ABS_TOL
-            else:
-                abstol[s] = newVal
-        if self.__CVODE_initialise__:
-            cvode.CVodeMalloc(
-                self.__CVODE_mem__,
-                func,
-                0.0,
-                self.__CVODE_y__,
-                cvode.CV_SV,
-                reltol,
-                abstol,
-            )  # set tolerances, specify vector of initial conditions, set integrtion function etc...
-            cvode.CVDense(
-                self.__CVODE_mem__, self.__CVODE_initial_num__
-            )  # set dense option, specify dimension of problem (3)
-        if self.__HAS_EVENTS__:
-            cvode.CVodeRootInit(
-                self.__CVODE_mem__, len(self.__events__), self.CVODE_EVENTS, None
-            )  # specify to 'root' conditions, and function that calculates them
-
-        for st in cvode_sim_range:
-            tout = self.sim_time[st]
-            errcount = 0
-            ##  print TOL_ADJUSTER, MAX_TOL_CNT, abstol, MAX_REL_TOLERANCE
-            if (
-                self.__settings__["cvode_auto_tol_adjust"]
-                and TOL_ADJUSTER >= MAX_TOL_CNT
-                and reltol.value < MAX_REL_TOLERANCE
-            ):
-                reltol.value = reltol.value * RELTOL_ADJUST_FACTOR
-                cvode.CVodeSetTolerances(
-                    self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
-                )
-                ##  print '\nCVODE: new tolerance set:\nreltol={}'.format(reltol.value)
-                ##  print '\nAbs tolerance:\n{}'.format(abstol)
-                TOL_ADJUSTER = 0
-            if (st in cvode_scale_range) and self.__settings__["cvode_auto_tol_adjust"]:
-                for s in range(len(self.__CVODE_y__)):
-                    newVal = abs(self.__CVODE_y__[s]) * ABSTOL_ADJUST_FACTOR
-                    if newVal < MIN_ABS_TOL:
-                        abstol[s] = MIN_ABS_TOL
-                    else:
-                        abstol[s] = newVal
-                ##  print '\nCVODE: new tolerance set, abstol:\n{}'.format(abstol)
-                cvode.CVodeSetTolerances(
-                    self.__CVODE_mem__, cvode.CV_SV, reltol, abstol
-                )
-                ##  cvode.CVodeReInit(self.__CVODE_mem__, func, self.sim_time[st-1], self.__CVODE_y__, cvode.CV_SV, reltol, abstol)
-            while True:
-                try:
-                    flag = cvode.CVode(
-                        self.__CVODE_mem__,
-                        tout,
-                        self.__CVODE_y__,
-                        cvode.ctypes.byref(t),
-                        cvode.CV_NORMAL,
-                    )
-                except AssertionError as ex:
-                    print('cvode error1', ex)
-                    flag = None
-                self._TIME_ = tout
-                if (
-                    flag == cvode.CV_ROOT_RETURN
-                ):  # if a root was found before desired time point, output it
-                    ya = numpy.array(self.__CVODE_y__)
-                    rootsfound = cvode.CVodeGetRootInfo(
-                        self.__CVODE_mem__, len(self.__events__)
-                    )
-                    reInit = False
-                    for ev in range(len(self.__events__)):
-                        if rootsfound[ev] == 1:
-                            for ass in self.__events__[ev].assignments:
-                                # only can assign to independent species vector
-                                if ass.variable in self.L0matrix.getLabels()[1] or (
-                                    self.mode_integrate_all_odes
-                                    and ass.variable in self.__species__
-                                ):
-                                    assVal = ass.getValue()
-                                    assIdx = self.__species__.index(ass.variable)
-                                    if self.__KeyWords__['Species_In_Conc']:
-                                        ##  print self.__CVODE_y__
-                                        self.__CVODE_y__[assIdx] = assVal * getattr(
-                                            self, self.__CsizeAllIdx__[assIdx]
-                                        )
-                                        ##  raw_input(self.__CVODE_y__)
-                                    else:
-                                        self.__CVODE_y__[assIdx] = assVal
-                                    reInit = True
-                                elif (
-                                    not self.mode_integrate_all_odes
-                                    and ass.variable in self.L0matrix.getLabels()[0]
-                                ):
-                                    print(
-                                        'Event assignment to dependent species consider setting \"mod.mode_integrate_all_odes = True\"'
-                                    )
-                                elif (
-                                    self.__HAS_RATE_RULES__
-                                    and ass.variable in self.__rate_rules__
-                                ):
-                                    ##  print 'Event is assigning to rate rule'
-                                    assVal = ass.getValue()
-                                    rrIdx = self.__rate_rules__.index(ass.variable)
-                                    ##  print ass.variable, assVal
-                                    self.__rrule__[rrIdx] = assVal
-                                    ##  print self.L0matrix.shape[1], rrIdx, len(self.__CVODE_y__)
-                                    self.__CVODE_y__[
-                                        self.L0matrix.shape[1] + rrIdx
-                                    ] = assVal
-                                    setattr(self, ass.variable, assVal)
-                                    reInit = True
-                                else:
-                                    try:
-                                        setattr(self, ass.variable, ass.getValue())
-                                        reInit = True
-                                    except:
-                                        print(
-                                            'ERROR: Updating model attribute from event: ',
-                                            ass.variable,
-                                        )
-
-                    if reInit:
-                        cvode.CVodeReInit(
-                            self.__CVODE_mem__,
-                            func,
-                            tout,
-                            self.__CVODE_y__,
-                            cvode.CV_SV,
-                            reltol,
-                            abstol,
-                        )
-
-                    # this gets everything into the current tout state
-                    tmp = None
-                    if not self.mode_integrate_all_odes:
-                        tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
-                    else:
-                        tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
-                    del tmp
-
-                    # here we regenerate Sd's and fix concentrations
-                    rrules = None
-                    if (
-                        self.__HAS_MOIETY_CONSERVATION__
-                        and not self.mode_integrate_all_odes
-                    ):
-                        if self.__HAS_RATE_RULES__:
-                            ya, rrules = numpy.split(ya, [self.Nrmatrix.shape[0]])
-                        ya = self.Fix_S_indinput(ya, amounts=True)
-                        # convert to concentrations
-                        if (
-                            self.__HAS_COMPARTMENTS__
-                            and self.__KeyWords__['Output_In_Conc']
-                        ):
-                            ya = self._SpeciesAmountToConc(ya)
-                        if self.__HAS_RATE_RULES__:
-                            ya = numpy.concatenate([ya, rrules])
-                    else:
-                        if self.__HAS_RATE_RULES__:
-                            ya, rrules = numpy.split(ya, [self.Nmatrix.shape[0]])
-                        if (
-                            self.__HAS_COMPARTMENTS__
-                            and self.__KeyWords__['Output_In_Conc']
-                        ):
-                            ya = self._SpeciesAmountToConc(ya)
-                        if self.__HAS_RATE_RULES__:
-                            ya = numpy.concatenate([ya, rrules])
-
-                    output[st] = ya
-                    # set with self._EvalODE above
-                    rates[st] = self.__vvec__
-
-                    if CVODE_XOUT:
-                        self.CVODE_xdata[st, :] = self._EvalExtraData(
-                            self.CVODE_extra_output
-                        )
-                    # this should adjust the expected time to the new output time time
-                    self.sim_time[st] = float(tout)
-                    # dont need anymore i think
-                    if _HAVE_VPYTHON:
-                        self.CVODE_VPYTHON(ya)
-                    del ya, rrules
-                    break
-                if flag == cvode.CV_SUCCESS:
-                    ya = numpy.array(self.__CVODE_y__)
-                    # this gets everything into the current tout state
-                    tmp = None
-                    if not self.mode_integrate_all_odes:
-                        tmp = self._EvalODE(ya.copy(), self._CVODE_Vtemp)
-                    else:
-                        tmp = self._EvalODE_CVODE(ya.copy(), self._CVODE_Vtemp)
-                    del tmp
-                    # here we regenerate Sd's and fix concentrations
-                    rrules = None
-                    if (
-                        self.__HAS_MOIETY_CONSERVATION__
-                        and not self.mode_integrate_all_odes
-                    ):
-                        if self.__HAS_RATE_RULES__:
-                            ya, rrules = numpy.split(ya, [self.Nrmatrix.shape[0]])
-                        ya = self.Fix_S_indinput(ya, amounts=True)
-                        # convert to concentrations
-                        if (
-                            self.__HAS_COMPARTMENTS__
-                            and self.__KeyWords__['Output_In_Conc']
-                        ):
-                            ya = self._SpeciesAmountToConc(ya)
-                        if self.__HAS_RATE_RULES__:
-                            ya = numpy.concatenate([ya, rrules])
-                    else:
-                        if self.__HAS_RATE_RULES__:
-                            ya, rrules = numpy.split(ya, [self.Nmatrix.shape[0]])
-                        if (
-                            self.__HAS_COMPARTMENTS__
-                            and self.__KeyWords__['Output_In_Conc']
-                        ):
-                            ya = self._SpeciesAmountToConc(ya)
-                        if self.__HAS_RATE_RULES__:
-                            ya = numpy.concatenate([ya, rrules])
-
-                    output[st] = ya
-                    # set with self._EvalODE above
-                    rates[st] = self.__vvec__
-
-                    if CVODE_XOUT:
-                        self.CVODE_xdata[st, :] = self._EvalExtraData(
-                            self.CVODE_extra_output
-                        )
-                    if _HAVE_VPYTHON:
-                        self.CVODE_VPYTHON(ya)
-                    del ya, rrules
-                    break
-                elif flag == -1:
-                    if self.__settings__["cvode_mxstep"] == 1000:
-                        self.__settings__["cvode_mxstep"] = 3000
-                        TOL_ADJUSTER += 1
-                    elif self.__settings__["cvode_mxstep"] == 3000:
-                        self.__settings__["cvode_mxstep"] = 10000
-                        TOL_ADJUSTER += 2
-                    elif self.__settings__["cvode_mxstep"] == 10000:
-                        ##  TOL_ADJUSTER += 1
-                        output[st] = numpy.NaN
-                        break
-                    print(
-                        'mxstep warning ({}) mxstep set to {}'.format(
-                            flag, self.__settings__["cvode_mxstep"]
-                        )
-                    )
-                    cvode.CVodeSetMaxNumSteps(
-                        self.__CVODE_mem__, self.__settings__["cvode_mxstep"]
-                    )
-                elif flag < -3:
-                    print('CVODE error:', flag)
-                    print('At ', tout)
-                    output[st] = numpy.NaN
-                    rates[st] = numpy.NaN
-                    if CVODE_XOUT:
-                        self.CVODE_xdata[st] = numpy.NaN
-                    break
-            self.__settings__["cvode_mxstep"] = 1000
-            cvode.CVodeSetMaxNumSteps(
-                self.__CVODE_mem__, self.__settings__["cvode_mxstep"]
-            )
-
-        if self.__HAS_EVENTS__:
-            for ass in list(var_store.keys()):
-                # print 'old value', ass, getattr(self, ass)
-                setattr(self, ass, var_store[ass])
-                # print 'new value', getattr(self, ass)
-
+        problem = EventsProblem(self, rhs=rhs, y0=initial)
+        # for direct access to the problem class
+        self._problem = problem
+        sim = CVode(problem)
+        # for direct access to the solver class
+        self._solver = sim
         if self.__settings__["cvode_stats"]:
-            # print some stats from the intgrator
-            nst = cvode.CVodeGetNumSteps(self.__CVODE_mem__)
-            nfe = cvode.CVodeGetNumRhsEvals(self.__CVODE_mem__)
-            nsetups = cvode.CVodeGetNumLinSolvSetups(self.__CVODE_mem__)
-            netf = cvode.CVodeGetNumErrTestFails(self.__CVODE_mem__)
-            nni = cvode.CVodeGetNumNonlinSolvIters(self.__CVODE_mem__)
-            ncfn = cvode.CVodeGetNumNonlinSolvConvFails(self.__CVODE_mem__)
-            nje = cvode.CVDenseGetNumJacEvals(self.__CVODE_mem__)
-            nfeLS = cvode.CVDenseGetNumRhsEvals(self.__CVODE_mem__)
-            nge = cvode.CVodeGetNumGEvals(self.__CVODE_mem__)
-
-            print("\nFinal Statistics:")
-            print(
-                "nst = {} nfe  = {} nsetups = {} nfeLS = {} nje = {}".format(
-                    nst, nfe, nsetups, nfeLS, nje
-                )
-            )
-            print(
-                "nni = {} ncfn = {} netf = {} nge = {}\n ".format(nni, ncfn, netf, nge)
-            )
-            print('reltol = {}'.format(reltol))
-            print('abstol:\n{}'.format(abstol))
-
-        if cvode.CV_SUCCESS >= 0:
-            return output, rates, True
+            sim.verbosity = 10
         else:
-            return output, rates, False
+            sim.verbosity = 40
+        sim.atol = self.__settings__["cvode_abstol"]
+        sim.rtol = self.__settings__["cvode_reltol"]
+        t, sim_res = sim.simulate(self.sim_end, ncp=0, ncp_list=self.sim_time)
+        # needed because CVode adds extra time points around discontinuity
+        t = numpy.array(t)
+        # divide m.sim_time into segments between event firings
+        idx = [0] + [numpy.max(numpy.where(t == i)) for i in
+                     problem.event_times] + [len(t)]
 
-    def CVODE_EVENTS(self, t, svec, eout, f_data):
-        svec = numpy.array(svec)
-        self._TIME_ = t
-        rrules = []
-        tmp = None
-        if not self.mode_integrate_all_odes:
-            tmp = self._EvalODE(svec.copy(), self._CVODE_Vtemp)
+        # initialise rates array
+        rates = numpy.zeros((sim_res.shape[0], len(self.__reactions__)))
+
+        if (
+                self.__HAS_MOIETY_CONSERVATION__
+                and not self.mode_integrate_all_odes
+        ):
+            # calculate rates from independent species
+            # re-assign parameters after every event in case they changed
+            for i in range(len(idx) - 1):
+                for j in range(len(self.parameters)):
+                    setattr(self, self.parameters[j], problem.parvals[i][j])
+                for r in range(idx[i], idx[i + 1]):
+                    self._EvalODE(sim_res[r].copy(), self._CVODE_Vtemp)
+                    rates[r] = self.__vvec__
+            if self.__HAS_RATE_RULES__:
+                sim_res, rrules = numpy.split(sim_res, [self.Nmatrix.shape[0]], axis=1)
+            # regenerate dependent variables
+            res = numpy.zeros((sim_res.shape[0], len(self.__species__)))
+            for x in range(sim_res.shape[0]):
+                res[x, :] = self.Fix_S_indinput(sim_res[x, :], amounts=True)
+            sim_res = res
+            del res
+            # convert to concentrations
+            if (
+                    self.__HAS_COMPARTMENTS__
+                    and self.__KeyWords__['Output_In_Conc']
+            ):
+                for x in range(0, sim_res.shape[0]):
+                    sim_res[x] = self._SpeciesAmountToConc(sim_res[x])
+            if self.__HAS_RATE_RULES__:
+                sim_res = numpy.concatenate([sim_res, rrules], axis=1)
+
         else:
-            tmp = self._EvalODE_CVODE(svec.copy(), self._CVODE_Vtemp)
-        del tmp
-        eventFired = False
-        for ev in range(len(self.__events__)):
-            if self.__events__[ev](t):
-                eout[ev] = 0
-                eventFired = True
-            else:
-                eout[ev] = 1
-        if self.__HAS_RATE_RULES__:
-            exec(self.__CODE_raterule)
-        return 0
+            # calculate rates from all species
+            # re-assign parameters after every event in case they changed
+            for i in range(len(idx) - 1):
+                for j in range(len(self.parameters)):
+                    setattr(self, self.parameters[j], problem.parvals[i][j])
+                for r in range(idx[i], idx[i + 1]):
+                    self._EvalODE_CVODE(sim_res[r].copy(), self._CVODE_Vtemp)
+                    rates[r] = self.__vvec__
+            if self.__HAS_RATE_RULES__:
+                sim_res, rrules = numpy.split(sim_res, [self.Nmatrix.shape[0]], axis=1)
+            if (
+                    self.__HAS_COMPARTMENTS__
+                    and self.__KeyWords__['Output_In_Conc']
+            ):
+                for x in range(sim_res.shape[0]):
+                    sim_res[x] = self._SpeciesAmountToConc(sim_res[x])
+            if self.__HAS_RATE_RULES__:
+                sim_res = numpy.concatenate([sim_res, rrules], axis=1)
+
+        if self.__settings__['cvode_return_event_timepoints']:
+            self.sim_time = t
+        else:
+            tidx = [numpy.where(t==i)[0][0] for i in self.sim_time]
+            sim_res = sim_res[tidx]
+            rates = rates[tidx]
+
+        return sim_res, rates, True
 
     def CVODE_VPYTHON(self, s):
         """Future VPython hook for CVODE"""
@@ -4806,11 +4978,15 @@ class PysMod(object):
 
         *userinit* values can be (default=0):
 
-        - 0: initial species concentrations intitialised from (mod.S_init), time array calculated from sim_start/sim_end/sim_points
-        - 1: intial species concentrations intitialised from (mod.S_init) existing "mod.sim_time" used directly
-        - 2: initial species concentrations read from "mod.__inspec__", "mod.sim_time" used directly
+        - 0: initial species concentrations intitialised from (mod.S_init),
+             time array calculated from sim_start/sim_end/sim_points
+        - 1: intial species concentrations intitialised from (mod.S_init) existing
+             "mod.sim_time" used directly
+        - 2: initial species concentrations read from "mod.__inspec__",
+             "mod.sim_time" used directly
         """
-        # check if the stoichiometry has been adjusted using Stoich_nmatrix_SetValue - brett 20050719
+        # check if stoichiometry has been adjusted using Stoich_nmatrix_SetValue
+        # - brett 20050719
         if not self.__StoichOK:
             self.Stoichiometry_ReAnalyse()
 
@@ -4829,7 +5005,7 @@ class PysMod(object):
                 assert len(self.__inspec__) == len(self.__species__)
             except:
                 print(
-                    '\nINFO: sim_sinit is the incorrect length initialising with .sX_init'
+                    '\nINFO: mod.__inspec__ is the incorrect length, initialising with .sX_init'
                 )
                 self.__inspec__ = numpy.zeros(len(self.__species__))
                 eval(self.__mapFunc_R__)
@@ -4839,11 +5015,12 @@ class PysMod(object):
             self.sim_points = int(self.sim_points)
             if self.sim_points == 1.0:
                 print(
-                    '*****\nWARNING: simulations require a minimum of 2 points, setting sim_points = 2.0\n*****'
+                    '*****\nWARNING: simulations require a minimum of 2 points,\
+setting sim_points = 2.0\n*****'
                 )
                 self.sim_points = 2.0
             self.sim_time = numpy.linspace(
-                self.sim_start, self.sim_end, self.sim_points, endpoint=1, retstep=0
+                self.sim_start, self.sim_end, self.sim_points, endpoint=True, retstep=False
             )
             eval(self.__mapFunc_R__)
 
