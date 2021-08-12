@@ -730,6 +730,9 @@ class CoreToSBML(object):
             comp_def.setId(cs.name)
             comp_def.setName(cs.name)
             comp_def.setVolume(float(cs.size))
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                comp_def.setConstant(False)
 
     def setDescription(self, txt=None):
         '''
@@ -857,6 +860,10 @@ class CoreToSBML(object):
                 )
                 formula = self.infixPSC2SBML(formula)
                 r.setFormula(par.formula)
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                p.setConstant(False)
+
 
     def infixPSC2SBML(self, infix):
         """replace NumPy infix with libSBMl infix"""
@@ -998,6 +1005,9 @@ class CoreToSBML(object):
                     sref = self.SBML.SpeciesReference(self.level, self.version)
                     sref.setStoichiometry(abs(rxn.stoichiometry[s.name]))
                     sref.setSpecies(s.name)
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    sref.setConstant(True)
                 SBML_R.addReactant(sref)
             for p in rxn.products:
                 ##  print '\t' + rxn.name +' has product: ' + p.name + ' (%s)' % abs(rxn.stoichiometry[p.name])
@@ -1009,6 +1019,11 @@ class CoreToSBML(object):
                     pref = self.SBML.SpeciesReference(self.level, self.version)
                     pref.setStoichiometry(abs(rxn.stoichiometry[p.name]))
                     pref.setSpecies(p.name)
+
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    pref.setConstant(True)
+                # print(pref.toSBML())
                 SBML_R.addProduct(pref)
             if not rxn.multistoich_enabled:
                 for m in rxn.modifiers:
@@ -1034,6 +1049,11 @@ class CoreToSBML(object):
                 SBML_R.setReversible(True)
             else:
                 SBML_R.setReversible(False)
+
+            # TODO: check if this needs to be refined
+            if self.level == 3:
+                SBML_R.setFast(False)
+            # print(SBML_R.toSBML())
 
     def getSBMLmodel(self):
         return self.model
