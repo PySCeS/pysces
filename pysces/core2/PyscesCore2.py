@@ -516,6 +516,7 @@ class AssignmentRule(Parameter):
         self.code_string = 'self.value=%s' % InfixParser.output
         self._names = InfixParser.names
         self._functions = InfixParser.functions
+        print(self.code_string)
         self.xcode = compile(self.code_string, '<string>', 'exec')
 
     def addModelAttr(self, obj):
@@ -1373,7 +1374,20 @@ class NewCore(NewCoreBase):
                 ), "\nHappy assertion error"
                 # print type(p2)
                 p2.addFormula(self.__rules__[p.name]['formula'])
-                ##  print p2._names
+
+                # add piecewise functions to assignment rules or something like that
+                if 'piecewise' in p2.formula:
+                    print('\n\nWe have a piecewise', p2.name, p2.formula)
+                    print(p2, self.piecewise_functions[0]._names[0], self.__getattribute__(self.piecewise_functions[0]._names[0]).__call__())
+                    for p in range(len(self.piecewise_functions)):
+                        for n in range(len(self.piecewise_functions[p]._names)):
+                            setattr(p2, self.piecewise_functions[p]._names[n], self.__getattribute__(self.piecewise_functions[p]._names[n]).__call__())
+                            self.piecewise_functions[p].code_string = self.piecewise_functions[p].code_string.replace('self.{}'.format(self.piecewise_functions[p]._names[n]), 'self.{}()'.format(self.piecewise_functions[p]._names[n]))
+                            self.piecewise_functions[p].xcode = compile(self.piecewise_functions[p].code_string, 'PieceWise', 'exec')
+                            setattr(p2, self.piecewise_functions[p].name, self.piecewise_functions[p])
+                            print(self.piecewise_functions[p].code_string)
+
+
                 for n in p2._names + p2._functions:
                     p2.addModelAttr(self.__getattribute__(n))
                 ##  # setup initial values
