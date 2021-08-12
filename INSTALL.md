@@ -22,7 +22,7 @@ Linux users should install the Sundials libraries and the PySundials package
 
 ## General requirements
 
-- Python 2.5+
+- Python 3.6+
 - Numpy 1.2.1+
 - SciPy 0.7.0+
 - Matplotlib (with TKagg backend,)
@@ -30,7 +30,28 @@ Linux users should install the Sundials libraries and the PySundials package
 - IPython (optional)
 - libSBML (optional)
 
-## Windows build
+## Windows build (2021)
+
+The fastest way to build your own copy of PySCeS is to use Anaconda Python. 
+
+- Download and install Anaconda for Python3 from Anaconda.org.
+- Create a PySCeS environment using conda and activate it:
+```bash
+conda create -n pysces -c conda-forge python=3.8 numpy scipy matplotlib sympy packaging pip wheel nose ipython python-libsbml fortran-compiler assimulo
+conda activate pyscesdev
+```
+- Clone and enter the PySCeS code repository using git
+```bash
+git clone https://github.com/PySCeS/pysces.git pysces-src
+cd pysces-src
+```
+- Now you can build and install PySCeS into the pyscesdev environment
+```bash
+python setup.py build
+python setup.py install
+```
+
+## Windows build (old)
 
 Most requirements for building are incuded in the Enthought Python Distribution
 
@@ -41,6 +62,7 @@ Once MinGW is set up, change to the PySCeS install directory and do a:
 - `python setup.py config --compiler=mingw32 build --compiler=mingw32 install`
 
 This should install PySCeS into the site-packages directory.
+
 
 ## Linux build
 
