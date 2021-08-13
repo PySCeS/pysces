@@ -1192,6 +1192,25 @@ class SbmlToCore(object):
         print(infix)
         return infix
         
+        
+    def searchForCsymbolTime(self, sbml_math):
+        """
+        Takes SBML math xxx.getMath() and returns the results of a regex multi search for the CSymbol time
+        r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
+        
+        - **sbml_math** SBML math generated with math_element.getMath()
+        
+        """
+        
+        # check for csymbol time
+        csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
+        hasTimeS = re.search(
+            csymb, self.SBML.writeMathMLToString(sbml_math)
+        )
+        
+        return hasTimeS
+    
+        
     def setReservedTerm(self, term, replacement):
         self.__reserved__.update({term: replacement})
 
@@ -1269,10 +1288,7 @@ class SbmlToCore(object):
             triggerf = self.sbmlFormulaToInfix(trigger.getMath())
 
             # check for csymbol time
-            csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-            hasTimeS = re.search(
-                csymb, self.SBML.writeMathMLToString(trigger.getMath())
-            )
+            hasTimeS = self.searchForCsymbolTime(trigger.getMath())
             tSymb = None
             if hasTimeS != None:
                 tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1502,10 +1518,9 @@ class SbmlToCore(object):
                 args = [s.strip() for s in args]
 
                 func = func.strip()
-                csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-                hasTimeS = re.search(
-                    csymb, self.SBML.writeMathMLToString(fnc.getMath())
-                )
+ 
+                # check for csymbol time
+                hasTimeS = self.searchForCsymbolTime(fnc.getMath())                
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1547,9 +1562,10 @@ class SbmlToCore(object):
                 #req = j.getFormula()
                 req = self.sbmlFormulaToInfix(j.getMath())
                 p_names = None
+
                 # check for csymbol time
-                csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-                hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(j.getMath()))
+                hasTimeS = self.searchForCsymbolTime(j.getMath())                
+
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1802,8 +1818,9 @@ class SbmlToCore(object):
                 '\n%s rules currently not supported.' % rtype
             )
 
-            csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-            hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(rule.getMath()))
+            # check for csymbol time
+            hasTimeS = self.searchForCsymbolTime(rule.getMath())                
+
             tSymb = None
             #formula = rule.getFormula()
             formula = self.sbmlFormulaToInfix(rule.getMath())
