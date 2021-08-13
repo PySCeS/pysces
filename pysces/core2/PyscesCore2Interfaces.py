@@ -1271,7 +1271,7 @@ class SbmlToCore(object):
             # check for csymbol time
             csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
             hasTimeS = re.search(
-                csymb, self.sbmlFormulaToInfix(trigger.getMath())
+                csymb, self.SBML.writeMathMLToString(trigger.getMath())
             )
             tSymb = None
             if hasTimeS != None:
@@ -1504,7 +1504,7 @@ class SbmlToCore(object):
                 func = func.strip()
                 csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
                 hasTimeS = re.search(
-                    csymb, self.sbmlFormulaToInfix(fnc.getMath())
+                    csymb, self.SBML.writeMathMLToString(fnc.getMath())
                 )
                 tSymb = None
                 if hasTimeS != None:
@@ -1549,7 +1549,7 @@ class SbmlToCore(object):
                 p_names = None
                 # check for csymbol time
                 csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-                hasTimeS = re.search(csymb, self.sbmlFormulaToInfix(j.getMath()))
+                hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(j.getMath()))
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1803,7 +1803,7 @@ class SbmlToCore(object):
             )
 
             csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-            hasTimeS = re.search(csymb, self.sbmlFormulaToInfix(rule.getMath()))
+            hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(rule.getMath()))
             tSymb = None
             #formula = rule.getFormula()
             formula = self.sbmlFormulaToInfix(rule.getMath())
@@ -1949,6 +1949,4 @@ class SbmlToCore(object):
         strBuf.seek(0)
         mathMLout = strBuf.read()
         newAST = self.SBML.readMathMLFromString(mathMLout)
-        print(mathMLout)
-        newAST = self.SBML.parseL3Formula(mathMLout)
         kl.setMath(newAST)
