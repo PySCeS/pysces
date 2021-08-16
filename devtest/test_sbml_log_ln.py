@@ -19,7 +19,10 @@ pysces.output_dir = out_dir
 pysces.interface.convertSBML2PSC(model_file, sbmldir=model_dir, pscdir=out_dir)
 
 mod = pysces.model(model_file+'.psc', dir=out_dir)
-mod.doSimPlot(1000, 1000, filename=os.path.join(out_dir, model_file))
+mod.doSim(1000, 1000)
+mod.SimPlot(['PX','PY','PZ'])
+pysces.plt.setRange('x', min=400, max=1000)
+pysces.plt.export(model_file, directory=out_dir, type='png')
 
 print('\nOutput path: \"{}\"\n\nDone.\n'.format(out_dir))
 
