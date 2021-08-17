@@ -1188,7 +1188,7 @@ class SbmlToCore(object):
         
         """
         infix = self.SBML.formulaToL3String(formula)
-        infix = infix.replace('^', '**')
+        infix = infix.replace('^', '**').replace('&&', 'and')
         print(infix)
         return infix
         
