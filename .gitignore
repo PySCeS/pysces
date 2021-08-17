@@ -109,6 +109,7 @@ MANIFEST
 pysces/nleq2/fortranobject.h
 pysces/pitcon/fortranobject.h
 devtest/out/
+pysces/psc/
 
 #  dev env
 wing-pysces.wpr
