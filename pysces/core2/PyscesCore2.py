@@ -516,7 +516,7 @@ class AssignmentRule(Parameter):
         self.code_string = 'self.value=%s' % InfixParser.output
         self._names = InfixParser.names
         self._functions = InfixParser.functions
-        print(self.code_string)
+        # print(self.code_string)
         self.xcode = compile(self.code_string, '<string>', 'exec')
 
     def addModelAttr(self, obj):
