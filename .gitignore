@@ -108,6 +108,7 @@ pysces/pyscfg.ini
 MANIFEST
 pysces/nleq2/fortranobject.h
 pysces/pitcon/fortranobject.h
+devtest/out/
 
 #  dev env
 wing-pysces.wpr

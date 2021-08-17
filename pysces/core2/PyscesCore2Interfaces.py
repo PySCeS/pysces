@@ -730,6 +730,9 @@ class CoreToSBML(object):
             comp_def.setId(cs.name)
             comp_def.setName(cs.name)
             comp_def.setVolume(float(cs.size))
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                comp_def.setConstant(False)
 
     def setDescription(self, txt=None):
         '''
@@ -857,6 +860,10 @@ class CoreToSBML(object):
                 )
                 formula = self.infixPSC2SBML(formula)
                 r.setFormula(par.formula)
+            # TODO need to adapt this for rate rules
+            if self.level == 3:
+                p.setConstant(False)
+
 
     def infixPSC2SBML(self, infix):
         """replace NumPy infix with libSBMl infix"""
@@ -998,6 +1005,9 @@ class CoreToSBML(object):
                     sref = self.SBML.SpeciesReference(self.level, self.version)
                     sref.setStoichiometry(abs(rxn.stoichiometry[s.name]))
                     sref.setSpecies(s.name)
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    sref.setConstant(True)
                 SBML_R.addReactant(sref)
             for p in rxn.products:
                 ##  print '\t' + rxn.name +' has product: ' + p.name + ' (%s)' % abs(rxn.stoichiometry[p.name])
@@ -1009,6 +1019,11 @@ class CoreToSBML(object):
                     pref = self.SBML.SpeciesReference(self.level, self.version)
                     pref.setStoichiometry(abs(rxn.stoichiometry[p.name]))
                     pref.setSpecies(p.name)
+
+                # TODO: check if this needs to be refined
+                if self.level == 3:
+                    pref.setConstant(True)
+                # print(pref.toSBML())
                 SBML_R.addProduct(pref)
             if not rxn.multistoich_enabled:
                 for m in rxn.modifiers:
@@ -1034,6 +1049,11 @@ class CoreToSBML(object):
                 SBML_R.setReversible(True)
             else:
                 SBML_R.setReversible(False)
+
+            # TODO: check if this needs to be refined
+            if self.level == 3:
+                SBML_R.setFast(False)
+            # print(SBML_R.toSBML())
 
     def getSBMLmodel(self):
         return self.model
@@ -1160,6 +1180,36 @@ class SbmlToCore(object):
         }
         self.__piecewises__ = {}
 
+    def sbmlFormulaToInfix(self, formula):
+        """
+        Convert and SBML MathML formula to infix. Returns an infix string representation of a formula 
+        
+        - **formula** SBML AST math 
+        
+        """
+        infix = self.SBML.formulaToL3String(formula)
+        infix = infix.replace('^', '**').replace('&&', 'and')
+        return infix
+        
+        
+    def searchForCsymbolTime(self, sbml_math):
+        """
+        Takes SBML math xxx.getMath() and returns the results of a regex multi search for the CSymbol time
+        r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
+        
+        - **sbml_math** SBML math generated with math_element.getMath()
+        
+        """
+        
+        # check for csymbol time
+        csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
+        hasTimeS = re.search(
+            csymb, self.SBML.writeMathMLToString(sbml_math)
+        )
+        
+        return hasTimeS
+    
+        
     def setReservedTerm(self, term, replacement):
         self.__reserved__.update({term: replacement})
 
@@ -1234,13 +1284,10 @@ class SbmlToCore(object):
         for ev in self.model.getListOfEvents():
             name = self.getId(ev)
             trigger = ev.getTrigger()
-            triggerf = self.SBML.formulaToString(trigger.getMath())
+            triggerf = self.sbmlFormulaToInfix(trigger.getMath())
 
             # check for csymbol time
-            csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-            hasTimeS = re.search(
-                csymb, self.SBML.writeMathMLToString(trigger.getMath())
-            )
+            hasTimeS = self.searchForCsymbolTime(trigger.getMath())
             tSymb = None
             if hasTimeS != None:
                 tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1252,7 +1299,7 @@ class SbmlToCore(object):
 
             delay = ev.getDelay()
             if delay != None:
-                delay = self.SBML.formulaToString(ev.getDelay().getMath())
+                delay = self.sbmlFormulaToInfix(ev.getDelay().getMath())
             else:
                 delay = 0.0
 
@@ -1269,7 +1316,7 @@ class SbmlToCore(object):
             )
             for a in ev.getListOfEventAssignments():
                 self.__eDict__[name]['assignments'].update(
-                    {a.getVariable(): self.SBML.formulaToString(a.getMath())}
+                    {a.getVariable(): self.sbmlFormulaToInfix(a.getMath())}
                 )
 
     def checkParsedInfix(self):
@@ -1459,7 +1506,7 @@ class SbmlToCore(object):
         if self.model.getNumFunctionDefinitions() > 0:
             for fnc in self.model.getListOfFunctionDefinitions():
                 name = self.getId(fnc)
-                func = self.SBML.formulaToString(fnc.getMath()).replace('lambda', '')[
+                func = self.sbmlFormulaToInfix(fnc.getMath()).replace('lambda', '')[
                     1:-1
                 ]
                 args = []
@@ -1470,10 +1517,9 @@ class SbmlToCore(object):
                 args = [s.strip() for s in args]
 
                 func = func.strip()
-                csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-                hasTimeS = re.search(
-                    csymb, self.SBML.writeMathMLToString(fnc.getMath())
-                )
+ 
+                # check for csymbol time
+                hasTimeS = self.searchForCsymbolTime(fnc.getMath())                
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1512,11 +1558,13 @@ class SbmlToCore(object):
 
             par = []
             if j != None:
-                req = j.getFormula()
+                #req = j.getFormula()
+                req = self.sbmlFormulaToInfix(j.getMath())
                 p_names = None
+
                 # check for csymbol time
-                csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-                hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(j.getMath()))
+                hasTimeS = self.searchForCsymbolTime(j.getMath())                
+
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1760,7 +1808,8 @@ class SbmlToCore(object):
                 self.__Errors__.update(
                     {
                         next(self._ecount): 'Algebraic rule (%s) ignored'
-                        % rule.getFormula()
+                        #% rule.getFormula()
+                        % self.sbmlFormulaToInfix(rule.getMath())
                     }
                 )
 
@@ -1768,10 +1817,12 @@ class SbmlToCore(object):
                 '\n%s rules currently not supported.' % rtype
             )
 
-            csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-            hasTimeS = re.search(csymb, self.SBML.writeMathMLToString(rule.getMath()))
+            # check for csymbol time
+            hasTimeS = self.searchForCsymbolTime(rule.getMath())                
+
             tSymb = None
-            formula = rule.getFormula()
+            #formula = rule.getFormula()
+            formula = self.sbmlFormulaToInfix(rule.getMath())
             p_names = None
             if hasTimeS != None:
                 tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1814,7 +1865,7 @@ class SbmlToCore(object):
 
     def removeCompartmentFromKineticLaw(self, kl):
         strBuf = io.StringIO()
-        mathMLin = self.SBML.writeMathMLToString(kl.getMath())
+        mathMLin = self.sbmlFormulaToInfix(kl.getMath())
         strBuf.write(mathMLin)
         strBuf.seek(0)
 
