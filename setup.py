@@ -282,7 +282,11 @@ if len(mymodules) == 0:
 # Data files to copy
 mydata_files.append((os.path.join('pysces'), [os.path.join('pysces', 'pyscfg.ini')]))
 mydata_files.append(('', [os.path.join('pysces', 'pysces.pth')]))
-# mydata_files.append((os.path.join('pysces','docs'), [os.path.join('pysces','docs','userguide.pdf')]))  # bgoli2020: does not exist anymore
+
+# JR 2021-08 userguide.pdf included as a symlink to built docs in submodule
+mydata_files.append(
+    (os.path.join("pysces", "docs"), [os.path.join("pysces", "docs", "userguide.pdf")])
+)
 mydata_files.append(
     (
         os.path.join('pysces', 'examples'),
