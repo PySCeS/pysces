@@ -56,14 +56,19 @@ __psyco_active__ = 0
 class ParScanner(Scanner):
     """
     Arbitrary dimension generic distributed scanner.
-    Subclassed from pysces.PyscesScan.Scanner.
+    Subclassed from *pysces.PyscesScan.Scanner*.
     This class is initiated with a loaded PySCeS model and then allows
-    the user to define scan parameters, see self.addScanParameter()
-    and user output, see self.addUserOutput().
-    Steady-state results are always stored in self.SteadyStateResults while
-    user output can be found in self.UserOutputResults.
+    the user to define scan parameters, see ``self.addScanParameter()``
+    and user output, see ``self.addUserOutput()``.
+    Steady-state results are always stored in ``self.SteadyStateResults`` while
+    user output can be found in ``self.UserOutputResults``.
     Distributed (parallel) execution is achieved with the clustering capability
-    of IPython. See "ipcluster --help".
+    of IPython. See *ipcluster --help*.
+
+    The optional 'engine' argument specifies the parallel engine to use.
+
+    - *'multiproc'* -- multiprocessing (default)
+    - *'ipcluster'* -- IPython cluster
     """
 
     # --johann 20101206
@@ -78,12 +83,6 @@ class ParScanner(Scanner):
     scans_per_run = 100
 
     def __init__(self, mod, engine='multiproc'):
-        """
-        Instantiate the parallel scanner class with a PySCeS model instance
-        and an optional 'engine' argument specifying the parallel engine:
-        'multiproc' -- multiprocessing (default)
-        'ipcluster' -- IPython cluster
-        """
         self.engine = engine
         if engine == 'multiproc':
             print('parallel engine: multiproc')
