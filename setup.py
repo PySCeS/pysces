@@ -67,8 +67,6 @@ pitcon = 1
 
 ##Special licence libraries see the relevant readme.txt file for details
 nleq2 = 1  # pysces/nleq2/readme.txt
-# this is now obsolete with nleq2 4.3
-##  nleq2_byteorder_override = 0    # allow a user supplied nleq2.f (mach_spec) otherwise PySCeS
 
 use = re.split('\s+', os.getenv('PYSCES_USE', ''))
 for e in use:
@@ -128,6 +126,7 @@ if os.sys.platform == 'win32':
         "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
         "gnuplot_dir": None,
         "silentstart": False,
+        "change_dir_on_start": False,
     }
 else:
     if hasattr(os.sys, 'lib'):
@@ -146,6 +145,7 @@ else:
         "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
         "gnuplot_dir": None,
         "silentstart": False,
+        "change_dir_on_start": False,
     }
 
 
