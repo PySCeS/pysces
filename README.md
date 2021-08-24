@@ -10,7 +10,7 @@ information please see https://pysces.github.io/
 * [Getting help](#getting-help)
 * [Citing PySCeS](#citing-pysces)
 * [Contributing](#contributing)
-* [License](#license)
+* [Licence](#licence)
 * [Authors and acknowledgments](#authors-and-acknowledgments)
 
 ## Introduction
@@ -100,7 +100,7 @@ add new code to PySCeS, go
 ## Licence
 
 PySCeS is distributed as Open Source software under a BSD style licence, please
-see [LICENCE.tst](./LICENCE.txt) for details. The licences of software that is bundled
+see [LICENCE.txt](./LICENCE.txt) for details. The licences of software that is bundled
 with, or used by, PySCeS are available
 in [ADDITIONAL_LICENCES.md](./ADDITIONAL_LICENCES.md).
 
@@ -124,7 +124,7 @@ to thank the following (in alphabetical order):
 * Herbert Sauro
 * Lafras Uys
 
-This information can also be found in [CONTRIBUTERS.md](./CONTRIBUTORS.md)
+This information can also be found in [CONTRIBUTORS.md](./CONTRIBUTORS.md)
 In addition we would like to acknowledge financial support from the following funding
 organisations:
 
