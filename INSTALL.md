@@ -1,113 +1,80 @@
-# PySCeS (http://pysces.sourceforge.net) installation
+# Installing PySCeS
 
-Please see README.txt and LICENCE.txt for licence/distribution information.
+Binary install packages for all three OSs and Python versions 3.6-3.9 are provided.
+Anaconda users can conveniently install PySCeS with:
 
-PySCeS is developed primarily in Python and has been designed to
-operate on both the Linux and Microsoft Windows operating systems.
-
-PySCeS makes use of SciPy with NumPy for a number of functions
-and needs a working NumPy/SciPy installation to install and run.
-
-## Additional PySCeS modules
-
-PySCeS functionality has been modularised it is highly recommended that
-the following packages/modules are also installed.
-
-- *PySundials* Windows users should install the pysces_pysundials (win32 only) package to enable CVODE support. 
-
-Linux users should install the Sundials libraries and the PySundials package
-(pysundials.sourceforge.net)
-
-- *pysces_metatool* this adds elementary mode support to PySCeS
-
-## General requirements
-
-- Python 3.6+
-- Numpy 1.2.1+
-- SciPy 0.7.0+
-- Matplotlib (with TKagg backend,)
-- GnuPlot (optional)
-- IPython (optional)
-- libSBML (optional)
-
-## Windows build (2021)
-
-The fastest way to build your own copy of PySCeS is to use Anaconda Python. 
-
-- Download and install Anaconda for Python3 from Anaconda.org.
-- Create a PySCeS environment using conda and activate it:
 ```bash
-conda create -n pysces -c conda-forge python=3.8 numpy scipy matplotlib sympy packaging pip wheel nose ipython python-libsbml fortran-compiler assimulo
-conda activate pyscesdev
-```
-- Clone and enter the PySCeS code repository using git
+$ conda install -c conda-forge -c pysces pysces
+```  
+
+Any dependencies will be installed automatically. Alternatively, you can use *pip* to
+install PySCeS from PyPI. Again, dependencies will be installed automatically.
+
 ```bash
-git clone https://github.com/PySCeS/pysces.git pysces-src
-cd pysces-src
+$ pip install pysces
 ```
-- Now you can build and install PySCeS into the pyscesdev environment
+
+For more information on installing and configuring PySCeS please see the
+[PySCeS User Guide](https://github.com/PySCeS/pysces-documentation/blob/main/source/userguide_doc.rst#installing-and-configuring)
+
+## Compilation from source
+
+As an alternative to a binary installation, you can also build your own PySCeS
+installation from source. This requires Fortran and C compilers.
+
+### Windows build
+
+The fastest way to build your own copy of PySCeS is to use Anaconda Python.
+
+* Download and install 
+  [Anaconda for Python 3](https://www.anaconda.com/products/individual#Downloads>)
+* Obtain [Git for Windows](https://git-scm.com/download/win)
+* Create a PySCeS environment using conda and activate it:
+
 ```bash
-python setup.py build
-python setup.py install
+$ conda create -n pyscesdev -c conda-forge python=3.8 numpy scipy \ 
+  matplotlib sympy packaging pip wheel nose ipython python-libsbml \
+  fortran-compiler assimulo 
+$ conda activate pyscesdev
 ```
 
-## Windows build (old)
+* Clone and enter the PySCeS code repository using git
 
-Most requirements for building are incuded in the Enthought Python Distribution
-
-MinGW (http://www.mingw.org) with, minimun GCC 3.4.5 is recommended with mingw\bin in path
-
-Once MinGW is set up, change to the PySCeS install directory and do a:
-
-- `python setup.py config --compiler=mingw32 build --compiler=mingw32 install`
-
-This should install PySCeS into the site-packages directory.
-
-
-## Linux build
-
-gcc 3.4.x (with g77 and g++) or
-gcc 4.1+ (with gfortran and g++)
-
-cd to the PySCeS source and run:
-
-`python setup.py install`
-
-## OSX build
-
-- install the Enthought Python Distribution (EPD 6)
-- install XCode 3.2.2+ (with GCC 4.2.1+)
-- `python setup.py install`
-
-Make sure the `python` command you call to build is the EPD one and not some
-system Python.
-
-# Cross platform compatibility
-
-PySCeS has been successfully used on (as far as we know), the following systems:
-
-## Linux
-```
-Ubuntu 9.04, 10.04, 10.10, 11.04, 12.04 14.04, 15.04. 16.04 (32 and 64 bit editions)
-Mandriva 2005LE, 2006, 2007, 2007.1, 2008, 2008.1, 2009, 2010
-Mandrake 9.2, 10.0, 10.1
-RedHat 9.0
-Debian Stable
-Gentoo 4+
+```bash
+(pyscesdev)$ git clone https://github.com/PySCeS/pysces.git pysces-src
+(pyscesdev)$ cd pysces-src
 ```
 
-## Windows
+* Now you can build and install PySCeS into the pyscesdev environment
+
+```bash
+(pyscesdev)$ python setup.py build
+(pyscesdev)$ python setup.py install
 ```
-Microsoft Windows 2000
-Microsoft Windows XP SP2
-Microsoft Windows 7 Ultimate SP1
-Microsoft Windows 8.1 64
+
+### Linux build
+
+All modern Linux distributions ship with gcc and gfortran. In addition, the Python
+development headers (*python-dev* or *python-devel*, depending on your distro) need to
+be installed.
+
+Clone the source from Github as described above, change into the source directory and
+run:
+
+```bash
+$ python setup.py install
 ```
 
-# Support
+### macOS build
 
-If you have any problems installing or using PySCeS try the PySCeS Sourceforge.Net pages
-where you will find help forums, email links to the developers and the latest
-announcements.
+The Anaconda build method, described above for Windows, should also work on macOS.
 
-Brett G. Olivier, 22 March 2016
+Alternatively, Python 3 may be obtained via [Homebrew](https://brew.sh) and the
+compilers may be installed via [Xcode](https://developer.apple.com/xcode). Clone the
+source from Github as described above, change into the source directory and run:
+
+```bash
+$ python setup.py install
+```
+
+© Brett G. Olivier & Johann M. Rohwer, August 2021

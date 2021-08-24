@@ -1,15 +1,25 @@
-PySCeS was initially developed as part of my PhD under the supervision
-of Jannie Hofmeyr and Johann Rohwer, both of whom who have
-contributed an immeasurable amount to its design and implementation.
+PySCeS main authors are [Brett Olivier](https://research.vu.nl/en/persons/bg-olivier)
+and [Johann Rohwer](https://github.com/jmrohwer) and in particular, PySCeS founding
+father [Jannie Hofmeyr]().
 
-Contributors (in some sort of non-order) are:
-Jannie Hofmeyr, Johann Rohwer, Danie Palm, James Dominy, Lafras Uys
+We would also like to acknowledge everyone who has contributed to PySCeS and would like
+to thank the following (in alphabetical order):
 
-Testing, feedback and porting:
-Morgan Hough, Charl Moller, Herbert Sauro,
-Ruchir Khandelwal, Evert Bosdriesz
+* Evert Bosdriesz
+* James Dominy
+* Jannie Hofmeyr
+* Morgan Hough
+* Jonathan Karr
+* Ruchir Khandelwal
+* Charl Moller
+* Danie Palm
+* Herbert Sauro
+* Lafras Uys
 
-I'm sure this list is incomplete and if you feel you've been left out,
-contact me and I'll be happy to add you to it.
+In addition we would like to acknowledge financial support from the following funding
+organisations:
 
-Brett G. Olivier, Amsterdam, 29 July 2014
+* The South African National Bioinformatics Network (2003-2008)
+* The South African National Research Foundation (2000-2004)
+
+© Brett G. Olivier & Johann M. Rohwer, August 2021

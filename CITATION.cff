@@ -1,0 +1,27 @@
+# YAML 1.2
+---
+cff-version: "1.1.0"
+message: "If you use this software, please cite it using the information provided in this metadata."
+authors:
+  -
+    given-names: Brett
+    family-names: Olivier
+    affiliation: "Vrije Universiteit Amsterdam"
+    orcid: "https://orcid.org/0000-0002-5293-5321"
+  -
+    given-names: Johann
+    family-names: Rohwer
+    affiliation: "Stellenbosch University"
+    orcid: "https://orcid.org/0000-0001-6288-8904"
+title: "The Python Simulator for Cellular Systems: PySCeS"
+version: "0.9.8"
+repository-code: "https://github.com/PySCeS/pysces/tree/0.9.8"
+date-released: 2020-05-13
+doi: "10.5281/zenodo.3824167"
+license: "BSD 3 clause"
+url: https://pysces.github.io
+abstract: "Computer modelling has become an integral tool in the analysis and understanding
+of the reaction networks that underlie cellular processes. PySCeS, first released in 2003,
+is extremely flexible, user-extendable, open source, software actively used and developed
+by a community of researchers and developers."
+...
