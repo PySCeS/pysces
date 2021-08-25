@@ -1,28 +1,23 @@
 name: psc
 channels:
   - defaults
-  - sbmlteam  
-  - conda-forge  
+  - conda-forge
+  - pysces
 dependencies:
+  - python=3.8
+  - numpy
+  - scipy
+  - matplotlib
+  - sympy
+  - assimulo>=3.2
+  - python-libsbml
   - jupyter
   - ipython
-  - pandas
-  - python-libsbml
-  - python=3.6
-  - scipy
-  - sympy
-  - conda-build
   - wheel
-  - flask
-  - pyqt
   - biopython
   - pip
-  - assimulo
   - pytest
-  - sundials
-  - numpy
   - nose
-  - black
-  - matplotlib
+  - pysces
 prefix: c:\Anaconda3\envs\psc
 

@@ -218,6 +218,10 @@ mymodules = []
 if os.sys.platform == 'win32':
     # extra_f77_compile_args = ["-static-libgcc", "-static-libgfortran"]
     extra_f77_compile_args = ["-static", "-static-libgcc", "-static-libgfortran"]
+elif os.sys.platform.startswith('freebsd'):
+    # this is for future FreeBSD 13 compatability
+    extra_f77_compile_args = []
+    #extra_f77_compile_args = ["-lpython3.8", "-shared"]
 else:
     extra_f77_compile_args = []
 
@@ -335,15 +339,15 @@ setup(
     - SBML import and export capability.
     """,
     author="Brett G. Olivier",
-    author_email="bgoli@users.sourceforge.net",
+    author_email="pysces@googlegroups.com",
     maintainer="Brett G. Olivier",
-    maintainer_email="bgoli@users.sourceforge.net",
+    maintainer_email="pysces@googlegroups.com",
     url="http://pysces.sourceforge.net",
     download_url="https://pypi.org/project/pysces/#files",
     license="New BSD style",
     keywords="computational systems biology, modelling, simulation, systems biology",
     zip_safe=False,
-    install_requires=['numpy', 'scipy', 'matplotlib', 'nose'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'nose', 'assimulo'],
     platforms=["Windows", "POSIX", "Max OSX"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -1,6 +1,6 @@
+nose
 numpy
 matplotlib
-python-libsbml
 scipy
-nose
-ipython
+assimulo
+python-libsbml
