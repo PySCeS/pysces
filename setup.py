@@ -347,7 +347,7 @@ setup(
     license="New BSD style",
     keywords="computational systems biology, modelling, simulation, systems biology",
     zip_safe=False,
-    install_requires=['numpy', 'scipy', 'matplotlib', 'nose', 'assimulo'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'nose'],
     platforms=["Windows", "POSIX", "Max OSX"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
