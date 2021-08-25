@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2020 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -1182,34 +1182,34 @@ class SbmlToCore(object):
 
     def sbmlFormulaToInfix(self, formula):
         """
-        Convert and SBML MathML formula to infix. Returns an infix string representation of a formula 
-        
-        - **formula** SBML AST math 
-        
+        Convert and SBML MathML formula to infix. Returns an infix string representation of a formula
+
+        - **formula** SBML AST math
+
         """
         infix = self.SBML.formulaToL3String(formula)
         infix = infix.replace('^', '**').replace('&&', 'and').replace('||','or')
         return infix
-        
-        
+
+
     def searchForCsymbolTime(self, sbml_math):
         """
         Takes SBML math xxx.getMath() and returns the results of a regex multi search for the CSymbol time
         r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
-        
+
         - **sbml_math** SBML math generated with math_element.getMath()
-        
+
         """
-        
+
         # check for csymbol time
         csymb = r'<csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time">.*<'
         hasTimeS = re.search(
             csymb, self.SBML.writeMathMLToString(sbml_math)
         )
-        
+
         return hasTimeS
-    
-        
+
+
     def setReservedTerm(self, term, replacement):
         self.__reserved__.update({term: replacement})
 
@@ -1517,9 +1517,9 @@ class SbmlToCore(object):
                 args = [s.strip() for s in args]
 
                 func = func.strip()
- 
+
                 # check for csymbol time
-                hasTimeS = self.searchForCsymbolTime(fnc.getMath())                
+                hasTimeS = self.searchForCsymbolTime(fnc.getMath())
                 tSymb = None
                 if hasTimeS != None:
                     tSymb = hasTimeS.group()[hasTimeS.group().find('>') :]
@@ -1563,7 +1563,7 @@ class SbmlToCore(object):
                 p_names = None
 
                 # check for csymbol time
-                hasTimeS = self.searchForCsymbolTime(j.getMath())                
+                hasTimeS = self.searchForCsymbolTime(j.getMath())
 
                 tSymb = None
                 if hasTimeS != None:
@@ -1818,7 +1818,7 @@ class SbmlToCore(object):
             )
 
             # check for csymbol time
-            hasTimeS = self.searchForCsymbolTime(rule.getMath())                
+            hasTimeS = self.searchForCsymbolTime(rule.getMath())
 
             tSymb = None
             #formula = rule.getFormula()
