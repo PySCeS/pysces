@@ -208,7 +208,7 @@ __psyco_active__ = 0
 try:
     import visual
     _HAVE_VPYTHON = True
-    vpyscene = visual.display(x=150, y=50, title='PySCeS '+__version__+' - C Brett G. Olivier, Stellenbosch 2006', width=640, height=480,\
+    vpyscene = visual.display(x=150, y=50, title='PySCeS '+__version__+' - C Brett G. Olivier, Stellenbosch 2022', width=640, height=480,\
     center=(0,0,0), background=(0,0,0))
     vpyscene.select()
     # vpyscene.autocenter = True
@@ -564,7 +564,8 @@ class ScanDataObj(object):
             return output
 
     def getScanData(self, *args, **kwargs):
-        """getScanData(\*args) feed this method species/flux/rule/mod labels and it
+        """
+        getScanData(\*args) feed this method species/flux/rule/mod labels and it
         will return an array of [parameter(s), sp1, f1, ....]
         """
         if 'lbls' in kwargs:
