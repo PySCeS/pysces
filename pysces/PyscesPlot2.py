@@ -829,35 +829,38 @@ class MatplotlibUPI(PlotBase):
                     print(('Matplotlib backend set to: \"{}\"'.format(backend)))
             else:
                 if backend == 'native':
-                    print(
-                        (
-                            'Using natively configured Matplotlib backend: \"{}\"'.format(
-                                matplotlib.get_backend()
+                    if not __SILENT_START__:
+                        print(
+                            (
+                                'Using natively configured Matplotlib backend: \"{}\"'.format(
+                                    matplotlib.get_backend()
+                                )
                             )
                         )
-                    )
                     self.__BACKEND__ = matplotlib.get_backend()
                 else:
                     matplotlib.use('TkAgg')
                     self.__BACKEND__ = 'TkAgg'
-                    print(
-                        (
-                            'Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(
-                                backend, 'TkAgg'
+                    if not __SILENT_START__:
+                        print(
+                            (
+                                'Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(
+                                    backend, 'TkAgg'
+                                )
                             )
                         )
-                    )
 
             # if self.__ENABLE_HTML5__:
             # matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
             # else:
             # matplotlib.use('TKagg', warn=False)
         except Exception as ex:
-            print(ex)
-            print(
-                "\nPySCeS defaults to matplotlib's TKagg backend if not specified \
-                     in the user configuration file, set \"matplotlib_backend = <backend>\" "
-            )
+            if not __SILENT_START__:
+                print(ex)
+                print(
+                    "\nPySCeS defaults to matplotlib's TKagg backend if not specified \
+                         in the user configuration file, set \"matplotlib_backend = <backend>\" "
+                )
 
         from matplotlib import pyplot
         from matplotlib import pylab
