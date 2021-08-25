@@ -178,13 +178,13 @@ class PlotBase(object):
         """
         raise NotImplementedError
 
-    def export(self, name, directory=None, type='png'):
+    def export(self, name, directory=None, outtype='png'):
         """
         Export the current plot as a <format> file.
 
         - *filename* the filename
         - *directory* optional (default = current working directory)
-        - *type* the file format (default='png').
+        - *outtype* the file format (default='png').
 
         Currently only PNG is guaranteed to be available in all interfaces.
         """
@@ -654,28 +654,28 @@ class GnuPlotUPI(PlotBase):
             if ax != None:
                 self.set('%slabel \"%s\"' % (ax, label))
 
-    def export(self, name, directory=None, type='png'):
+    def export(self, name, directory=None, outtype='png'):
         """
         Export the current plot as a <format> file.
 
         - *filename* the filename
         - *directory* optional (default = current working directory)
-        - *type* the file format (default='png').
+        - *outtype* the file format (default='png').
 
         Currently only PNG is guaranteed to be available in all interfaces.
         """
         imgPath = None
-        if type.lower() == 'png':
-            if name[-4:] != '.%s' % type:
-                name += '.%s' % type
+        if outtype.lower() == 'png':
+            if name[-4:] != '.%s' % outtype:
+                name += '.%s' % outtype
             if directory != None and os.path.exists(directory):
                 imgPath = os.path.join(directory, name)
             else:
                 imgPath = os.path.join(os.getcwd(), name)
 
-        if imgPath != None and type in list(self.Terminals.keys()):
+        if imgPath != None and outtype in list(self.Terminals.keys()):
             self.set('output', '\"%s\"' % imgPath)
-            self.setTerminal(type, self.Terminals[type])
+            self.setTerminal(outtype, self.Terminals[outtype])
             self.replot()
             self.set('output')
             self.setTerminal(
@@ -683,7 +683,7 @@ class GnuPlotUPI(PlotBase):
             )
             print('Image exported as \"%s\"' % imgPath)
         else:
-            print('Image not exported as type \"%s\"' % type)
+            print('Image not exported as type \"%s\"' % outtype)
 
     def setDataFileNumberFormat(self, format='%.8e'):
         """
@@ -807,6 +807,12 @@ class MatplotlibUPI(PlotBase):
         'nbAgg',
     ]
 
+    __NON_INTERACTIVE_BACKENDS__ = [
+        'pdf',
+        'ps',
+        'svg',
+        ]
+
     __BACKEND__ = None
 
     def __init__(self, work_dir=None, backend=None):
@@ -820,15 +826,19 @@ class MatplotlibUPI(PlotBase):
             if self.isnotebook():
                 backend = 'nbAgg'
                 import pysces
-
                 pysces.__MATPLOTLIB_BACKEND__ = 'nbAgg'
+
             if backend in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
                 self.__BACKEND__ = backend
                 if not __SILENT_START__:
                     print(('Matplotlib backend set to: \"{}\"'.format(backend)))
-            else:
-                if backend == 'native':
+            elif backend in self.__NON_INTERACTIVE_BACKENDS__:
+                matplotlib.use(backend)
+                self.__BACKEND__ = backend
+                if not __SILENT_START__:
+                    print(('Matplotlib backend set to non-interactive backend: \"{}\"'.format(backend)))
+            elif backend == 'native':
                     if not __SILENT_START__:
                         print(
                             (
@@ -838,17 +848,17 @@ class MatplotlibUPI(PlotBase):
                             )
                         )
                     self.__BACKEND__ = matplotlib.get_backend()
-                else:
-                    matplotlib.use('TkAgg')
-                    self.__BACKEND__ = 'TkAgg'
-                    if not __SILENT_START__:
-                        print(
-                            (
-                                'Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(
-                                    backend, 'TkAgg'
-                                )
+            else:
+                matplotlib.use('TkAgg')
+                self.__BACKEND__ = 'TkAgg'
+                if not __SILENT_START__:
+                    print(
+                        (
+                            'Matplotlib \"{}\" backend not set, defaulting to: \"{}\"'.format(
+                                backend, 'TkAgg'
                             )
                         )
+                    )
 
             # if self.__ENABLE_HTML5__:
             # matplotlib.use('module://mplh5canvas.backend_h5canvas') # HTML5
@@ -1095,21 +1105,26 @@ class MatplotlibUPI(PlotBase):
         numpy.savetxt(out_n, self.__ARRAY_DATA__, fmt=dfmt, delimiter=' ')
         print('Data saved as \"%s\"' % out_n)
 
-    def export(self, name, directory=None, type='png'):
+    def export(self, name, directory=None, outtype='png'):
         """
         Export the current plot as a <format> file.
 
         - *filename* the filename
         - *directory* optional (default = current working directory)
-        - *type* the file format (default='png').
+        - *outtype* the file format (default='png').
 
         Currently only PNG is guaranteed to be available in all interfaces.
         """
         imgPath = None
-        terminals = ['png']
-        if type.lower() in terminals:
-            if name[-4:] != '.%s' % type:
-                name += '.%s' % type
+        if self.__BACKEND__ in self.__NON_INTERACTIVE_BACKENDS__:
+            terminals = self.__NON_INTERACTIVE_BACKENDS__
+            outtype = self.__BACKEND__
+            print('Using non-interactice terminal as outtype: \"{}\"'.format(outtype.lower()))
+        else:
+            terminals = ['png']
+        if outtype.lower() in terminals:
+            if name[-4:] != '.%s' % outtype:
+                name += '.%s' % outtype
             if directory != None and os.path.exists(directory):
                 imgPath = os.path.join(directory, name)
             else:
@@ -1117,7 +1132,7 @@ class MatplotlibUPI(PlotBase):
             self.pyplot.savefig(imgPath)
             print('Image exported as \"%s\"' % imgPath)
         else:
-            print('Image not exported as type \"%s\"' % type)
+            print('Image not exported as type \"%s\"' % outtype)
 
     def setLineWidth(self, width=1):
         """
@@ -1339,17 +1354,17 @@ class PyscesUPI(PlotBase):
         """
         self.__gselect__('save', name, directory, dfmt)
 
-    def export(self, name, directory=None, type='png'):
+    def export(self, name, directory=None, outtype='png'):
         """
         Export the current plot as a <format> file.
 
         - *filename* the filename
         - *directory* optional (default = current working directory)
-        - *type* the file format (default='png').
+        - *outtype* the file format (default='png').
 
         Currently only PNG is guaranteed to be available in all interfaces.
         """
-        self.__gselect__('export', name, directory, type)
+        self.__gselect__('export', name, directory, outtype)
 
     def replot(self):
         """
