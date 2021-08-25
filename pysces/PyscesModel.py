@@ -35,6 +35,7 @@ __doc__ = '''
 import os, copy, gc, time
 import math, operator, re
 import pprint, pickle, io
+import warnings
 
 try:
     input = raw_input  # Py2 compatibility
@@ -121,14 +122,21 @@ else:
 
 _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
+
 try:
-    from assimulo.solvers import CVode
-    from assimulo.problem import Explicit_Problem
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=VisibleDeprecationWarning)
+        from assimulo.solvers import CVode
+        from assimulo.problem import Explicit_Problem
 
     if not __SILENT_START__:
         print('Assimulo CVode available')
     _HAVE_ASSIMULO = True
+except Exception as ex:
+    _ASSIMULO_LOAD_ERROR = '{}'.format(ex)
+    _HAVE_ASSIMULO = False
 
+if _HAVE_ASSIMULO:
     class EventsProblem(Explicit_Problem):
         def __init__(self, mod, **kwargs):
             Explicit_Problem.__init__(self, **kwargs)
@@ -176,8 +184,7 @@ try:
                         and ass.variable in self.mod.L0matrix.getLabels()[0]
                     ):
                         print(
-                            'Event assignment to dependent species consider setting\
-"mod.mode_integrate_all_odes = True"'
+                            'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
                         )
                     elif (
                         self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
@@ -192,11 +199,6 @@ try:
             # track any parameter changes
             self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
-except Exception as ex:
-    _ASSIMULO_LOAD_ERROR = '{}'.format(ex)
-    _HAVE_ASSIMULO = False
-
-# We now welcome a prototype StomPy interface to PySCeS which will provide expanding stochastic simulation support.
 
 # for future fun
 _HAVE_VPYTHON = False
