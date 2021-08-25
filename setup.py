@@ -20,7 +20,7 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '0.9.9'
+__version__ = '1.0.0'
 
 import os, re
 import sysconfig
