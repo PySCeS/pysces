@@ -39,7 +39,7 @@ test:
 about:
   home: http://pysces.sourceforge.net
   license: BSD
-  licence_file: LICENSE.txt
+  licence_file: LICENCE.txt
   summary: Python Simulator for Cellular Systems
 
 extra:

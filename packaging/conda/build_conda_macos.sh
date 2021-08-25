@@ -7,6 +7,7 @@ cp meta.linux.yaml meta.yaml
 conda build . --python 3.6 --numpy 1.15
 conda build . --python 3.7 --numpy 1.15
 conda build . --python 3.8 --numpy 1.17
+conda build . --python 3.9 --numpy 1.19
 
 # building wheels for Python 3.6, 3.7 and 3.8
 # assumes appropriate conda environments are available (py3x-build)
@@ -14,6 +15,7 @@ conda build . --python 3.8 --numpy 1.17
 # (base) $ conda create -n py36-build python=3.6 numpy=1.15
 # (base) $ conda create -n py37-build python=3.7 numpy=1.15
 # (base) $ conda create -n py38-build python=3.8 numpy=1.17
+# (base) $ conda create -n py39-build python=3.9 numpy=1.19
 
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 cd ../..
@@ -26,6 +28,10 @@ python setup.py bdist_wheel
 conda deactivate
 
 conda activate py38-build
+python setup.py bdist_wheel
+conda deactivate
+
+conda activate py39-build
 python setup.py bdist_wheel
 conda deactivate
 

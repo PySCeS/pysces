@@ -27,7 +27,7 @@ installation from source. This requires Fortran and C compilers.
 The fastest way to build your own copy of PySCeS is to use Anaconda Python.
 
 * Download and install 
-  [Anaconda for Python 3](https://www.anaconda.com/products/individual#Downloads>)
+  [Anaconda for Python 3](https://www.anaconda.com/products/individual#Downloads)
 * Obtain [Git for Windows](https://git-scm.com/download/win)
 * Create a PySCeS environment using conda and activate it:
 
