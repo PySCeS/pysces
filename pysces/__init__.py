@@ -3,16 +3,13 @@ PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
 Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
-Brett G. Olivier (bgoli@users.sourceforge.net)
-Triple-J Group for Molecular Cell Physiology
-Stellenbosch University, South Africa.
-
 Permission to use, modify, and distribute this software is given under the
 terms of the PySceS (BSD style) license. See LICENSE.txt that came with
 this distribution for specifics.
 
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
-Brett G. Olivier
+
+Authors: Brett G. Olivier and Johann M. Rohwer (see CONTRIBUTORS.md for details)
 """
 from __future__ import division, print_function
 from __future__ import absolute_import
@@ -35,6 +32,15 @@ __doc__ = """
             - A variety of extra utilites for parameter scans, data output and plotting.
             - A dynamic module loading framework.
             - SBML import and export capability.
+
+            Authors: Brett G. Olivier and Johann M. Rohwer (see CONTRIBUTORS.md for details)
+
+            Permission to use, modify, and distribute this software is given under the
+            terms of the PySceS (BSD style) license. See LICENSE.txt that came with
+            this distribution for specifics.
+
+            NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
+            Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
             """
 
 import os, time
@@ -117,9 +123,11 @@ if DEBUG:
 try:
     __config_dict = PyscesConfig.ReadConfig(inipath, config=__PyscesConfigDefault)
 except Exception as ex:
-    print(ex)
-    print('Cwd', os.getcwd())
-    print('\nWARNING: Cannot read pyscfg.ini using default values\n')
+    if DEBUG:
+        print(ex)
+    if not __SILENT_START__:
+        print('Cwd', os.getcwd())
+        print('\nWARNING: Cannot read pyscfg.ini using default values\n')
     __config_dict = __PyscesConfigDefault
 
 # Read config
@@ -244,8 +252,10 @@ try:
 
     interface = PyscesInterfaces.Core2interfaces()
 except Exception as ex:
-    print('INFO: pysces.interface.* not available')
-    print(ex)
+    if DEBUG:
+        print(ex)
+    if not __SILENT_START__:
+        print('INFO: pysces.interface.* not available')
     interface = None
 
 # initialise pysces.plt.*
@@ -261,18 +271,20 @@ if __USE_MATPLOTLIB__:
         if not __SILENT_START__:
             print('Matplotlib interface loaded (pysces.plt.m)')
     except Exception as ex:
-        print('Matplotlib interface not available')
+        if not __SILENT_START__:
+            print('Matplotlib interface not available')
         if DEBUG:
             print(ex)
         __USE_MATPLOTLIB__ = False
 if __USE_GNUPLOT__:
     if GNUPLOT_DIR == None or not os.path.exists(GNUPLOT_DIR):
-        print(
-            '''GnuPlot has been enabled but the path to the executable has
-not been defined (or does not exist). Please set the "gnuplot_dir" key
-in your pyscfg.ini file.
-        '''
-        )
+        if not __SILENT_START__:
+            print(
+                '''GnuPlot has been enabled but the path to the executable has
+    not been defined (or does not exist). Please set the "gnuplot_dir" key
+    in your pyscfg.ini file.
+            '''
+            )
     else:
         try:
             if DEBUG:
@@ -281,7 +293,8 @@ in your pyscfg.ini file.
             if not __SILENT_START__:
                 print('GnuPlot interface loaded (pysces.plt.g)')
         except Exception as ex:
-            print('GnuPlot interface not available')
+            if not __SILENT_START__:
+                print('GnuPlot interface not available')
             if DEBUG:
                 print(ex)
             __USE_GNUPLOT__ = False
@@ -326,8 +339,10 @@ if os.sys.platform == 'win32':
                 # print 'Attempting alternate pitcon import ...'
                 # alt_import = True
                 # alt_import_pitcon = True
-                print(ex)
-                print('INFO: Pitcon import failed: continuation not available')
+                if DEBUG:
+                    print(ex)
+                if not __SILENT_START__:
+                    print('INFO: Pitcon import failed: continuation not available')
 
     if nleq2_switch:
         os.sys.path.append(os.path.join(install_dir, 'nleq2'))
@@ -350,8 +365,10 @@ if os.sys.platform == 'win32':
                 # print 'Attempting alternate nleq2 import ...'
                 # alt_import = True
                 # alt_import_nleq2 = True
-                print(ex)
-                print('INFO: NLEQ2 import failed: option not available')
+                if DEBUG:
+                    print(ex)
+                if not __SILENT_START__:
+                    print('INFO: NLEQ2 import failed: option not available')
 else:
     if pitcon_switch:
         os.sys.path.append(os.path.join(install_dir, 'pitcon'))
@@ -361,11 +378,12 @@ else:
             if not __SILENT_START__:
                 print('Pitcon routines available')
         except Exception as ex:
-            # print ex
+            if DEBUG:
+                print(ex)
             alt_import = True
             alt_import_pitcon = True
-
-            print('Attempting alternate pitcon import ...')
+            if not __SILENT_START__:
+                print('Attempting alternate pitcon import ...')
     if nleq2_switch:
         os.sys.path.append(os.path.join(install_dir, 'nleq2'))
         try:
@@ -374,10 +392,12 @@ else:
             if not __SILENT_START__:
                 print('NLEQ2 routines available')
         except Exception as ex:
-            # print ex
+            if DEBUG:
+                print(ex)
             alt_import = True
             alt_import_nleq2 = True
-            print('Attempting alternate nleq2 import ...')
+            if not __SILENT_START__:
+                print('Attempting alternate nleq2 import ...')
 
 if DEBUG:
     print(time.strftime('6-%H:%M:%S'))
@@ -397,10 +417,12 @@ if alt_import:
                     if not __SILENT_START__:
                         print('Continuation routines available (A)')
             except Exception as ex:
-                print(ex)
-                print(
-                    'INFO: Alternate pitcon import failed: continuation not available'
-                )
+                if DEBUG:
+                    print(ex)
+                if not __SILENT_START__:
+                    print(
+                        'INFO: Alternate pitcon import failed: continuation not available'
+                    )
         if alt_import_nleq2:
             try:
                 if (
@@ -413,9 +435,11 @@ if alt_import:
                     if not __SILENT_START__:
                         print('NLEQ2 routines available (A)')
             except Exception as ex:
-                print(ex)
+                if DEBUG:
+                    print(ex)
                 nleq2_switch = False
-                print('INFO: Alternate NLEQ2 import failed: option not available')
+                if not __SILENT_START__:
+                    print('INFO: Alternate NLEQ2 import failed: option not available')
     os.chdir(savedir)
 
 if DEBUG:
@@ -429,8 +453,10 @@ try:
         print("SBML support available")
 except ImportError as ex:
     SBML = None
-    print(ex)
-    print("INFO: No SBML library found, SBML support not available")
+    if DEBUG:
+        print(ex)
+    if not __SILENT_START__:
+        print("INFO: libSBML not installed, SBML support not available.")
 
 # This has to come at the end
 from .PyscesModel import PysMod as model
@@ -457,6 +483,8 @@ try:
         print("RateChar is available")
 except Exception as ex:
     RateChar = None
+    if DEBUG:
+        print(ex)
     # print "RateChar not available"
 
 # ParScanner import
@@ -467,8 +495,10 @@ try:
         print("Parallel scanner is available")
 except ImportError as ex:
     ParScanner = None
-    print(ex)
-    print("INFO: Parallel scanner not available")
+    if DEBUG:
+        print(ex)
+    if not __SILENT_START__:
+        print("INFO: Parallel scanner not available")
 
 if DEBUG:
     print(time.strftime('9-%H:%M:%S'))
