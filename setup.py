@@ -348,6 +348,12 @@ setup(
     keywords="computational systems biology, modelling, simulation, systems biology",
     zip_safe=False,
     install_requires=['numpy', 'scipy', 'matplotlib', 'nose'],
+    extras_require={
+        'parscan': ['ipyparallel'],
+        'cvode': ['assimulo'],
+        'sbml': ['python_libsbml'],
+        'all': ['ipyparallel', 'assimulo', 'python_libsbml'],
+    },
     platforms=["Windows", "POSIX", "Max OSX"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

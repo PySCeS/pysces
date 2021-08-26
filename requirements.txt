@@ -2,4 +2,3 @@ nose
 numpy
 matplotlib
 scipy
-python-libsbml
