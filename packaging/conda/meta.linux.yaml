@@ -1,6 +1,6 @@
 package:
   name: pysces
-  version: "0.9.8"
+  version: "1.0.0"
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -26,6 +26,11 @@ requirements:
     - scipy
     - matplotlib
     - nose
+    - libgcc-ng
+    - libgfortran5
+    - ipyparallel
+    - python-libsbml
+    - assimulo
 
 test:
   imports:
