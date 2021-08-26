@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-See [https://github.com/PySCeS/pysces/issues/44] for details
+Test SBML assignment rules and functions
 """
 
 # input
-model_file = 'BIOMD0000000012_url.xml'
+model_file = 'BIOMD0000000860.xml'
 
 # environment
 import os
@@ -25,22 +25,12 @@ pysces.output_dir = out_dir
 pysces.interface.convertSBML2PSC(model_file, sbmldir=model_dir, pscdir=out_dir)
 
 mod = pysces.model(model_file+'.psc', dir=out_dir)
-mod.doSim(1000, 1000)
-lsoda_data = np.copy(mod.data_sim.getAllSimData())
-mod.SimPlot(['PX','PY','PZ'])
-pysces.plt.setRange('x', min=400, max=1000)
+mod.doSim(4*3600, 4*3600+1)
+mod.SimPlot()
 pysces.plt.export(model_file, directory=out_dir, outtype='png')
 
-mod.reLoad()
-mod.mode_integrator='CVODE'
-mod.doSim(1000, 1000)
-cvode_data = np.copy(mod.data_sim.getAllSimData())
-
 ref_sim_data = pickle.load(open(data_dir+'/simdata.pkl', 'rb'))
-assert np.allclose(lsoda_data, ref_sim_data), \
-    "LSODA data doesn't match reference!"
-assert np.allclose(cvode_data, ref_sim_data), \
-    "CVODE data doesn't match reference!"
+assert np.allclose(mod.data_sim.getAllSimData(), ref_sim_data), \
+    "Data doesn't match reference!"
 
 print('\nOutput path: \"{}\"\n\nDone.\n'.format(out_dir))
-
