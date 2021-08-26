@@ -338,9 +338,9 @@ setup(
     - A dynamic module loading framework.
     - SBML import and export capability.
     """,
-    author="Brett G. Olivier",
+    author="Brett G. Olivier and Johann M. Rohwer",
     author_email="pysces@googlegroups.com",
-    maintainer="Brett G. Olivier",
+    maintainer="Brett G. Olivier and Johann M. Rohwer",
     maintainer_email="pysces@googlegroups.com",
     url="http://pysces.sourceforge.net",
     download_url="https://pypi.org/project/pysces/#files",
