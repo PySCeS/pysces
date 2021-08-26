@@ -125,13 +125,13 @@ _ASSIMULO_LOAD_ERROR = ''
 
 try:
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=VisibleDeprecationWarning)
+        warnings.filterwarnings("ignore", category=numpy.VisibleDeprecationWarning)
         from assimulo.solvers import CVode
         from assimulo.problem import Explicit_Problem
-
+    _HAVE_ASSIMULO = True
     if not __SILENT_START__:
         print('Assimulo CVode available')
-    _HAVE_ASSIMULO = True
+
 except Exception as ex:
     _ASSIMULO_LOAD_ERROR = '{}'.format(ex)
     _HAVE_ASSIMULO = False
