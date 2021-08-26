@@ -7,12 +7,30 @@ Anaconda users can conveniently install PySCeS with:
 $ conda install -c conda-forge -c pysces pysces
 ```  
 
-Any dependencies will be installed automatically. Alternatively, you can use *pip* to
-install PySCeS from PyPI. Again, dependencies will be installed automatically.
+Any dependencies will be installed automatically, including the optional dependencies 
+*Assimulo*, *ipyparallel* and *libSBML*. 
+
+Alternatively, you can use *pip* to
+install PySCeS from PyPI. Core dependencies will be installed automatically.
 
 ```bash
 $ pip install pysces
 ```
+
+To install the optional dependences:
+
+- `pip install "pysces[parscan]"` - for *ipyparallel*
+- `pip install "pysces[sbml]"` - for *libSBML*
+- `pip install "pysces[cvode]"` - for *Assimulo*
+- `pip install "pysces[all]"` - for all of the above
+
+>  **_NOTE:_**  Installation of *Assimulo* via `pip` may well require C and Fortran 
+>  compilers to be
+>  properly set up on your system, as binary packages are only provided for a
+>  very limited number of Python versions and operating systems on PyPI. 
+>  **This is not guaranteed to work!** If you require Assimulo, the conda
+>  install is by far the easier option as up-to-date binaries are supplied
+>  for all OS and recent Python versions.
 
 For more information on installing and configuring PySCeS please see the
 [PySCeS User Guide](https://github.com/PySCeS/pysces-documentation/blob/main/source/userguide_doc.rst#installing-and-configuring)
