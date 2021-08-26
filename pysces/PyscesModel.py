@@ -728,19 +728,19 @@ class StateDataObj(object):
             output = self.species
             labels += self.species_labels
         if self.HAS_FLUXES:
-            if output == None:
+            if output is None:
                 output = self.fluxes
             else:
                 output = numpy.hstack((output, self.fluxes))
             labels += self.flux_labels
         if self.HAS_RULES:
-            if output == None:
+            if output is None:
                 output = self.rules
             else:
                 output = numpy.hstack((output, self.rules))
             labels += self.rules_labels
         if self.HAS_XDATA:
-            if output == None:
+            if output is None:
                 output = self.xdata
             else:
                 output = numpy.hstack((output, self.xdata))
