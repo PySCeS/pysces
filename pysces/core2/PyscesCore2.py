@@ -1604,18 +1604,18 @@ class NewCore(NewCoreBase):
             [
                 ar.name
                 for ar in self.global_parameters + self.species
-                if hasattr(ar, 'type') == 'assignemnt'
+                if hasattr(ar, 'type') == 'assignment'
             ]
         )
 
-    def hasAssignmentRules(self):
-        return MapList(
-            [
-                ar.name
-                for ar in self.global_parameters + self.species
-                if hasattr(ar, 'type') == 'rate'
-            ]
-        )
+    #def hasAssignmentRules(self):
+        #return MapList(
+            #[
+                #ar.name
+                #for ar in self.global_parameters + self.species
+                #if hasattr(ar, 'type') == 'rate'
+            #]
+        #)
 
     def hasEvents(self):
         return MapList(e.name for e in self.events)

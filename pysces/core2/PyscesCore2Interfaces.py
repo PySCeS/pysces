@@ -849,7 +849,7 @@ class CoreToSBML(object):
             p = self.model.createParameter()
             p.setId(par.name)
             p.setName(par.name)
-            p.setValue(par())
+
             # first attempt, check for a formula ... could be done with introspection
             if hasattr(par, 'formula'):
                 p.setConstant(False)
@@ -858,8 +858,24 @@ class CoreToSBML(object):
                 formula = (
                     par.code_string.split('=')[1].replace('self.', '').replace('()', '')
                 )
+                print('LOOKATME PARSE ASSIGNMENT RULE line 861')
+                print(formula)
                 formula = self.infixPSC2SBML(formula)
-                r.setFormula(par.formula)
+                print(formula)
+                sbml_ast = self.SBML.parseL3Formula(formula)
+                assert sbml_ast is not None, '\nERROR: cannot interpret assignment rule ({}): {}'.format(par.name, formula)
+                print(self.SBML.formulaToL3String(sbml_ast))
+
+                if r.setMath(sbml_ast) < 0:
+                    print('\nERROR: cannot assign assignment rule ({}): {}'.format(par.name, formula))
+                    raise(RuntimeError)
+
+
+                #r.setFormula(par.formula)
+                p.setValue(self.core.__InitDict__[par.name])
+            else:
+                p.setValue(par())
+
             # TODO need to adapt this for rate rules
             if self.level == 3:
                 p.setConstant(False)
