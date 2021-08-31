@@ -1,3 +1,6 @@
+OUTDATED: Please see README.md
+==============================
+
 Building with VS 2019-C++  and MINGW64-gfortran 8.1
 
 * It appears that for newer Pythons one should use Visual C++ as a compiler, rather than MINGW64-GCC.

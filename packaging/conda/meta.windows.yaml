@@ -9,20 +9,19 @@ source:
 build:
   number: 0
   include_recipe: True
-  script: "{{ PYTHON }} setup.py build --compiler=msvc --fcompiler=gfortran install --record=record.txt"
-
+  script: "python setup.py build --compiler=msvc --fcompiler=gfortran install --record=record.txt"
 
 requirements:
   build:
-    - python
+    - python {{ python }}
     - setuptools
-    - numpy
+    - numpy {{ numpy }}
     - libpython
     - scipy
     - matplotlib
     - nose
   run:
-    - python
+    - python {{ python }}
     - setuptools
     - numpy
     - libpython
