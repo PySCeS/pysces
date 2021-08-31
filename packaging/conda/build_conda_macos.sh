@@ -1,41 +1,40 @@
 #!/bin/bash
 
-cp meta.linux.yaml meta.yaml
+cp meta.posix.yaml meta.yaml
 
-# building Anaconda packages for pysces under Python 3.6 - 3.9
+### building Anaconda packages for pysces under Python 3.6 - 3.9
 
-conda build . --python 3.6 --numpy 1.15
-conda build . --python 3.7 --numpy 1.15
-conda build . --python 3.8 --numpy 1.17
-conda build . --python 3.9 --numpy 1.20
+mamba build .
 
-# building wheels for Python 3.6 - 3.9
-# assumes appropriate conda environments are available (py3x-build)
-# with appropriate numpy installed, create with:
-# (base) $ conda create -n py36-build python=3.6 numpy=1.15
-# (base) $ conda create -n py37-build python=3.7 numpy=1.15
-# (base) $ conda create -n py38-build python=3.8 numpy=1.17
-# (base) $ conda create -n py39-build python=3.9 numpy=1.20
-
+### building wheels for Python 3.6 - 3.9
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 cd ../..
+
+conda create -y -n py36-build python=3.6 numpy=1.15
 conda activate py36-build
-python setup.py bdist_wheel
+pip wheel --no-deps -w dist .
 conda deactivate
+conda env remove -y -n py36-build
 
+conda create -y -n py37-build python=3.7 numpy=1.15
 conda activate py37-build
-python setup.py bdist_wheel
+pip wheel --no-deps -w dist .
 conda deactivate
+conda env remove -y -n py37-build
 
+conda create -y -n py38-build python=3.8 numpy=1.17
 conda activate py38-build
-python setup.py bdist_wheel
+pip wheel --no-deps -w dist .
 conda deactivate
+conda env remove -y -n py38-build
 
+conda create -y -n py39-build python=3.9 numpy=1.20
 conda activate py39-build
-python setup.py bdist_wheel
+pip wheel --no-deps -w dist .
 conda deactivate
+conda env remove -y -n py39-build
 
-# move linked shared libraries into the wheel with delocate
+### move linked shared libraries into the wheel with delocate
 # install delocate in base environment with:
 # (base) $ conda install -c conda-forge delocate
 cd dist
