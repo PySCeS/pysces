@@ -999,17 +999,26 @@ class CoreToSBML(object):
             tr = self.SBML.Trigger(self.level, self.version)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
+            ea_cntr = 0
             for ass in ev.assignments:
-                print('LOOKATME PARSE EVENTASSIGNMENT line 979')
+                print('LOOKATME PARSE EVENTASSIGNMENT line 1003')
                 if self.__DEBUG__:
                     print('\tAssignment: %s = %s' % (ass.getName(), ass.formula))
+                print(ass.getName())
                 print(ass.formula)
+                print(ass.variable.getName())
                 form = self.infixPSC2SBML(ass.formula)
                 print(form)
-                ASTnode = self.SBML.parseFormula(form)
-                # eass = self.SBML.EventAssignment(ass.getName(), ASTnode)
+                ASTnode = self.SBML.parseL3Formula(form)
+
+                # TODO in future we need to move all id's from SBML to CORE including triggers and event assignments
+                # this will affect this code
+
                 eass = self.SBML.EventAssignment(self.level, self.version)
-                assert eass.setMath(ASTnode) == 0, 'Ooops guess that assignment didnt work'
+                eass.setId('eas_{}_{}'.format(ev.getName(), ea_cntr))
+                ea_cntr += 1
+                eass.setVariable(ass.variable.getName())
+                assert eass.setMath(ASTnode) == 0, 'ERROR: EventAssignment math set error.'
                 EV.addEventAssignment(eass)
             if ev.delay != 0:
                 dform = self.infixPSC2SBML(ev.delay)
