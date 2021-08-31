@@ -1,0 +1,58 @@
+package:
+  name: pysces
+  version: "1.0.0"
+
+source:
+  # git_url: https://github.com/PySCeS/pysces.git
+  path: ../..
+
+build:
+  number: 0
+  include_recipe: True
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed . -vv"
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy
+    - scipy
+    - matplotlib
+    - nose
+    - fortran-compiler
+  host:
+    - python
+    - setuptools
+    - numpy
+    - scipy
+    - matplotlib
+    - nose
+    - libgfortran5
+  run:
+    - python
+    - setuptools
+    - numpy
+    - scipy
+    - matplotlib
+    - nose
+    - libgfortran5
+    - ipyparallel
+    - python-libsbml
+    - assimulo
+
+test:
+  imports:
+    - pysces
+  commands:
+    - python -s -c "import pysces; pysces.test(3)"
+
+about:
+  home: http://pysces.sourceforge.net
+  license: BSD
+  licence_file: LICENCE.txt
+  summary: Python Simulator for Cellular Systems
+
+extra:
+  maintainers:
+    - Brett G. Olivier
+    - Johann M. Rohwer
