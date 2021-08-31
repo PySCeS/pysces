@@ -645,6 +645,9 @@ class CoreToSBML(object):
         'self._piecewise_': 'piecewise',
         '_piecewise_': 'piecewise',
         'operator.not_': 'not',
+        ' and ' : ' && ',
+        ' or ' : ' || ',
+
     }
 
     NumpyToMathMLkeys = [
@@ -684,6 +687,8 @@ class CoreToSBML(object):
         'self._piecewise_',
         '_piecewise_',
         'operator.not_',
+        ' and ',
+        ' or ',
     ]
 
     def __init__(self, core):
@@ -974,29 +979,37 @@ class CoreToSBML(object):
             EV.setName(ev.getName())
             EV.setId(ev.getName())
 
-            ##  print ev.formula
+            print(ev.getName())
+            print(ev.formula)
+            print(ev.code_string)
             # replace PySCeS infix with libSBML infix
-            form = ev.code_string.split('=')[1].replace('self.', '').replace('()', '')
+            print('LOOKATME PARSE EVENT line 979')
+            form = ev.code_string.replace('self.state=', '').replace('self.', '').replace('()', '')
+            print(form)
             form = self.infixPSC2SBML(form)
+            print(form)
             if self.__DEBUG__:
                 print('\tTrigger: %s' % form)
-            print('\tTrigger: %s' % form)
-            ASTnode = self.SBML.parseFormula(form)
+            ASTnode = self.SBML.parseL3Formula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
-            # set _TIME_ ASTnode tag to <csymbol> time
-            ASTnode = self.astSetCSymbolTime(ASTnode)
-            # tr = self.SBML.Trigger(ASTnode)
+            print(self.SBML.formulaToL3String(ASTnode))
+            ## set _TIME_ ASTnode tag to <csymbol> time
+            #ASTnode = self.astSetCSymbolTime(ASTnode)
+
             tr = self.SBML.Trigger(self.level, self.version)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
             for ass in ev.assignments:
+                print('LOOKATME PARSE EVENTASSIGNMENT line 979')
                 if self.__DEBUG__:
                     print('\tAssignment: %s = %s' % (ass.getName(), ass.formula))
+                print(ass.formula)
                 form = self.infixPSC2SBML(ass.formula)
+                print(form)
                 ASTnode = self.SBML.parseFormula(form)
                 # eass = self.SBML.EventAssignment(ass.getName(), ASTnode)
                 eass = self.SBML.EventAssignment(self.level, self.version)
-                eass.setMath(ASTnode)
+                assert eass.setMath(ASTnode) == 0, 'Ooops guess that assignment didnt work'
                 EV.addEventAssignment(eass)
             if ev.delay != 0:
                 dform = self.infixPSC2SBML(ev.delay)
