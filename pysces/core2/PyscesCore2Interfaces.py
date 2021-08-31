@@ -970,6 +970,23 @@ class CoreToSBML(object):
             if rpar != None:
                 rpar.setConstant(False)
 
+    def setFunctions(self):
+        for func in self.core.functions:
+            print(func)
+            FNC = self.model.createFunctionDefinition()
+            FNC.setName(func.getName())
+            FNC.setId(func.getName())
+            form = func.code_string.split('=')[1].replace('self.', '').replace('()', '')
+            print(form)
+            form = self.infixPSC2SBML(form)
+            print(form)
+            ASTnode = self.SBML.parseL3Formula(form)
+
+            assert ASTnode is not None, "ERROR: unable to parse function (%s) to AST" % form
+            assert FNC.setMath(ASTnode) == 0, "ERROR: unable to set Function math."
+
+
+
     def setEvents(self):
         """Set events"""
         for ev in self.core.events:
