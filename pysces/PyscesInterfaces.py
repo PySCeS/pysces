@@ -163,6 +163,7 @@ class Core2interfaces(object):
         self.sbml2core = SbmlToCore()
         self.sbml2core.getSbmlStringFromDisk(filename, Dir=directory)
         self.sbml2core.getSbmlModel()
+        self.sbml2core.checkSbmlSupport()
         self.sbml2core.getParsedModel()
         self.sbml2core.getUnits()
         self.core = NewCore(self.sbml2core)
