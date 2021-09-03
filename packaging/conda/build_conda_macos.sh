@@ -1,13 +1,15 @@
 #!/bin/bash
 
-cp meta.posix.yaml meta.yaml
-
 ### building Anaconda packages for pysces under Python 3.6 - 3.9
-
+echo "\nBuilding Anaconda packages..."
+echo "=============================\n"
 mamba build .
 
 ### building wheels for Python 3.6 - 3.9
 source $CONDA_PREFIX/etc/profile.d/conda.sh
+
+echo "\nBuilding Python wheels..."
+echo "=========================\n"
 cd ../..
 
 conda create -y -n py36-build python=3.6 numpy=1.15
@@ -37,6 +39,9 @@ conda env remove -y -n py39-build
 ### move linked shared libraries into the wheel with delocate
 # install delocate in base environment with:
 # (base) $ conda install -c conda-forge delocate
+echo "\nCreating portable wheels with delocate..."
+echo "=========================================\n"
+
 cd dist
 for I in *macosx_10_9_x86_64.whl; do
     delocate-wheel -w wheelhouse $I

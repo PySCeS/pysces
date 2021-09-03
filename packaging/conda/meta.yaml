@@ -26,7 +26,6 @@ requirements:
     - scipy
     - matplotlib
     - nose
-    - libgfortran5
     - ipyparallel
     - python-libsbml
     - assimulo

@@ -1,10 +1,19 @@
 :: building Anaconda packages for pysces under Python 3.6 - 3.9 (Windows)
 @echo off
 
-copy meta.windows.yaml meta.yaml
+echo;
+echo Building Anaconda packages...
+echo =============================
+echo;
+
 call mamba build .
 
 :: building wheels for Python 3.6 - 3.9
+echo;
+echo Building Python wheels...
+echo =========================
+echo;
+
 cd ..\..
 
 call conda create -y -n py36-build python=3.6 numpy=1.15
