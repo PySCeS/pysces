@@ -14,10 +14,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_TEST_COMMAND: python -s -c "import pysces; pysces.test(3)"
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_ARCHS_WINDOWS: "AMD64"
       CIBW_ARCHS_MACOS: "x86_64"
-      CIBW_BEFORE_BUILD_MACOS: brew install gfortran
     strategy:
       matrix:
         #os: [ubuntu-18.04, windows-2019, macos-10.15]
@@ -35,22 +35,22 @@ jobs:
         uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp39-*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
+          CIBW_BEFORE_BUILD_MACOS: brew install gfortran && pip install numpy~=1.20.0
 
       - name: Build wheels for CPython 3.8
         uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp38-*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
+          CIBW_BEFORE_BUILD_MACOS: brew install gfortran && pip install numpy~=1.17.0
           
       - name: Build wheels for CPython 3.6 and 3.7
         uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp36-* cp37-*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
+          CIBW_BEFORE_BUILD_MACOS: brew install gfortran && pip install numpy~=1.15.0
 
       - uses: actions/upload-artifact@v2
         with:
