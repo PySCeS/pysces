@@ -1,0 +1,62 @@
+name: Build CI wheels
+
+on:
+  push:
+    branches:
+      - ci-test
+      #- v[0-9]+.[0-9]+.x
+    #tags:
+      #- v*
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CIBW_TEST_REQUIRES: pytest
+      CIBW_TEST_COMMAND: "pytest {project}/pysces/PyscesTest.py"
+      CIBW_ARCHS: "auto64"
+      #CIBW_ARCHS_MACOS: "x86_64"
+    strategy:
+      matrix:
+        #os: [ubuntu-18.04, windows-2019, macos-10.15]
+        os: [ubuntu-18.04]
+        cibw_archs: "auto64"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Build wheels for CPython 3.9
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp39-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: pip install numpy=1.20
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.8
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp38-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: pip install numpy=1.17
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          
+      - name: Build wheels for CPython 3.6 and 3.7
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp36-* cp37-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: pip install numpy=1.15
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: ./wheelhouse/*.whl
