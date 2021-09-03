@@ -770,19 +770,19 @@ class MatplotlibUPI(PlotBase):
 
     CommonStyleDefs = {'points': 'o', 'lines': '-'}
     __BACKENDS__ = (
-        'GTK',
-        'GTKAgg',
-        'GTKCairo',
-        'FltkAgg',
-        'MacOSX',
-        'QtAgg',
-        'Qt4Agg',
-        'TkAgg',
-        'WX',
-        'WXAgg',
-        'CocoaAgg',
+        'gtk',
+        'gtkagg',
+        'gtkcairo',
+        'fltkagg',
+        'macosx',
+        'qtagg',
+        'qt4agg',
+        'tkagg',
+        'wx',
+        'wxagg',
+        'cocoaagg',
         'agg',
-        'nbAgg',
+        'nbagg',
         'cairo',
         'emf',
         'gdk',
@@ -793,21 +793,22 @@ class MatplotlibUPI(PlotBase):
     )
 
     __INTERACTIVE_BACKENDS__ = [
-        'GTK',
-        'GTKAgg',
-        'GTKCairo',
-        'FltkAgg',
-        'MacOSX',
-        'QtAgg',
-        'Qt4Agg',
-        'TkAgg',
-        'WX',
-        'WXAgg',
-        'CocoaAgg',
-        'nbAgg',
+        'gtk',
+        'gtkagg',
+        'gtkcairo',
+        'fltkagg',
+        'macosx',
+        'qtagg',
+        'qt4agg',
+        'tkagg',
+        'wx',
+        'wxagg',
+        'cocoaagg',
+        'nbagg',
     ]
 
     __NON_INTERACTIVE_BACKENDS__ = [
+        'agg',
         'pdf',
         'ps',
         'svg',
@@ -828,17 +829,17 @@ class MatplotlibUPI(PlotBase):
                 import pysces
                 pysces.__MATPLOTLIB_BACKEND__ = 'nbAgg'
 
-            if backend in self.__INTERACTIVE_BACKENDS__:
+            if backend.lower() in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
                 self.__BACKEND__ = backend
                 if not __SILENT_START__:
                     print(('Matplotlib backend set to: \"{}\"'.format(backend)))
-            elif backend in self.__NON_INTERACTIVE_BACKENDS__:
+            elif backend.lower() in self.__NON_INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
                 self.__BACKEND__ = backend
                 if not __SILENT_START__:
                     print(('Matplotlib backend set to non-interactive backend: \"{}\"'.format(backend)))
-            elif backend == 'native':
+            elif backend.lower() == 'native':
                     if not __SILENT_START__:
                         print(
                             (
