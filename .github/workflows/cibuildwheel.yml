@@ -13,8 +13,7 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      CIBW_TEST_REQUIRES: pytest
-      CIBW_TEST_COMMAND: "pytest {project}/pysces/PyscesTest.py"
+      CIBW_TEST_COMMAND: "python -s -c 'import pysces; pysces.test(3)'"
       CIBW_ARCHS_LINUX: "x86_64"
       #CIBW_ARCHS_MACOS: "x86_64"
     strategy:
