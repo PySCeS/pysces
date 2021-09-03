@@ -15,11 +15,12 @@ jobs:
     env:
       CIBW_TEST_COMMAND: "python -s -c 'import pysces; pysces.test(3)'"
       CIBW_ARCHS_LINUX: "x86_64"
+      CIBW_ARCHS_WINDOWS: "AMD64"
       #CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
         #os: [ubuntu-18.04, windows-2019, macos-10.15]
-        os: [ubuntu-18.04]
+        os: [windows-2019]
 
     steps:
       - uses: actions/checkout@v2
