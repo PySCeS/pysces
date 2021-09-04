@@ -1,4 +1,4 @@
-name: Test conda activation
+name: Test conda build
 
 on:
   push:
@@ -11,23 +11,25 @@ jobs:
     strategy:
       matrix:
 #         os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: [3.8]
-    name: Python ${{ matrix.python-version }} example
+    name: Build Anaconda package on $${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-#       - name: Setup conda
-#         uses: s-weigand/setup-conda@v1
-#         with:
-#           update-conda: true
-#           python-version: ${{ matrix.python-version }}
-#           conda-channels: conda-forge
-#       - run: conda --version
-#       - run: conda install mamba
-#       - run: mamba install conda-build conda-verify
+      - name: Setup conda and prepare env
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: conda-forge
       - run: |
+          conda --version
+          conda install mamba
+          mamba install conda-build conda-verify
           mkdir build_output
-          echo 123 >build_output/${{ matrix.os }}-test.txt
+      
+      - name: Build packages
+        run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
       - uses: actions/upload-artifact@v2
         with:
