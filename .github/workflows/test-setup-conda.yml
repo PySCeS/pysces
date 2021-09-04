@@ -1,3 +1,10 @@
+name: Test conda activation
+
+on:
+  push:
+    branches:
+      - ci-test
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
