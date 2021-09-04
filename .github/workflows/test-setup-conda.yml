@@ -26,8 +26,8 @@ jobs:
 #       - run: conda install mamba
 #       - run: mamba install conda-build conda-verify
       - run: |
-        mkdir build_output
-        echo 123 >build_output/${{ matrix.os }}-test.txt
+          mkdir build_output
+          echo 123 >build_output/${{ matrix.os }}-test.txt
       
       - uses: actions/upload-artifact@v2
         with:
