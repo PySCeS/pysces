@@ -10,8 +10,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-        python-version: [3.6, 3.7, 3.8]
+#         os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.8]
     name: Python ${{ matrix.python-version }} example
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +23,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           conda-channels: conda-forge
       - run: conda --version
-      - run: which python
-      - run: env
-      - run: pwd
-      - run: ls -l
+      - run: conda install mamba
+      - run: mamba install conda-build conda-verify
+      - run: mkdir build_output
+      - run: cd build_output
+      - run: echo 123 >test.txt
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build_outputs
+          path: ./build_output/*
