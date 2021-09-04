@@ -16,18 +16,18 @@ jobs:
     name: Python ${{ matrix.python-version }} example
     steps:
       - uses: actions/checkout@v2
-      - name: Setup conda
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
-          python-version: ${{ matrix.python-version }}
-          conda-channels: conda-forge
-      - run: conda --version
-      - run: conda install mamba
-      - run: mamba install conda-build conda-verify
-      - run: mkdir build_output
-      - run: cd build_output
-      - run: echo 123 >test.txt
+#       - name: Setup conda
+#         uses: s-weigand/setup-conda@v1
+#         with:
+#           update-conda: true
+#           python-version: ${{ matrix.python-version }}
+#           conda-channels: conda-forge
+#       - run: conda --version
+#       - run: conda install mamba
+#       - run: mamba install conda-build conda-verify
+      - run: |
+        mkdir build_output
+        echo 123 >build_output/${{ matrix.os }}-test.txt
       
       - uses: actions/upload-artifact@v2
         with:
