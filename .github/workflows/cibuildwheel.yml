@@ -3,10 +3,7 @@ name: Build CI wheels
 on:
   push:
     branches:
-      - master
-      - [0-9]+.[0-9]+.x
-    tags:
-      - [0-9]+.[0-9]+.[0-9]
+      - ci-test
 
 jobs:
   build_wheels:
