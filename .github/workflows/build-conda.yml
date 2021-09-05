@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
 #         os: [ubuntu-latest, windows-2019, macOS-10.15]
-        os: [windows-2019, macOS-10.15]
+        os: [windows-2019]
         python-version: [3.8]
     name: Build Anaconda package on ${{ matrix.os }}
     steps:
@@ -29,7 +29,14 @@ jobs:
           conda install mamba
           mamba install conda-build conda-verify
           mkdir build_output
-      
+          
+      - name: Install gfortran (macOS only)
+        if: ${{ matrix.os == 'macOS-10.15' }}
+        run: |
+          curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/10.2/gfortran-10.2-Catalina.dmg -o /tmp/gfortran.dmg
+          sudo hdiutil attach /tmp/gfortran.dmg
+          sudo installer -pkg /Volumes/gfortran-10.2-Catalina/gfortran.pkg -target /
+
       - name: Build packages
         run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
