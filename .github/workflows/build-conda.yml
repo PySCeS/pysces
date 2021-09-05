@@ -1,26 +1,25 @@
 name: CI build Anaconda packages
 
 on:
-  push:
-    branches:
-      - ci-test
+  release:
+    types:
+      - released
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#         os: [ubuntu-latest, windows-2019, macOS-10.15]
-        os: [ubuntu-latest, windows-2019]
-        python-version: [3.7]
+        os: [ubuntu-latest, windows-2019, macOS-10.15]
     name: Build Anaconda packages on ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.8
           conda-channels: conda-forge
       
       - name: Prepare conda environment
@@ -47,4 +46,3 @@ jobs:
 
       - name: Upload to anaconda.org
         run: anaconda -t ${{ secrets.ANACONDA_JMROHWER_TOKEN }} upload -u jmrohwer ./build_output/*/pysces*.tar.bz2
-      
