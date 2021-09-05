@@ -1,4 +1,4 @@
-name: Test conda build
+name: CI build Anaconda packages
 
 on:
   push:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#         os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [ubuntu-latest]
+#         os: [ubuntu-latest, windows-2019, macOS-10.15]
+        os: [windows-2019, macOS-10.15]
         python-version: [3.8]
-    name: Build Anaconda package on $${{ matrix.os }}
+    name: Build Anaconda package on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup conda and prepare env
@@ -22,7 +22,7 @@ jobs:
           update-conda: true
           python-version: ${{ matrix.python-version }}
           conda-channels: conda-forge
-      - run: |
+        run: |
           conda --version
           conda install mamba
           mamba install conda-build conda-verify
@@ -34,4 +34,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: build_outputs
-          path: ./build_output/*
+          path: ./build_output/*/pysces*.tar.bz2
