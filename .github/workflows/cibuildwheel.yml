@@ -70,7 +70,9 @@ jobs:
           python-version: '3.8'
 
       - name: Build sdist
-        run: python setup.py sdist
+        run: |
+          pip install numpy
+          python setup.py sdist
 
       - uses: actions/upload-artifact@v2
         with:
