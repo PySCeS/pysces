@@ -16,12 +16,14 @@ jobs:
     name: Build Anaconda package on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Setup conda and prepare env
+      - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
           python-version: ${{ matrix.python-version }}
           conda-channels: conda-forge
+      
+      - name: Prepare conda environment
         run: |
           conda --version
           conda install mamba
