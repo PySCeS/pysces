@@ -22,12 +22,10 @@ jobs:
 
       - name: Prepare conda environment
         run: |
-          conda install mamba
-          mamba install conda-build conda-verify
+          conda install mamba conda-build conda-verify
           mkdir build_output
 
       - name: Create homebrew symlinks for gcc
-        if: matrix.os == 'macOS-10.15'
         run: |
           ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
           ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
