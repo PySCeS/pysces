@@ -32,9 +32,8 @@ from . import model as PSCMODEL
 from .version import __version__
 
 # evaluation comparison stuff
-from numpy.testing import assert_array_equal, assert_equal
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
-from scipy import array, zeros, ones, logspace
+from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy import array, zeros
 from scipy.optimize import fsolve
 from scipy.integrate import odeint
 
@@ -100,7 +99,6 @@ class PyscesTest:
     '''PySCeS test suite: takes a test level as an argument'''
 
     __version__ = __version__
-    model_dir = os.path.join(MODEL_DIR, 'tests')
 
     def __init__(self, lvl=2, std2file=0):
         # copy models from server to local model store
@@ -157,7 +155,7 @@ class PyscesBasicTest(unittest.TestCase):
     '''Basic test class, tests low-level numerical algorithms'''
 
     __version__ = __version__
-    model_dir = os.path.join(MODEL_DIR, 'tests')
+    model_dir = MODEL_DIR
 
     MathArrayTest = PyscesStoich.MathArrayFunc()
 
@@ -274,28 +272,22 @@ class PyscesExtendedTest(unittest.TestCase):
     '''Extended test class, tests modelling related methods'''
 
     __version__ = __version__
-    model_dir = os.path.join(MODEL_DIR, 'tests')
+    model_dir = MODEL_DIR
 
     def test_statemetab_linear1(self):
         lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
-        lin.doLoad()
-        lin.hybrd_mesg = 0
         lin.State()
         linmet = array([23.1025641, 38.61538462, 38.94871795], 'd')
         assert_array_almost_equal(lin.state_species, linmet)
 
     def test_statemetab_branch1(self):
         bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
-        bra.doLoad()
-        bra.hybrd_mesg = 0
         bra.State()
         bramet = array([4.8583996, 1.88547254, 1.49124431, 1.49124431], 'd')
         assert_array_almost_equal(bra.state_species, bramet)
 
     def test_statemetab_moiety1(self):
         moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
-        moi.doLoad()
-        moi.hybrd_mesg = 0
         moi.State()
         moimet = array(
             [
@@ -316,16 +308,12 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_stateflux_linear1(self):
         lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
-        lin.doLoad()
-        lin.hybrd_mesg = 0
         lin.State()
         linflux = array([76.8974359, 76.8974359, 76.8974359, 76.8974359], 'd')
         assert_array_almost_equal(lin.state_flux, linflux)
 
     def test_stateflux_branch1(self):
         bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
-        bra.doLoad()
-        bra.hybrd_mesg = 0
         bra.State()
         braflux = array(
             [2.42139889, 2.42139889, 1.21069945, 1.21069945, 1.21069945, 1.21069945],
@@ -335,8 +323,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_stateflux_moiety1(self):
         moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
-        moi.doLoad()
-        moi.hybrd_mesg = 0
         moi.State()
         moiflux = array(
             [
@@ -354,8 +340,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_elas_linear1(self):
         lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
-        lin.doLoad()
-        lin.hybrd_mesg = 0
         lin.State()
         lin.EvalEvar()
         line = [
@@ -383,8 +367,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_elas_branch1(self):
         bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
-        bra.doLoad()
-        bra.hybrd_mesg = 0
         bra.State()
         bra.EvalEvar()
         brae = [
@@ -423,8 +405,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_elas_moiety1(self):
         moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
-        moi.doLoad()
-        moi.hybrd_mesg = 0
         moi.State()
         moi.EvalEvar()
         moie = [
@@ -509,8 +489,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_cc_linear1(self):
         lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
-        lin.doLoad()
-        lin.hybrd_mesg = 0
         lin.State()
         lin.EvalEvar()
         lin.EvalCC()
@@ -554,8 +532,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_cc_branch1(self):
         bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
-        bra.doLoad()
-        bra.hybrd_mesg = 0
         bra.State()
         bra.EvalEvar()
         bra.EvalCC()
@@ -632,8 +608,6 @@ class PyscesExtendedTest(unittest.TestCase):
 
     def test_cc_moiety1(self):
         moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
-        moi.doLoad()
-        moi.hybrd_mesg = 0
         moi.State()
         moi.EvalEvar()
         moi.EvalCC()
@@ -772,10 +746,9 @@ class PyscesExternalTest(unittest.TestCase):
     '''Extended test class, tests external/add-in numerical algorithms'''
 
     __version__ = __version__
-    model_dir = os.path.join(MODEL_DIR, 'tests')
+    model_dir = MODEL_DIR
 
     def test_PITCON1(self):
-        import scipy
 
         print(
             '''
@@ -799,12 +772,12 @@ class PyscesExternalTest(unittest.TestCase):
             return
 
         parm = 3
-        iwork = scipy.zeros((30 + parm), 'i')
-        rwork = scipy.zeros((30 + (6 * parm) * parm), 'd')
-        ipar = scipy.zeros((parm), 'i')
-        fpar = scipy.zeros((parm), 'd')
-        xr = scipy.zeros((parm), 'd')  # output array
-        FX = scipy.zeros((3), 'd')  # function array 'v'
+        iwork = zeros((30 + parm), 'i')
+        rwork = zeros((30 + (6 * parm) * parm), 'd')
+        ipar = zeros((parm), 'i')
+        fpar = zeros((parm), 'd')
+        xr = zeros((parm), 'd')  # output array
+        FX = zeros((3), 'd')  # function array 'v'
 
         iwork[0] = 0
         iwork[1] = 2
@@ -852,7 +825,7 @@ class PyscesExternalTest(unittest.TestCase):
                 limits.append(xrout)
             output.append(xrout)
 
-        output = scipy.array(output)
+        output = array(output)
         limit0 = [14.28309125, -1.74137688, 0.25857788]
         limit1 = [61.66936258, 1.98380112, -0.66387974]
         out6 = [4.48781323e001, 4.87659925e-001, 5.95322940e-002]
@@ -863,6 +836,76 @@ class PyscesExternalTest(unittest.TestCase):
         assert_array_almost_equal(limits[0], limit0, 4)
         assert_array_almost_equal(limits[1], limit1, 4)
         assert_array_almost_equal(output6, out6, 4)
+
+    def test_NLEQ2_statemetab_linear1(self):
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
+        lin.mode_solver = 'NLEQ2'
+        lin.State()
+        linmet = array([23.1025641, 38.61538462, 38.94871795], 'd')
+        assert_array_almost_equal(lin.state_species, linmet)
+
+    def test_NLEQ2_statemetab_branch1(self):
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
+        bra.mode_solver = 'NLEQ2'
+        bra.State()
+        bramet = array([4.8583996, 1.88547254, 1.49124431, 1.49124431], 'd')
+        assert_array_almost_equal(bra.state_species, bramet)
+
+    def test_NLEQ2_statemetab_moiety1(self):
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
+        moi.mode_solver = 'NLEQ2'
+        moi.State()
+        moimet = array(
+            [
+                3.6886875,
+                16.25569882,
+                7.3113125,
+                4.39229787,
+                41.02504596,
+                2.60770213,
+                0.42718994,
+                2.57281006,
+                2.44791155,
+                17.0012171,
+            ],
+            'd',
+        )
+        assert_array_almost_equal(moi.state_species, moimet)
+
+    def test_NLEQ2_stateflux_linear1(self):
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
+        lin.mode_solver = 'NLEQ2'
+        lin.State()
+        linflux = array([76.8974359, 76.8974359, 76.8974359, 76.8974359], 'd')
+        assert_array_almost_equal(lin.state_flux, linflux)
+
+    def test_NLEQ2_stateflux_branch1(self):
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
+        bra.mode_solver = 'NLEQ2'
+        bra.State()
+        braflux = array(
+            [2.42139889, 2.42139889, 1.21069945, 1.21069945, 1.21069945, 1.21069945],
+            'd',
+        )
+        assert_array_almost_equal(bra.state_flux, braflux)
+
+    def test_NLEQ2_stateflux_moiety1(self):
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
+        moi.mode_solver = 'NLEQ2'
+        moi.State()
+        moiflux = array(
+            [
+                250.01825652,
+                250.01825652,
+                250.01825652,
+                250.01825652,
+                250.01825652,
+                250.01825652,
+                250.01825652,
+            ],
+            'd',
+        )
+        assert_array_almost_equal(moi.state_flux, moiflux)
 
     # def test_PITCON2(self): # unreliable
     # mod = model('pysces_test_pitcon.psc', self.model_dir)
