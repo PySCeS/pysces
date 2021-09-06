@@ -2,6 +2,7 @@ name: CI debug gfortran on macOS
 
 on:
   workflow_dispatch:
+  push:
     branches:
       - ci-test
 
