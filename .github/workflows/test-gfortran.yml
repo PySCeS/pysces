@@ -14,13 +14,10 @@ jobs:
     steps:
       - name: Shell commands
         run: |
-          pwd
+          ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
+          ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
           ls -l /usr/local/bin
           which gcc
+          which gfortran
           gcc -v
-          gfortran-9 -v
-          gfortran-10 -v
-          gfortran-11 -v
-          gcc-9 -v
-          gcc-10 -v
-          gcc-11 -v
+          gfortran -v
