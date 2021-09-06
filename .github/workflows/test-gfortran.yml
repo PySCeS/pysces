@@ -1,0 +1,25 @@
+name: CI debug gfortran on macOS
+
+on:
+  workflow_dispatch:
+    branches:
+      - ci-test
+
+jobs:
+  build:
+    runs-on: macOS-10.15
+    name: Debug gfortran
+
+    steps:
+      - name: Shell commands
+        run: |
+          pwd
+          ls -l /
+          ls -l /usr/local/bin
+          ls -l /Library/Frameworks
+          which gcc
+          which gfortran
+          locate gfortran
+          gcc -v
+          gfortran -v
+          
