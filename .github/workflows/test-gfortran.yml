@@ -22,8 +22,7 @@ jobs:
 
       - name: Prepare conda environment
         run: |
-          conda install mamba
-          mamba install conda-build conda-verify
+          conda install mamba conda-build conda-verify
           mkdir build_output
 
       - name: Build packages
