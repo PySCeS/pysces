@@ -1,6 +1,7 @@
 name: CI build Anaconda packages
 
 on:
+  workflow_dispatch:
   release:
     types:
       - released
@@ -30,7 +31,7 @@ jobs:
           mkdir build_output
           
       - name: Install gfortran (macOS only)
-        if: ${{ matrix.os == 'macOS-10.15' }}
+        if: matrix.os == 'macOS-10.15'
         run: |
           curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/10.2/gfortran-10.2-Catalina.dmg -o /tmp/gfortran.dmg
           sudo hdiutil attach /tmp/gfortran.dmg
@@ -45,4 +46,6 @@ jobs:
           path: ./build_output/*/pysces*.tar.bz2
 
       - name: Upload to anaconda.org
+        # to publish when a GitHub Release is created:
+        if: github.event_name == 'release' && github.event.action == 'released'
         run: anaconda -t ${{ secrets.ANACONDA_JMROHWER_TOKEN }} upload -u jmrohwer ./build_output/*/pysces*.tar.bz2

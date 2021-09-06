@@ -1,6 +1,7 @@
 name: Build CI wheels
 
 on:
+  workflow_dispatch:
   release:
     types:
       - released
@@ -81,6 +82,8 @@ jobs:
   upload_pypi:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    # to publish when a GitHub Release is created:
+    if: github.event_name == 'release' && github.event.action == 'released'
     steps:
       - uses: actions/download-artifact@v2
         with:
