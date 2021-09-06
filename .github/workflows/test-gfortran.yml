@@ -15,12 +15,12 @@ jobs:
       - name: Shell commands
         run: |
           pwd
-          ls -l /
           ls -l /usr/local/bin
-          ls -l /Library/Frameworks
           which gcc
-          which gfortran
-          locate gfortran
           gcc -v
-          gfortran -v
-          
+          gfortran-9 -v
+          gfortran-10 -v
+          gfortran-11 -v
+          gcc-9 -v
+          gcc-10 -v
+          gcc-11 -v
