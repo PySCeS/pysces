@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: macOS-10.15
-    name: Try homebrew gfortran compile
+    name: Try Anaconda compilers
 
     steps:
       - uses: actions/checkout@v2
@@ -25,12 +25,6 @@ jobs:
           conda install mamba
           mamba install conda-build conda-verify
           mkdir build_output
-
-      - name: Create homebrew symlinks for gcc
-        if: matrix.os == 'macOS-10.15'
-        run: |
-          ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
-          ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
 
       - name: Build packages
         run: mamba build --python 3.8 --numpy 1.17 --no-anaconda-upload --output-folder ./build_output ./packaging/conda
