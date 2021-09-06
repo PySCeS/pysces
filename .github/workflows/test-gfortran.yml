@@ -9,15 +9,33 @@ on:
 jobs:
   build:
     runs-on: macOS-10.15
-    name: Debug gfortran
+    name: Try homebrew gfortran compile
 
     steps:
-      - name: Shell commands
+      - uses: actions/checkout@v2
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: false
+          python-version: 3.8
+          conda-channels: conda-forge
+
+      - name: Prepare conda environment
+        run: |
+          conda install mamba
+          mamba install conda-build conda-verify
+          mkdir build_output
+
+      - name: Create homebrew symlinks for gcc
+        if: matrix.os == 'macOS-10.15'
         run: |
           ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
           ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
-          ls -l /usr/local/bin
-          which gcc
-          which gfortran
-          gcc -v
-          gfortran -v
+
+      - name: Build packages
+        run: mamba build --python 3.8 --numpy 1.17 --no-anaconda-upload --output-folder ./build_output ./packaging/conda
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build_outputs
+          path: ./build_output/*/pysces*.tar.bz2
