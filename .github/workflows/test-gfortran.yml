@@ -1,4 +1,4 @@
-name: CI debug gfortran on macOS
+name: CI Anaconda gfortran compiler on Windows
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-10.15
+    runs-on: windows-2019
     name: Try Anaconda compilers
 
     steps:
