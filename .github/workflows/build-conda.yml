@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         #os: [ubuntu-latest, windows-2019, macOS-10.15]
-        os: [windows-2019]
+        os: [macOS-10.15]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
@@ -32,12 +32,6 @@ jobs:
           conda install mamba conda-build conda-verify anaconda-client
           mkdir build_output
           
-      - name: (macOS) Create homebrew symlinks for gcc/gfortran
-        if: matrix.os == 'macOS-10.15'
-        run: |
-          ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
-          ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
-
       - name: Build packages
         run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
