@@ -1,21 +1,17 @@
 name: CI build Anaconda packages
 
 on:
-  #workflow_dispatch:
-  #release:
-    #types:
-      #- released
-  push:
-    branches:
-      - ci-test
+  workflow_dispatch:
+  release:
+    types:
+      - released
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest, windows-2019, macOS-10.15]
-        os: [macOS-10.15]
+        os: [ubuntu-latest, windows-2019, macOS-10.15]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
@@ -40,7 +36,7 @@ jobs:
           name: build_outputs
           path: ./build_output/*/pysces*.tar.bz2
 
-      #- name: Upload to anaconda.org
-        ## to publish when a GitHub Release is created:
-        #if: github.event_name == 'release' && github.event.action == 'released'
-        #run: anaconda -t ${{ secrets.ANACONDA_JMROHWER_TOKEN }} upload -u jmrohwer ./build_output/*/pysces*.tar.bz2
+      - name: Upload to anaconda.org
+        # to publish when a GitHub Release is created:
+        if: github.event_name == 'release' && github.event.action == 'released'
+        run: anaconda -t ${{ secrets.ANACONDA_JMROHWER_TOKEN }} upload -u jmrohwer ./build_output/*/pysces*.tar.bz2
