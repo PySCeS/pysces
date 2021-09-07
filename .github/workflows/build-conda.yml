@@ -14,7 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2019, macOS-10.15]
+        #os: [ubuntu-latest, windows-2019, macOS-10.15]
+        os: [windows-2019]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:

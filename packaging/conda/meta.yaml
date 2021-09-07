@@ -13,8 +13,8 @@ build:
 
 requirements:
   build:
-    - {{ compiler('fortran') }}  # [unix]
-    - flang                      # [win]
+    - {{ compiler('fortran') }}
+    - m2w64-gcc-fortran        # [win]
   host:
     - python {{ python }}
     - setuptools
