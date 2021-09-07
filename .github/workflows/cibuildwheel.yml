@@ -2,12 +2,9 @@ name: Build CI wheels
 
 on:
   workflow_dispatch:
-  #release:
-    #types:
-      #- released
-  push:
-    branches:
-      - ci-test
+  release:
+    types:
+      - released
 
 jobs:
   build_wheels:
@@ -21,8 +18,7 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
-        #os: [ubuntu-18.04, windows-2019, macos-10.15]
-        os: [macos-10.15]
+        os: [ubuntu-18.04, windows-2019, macos-10.15]
 
     steps:
       - uses: actions/checkout@v2
@@ -38,11 +34,11 @@ jobs:
           ln -s /usr/local/bin/gcc-9 /usr/local/bin/gcc
           ln -s /usr/local/bin/gfortran-9 /usr/local/bin/gfortran
 
-      #- name: Build wheels for CPython 3.9
-        #uses: pypa/cibuildwheel@v2.1.1
-        #env:
-          #CIBW_BUILD: "cp39-*"
-          #CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
+      - name: Build wheels for CPython 3.9
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp39-*"
+          CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
 
       - name: Build wheels for CPython 3.8
         uses: pypa/cibuildwheel@v2.1.1
@@ -50,11 +46,11 @@ jobs:
           CIBW_BUILD: "cp38-*"
           CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
           
-      #- name: Build wheels for CPython 3.6 and 3.7
-        #uses: pypa/cibuildwheel@v2.1.1
-        #env:
-          #CIBW_BUILD: "cp36-* cp37-*"
-          #CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
+      - name: Build wheels for CPython 3.6 and 3.7
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp36-* cp37-*"
+          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
 
       - uses: actions/upload-artifact@v2
         with:
@@ -82,19 +78,19 @@ jobs:
           name: wheels_and_tarball
           path: dist/*.tar.gz
 
-  #upload_pypi:
-    #needs: [build_wheels, build_sdist]
-    #runs-on: ubuntu-latest
-    ## to publish when a GitHub Release is created:
-    #if: github.event_name == 'release' && github.event.action == 'released'
-    #steps:
-      #- uses: actions/download-artifact@v2
-        #with:
-          #name: wheels_and_tarball
-          #path: dist
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # to publish when a GitHub Release is created:
+    if: github.event_name == 'release' && github.event.action == 'released'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels_and_tarball
+          path: dist
 
-      #- uses: pypa/gh-action-pypi-publish@v1.4.2
-        #with:
-          #user: __token__
-          #password: ${{ secrets.TESTPYPI_TOKEN }}
-          #repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
