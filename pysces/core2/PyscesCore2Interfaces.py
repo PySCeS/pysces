@@ -530,9 +530,9 @@ class PscToCore(object):
             ModelFile += '.psc'
         if ModelDir == None:
             # this will probably change in future - bgoli
-            ModelDir = CurrentDirectory
+            ModelDir = CWD
         if WorkDir == None:
-            WorkDir = CurrentDirectory
+            WorkDir = CWD
         assert os.path.exists(
             os.path.join(ModelDir, ModelFile)
         ), '\nFile %s does not exist' % os.path.join(ModelDir, ModelFile)
@@ -546,7 +546,7 @@ class PscToCore(object):
         set up a temporary psc file for parsing from model string
         """
         if WorkDir == None:
-            WorkDir = CurrentDirectory
+            WorkDir = CWD
         assert os.path.exists(WorkDir), '\nDirectory %s does not exist' % WorkDir
         setattr(self, 'WorkDir', WorkDir)
         setattr(self, 'ModelDir', WorkDir)
@@ -1178,6 +1178,7 @@ class CoreToSBML(object):
 class SbmlToCore(object):
     SBML = None
     level = 2
+    version = 5
     sbml_string = None
     sbml_file = None
     model = None
@@ -1213,6 +1214,8 @@ class SbmlToCore(object):
     _ecount = None
     __uDict__ = None
     __DEBUG__ = False
+    __model_in_level__ = None
+    __model_in_version__ = None
     COMP_FUDGE_FACTOR = 1.0
 
     def __init__(self):
@@ -1272,8 +1275,8 @@ class SbmlToCore(object):
         if sbml[-4:] != '.xml':
             print("Assuming .xml extension")
             sbml += '.xml'
-        if Dir == None:
-            Dir = CurrentDirectory
+        if Dir is None:
+            Dir = CWD
         assert os.path.exists(
             os.path.join(Dir, sbml)
         ), '\nFile %s does not exist' % os.path.join(Dir, sbml)
@@ -1284,22 +1287,35 @@ class SbmlToCore(object):
 
     def getSbmlStringFromString(self, sbml_string):
         self.sbml_string = sbml_string
-        self.sbml_file = os.path.join(CurrentDirectory, 'sbml_string_loader.xml')
+        self.sbml_file = os.path.join(CWD, 'sbml_string_loader.xml')
 
     def getSbmlModel(self, document=None):
         r = self.SBML.SBMLReader()
-        if document == None:
+        if document is None:
             self.document = r.readSBMLFromString(self.sbml_string)
         else:
             self.document = document
             self.sbml_string = self.document.toSBML()
-            self.sbml_file = os.path.join(CurrentDirectory, 'sbml_string_loader.xml')
+            self.sbml_file = os.path.join(CWD, 'sbml_string_loader.xml')
         self.model = self.document.getModel()
-        if self.model.getId() != 'untitled':
+        self.__model_in_level__ = self.model.getLevel()
+        self.__model_in_version__ = self.model.getVersion()
+        if self.model.getId() not in ['untitled','']:
             self.__KeyWords__['Modelname'] = self.model.getId()
         else:
             self.__KeyWords__['Modelname'] = self.model.getName()
         self.__KeyWords__['Description'] = self.model.getName()
+
+    def checkSbmlSupport(self, action=2):
+        """
+        Check level and warn about unsupported functionality, errors logged to sbml_converstion_errors.txt
+
+        - **action** [default=2] action to take: 1, raise error, 2 print warning with delay, 3 silently ignore
+
+        """
+        print('Check SBML support is at action level {}'.format(2))
+        print('SBML file is L{}V{}'.format(self.__model_in_level__, self.__model_in_version__))
+
 
     def getUnits(self):
         self.__uDict__ = {
