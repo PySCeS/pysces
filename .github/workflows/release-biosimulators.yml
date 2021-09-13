@@ -1,0 +1,35 @@
+name: Update BioSimulators command-line interface and Docker image
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  updateBioSimulatorsCliAndDockerImage:
+    name: Trigger the building and release of the BioSimulators version of PySCeS
+    runs-on: ubuntu-latest
+    env:
+      # Owner/repository-id for the GitHub repository for the downstream
+      # command-line interface and Docker image.
+
+      DOWNSTREAM_REPOSITORY: biosimulators/Biosimulators_PySCeS
+
+      # Username/token to use the GitHub API to trigger an action on the GitHub
+      # repository for the downstream command line interface and Docker image.
+      # Tokens can be generated at https://github.com/settings/tokens and should
+      # have the scope "repo".
+
+      BIOSIMULATORS_GH_USERNAME: ${{ secrets.BIOSIMULATORS_GH_USERNAME }}
+      BIOSIMULATORS_GH_TOKEN: ${{ secrets.BIOSIMULATORS_GH_TOKEN }}
+    steps:
+      - name: Trigger a GitHub action that will build and release the BioSimulators version of PySCeS
+        run: |
+          PACKAGE_VERSION="${GITHUB_REF/refs\/tags\//}"
+          WORKFLOW_FILE=ci.yml
+
+          curl -X POST \
+               -u ${BIOSIMULATORS_GH_USERNAME}:${BIOSIMULATORS_GH_TOKEN} \
+               -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${DOWNSTREAM_REPOSITORY}/actions/workflows/${WORKFLOW_FILE}/dispatches \
+               -d "{\"ref\": \"dev\", \"inputs\": {\"simulatorVersion\": \"${PACKAGE_VERSION}\", \"simulatorVersionLatest\": \"true\"}}"
+
