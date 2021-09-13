@@ -13,6 +13,10 @@ build:
 
 requirements:
   build:
+    - {{ compiler('c') }}
+    - {{ compiler('fortran') }}   # [unix]
+    - m2w64-gcc-fortran           # [win]
+  host:
     - python {{ python }}
     - setuptools
     - numpy {{ numpy }}
