@@ -31,7 +31,6 @@ var/
 .installed.cfg
 *.egg
 /packaging/many_linux/pip_cache
-meta.yaml
 .libs/
 
 # PyInstaller

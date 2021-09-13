@@ -9,25 +9,27 @@ source:
 build:
   number: 0
   include_recipe: True
-  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed . -vv"
+  script: "python -m pip install --no-deps --ignore-installed . -vv"
 
 requirements:
   build:
-    - python
+    - {{ compiler('c') }}
+    - {{ compiler('fortran') }}   # [unix]
+    - m2w64-gcc-fortran           # [win]
+  host:
+    - python {{ python }}
     - setuptools
-    - numpy
+    - numpy {{ numpy }}
     - scipy
     - matplotlib
     - nose
   run:
-    - python
+    - python {{ python }}
     - setuptools
     - numpy
     - scipy
     - matplotlib
     - nose
-    - libgcc-ng
-    - libgfortran5
     - ipyparallel
     - python-libsbml
     - assimulo

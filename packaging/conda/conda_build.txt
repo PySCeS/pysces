@@ -1,3 +1,6 @@
+OUTDATED: Please see README.md
+==============================
+
 Open a VS2015 build prompt
 
 path=c:\tools\mingw64\bin;%path%
