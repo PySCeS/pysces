@@ -759,14 +759,18 @@ class Stoich(MathArrayFunc):
         ##  except Exception, e:
         ##  print "CLAPACK error", e
 
-        print('\nMysterious 766 error: only report this if your Python does not crash now {} ...'.format(a.shape))
+        if a.shape[0] >= 500 or a.shape[1] >= 500:
+            print('\nMatrix {} using SciPy version: {} on {}'.format(a.shape, scipy.__version__, os.sys.platform))
+            print('Error 766 error detector: only report this if your Python crashes now ...')
+
         if Using_FLAPACK == 1:
             ##  results = getrf(numpy.transpose(a)) # brett 20041226
             results = getrf(a)  # brett 201106
 
         results = list(results)
 
-        print('Mysterious 766 error did not occur please continue as normal {} ...'.format(a.shape))
+        if a.shape[0] >= 500 or a.shape[1] >= 500:
+            print('766 error did not occur please continue as normal {} ...'.format(a.shape))
 
         if results[2] < 0:
             print('Argument ', results['info'], ' had an illegal value')
