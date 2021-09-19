@@ -667,9 +667,13 @@ class PySCeSParser:
             self.ParseErrors.append(t)
         except:
             print('p_error generated a parsing error')
-        tok = yacc.token()
+        # fixes userwarning
+        #tok = yacc.token()
+        tok = self.__parser.token()
         while tok and tok.type != 'REACTION_ID':
-            tok = yacc.token()
+            # fixes userwarning
+            #tok = yacc.token()
+            tok = self.__parser.token()
         self.ParseOK = False
         return tok
 
