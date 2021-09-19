@@ -1155,6 +1155,7 @@ class NewCore(NewCoreBase):
             fullName = None
             if 'fullName' in self.__sDict__[s]:
                 fullName = self.__sDict__[s]['fullName']
+            # print(self.__sDict__)
             self.addOneSpecies(
                 name, val, fix=fix, comp=comp, amount=amount, fullName=fullName
             )

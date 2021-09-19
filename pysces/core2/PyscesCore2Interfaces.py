@@ -25,6 +25,7 @@ from getpass import getuser
 from xml.etree import ElementTree
 import io
 import itertools
+import numpy
 
 from .. import output_dir, __CHGDIR_ON_START__
 if __CHGDIR_ON_START__:
@@ -1585,11 +1586,19 @@ class SbmlToCore(object):
 
         # Add global parameters
         Punits = []
+
         if len(self.model.getListOfParameters()) > 0:
             for xp in self.model.getListOfParameters():
                 if xp.isSetUnits():
                     Punits.append(self.getId(xp))
                 init_par.update({self.getId(xp): float(xp.getValue())})
+                # TODO: this needs to be overwritten when initial assignments are introduced
+                if numpy.isnan(xp.getValue()):
+                    print('ERROR: NaN detected as parameter value: {} setting to default value: 0.0'.format(self.getId(xp)))
+                    #print(self.getId(xp), xp.getValue(), type(xp.getValue()))
+                    init_par[self.getId(xp)] = 0.0
+                    time.sleep(1)
+
         if len(Punits) > 0:
             self.__Errors__.update(
                 {
