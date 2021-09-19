@@ -1653,16 +1653,17 @@ class SbmlToCore(object):
         if self.model.getNumFunctionDefinitions() > 0:
             for fnc in self.model.getListOfFunctionDefinitions():
                 name = self.getId(fnc)
-                func = self.sbmlFormulaToInfix(fnc.getMath()).replace('lambda', '')[
-                    1:-1
-                ]
+
+                func = self.sbmlFormulaToInfix(fnc.getMath())
+                if 'lambda' in func:
+                    func = func.replace('lambda', '')[1:-1]
+
                 args = []
-                for ar in range(fnc.getNumArguments()):
+                for _ in range(fnc.getNumArguments()):
                     arg = func[: func.find(',')]
                     func = func[func.find(',') + 1 :]
                     args.append(arg)
                 args = [s.strip() for s in args]
-
                 func = func.strip()
 
                 # check for csymbol time
