@@ -1,4 +1,4 @@
-name: Build CI wheels
+name: CI build wheels
 
 on:
   workflow_dispatch:

@@ -1,3 +1,7 @@
+[![CI build wheels](https://github.com/PySCeS/pysces/actions/workflows/cibuildwheel.yml/badge.svg)](https://github.com/PySCeS/pysces/actions/workflows/cibuildwheel.yml)
+[![CI build Anaconda](https://github.com/PySCeS/pysces/actions/workflows/build-conda.yml/badge.svg)](https://github.com/PySCeS/pysces/actions/workflows/build-conda.yml)
+[![Documentation Status](https://readthedocs.org/projects/pyscesdocs/badge/?version=latest)](https://pyscesdocs.readthedocs.io/en/latest/?badge=latest)
+
 # PySCeS - Python Simulator for Cellular Systems
 
 PySCeS is a flexible, user-friendly tool for the analysis of cellular systems. For more

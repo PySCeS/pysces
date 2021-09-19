@@ -1,4 +1,4 @@
-name: CI build Anaconda packages
+name: CI build Anaconda
 
 on:
   workflow_dispatch:
