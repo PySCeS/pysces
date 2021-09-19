@@ -374,6 +374,7 @@ class Function(NewCoreBase):
         self.args.append(var)
 
     def addFormula(self, formula):
+        print('PC2 377:', formula)
         formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '')
@@ -1155,11 +1156,13 @@ class NewCore(NewCoreBase):
             fullName = None
             if 'fullName' in self.__sDict__[s]:
                 fullName = self.__sDict__[s]['fullName']
+            # print(self.__sDict__)
             self.addOneSpecies(
                 name, val, fix=fix, comp=comp, amount=amount, fullName=fullName
             )
 
     def addOneFunction(self, name, args, formula):
+        print(name, formula)
         func = Function(name)
         # TODO: make better
         setattr(func, '_TIME_', self._TIME_)
@@ -1604,18 +1607,18 @@ class NewCore(NewCoreBase):
             [
                 ar.name
                 for ar in self.global_parameters + self.species
-                if hasattr(ar, 'type') == 'assignemnt'
+                if hasattr(ar, 'type') == 'assignment'
             ]
         )
 
-    def hasAssignmentRules(self):
-        return MapList(
-            [
-                ar.name
-                for ar in self.global_parameters + self.species
-                if hasattr(ar, 'type') == 'rate'
-            ]
-        )
+    #def hasAssignmentRules(self):
+        #return MapList(
+            #[
+                #ar.name
+                #for ar in self.global_parameters + self.species
+                #if hasattr(ar, 'type') == 'rate'
+            #]
+        #)
 
     def hasEvents(self):
         return MapList(e.name for e in self.events)

@@ -6,6 +6,7 @@ include pysces/contrib/*
 include pysces/contrib/demo/*
 include pysces/core2/*
 include pysces/docs/*
+include pysces/docs/*.pdf
 include pysces/examples/*
 include pysces/nleq2/*
 include pysces/kraken/*

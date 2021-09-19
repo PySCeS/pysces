@@ -22,6 +22,7 @@ from pysces.version import __version__
 import time, os
 import scipy
 import scipy.linalg
+import numpy
 
 # if int(scipy.__version__.split('.')[1]) < 12:
 # thanks scipy
@@ -210,10 +211,10 @@ class MathArrayFunc(object):
         cast_arrays = ()
         for a in arrays:
             if a.typecode() == type:
-                cast_arrays = cast_arrays + (copy.copy(scipy.transpose(a)),)
+                cast_arrays = cast_arrays + (copy.copy(numpy.transpose(a)),)
             else:
                 cast_arrays = cast_arrays + (
-                    copy.copy(scipy.transpose(a).astype(type)),
+                    copy.copy(numpy.transpose(a).astype(type)),
                 )
         if len(cast_arrays) == 1:
             return cast_arrays[0]
@@ -430,8 +431,8 @@ class Stoich(MathArrayFunc):
 
         self.nmatrix = input
         row, col = self.nmatrix.shape
-        self.nmatrix_col = tuple(scipy.array(list(range(col))))
-        self.nmatrix_row = tuple(scipy.array(list(range(row))))
+        self.nmatrix_col = tuple(numpy.array(list(range(col))))
+        self.nmatrix_row = tuple(numpy.array(list(range(row))))
 
         # Create a machine specific instance
         from scipy import MachAr
@@ -513,9 +514,10 @@ class Stoich(MathArrayFunc):
         None
 
         """
+        #self.__stoichdiagmode__ = True
         print('Calculating L matrix .', end=' ')
 
-        a = scipy.transpose(self.nmatrix)
+        a = numpy.transpose(self.nmatrix)
         self.info_moiety_conserve = False  # added 20020416 for conservation detection
 
         if self.__stoichdiagmode__:
@@ -625,7 +627,7 @@ class Stoich(MathArrayFunc):
 
                 if zeroP != (None, None) and zeroP != (z, z) and mRow != None:
                     if self.__stoichdiagmode__:
-                        print('  Swapping: ', (z, z), (zeroP[0], zeroP[1]), 1.0)
+                        print('  Swapping1: ', (z, z), (zeroP[0], zeroP[1]), 1.0)
                     a = self.SwapRowd(a, z, zeroP[0])
                     a = self.SwapCold(a, z, zeroP[1])
                     row_vector = self.SwapElem(row_vector, z, zeroP[0])
@@ -636,7 +638,7 @@ class Stoich(MathArrayFunc):
                     and mRow != None
                 ):
                     if self.__stoichdiagmode__:
-                        print('  Swapping: ', (z, z), (maxP[0], maxP[1]), a[z, z], maxV)
+                        print('  Swapping2: ', (z, z), (maxP[0], maxP[1]), a[z, z], maxV)
                     a = self.SwapRowd(a, z, maxP[0])
                     a = self.SwapCold(a, z, maxP[1])
                     row_vector = self.SwapElem(row_vector, z, maxP[0])
@@ -699,7 +701,7 @@ class Stoich(MathArrayFunc):
                     and maxP != (z, z)
                 ):
                     if self.__stoichdiagmode__:
-                        print('  Swapping: ', (z, z), (maxP[0], maxP[1]), a[z, z], maxV)
+                        print('  Swapping3: ', (z, z), (maxP[0], maxP[1]), a[z, z], maxV)
                     a = self.SwapRowd(a, z, maxP[0])
                     a = self.SwapCold(a, z, maxP[1])
                     row_vector = self.SwapElem(row_vector, z, maxP[0])
@@ -725,17 +727,17 @@ class Stoich(MathArrayFunc):
         t = self.commonType(a_in)
         if a_in.dtype.char == 'D':
             # print 'Complex matrix ' + a_in.typecode()
-            ##  a = copy.copy(scipy.transpose(a_in))
+            ##  a = copy.copy(numpy.transpose(a_in))
             # brett 201106 flapack optimize
             a = a_in.copy()
         elif a_in.dtype.char == 'd':
             # print 'Float matrix ' + a_in.typecode()
-            ##  a = copy.copy(scipy.transpose(a_in))
+            ##  a = copy.copy(numpy.transpose(a_in))
             # brett 201106 flapack optimize
             a = a_in.copy()
         else:
             # print 'Other matrix casting to double, was: ' + a_in.typecode()
-            ##  a = copy.copy(scipy.transpose(a_in).astype('d'))
+            ##  a = copy.copy(numpy.transpose(a_in).astype('d'))
             # brett 201106 flapack optimize
             a = a_in.copy().astype('d')
         Using_FLAPACK = 1
@@ -757,11 +759,18 @@ class Stoich(MathArrayFunc):
         ##  except Exception, e:
         ##  print "CLAPACK error", e
 
+        if a.shape[0] >= 500 or a.shape[1] >= 500:
+            print('\nMatrix {} using SciPy version: {} on {}'.format(a.shape, scipy.__version__, os.sys.platform))
+            print('Error 766 error detector: only report this if your Python crashes now ...')
+
         if Using_FLAPACK == 1:
-            ##  results = getrf(scipy.transpose(a)) # brett 20041226
+            ##  results = getrf(numpy.transpose(a)) # brett 20041226
             results = getrf(a)  # brett 201106
 
         results = list(results)
+
+        if a.shape[0] >= 500 or a.shape[1] >= 500:
+            print('766 error did not occur please continue as normal {} ...'.format(a.shape))
 
         if results[2] < 0:
             print('Argument ', results['info'], ' had an illegal value')
@@ -772,7 +781,7 @@ class Stoich(MathArrayFunc):
         if Using_FLAPACK == 1:
             result = results[0]  # brett 20041226
         ##  else:
-        ##  result = scipy.transpose(results[0]) # -- this is normal
+        ##  result = numpy.transpose(results[0]) # -- this is normal
 
         badlist = []
         for x in range(result.shape[0]):
@@ -813,13 +822,13 @@ class Stoich(MathArrayFunc):
         t = self.commonType(a_in)
         if a_in.dtype.char == 'D':
             #print 'Complex matrix ' + a_in.typecode()
-            a = copy.copy(scipy.transpose(a_in))
+            a = copy.copy(numpy.transpose(a_in))
         elif a_in.dtype.char == 'd':
             #print 'Float matrix ' + a_in.typecode()
-            a = copy.copy(scipy.transpose(a_in))
+            a = copy.copy(numpy.transpose(a_in))
         else:
             #print 'Other matrix casting to double, was: ' + a_in.typecode()
-            a = copy.copy(scipy.transpose(a_in).astype('d'))
+            a = copy.copy(numpy.transpose(a_in).astype('d'))
         Using_FLAPACK = 0
         # brett 20041226 - protecting ourselves against flapack
         try:
@@ -847,7 +856,7 @@ class Stoich(MathArrayFunc):
                 print "CLAPACK error", e
 
         if Using_FLAPACK == 1:
-            results = getrf(scipy.transpose(a)) # brett 20041226
+            results = getrf(numpy.transpose(a)) # brett 20041226
         else:
             # This is a $%^&*( ... suddenly with latest cvs f2py getrf only accepts arrays
             # not vectors so this song and dance is necessary to fix this 'behaviour'
@@ -860,8 +869,8 @@ class Stoich(MathArrayFunc):
                 results = getrf(tarr) #scipy cblas (ATLAS) 20030506 -- this is normal
 
                 results = list(results)
-                results[0] = scipy.array([results[0][0]])
-                results[1] = scipy.array([results[1][0]],'i')
+                results[0] = numpy.array([results[0][0]])
+                results[1] = numpy.array([results[1][0]],'i')
                 results[2] = results[2]
                 results = tuple(results)
             else:
@@ -878,7 +887,7 @@ class Stoich(MathArrayFunc):
         if Using_FLAPACK == 1:
             result = results[0] # brett 20041226
         else:
-            result = scipy.transpose(results[0]) # -- this is normal
+            result = numpy.transpose(results[0]) # -- this is normal
 
 
         badlist = []
@@ -937,8 +946,8 @@ class Stoich(MathArrayFunc):
         row, col = a.shape
 
         # this is a test brett 20050802
-        row_vector = scipy.array((list(range(row))))
-        column_vector = scipy.array((list(range(col))))
+        row_vector = numpy.array((list(range(row))))
+        column_vector = numpy.array((list(range(col))))
         a, row_vector, column_vector = self.PivotSort_initial(
             a, row_vector, column_vector
         )
@@ -951,7 +960,7 @@ class Stoich(MathArrayFunc):
             print(info)
         upper_out = self.SplitLU(a, row, col, t)
 
-        p_out = scipy.identity(row)
+        p_out = numpy.identity(row)
         for x in range(0, min(row, col)):
             if x + 1 != ip[x]:
                 p_out = self.SwapRowd(p_out, x, (ip[x] - 1))
@@ -1058,8 +1067,8 @@ class Stoich(MathArrayFunc):
         row, col = a.shape
 
         # this is a test brett 20050802
-        row_vector = scipy.array((list(range(row))))
-        column_vector = scipy.array((list(range(col))))
+        row_vector = numpy.array((list(range(row))))
+        column_vector = numpy.array((list(range(col))))
         ##  a,row_vector,column_vector = self.PivotSort(a,row_vector,column_vector)
         a, row_vector, column_vector = self.PivotSort_initial(
             a, row_vector, column_vector
@@ -1246,7 +1255,7 @@ class Stoich(MathArrayFunc):
             )
         else:
             row, col = r_fpart.shape
-            id = scipy.identity(col).astype(t)
+            id = numpy.identity(col).astype(t)
             nullspace = scipy.concatenate((id, -r_fpart), 0).astype(t)
 
         # brett 05/11/2002 changed r_fpart to -r_fpart
@@ -1332,13 +1341,13 @@ class Stoich(MathArrayFunc):
 
         #    if exit1 == 'yes': # 2001/04/26 changed for Python21 and future compatibility
         if exit1 == 1:
-            r_fpart = scipy.transpose(r_fpart)
+            r_fpart = numpy.transpose(r_fpart)
             lmatrix = r_fpart
             # 02/10/2000 removed so that the thing returns the Lo matrix as L
             # r_fpart = 'no conservation Lo = L = I'
             # my factorization routines now swap things around for numeric stability, so that Nr might be a row/column swapped
             # this simply synchronizes Nr with its labels - brett 20050805
-            Nfull = scipy.transpose(Nfull)
+            Nfull = numpy.transpose(Nfull)
             row, col = Nfull.shape
             Nred = scipy.zeros((row_i, col)).astype(t)
             for x in range(0, row_i):
@@ -1360,21 +1369,21 @@ class Stoich(MathArrayFunc):
                 row_vector,
                 L_switch,
             )
-            # return(r_ipart,'no conservation','no conservation','no conservation',lmatrix,lomatrix_row_vector,lomatrix_col_vector,lmatrix,lomatrix_row_vector,lomatrix_col_vector,scipy.transpose(Nfull),Nred_vector,row_vector,L_switch)
+            # return(r_ipart,'no conservation','no conservation','no conservation',lmatrix,lomatrix_row_vector,lomatrix_col_vector,lmatrix,lomatrix_row_vector,lomatrix_col_vector,numpy.transpose(Nfull),Nred_vector,row_vector,L_switch)
         else:
-            r_fpart = scipy.transpose(r_fpart)
+            r_fpart = numpy.transpose(r_fpart)
             row, col = r_fpart.shape
 
-            id = scipy.identity(row).astype(t)
+            id = numpy.identity(row).astype(t)
             # consmatrix = scipy.concatenate((-r_fpart,id),1).astype(t)
             consmatrix = scipy.hstack((-r_fpart, id)).astype(t)  # numpy 0.10
 
-            id = scipy.identity(col).astype(t)
+            id = numpy.identity(col).astype(t)
             lmatrix = scipy.concatenate((id, r_fpart), 0).astype(t)
 
             '''This bit creates Nr. The transpose is only necessary if Nfull is already transposed in the input function'''
 
-            Nfull = scipy.transpose(Nfull)
+            Nfull = numpy.transpose(Nfull)
             row, col = Nfull.shape
             Nred = scipy.zeros((row_i, col)).astype(t)
             for x in range(0, row_i):
@@ -1417,7 +1426,7 @@ class Stoich(MathArrayFunc):
         TrMat = 0
         if ncol > nrow:
             # 'INFO: SVD is more accurate for tall matrices using (N)T\n'
-            matrix = scipy.transpose(matrix)
+            matrix = numpy.transpose(matrix)
             TrMat = 1
 
         u, s, vh = scipy.linalg.svd(matrix)

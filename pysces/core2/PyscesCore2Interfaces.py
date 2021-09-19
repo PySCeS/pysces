@@ -25,6 +25,7 @@ from getpass import getuser
 from xml.etree import ElementTree
 import io
 import itertools
+import numpy
 
 from .. import output_dir, __CHGDIR_ON_START__
 if __CHGDIR_ON_START__:
@@ -530,9 +531,9 @@ class PscToCore(object):
             ModelFile += '.psc'
         if ModelDir == None:
             # this will probably change in future - bgoli
-            ModelDir = CurrentDirectory
+            ModelDir = CWD
         if WorkDir == None:
-            WorkDir = CurrentDirectory
+            WorkDir = CWD
         assert os.path.exists(
             os.path.join(ModelDir, ModelFile)
         ), '\nFile %s does not exist' % os.path.join(ModelDir, ModelFile)
@@ -546,7 +547,7 @@ class PscToCore(object):
         set up a temporary psc file for parsing from model string
         """
         if WorkDir == None:
-            WorkDir = CurrentDirectory
+            WorkDir = CWD
         assert os.path.exists(WorkDir), '\nDirectory %s does not exist' % WorkDir
         setattr(self, 'WorkDir', WorkDir)
         setattr(self, 'ModelDir', WorkDir)
@@ -607,6 +608,7 @@ class CoreToSBML(object):
     time = None
     __events__ = None
     __DEBUG__ = False
+    UNINIT_DEFAULT = 1e-3
 
     NumpyToMathML = {
         'numpy.greater_equal': 'geq',
@@ -645,6 +647,9 @@ class CoreToSBML(object):
         'self._piecewise_': 'piecewise',
         '_piecewise_': 'piecewise',
         'operator.not_': 'not',
+        ' and ' : ' && ',
+        ' or ' : ' || ',
+
     }
 
     NumpyToMathMLkeys = [
@@ -684,6 +689,8 @@ class CoreToSBML(object):
         'self._piecewise_',
         '_piecewise_',
         'operator.not_',
+        ' and ',
+        ' or ',
     ]
 
     def __init__(self, core):
@@ -831,12 +838,17 @@ class CoreToSBML(object):
                 s.setConstant(True)
             else:
                 s.setBoundaryCondition(False)
-            ##  print 'FUCK (%s) %s' % (spe.getName(), spe())
-            if spe() == None:
+            if spe() is None:
                 print(
-                    'Warning, species %s has not been initialised setting to 1.0'
-                    % spe.getName()
+                    'Warning, species {} has not been initialised setting to 1e-3'.format(spe.getName(), self.UNINIT_DEFAULT)
                 )
+
+                if spe.name in self.core.__InitDict__ and self.core.__InitDict__[spe.name] is None:
+                    self.core.__InitDict__[spe.name] = self.UNINIT_DEFAULT
+
+                spe.value = spe.value_initial = self.core.__InitDict__[spe.name]
+
+
             if spe.isAmount():
                 s.setInitialAmount(spe())
                 s.setHasOnlySubstanceUnits(True)
@@ -849,7 +861,31 @@ class CoreToSBML(object):
             p = self.model.createParameter()
             p.setId(par.name)
             p.setName(par.name)
-            p.setValue(par())
+
+            # check for None value with no value and assign a default
+            #print('PAR', par.name, par())
+            # TODO: sort out this ZeroDivision and parameter initialisation error in a more sophisticated way, for example, evaluation assignment rules on export.
+            try:
+                if par() is None:
+                    print(
+                        'INFO: parameter \"{}\" not been defined setting to 1e-3'.format(par.getName(), self.UNINIT_DEFAULT)
+                    )
+                    if par.name in self.core.__InitDict__ and self.core.__InitDict__[par.name] is None:
+                        self.core.__InitDict__[par.name] = self.UNINIT_DEFAULT
+                    par.value = par.value_initial = self.core.__InitDict__[par.name]
+                # check for uninitialise parameters that have a value
+                elif par.name in self.core.__InitDict__:
+                    print(
+                        'INFO: parameter \"{}\" not initialised setting to ({})'.format(par.name, par())
+                    )
+                    self.core.__InitDict__[par.name] = par()
+                    par.value = par.value_initial = self.core.__InitDict__[par.name]
+            except ZeroDivisionError:
+                print('INFO: parameter \"{}\"initialisation error setting to 0.0'.format(par.name))
+                par.value = par.value_initial = self.core.__InitDict__[par.name] = 0.0
+
+
+
             # first attempt, check for a formula ... could be done with introspection
             if hasattr(par, 'formula'):
                 p.setConstant(False)
@@ -858,8 +894,26 @@ class CoreToSBML(object):
                 formula = (
                     par.code_string.split('=')[1].replace('self.', '').replace('()', '')
                 )
+                #print('LOOKATME PARSE ASSIGNMENT RULE line 861')
+                #print(formula)
                 formula = self.infixPSC2SBML(formula)
-                r.setFormula(par.formula)
+                #print(formula)
+                sbml_ast = self.SBML.parseL3Formula(formula)
+                assert sbml_ast is not None, '\nERROR: cannot interpret assignment rule ({}): {}'.format(par.name, formula)
+                #print(self.SBML.formulaToL3String(sbml_ast))
+
+                if r.setMath(sbml_ast) < 0:
+                    print('\nERROR: cannot assign assignment rule ({}): {}'.format(par.name, formula))
+                    raise(RuntimeError)
+
+                #r.setFormula(par.formula)
+                #print(self.core.__InitDict__)
+                #print(par.name)
+                #print(self.core.__InitDict__[par.name])
+                p.setValue(self.core.__InitDict__[par.name])
+            else:
+                p.setValue(par())
+
             # TODO need to adapt this for rate rules
             if self.level == 3:
                 p.setConstant(False)
@@ -949,6 +1003,23 @@ class CoreToSBML(object):
             if rpar != None:
                 rpar.setConstant(False)
 
+    def setFunctions(self):
+        for func in self.core.functions:
+            #print(func)
+            FNC = self.model.createFunctionDefinition()
+            FNC.setName(func.getName())
+            FNC.setId(func.getName())
+            form = func.code_string.split('=')[1].replace('self.', '').replace('()', '')
+            #print(form)
+            form = self.infixPSC2SBML(form)
+            #print(form)
+            ASTnode = self.SBML.parseL3Formula(form)
+
+            assert ASTnode is not None, "ERROR: unable to parse function (%s) to AST" % form
+            assert FNC.setMath(ASTnode) == 0, "ERROR: unable to set Function math."
+
+
+
     def setEvents(self):
         """Set events"""
         for ev in self.core.events:
@@ -958,29 +1029,46 @@ class CoreToSBML(object):
             EV.setName(ev.getName())
             EV.setId(ev.getName())
 
-            ##  print ev.formula
+            #print(ev.getName())
+            #print(ev.formula)
+            #print(ev.code_string)
             # replace PySCeS infix with libSBML infix
-            form = ev.code_string.split('=')[1].replace('self.', '').replace('()', '')
+            #print('LOOKATME PARSE EVENT line 979')
+            form = ev.code_string.replace('self.state=', '').replace('self.', '').replace('()', '')
+            #print(form)
             form = self.infixPSC2SBML(form)
+            #print(form)
             if self.__DEBUG__:
                 print('\tTrigger: %s' % form)
-            print('\tTrigger: %s' % form)
-            ASTnode = self.SBML.parseFormula(form)
+            ASTnode = self.SBML.parseL3Formula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
-            # set _TIME_ ASTnode tag to <csymbol> time
-            ASTnode = self.astSetCSymbolTime(ASTnode)
-            # tr = self.SBML.Trigger(ASTnode)
+            #print(self.SBML.formulaToL3String(ASTnode))
+            ## set _TIME_ ASTnode tag to <csymbol> time
+            #ASTnode = self.astSetCSymbolTime(ASTnode)
+
             tr = self.SBML.Trigger(self.level, self.version)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
+            ea_cntr = 0
             for ass in ev.assignments:
+                #print('LOOKATME PARSE EVENTASSIGNMENT line 1003')
                 if self.__DEBUG__:
                     print('\tAssignment: %s = %s' % (ass.getName(), ass.formula))
+                #print(ass.getName())
+                #print(ass.formula)
+                #print(ass.variable.getName())
                 form = self.infixPSC2SBML(ass.formula)
-                ASTnode = self.SBML.parseFormula(form)
-                # eass = self.SBML.EventAssignment(ass.getName(), ASTnode)
+                #print(form)
+                ASTnode = self.SBML.parseL3Formula(form)
+
+                # TODO in future we need to move all id's from SBML to CORE including triggers and event assignments
+                # this will affect this code
+
                 eass = self.SBML.EventAssignment(self.level, self.version)
-                eass.setMath(ASTnode)
+                eass.setId('eas_{}_{}'.format(ev.getName(), ea_cntr))
+                ea_cntr += 1
+                eass.setVariable(ass.variable.getName())
+                assert eass.setMath(ASTnode) == 0, 'ERROR: EventAssignment math set error.'
                 EV.addEventAssignment(eass)
             if ev.delay != 0:
                 dform = self.infixPSC2SBML(ev.delay)
@@ -1123,6 +1211,7 @@ class CoreToSBML(object):
 class SbmlToCore(object):
     SBML = None
     level = 2
+    version = 5
     sbml_string = None
     sbml_file = None
     model = None
@@ -1158,6 +1247,8 @@ class SbmlToCore(object):
     _ecount = None
     __uDict__ = None
     __DEBUG__ = False
+    __model_in_level__ = None
+    __model_in_version__ = None
     COMP_FUDGE_FACTOR = 1.0
 
     def __init__(self):
@@ -1217,8 +1308,8 @@ class SbmlToCore(object):
         if sbml[-4:] != '.xml':
             print("Assuming .xml extension")
             sbml += '.xml'
-        if Dir == None:
-            Dir = CurrentDirectory
+        if Dir is None:
+            Dir = CWD
         assert os.path.exists(
             os.path.join(Dir, sbml)
         ), '\nFile %s does not exist' % os.path.join(Dir, sbml)
@@ -1229,22 +1320,70 @@ class SbmlToCore(object):
 
     def getSbmlStringFromString(self, sbml_string):
         self.sbml_string = sbml_string
-        self.sbml_file = os.path.join(CurrentDirectory, 'sbml_string_loader.xml')
+        self.sbml_file = os.path.join(CWD, 'sbml_string_loader.xml')
 
     def getSbmlModel(self, document=None):
         r = self.SBML.SBMLReader()
-        if document == None:
+        if document is None:
             self.document = r.readSBMLFromString(self.sbml_string)
         else:
             self.document = document
             self.sbml_string = self.document.toSBML()
-            self.sbml_file = os.path.join(CurrentDirectory, 'sbml_string_loader.xml')
+            self.sbml_file = os.path.join(CWD, 'sbml_string_loader.xml')
         self.model = self.document.getModel()
-        if self.model.getId() != 'untitled':
+        self.__model_in_level__ = self.model.getLevel()
+        self.__model_in_version__ = self.model.getVersion()
+        if self.model.getId() not in ['untitled','']:
             self.__KeyWords__['Modelname'] = self.model.getId()
         else:
             self.__KeyWords__['Modelname'] = self.model.getName()
         self.__KeyWords__['Description'] = self.model.getName()
+
+    def checkSbmlSupport(self, action=2):
+        """
+        Check level and warn about unsupported functionality, errors logged to sbml_conversion_errors.txt
+
+        - **action** [default=2] action to take: 1, raise error, 2 print warning with delay, 3 silently ignore
+
+        """
+        print('Check SBML support is at action level {}'.format(2))
+        print('SBML file is L{}V{}'.format(self.__model_in_level__, self.__model_in_version__))
+        logfile = '{}-sbml_conversion_errors.txt'.format(os.path.split(self.sbml_file)[-1])
+        warn = []
+        fatal = []
+
+        if self.model.getLevel() >  2:
+            warn.append('Model is encoded as SBML Level 3, PySCeS only officially supports L2V5.')
+        if self.model.getNumConstraints() > 0:
+            fatal.append('PySCeS does not support Constraints.')
+        if self.model.getNumInitialAssignments() > 0:
+            fatal.append('PySCeS does not support InitialAssignments.')
+        if self.model.getNumEvents() > 0 and self.model.getLevel() >  2:
+            fatal.append('PySCeS does not support L3 events.')
+        if len([r.getType() for r in  self.model.getListOfRules() if r.getType() > 1]) > 0:
+            fatal.append('PySCeS only supports rate and assignment rules.')
+
+
+        if len(warn) == 0 and len(fatal) == 0:
+            return
+        else:
+            print('\n\n\n*********ERRORS***********\n')
+            with open(logfile, 'w') as F:
+                for err in warn:
+                    print('WARNING: {}'.format(err))
+                    F.write('WARNING: {}\n'.format(err))
+                for err in fatal:
+                    print('FATAL: {}'.format(err))
+                    F.write('FATAL: {}\n'.format(err))
+            print('\n*********ERRORS***********\n')
+            print('\nPossible errors detected in SBML conversion, Model may be incomplete. Please check the error log file \"{}\" for details.\n'.format(logfile))
+            if action == 1:
+                raise RuntimeError
+            elif action == 2:
+                time.sleep(5)
+            else:
+                time.sleep(0.1)
+
 
     def getUnits(self):
         self.__uDict__ = {
@@ -1489,11 +1628,19 @@ class SbmlToCore(object):
 
         # Add global parameters
         Punits = []
+
         if len(self.model.getListOfParameters()) > 0:
             for xp in self.model.getListOfParameters():
                 if xp.isSetUnits():
                     Punits.append(self.getId(xp))
                 init_par.update({self.getId(xp): float(xp.getValue())})
+                # TODO: this needs to be overwritten when initial assignments are introduced
+                if numpy.isnan(xp.getValue()):
+                    print('ERROR: NaN detected as parameter value: {} setting to default value: 0.0'.format(self.getId(xp)))
+                    #print(self.getId(xp), xp.getValue(), type(xp.getValue()))
+                    init_par[self.getId(xp)] = 0.0
+                    time.sleep(1)
+
         if len(Punits) > 0:
             self.__Errors__.update(
                 {
@@ -1506,16 +1653,17 @@ class SbmlToCore(object):
         if self.model.getNumFunctionDefinitions() > 0:
             for fnc in self.model.getListOfFunctionDefinitions():
                 name = self.getId(fnc)
-                func = self.sbmlFormulaToInfix(fnc.getMath()).replace('lambda', '')[
-                    1:-1
-                ]
+
+                func = self.sbmlFormulaToInfix(fnc.getMath())
+                if 'lambda' in func:
+                    func = func.replace('lambda', '')[1:-1]
+
                 args = []
-                for ar in range(fnc.getNumArguments()):
+                for _ in range(fnc.getNumArguments()):
                     arg = func[: func.find(',')]
                     func = func[func.find(',') + 1 :]
                     args.append(arg)
                 args = [s.strip() for s in args]
-
                 func = func.strip()
 
                 # check for csymbol time
