@@ -607,6 +607,7 @@ class CoreToSBML(object):
     time = None
     __events__ = None
     __DEBUG__ = False
+    UNINIT_DEFAULT = 1e-3
 
     NumpyToMathML = {
         'numpy.greater_equal': 'geq',
@@ -836,12 +837,17 @@ class CoreToSBML(object):
                 s.setConstant(True)
             else:
                 s.setBoundaryCondition(False)
-            ##  print 'FUCK (%s) %s' % (spe.getName(), spe())
-            if spe() == None:
+            if spe() is None:
                 print(
-                    'Warning, species %s has not been initialised setting to 1.0'
-                    % spe.getName()
+                    'Warning, species {} has not been initialised setting to 1e-3'.format(spe.getName(), self.UNINIT_DEFAULT)
                 )
+
+                if spe.name in self.core.__InitDict__ and self.core.__InitDict__[spe.name] is None:
+                    self.core.__InitDict__[spe.name] = self.UNINIT_DEFAULT
+
+                spe.value = spe.value_initial = self.core.__InitDict__[spe.name]
+
+
             if spe.isAmount():
                 s.setInitialAmount(spe())
                 s.setHasOnlySubstanceUnits(True)
@@ -855,6 +861,23 @@ class CoreToSBML(object):
             p.setId(par.name)
             p.setName(par.name)
 
+            # check for None value with no value and assign a default
+            #print('PAR', par.name, par())
+            if par() is None:
+                print(
+                    'INFO: parameter {} has not been defined setting to 1e-3'.format(par.getName(), self.UNINIT_DEFAULT)
+                )
+                if par.name in self.core.__InitDict__ and self.core.__InitDict__[par.name] is None:
+                    self.core.__InitDict__[par.name] = self.UNINIT_DEFAULT
+                par.value = par.value_initial = self.core.__InitDict__[par.name]
+            # check for uninitialise parameters that have a value
+            elif par.name in self.core.__InitDict__:
+                print(
+                    'INFO: parameter {} has not been initialised setting to current value ({})'.format(par.getName(), par())
+                )
+                self.core.__InitDict__[par.name] = par()
+                par.value = par.value_initial = self.core.__InitDict__[par.name]
+
             # first attempt, check for a formula ... could be done with introspection
             if hasattr(par, 'formula'):
                 p.setConstant(False)
@@ -863,10 +886,10 @@ class CoreToSBML(object):
                 formula = (
                     par.code_string.split('=')[1].replace('self.', '').replace('()', '')
                 )
-                print('LOOKATME PARSE ASSIGNMENT RULE line 861')
-                print(formula)
+                #print('LOOKATME PARSE ASSIGNMENT RULE line 861')
+                #print(formula)
                 formula = self.infixPSC2SBML(formula)
-                print(formula)
+                #print(formula)
                 sbml_ast = self.SBML.parseL3Formula(formula)
                 assert sbml_ast is not None, '\nERROR: cannot interpret assignment rule ({}): {}'.format(par.name, formula)
                 print(self.SBML.formulaToL3String(sbml_ast))
@@ -875,8 +898,10 @@ class CoreToSBML(object):
                     print('\nERROR: cannot assign assignment rule ({}): {}'.format(par.name, formula))
                     raise(RuntimeError)
 
-
                 #r.setFormula(par.formula)
+                #print(self.core.__InitDict__)
+                #print(par.name)
+                #print(self.core.__InitDict__[par.name])
                 p.setValue(self.core.__InitDict__[par.name])
             else:
                 p.setValue(par())
