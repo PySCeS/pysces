@@ -276,7 +276,9 @@ class MyInfixParser(MyInfixLexer):
             self.ParseErrors.append(t)
         except:
             print('p_error generated a parsing error')
-        tok = yacc.token()
+        #fixes userwarning 183
+        tok = self.parser.token()
+        #tok = yacc.token()
         return tok
 
     def p_infix(self, t):

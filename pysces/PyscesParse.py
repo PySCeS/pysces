@@ -770,7 +770,8 @@ class PySCeSParser:
         rawf = t[1].replace('Function:', '').lstrip()
         args = rawf[: rawf.find('{')].strip().split(',')
         name = args.pop(0)
-        func = rawf[rawf.find('{') + 1 : rawf.find('}')]
+        func = rawf[rawf.find('{') + 1 : rawf.find('}')].strip()
+        args = [a.strip() for a in args]
         self.Functions.update({name: {'name': name, 'args': args, 'formula': func}})
         self.Show('FunctionDec:', t[0])
 

@@ -374,6 +374,7 @@ class Function(NewCoreBase):
         self.args.append(var)
 
     def addFormula(self, formula):
+        print('PC2 377:', formula)
         formula = formula.replace('self.', '')
         self.formula = formula
         InfixParser.setNameStr('self.', '')
@@ -1161,6 +1162,7 @@ class NewCore(NewCoreBase):
             )
 
     def addOneFunction(self, name, args, formula):
+        print(name, formula)
         func = Function(name)
         # TODO: make better
         setattr(func, '_TIME_', self._TIME_)
