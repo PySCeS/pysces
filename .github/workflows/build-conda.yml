@@ -39,4 +39,4 @@ jobs:
       - name: Upload to anaconda.org
         # to publish when a GitHub Release is created:
         if: github.event_name == 'release' && github.event.action == 'released'
-        run: anaconda -t ${{ secrets.ANACONDA_JMROHWER_TOKEN }} upload -u jmrohwer ./build_output/*/pysces*.tar.bz2
+        run: anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u pysces ./build_output/*/pysces*.tar.bz2
