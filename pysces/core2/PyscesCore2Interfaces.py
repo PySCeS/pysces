@@ -840,7 +840,7 @@ class CoreToSBML(object):
                 s.setBoundaryCondition(False)
             if spe() is None:
                 print(
-                    'Warning, species {} has not been initialised setting to 1e-3'.format(spe.getName(), self.UNINIT_DEFAULT)
+                    'Warning, species {} has not been initialised setting to {}'.format(spe.getName(), self.UNINIT_DEFAULT)
                 )
 
                 if spe.name in self.core.__InitDict__ and self.core.__InitDict__[spe.name] is None:
@@ -868,7 +868,7 @@ class CoreToSBML(object):
             try:
                 if par() is None:
                     print(
-                        'INFO: parameter \"{}\" not been defined setting to 1e-3'.format(par.getName(), self.UNINIT_DEFAULT)
+                        'INFO: parameter \"{}\" not been defined setting to {}'.format(par.getName(), self.UNINIT_DEFAULT)
                     )
                     if par.name in self.core.__InitDict__ and self.core.__InitDict__[par.name] is None:
                         self.core.__InitDict__[par.name] = self.UNINIT_DEFAULT
