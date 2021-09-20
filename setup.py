@@ -25,6 +25,10 @@ __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
 with open('pysces/version.py') as f:
     exec(f.read())
 
+# avoid duplication
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 import os, re
 import sysconfig
 
@@ -350,7 +354,7 @@ setup(
     license="New BSD style",
     keywords="computational systems biology, modelling, simulation, systems biology",
     zip_safe=False,
-    install_requires=['numpy', 'scipy', 'matplotlib', 'nose'],
+    install_requires=requirements,
     extras_require={
         'parscan': ['ipyparallel'],
         'cvode': ['assimulo'],

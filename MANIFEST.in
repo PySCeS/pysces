@@ -1,5 +1,6 @@
 include *.md
 include LICENCE.txt
+include requirements.txt
 include setupegg.py
 include pysces/*
 include pysces/contrib/*
