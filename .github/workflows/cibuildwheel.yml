@@ -32,8 +32,6 @@ jobs:
       - name: (macOS) Download and install gfortran
         if: matrix.os == 'macOS-10.15'
         run: |
-#          ln -s /usr/local/bin/gcc-10 /usr/local/bin/gcc
-#          ln -s /usr/local/bin/gfortran-10 /usr/local/bin/gfortran
           curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/10.2/gfortran-10.2-Catalina.dmg -o /tmp/gfortran.dmg &&
           sudo hdiutil attach /tmp/gfortran.dmg &&
           sudo installer -pkg /Volumes/gfortran-10.2-Catalina/gfortran.pkg -target /
