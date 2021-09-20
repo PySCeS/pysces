@@ -18,8 +18,7 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
-#        os: [ubuntu-18.04, windows-2019, macos-10.15]
-        os: [macos-10.15]
+        os: [ubuntu-18.04, windows-2019, macos-10.15]
 
     steps:
       - uses: actions/checkout@v2
@@ -42,17 +41,17 @@ jobs:
           CIBW_BUILD: "cp39-*"
           CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
 
-#      - name: Build wheels for CPython 3.8
-#        uses: pypa/cibuildwheel@v2.1.1
-#        env:
-#          CIBW_BUILD: "cp38-*"
-#          CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
-#
-#      - name: Build wheels for CPython 3.6 and 3.7
-#        uses: pypa/cibuildwheel@v2.1.1
-#        env:
-#          CIBW_BUILD: "cp36-* cp37-*"
-#          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
+      - name: Build wheels for CPython 3.8
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp38-*"
+          CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
+
+      - name: Build wheels for CPython 3.6 and 3.7
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp36-* cp37-*"
+          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
 
       - uses: actions/upload-artifact@v2
         with:
@@ -70,15 +69,15 @@ jobs:
         with:
           python-version: '3.8'
 
-#      - name: Build sdist
-#        run: |
-#          pip install numpy
-#          python setup.py sdist
-#
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: wheels_and_tarball
-#          path: dist/*.tar.gz
+      - name: Build sdist
+        run: |
+          pip install numpy
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheels_and_tarball
+          path: dist/*.tar.gz
 
   upload_pypi:
     needs: [build_wheels, build_sdist]
