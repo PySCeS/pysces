@@ -29,11 +29,14 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: (macOS) Create homebrew symlinks for gcc/gfortran
+      - name: (macOS) Download and install gfortran
         if: matrix.os == 'macOS-10.15'
         run: |
-          ln -s /usr/local/bin/gcc-10 /usr/local/bin/gcc
-          ln -s /usr/local/bin/gfortran-10 /usr/local/bin/gfortran
+#          ln -s /usr/local/bin/gcc-10 /usr/local/bin/gcc
+#          ln -s /usr/local/bin/gfortran-10 /usr/local/bin/gfortran
+          curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/10.2/gfortran-10.2-Catalina.dmg -o /tmp/gfortran.dmg &&
+          sudo hdiutil attach /tmp/gfortran.dmg &&
+          sudo installer -pkg /Volumes/gfortran-10.2-Catalina/gfortran.pkg -target /
 
       - name: Build wheels for CPython 3.9
         uses: pypa/cibuildwheel@v2.1.1
@@ -52,11 +55,11 @@ jobs:
 #        env:
 #          CIBW_BUILD: "cp36-* cp37-*"
 #          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
-#
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: wheels_and_tarball
-#          path: ./wheelhouse/*.whl
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheels_and_tarball
+          path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
