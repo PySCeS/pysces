@@ -18,7 +18,7 @@ version: "0.9.8"
 repository-code: "https://github.com/PySCeS/pysces/tree/0.9.8"
 date-released: 2020-05-13
 doi: "10.5281/zenodo.3824167"
-license: "BSD 3 clause"
+license: "BSD-3-Clause"
 url: https://pysces.github.io
 abstract: "Computer modelling has become an integral tool in the analysis and understanding
 of the reaction networks that underlie cellular processes. PySCeS, first released in 2003,
