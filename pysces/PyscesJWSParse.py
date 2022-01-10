@@ -32,7 +32,7 @@ from .lib import lex
 from .lib import yacc
 from getpass import getuser
 from time import sleep, strftime
-from scipy import MachAr
+from numpy import MachAr
 
 MyMachArr = MachAr()
 

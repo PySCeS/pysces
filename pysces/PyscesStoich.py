@@ -435,7 +435,7 @@ class Stoich(MathArrayFunc):
         self.nmatrix_row = tuple(numpy.array(list(range(row))))
 
         # Create a machine specific instance
-        from scipy import MachAr
+        from numpy import MachAr
 
         mach_spec = MachAr()
 
