@@ -4999,6 +4999,7 @@ See: https://jmodelica.org/assimulo'
             if self.sim_time[0] != 0:
                 self._sim_time_bak = copy.copy(self.sim_time)
                 self.sim_time = [0.0] + list(self._sim_time_bak)
+            self.sim_end = self.sim_time[-1]
 
         # initialises self.__inspec__[x] with self.sXi
         if userinit == 1:
