@@ -35,6 +35,12 @@ jobs:
           sudo hdiutil attach /tmp/gfortran.dmg &&
           sudo installer -pkg /Volumes/gfortran-10.2-Catalina/gfortran.pkg -target /
 
+      - name: Build wheels for CPython 3.10
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: "cp310-*"
+          CIBW_BEFORE_BUILD: pip install numpy~=1.21.0
+
       - name: Build wheels for CPython 3.9
         uses: pypa/cibuildwheel@v2.1.1
         env:

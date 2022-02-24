@@ -4383,6 +4383,7 @@ See: https://jmodelica.org/assimulo'
         go = True
 
         status = 0
+        lsoda_mxstep_bak = self.__settings__["lsoda_mxstep"]
         while go:
             sim_res, infodict = scipy.integrate.odeint(
                 function_sim,
@@ -4431,7 +4432,7 @@ See: https://jmodelica.org/assimulo'
                 go = False
             else:
                 go = False
-        self.__settings__["lsoda_mxstep"] = 0
+        self.__settings__["lsoda_mxstep"] = lsoda_mxstep_bak
 
         rates = numpy.zeros((sim_res.shape[0], len(self.__reactions__)))
         if status == 0:
@@ -4999,6 +5000,7 @@ See: https://jmodelica.org/assimulo'
             if self.sim_time[0] != 0:
                 self._sim_time_bak = copy.copy(self.sim_time)
                 self.sim_time = [0.0] + list(self._sim_time_bak)
+            self.sim_end = self.sim_time[-1]
 
         # initialises self.__inspec__[x] with self.sXi
         if userinit == 1:

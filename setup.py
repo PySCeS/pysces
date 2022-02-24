@@ -20,13 +20,16 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
-__version__ = '1.0.0'
+
+# get __version__ from version.txt
+with open('pysces/version.txt') as f:
+    __version__ = f.read().strip()
+
+# avoid duplication
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 import os, re
-import sysconfig
-
-import fileinput
-import shutil
 
 try:
     import configparser  # Py 3
@@ -284,7 +287,12 @@ if len(mymodules) == 0:
     mymodules.append(noext)
 
 # Data files to copy
-mydata_files.append((os.path.join('pysces'), [os.path.join('pysces', 'pyscfg.ini')]))
+mydata_files.append(
+    (
+        os.path.join('pysces'),
+        [os.path.join('pysces', 'pyscfg.ini'), os.path.join('pysces', 'version.txt')],
+    )
+)
 mydata_files.append(('', [os.path.join('pysces', 'pysces.pth')]))
 
 # JR 2021-08 userguide.pdf included as a symlink to built docs in submodule
@@ -347,7 +355,7 @@ setup(
     license="New BSD style",
     keywords="computational systems biology, modelling, simulation, systems biology",
     zip_safe=False,
-    install_requires=['numpy', 'scipy', 'matplotlib', 'nose'],
+    install_requires=requirements,
     extras_require={
         'parscan': ['ipyparallel'],
         'cvode': ['assimulo'],
