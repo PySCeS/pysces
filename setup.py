@@ -287,7 +287,12 @@ if len(mymodules) == 0:
     mymodules.append(noext)
 
 # Data files to copy
-mydata_files.append((os.path.join('pysces'), [os.path.join('pysces', 'pyscfg.ini')]))
+mydata_files.append(
+    (
+        os.path.join('pysces'),
+        [os.path.join('pysces', 'pyscfg.ini'), os.path.join('pysces', 'version.txt')],
+    )
+)
 mydata_files.append(('', [os.path.join('pysces', 'pysces.pth')]))
 
 # JR 2021-08 userguide.pdf included as a symlink to built docs in submodule
