@@ -21,19 +21,15 @@ from __future__ import absolute_import
 
 __doc__ = "PySCeS: the Python Simulator for Cellular Systems setup file"
 
-# get __version__ from version.py
-with open('pysces/version.py') as f:
-    exec(f.read())
+# get __version__ from version.txt
+with open('pysces/version.txt') as f:
+    __version__ = f.read().strip()
 
 # avoid duplication
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 import os, re
-import sysconfig
-
-import fileinput
-import shutil
 
 try:
     import configparser  # Py 3
