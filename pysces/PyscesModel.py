@@ -157,7 +157,7 @@ if _HAVE_ASSIMULO:
                 else:
                     eout[ev] = 1
             if self.mod.__HAS_RATE_RULES__:
-                exec(self.mod.__CODE_raterule)
+                self.mod.ExecRateRules()
             return eout
 
         def handle_event(self, solver, event_info):
@@ -2025,7 +2025,7 @@ class PysMod(object):
         self.__rrule__ = None
         rr_code_block = ''
         rr_map_block = ''
-        self.__CODE_raterule = None
+        self._CODE_raterule = None
         self._NewRateRuleXCode = {}
         if self.__HAS_RATE_RULES__:
             # create a rr vector
@@ -2060,14 +2060,17 @@ class PysMod(object):
             rr_code_block = 'pass\n'
             rr_map_block = 'pass\n'
         # TODO consider putting this in self.__HAS_RATE_RULES__
-        self.__CODE_raterule = compile(rr_code_block, 'RateRules', 'exec')
-        self.__CODE_raterule_map = compile(rr_map_block, 'RateRuleMap', 'exec')
+        self._CODE_raterule = compile(rr_code_block, 'RateRules', 'exec')
+        self._CODE_raterule_map = compile(rr_map_block, 'RateRuleMap', 'exec')
 
         del rate_rules, assignment_rules
 
+    def ExecRateRules(self):
+        exec(self._CODE_raterule)
+
     def InitialiseRuleChecks(self):
         try:
-            exec(self.__CODE_raterule)
+            exec(self._CODE_raterule)
         except ZeroDivisionError:
             print(
                 'WARNING: Assignment RateRule ZeroDivision on initialisation (continuing)'
@@ -2088,8 +2091,8 @@ class PysMod(object):
                 try:
                     exec(compile(self._NewRuleXCode[kk], 'NewRuleXCode', 'exec'))
                     if self.__HAS_RATE_RULES__:
-                        exec(self.__CODE_raterule)
-                        exec(self.__CODE_raterule_map)
+                        exec(self._CODE_raterule)
+                        exec(self._CODE_raterule_map)
                 except Exception as ex:
                     zeroDivErr2.append(kk)
             exit -= 1
@@ -3597,7 +3600,7 @@ See: https://jmodelica.org/assimulo'
 
     def _EvalREq(self, s, Vtemp):
         if self.__HAS_RATE_RULES__:
-            exec(self.__CODE_raterule_map)
+            exec(self._CODE_raterule_map)
         if self.__HAS_COMPARTMENTS__ and self.__KeyWords__['Species_In_Conc']:
             s = self._SpeciesAmountToConc(s)
         exec(self.__mapFunc__)
@@ -3618,7 +3621,7 @@ See: https://jmodelica.org/assimulo'
             Vtemp[:] = self.__settings__['mach_floateps']
         if self.__HAS_RATE_RULES__:
             try:
-                exec(self.__CODE_raterule)
+                exec(self._CODE_raterule)
             except (
                 ArithmeticError,
                 AttributeError,
