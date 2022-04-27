@@ -1485,6 +1485,7 @@ class PysMod(object):
             self.LoadFromFile(File, dir)
         # stuff that needs to be done before initmodel
         self.__settings__['mode_substitute_assignment_rules'] = False
+        self.__settings__['cvode_track_assignment_rules'] = True
         self.__settings__['display_compartment_warnings'] = False
         self._TIME_ = 0.0  # this will be the built-in time
         self.piecewise_functions = []
@@ -1931,6 +1932,7 @@ class PysMod(object):
         # defmod
         self.__HAS_FORCED_FUNCS__ = False
         self.__HAS_RATE_RULES__ = False
+        self._CVODE_extra_output = []
         rate_rules = {}
         assignment_rules = {}
         for ar in self.__rules__:
@@ -1951,7 +1953,6 @@ class PysMod(object):
             code_string = ''
             all_names = []
             for ar in assignment_rules:
-                name = assignment_rules[ar]['name']
                 InfixParser.setNameStr('self.', '')
                 InfixParser.parse(assignment_rules[ar]['formula'])
                 assignment_rules[ar]['symbols'] = InfixParser.names
@@ -1980,12 +1981,13 @@ class PysMod(object):
                 keep += dep
                 rules = indep
             for ar in indep + keep:
+                if self.__settings__['cvode_track_assignment_rules']:
+                    self._CVODE_extra_output.append(assignment_rules[ar]['name'])
                 evalCode = 'self.{} = {}\n'.format(
-                    assignment_rules[ar]['name'], assignment_rules[ar]['code_string'],
+                    assignment_rules[ar]['name'], assignment_rules[ar]['code_string']
                 )
                 self._NewRuleXCode.update({assignment_rules[ar]['name']: evalCode})
                 code_string += evalCode
-
             print('\nAssignment rule(s) detected.')
             self._Function_forced = code_string
         elif (
@@ -3037,8 +3039,7 @@ See: https://jmodelica.org/assimulo'
         self.sim_time = numpy.arange(
             self.sim_start, self.sim_end + sim_steps, sim_steps
         )
-        self.CVODE_extra_output = []
-        self.CVODE_xdata = None
+        self._CVODE_xdata = None
         self.__SIMPLOT_OUT__ = []
 
         # elasticity options
@@ -3781,9 +3782,9 @@ See: https://jmodelica.org/assimulo'
         self.data_sim.setRates(rates, self.__reactions__)
         if self.__HAS_RATE_RULES__:
             self.data_sim.setRules(rrules, self.__rate_rules__)
-        if len(self.CVODE_extra_output) > 0:
-            self.data_sim.setXData(self.CVODE_xdata, lbls=self.CVODE_extra_output)
-            self.CVODE_xdata = None
+        if len(self._CVODE_extra_output) > 0:
+            self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
+            self._CVODE_xdata = None
         if not simOK:
             print('Simulation failure')
         del sim_res
@@ -3831,32 +3832,27 @@ See: https://jmodelica.org/assimulo'
             if self.__HAS_RATE_RULES__:
                 initial = numpy.concatenate([initial, rrules])
 
-        # # CVODE extra output
-        # CVODE_XOUT = False
-        # if len(self.CVODE_extra_output) > 0:
-        #     out = []
-        #     for d in self.CVODE_extra_output:
-        #         if (
-        #             hasattr(self, d)
-        #             and d
-        #             not in self.__species__ + self.__reactions__ + self.__rate_rules__
-        #         ):
-        #             out.append(d)
-        #         else:
-        #             print(
-        #                 '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
-        #                     d
-        #                 )
-        #             )
-        #     if len(out) > 0:
-        #         self.CVODE_extra_output = out
-        #         CVODE_XOUT = True
-        #     del out
-        #
-        # if CVODE_XOUT:
-        #     self.CVODE_xdata = numpy.zeros(
-        #         (len(self.sim_time), len(self.CVODE_extra_output))
-        #     )
+        # CVODE extra output
+        self._CVODE_XOUT = False
+        if len(self._CVODE_extra_output) > 0:
+            out = []
+            for d in self._CVODE_extra_output:
+                if (
+                    hasattr(self, d)
+                    and d
+                    not in self.__species__ + self.__reactions__ + self.__rate_rules__
+                ):
+                    out.append(d)
+                else:
+                    print(
+                        '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
+                            d
+                        )
+                    )
+            if len(out) > 0:
+                self._CVODE_extra_output = out
+                self._CVODE_XOUT = True
+            del out
 
         problem = EventsProblem(self, rhs=rhs, y0=initial)
         # for direct access to the problem class
@@ -3909,11 +3905,6 @@ See: https://jmodelica.org/assimulo'
                     sim_res[x] = self._SpeciesAmountToConc(sim_res[x])
             if self.__HAS_RATE_RULES__:
                 sim_res = numpy.concatenate([sim_res, rrules], axis=1)
-            # if CVODE_XOUT:
-            #     self.CVODE_xdata[st, :] = self._EvalExtraData(
-            #         self.CVODE_extra_output
-            #     )
-
 
         else:
             # calculate rates from all species
@@ -4723,12 +4714,33 @@ setting sim_points = 2.0\n*****'
         self.data_sim.setRates(rates, self.__reactions__)
         if self.__HAS_RATE_RULES__:
             self.data_sim.setRules(rrules, self.__rate_rules__)
-        if len(self.CVODE_extra_output) > 0:
-            self.data_sim.setXData(self.CVODE_xdata, lbls=self.CVODE_extra_output)
-            self.CVODE_xdata = None
+        if self._CVODE_XOUT:
+            self._CVODE_xdata = numpy.zeros((len(self.sim_time), len(self._CVODE_extra_output)))
+            # get assignment rules
+            r = self.__rules__
+            ars = {name: r[name] for name in r if r[name]['type'] == 'assignment'}
+            # loop through extra output and evaluate from simulation data
+            for i in range(len(self._CVODE_extra_output)):
+                name = self._CVODE_extra_output[i]
+                self._update_assignment_rule_code(ars[name])
+                self._CVODE_xdata[:, i] = eval(ars[name]['data_sim_string'])
+            self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
+            self._CVODE_xdata = None
         if not simOK:
             print('Simulation failure')
         del sim_res
+
+    def _update_assignment_rule_code(self, rule):
+        replacements = []
+        rule['data_sim_string'] = rule['code_string']
+        for s in rule['symbols']:
+            if s in self.__reactions__ or s in self.__rate_rules__:
+                replacements.append((s, 'data_sim.getSimData("' + s + '")[:,1]'))
+            elif s in self.__species__:
+                replacements.append(('(self.' + s + ')',
+                                     '(self.data_sim.getSimData("' + s + '")[:,1])'))
+        for old, new in replacements:
+            rule['data_sim_string'] = rule['data_sim_string'].replace(old, new)
 
     @property
     def sim(self):
