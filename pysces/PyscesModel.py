@@ -3143,9 +3143,8 @@ See: https://jmodelica.org/assimulo'
         # Init and Sx vectors # these vectors are multiplying all by themselves - brett
         self.__SI__ = numpy.zeros((self.__lzeromatrix__.shape[1]), 'd')
         self.__SALL__ = numpy.zeros((len(self.__species__)), 'd')
-        self.__settings__["pitcon_max_step"] = 10 * (
-            len(self.__SI__) + 1
-        )  # max corrector steps
+        # max corrector steps
+        self.__settings__["pitcon_max_step"] = 10 * (len(self.__SI__) + 1)
         if self.__HAS_MOIETY_CONSERVATION__ == True:
             # reorder the conservation matrix so that it is compatible with L
             idx = [
@@ -4278,6 +4277,33 @@ See: https://jmodelica.org/assimulo'
             if self.__HAS_RATE_RULES__:
                 initial = numpy.concatenate([initial, rrules])
 
+        # # CVODE extra output
+        # CVODE_XOUT = False
+        # if len(self.CVODE_extra_output) > 0:
+        #     out = []
+        #     for d in self.CVODE_extra_output:
+        #         if (
+        #             hasattr(self, d)
+        #             and d
+        #             not in self.__species__ + self.__reactions__ + self.__rate_rules__
+        #         ):
+        #             out.append(d)
+        #         else:
+        #             print(
+        #                 '\nWarning: CVODE is ignoring extra data ({}), it either doesn\'t exist or it\'s a species or rate.\n'.format(
+        #                     d
+        #                 )
+        #             )
+        #     if len(out) > 0:
+        #         self.CVODE_extra_output = out
+        #         CVODE_XOUT = True
+        #     del out
+        #
+        # if CVODE_XOUT:
+        #     self.CVODE_xdata = numpy.zeros(
+        #         (len(self.sim_time), len(self.CVODE_extra_output))
+        #     )
+
         problem = EventsProblem(self, rhs=rhs, y0=initial)
         # for direct access to the problem class
         self._problem = problem
@@ -4313,11 +4339,11 @@ See: https://jmodelica.org/assimulo'
                     self._EvalODE(sim_res[r].copy(), self._CVODE_Vtemp)
                     rates[r] = self.__vvec__
             if self.__HAS_RATE_RULES__:
-                sim_res, rrules = numpy.split(sim_res, [self.Nmatrix.shape[0]], axis=1)
+                sim_res, rrules = numpy.split(sim_res, [self.Nrmatrix.shape[0]], axis=1)
             # regenerate dependent variables
             res = numpy.zeros((sim_res.shape[0], len(self.__species__)))
             for x in range(sim_res.shape[0]):
-                res[x, :] = self.Fix_S_indinput(sim_res[x, :], amounts=True)
+                res[x] = self.Fix_S_indinput(sim_res[x], amounts=True)
             sim_res = res
             del res
             # convert to concentrations
@@ -4329,6 +4355,11 @@ See: https://jmodelica.org/assimulo'
                     sim_res[x] = self._SpeciesAmountToConc(sim_res[x])
             if self.__HAS_RATE_RULES__:
                 sim_res = numpy.concatenate([sim_res, rrules], axis=1)
+            # if CVODE_XOUT:
+            #     self.CVODE_xdata[st, :] = self._EvalExtraData(
+            #         self.CVODE_extra_output
+            #     )
+
 
         else:
             # calculate rates from all species
