@@ -1933,6 +1933,7 @@ class PysMod(object):
         self.__HAS_FORCED_FUNCS__ = False
         self.__HAS_RATE_RULES__ = False
         self._CVODE_extra_output = []
+        self._CVODE_XOUT = False
         rate_rules = {}
         assignment_rules = {}
         for ar in self.__rules__:
@@ -3012,6 +3013,22 @@ switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
                     'Assimulo may be installed from conda-forge or compiled from source.\n\
 See: https://jmodelica.org/assimulo'
                 )
+        if self.__HAS_FORCED_FUNCS__:
+            if _HAVE_ASSIMULO:
+                print(
+                    'INFO: Assignment Rules detected and Assimulo installed,\n\
+switching to CVODE (mod.mode_integrator=\'CVODE\').\n'
+                )
+                self.mode_integrator = 'CVODE'
+            else:
+                print(
+                    '\nWARNING: Assignment Rules detected! PySCeS prefers CVODE but will continue with LSODA\n\
+(NOTE: THE VALUES OF ASSIGNMENT RULES DURING THE SIMULATION CANNOT BE TRACKED WITH LSODA!)'
+                )
+                print(
+                    'Assimulo may be installed from conda-forge or compiled from source.\n\
+See: https://jmodelica.org/assimulo'
+                )
 
         # CVode options
         self.mode_integrate_all_odes = False  # only available with CVODE
@@ -3952,6 +3969,13 @@ See: https://jmodelica.org/assimulo'
         initial: vector containing initial species concentrations
 
         """
+        if self.mode_integrate_all_odes:
+            print("""
+NOTE: Integration of all ODEs is not supported with LSODA. PySCeS will integrate
+a reduced set of ODEs and the dependent conserved species will be calculated from the L-matrix.
+The `mod.mode_integrate_all_odes` flag is ignored. To explicitly integrate all ODEs, switch
+to CVODE (mod.mode_integrator='CVODE')"""
+            )
         Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
 
         def function_sim(s, t):
@@ -4724,7 +4748,7 @@ setting sim_points = 2.0\n*****'
                 name = self._CVODE_extra_output[i]
                 self._update_assignment_rule_code(ars[name])
                 self._CVODE_xdata[:, i] = eval(ars[name]['data_sim_string'])
-            self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
+                self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
             self._CVODE_xdata = None
         if not simOK:
             print('Simulation failure')
@@ -4734,11 +4758,14 @@ setting sim_points = 2.0\n*****'
         replacements = []
         rule['data_sim_string'] = rule['code_string']
         for s in rule['symbols']:
-            if s in self.__reactions__ or s in self.__rate_rules__:
-                replacements.append((s, 'data_sim.getSimData("' + s + '")[:,1]'))
-            elif s in self.__species__:
-                replacements.append(('(self.' + s + ')',
-                                     '(self.data_sim.getSimData("' + s + '")[:,1])'))
+            if s in self.__reactions__ or s in self.__rules__ or s in self.__species__:
+                # catch any _init so it doesn't get replaced
+                replacements.append((s + '_init', '_zzzz_'))
+                # replace symbol to get sim data
+                replacements.append(('self.' + s, 'self.data_sim.getSimData("' + s + '")[:,1]'))
+                # revert the _init
+                replacements.append(('_zzzz_', s + '_init'))
+
         for old, new in replacements:
             rule['data_sim_string'] = rule['data_sim_string'].replace(old, new)
 
