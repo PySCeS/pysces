@@ -14,10 +14,10 @@ authors:
     affiliation: "Stellenbosch University"
     orcid: "https://orcid.org/0000-0001-6288-8904"
 title: "The Python Simulator for Cellular Systems: PySCeS"
-version: "1.0.1"
-repository-code: "https://github.com/PySCeS/pysces/tree/1.0.1"
-date-released: 2022-02-24
-doi: "10.5281/zenodo.6260080"
+version: "1.0.2"
+repository-code: "https://github.com/PySCeS/pysces/tree/1.0.2"
+date-released: 2022-05-17
+doi: "10.5281/zenodo.2600905"
 license: "BSD-3-Clause"
 url: https://pysces.github.io
 abstract: "Computer modelling has become an integral tool in the analysis and understanding
