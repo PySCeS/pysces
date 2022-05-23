@@ -1375,34 +1375,20 @@ class PieceWise(NewCoreBase):
 
         InfixParser.setNameStr('self.mod.', '')
         self._names = []
+        formula = pwd[0][0]
+        InfixParser.parse(formula)
+        for n in InfixParser.names:
+            if n not in self._names and n != '_TIME_':
+                self._names.append(n)
+        formula = InfixParser.output
+        thenStat = pwd[0][1].replace('self.', 'self.mod.')
+
         if len(list(pwd.keys())) == 1:
-            formula = pwd[0][0]
-            InfixParser.parse(formula)
-            for n in InfixParser.names:
-                if n not in self._names and n != '_TIME_':
-                    self._names.append(n)
-            formula = InfixParser.output
-            thenStat = pwd[0][1].replace('self.', 'self.mod.')
-            ##  thenStat = pwd[0][1]
-            ##  InfixParser.setNameStr('self.mod.', '')
-            ##  InfixParser.parse(thenStat)
-            ##  thenStat = InfixParser.output
             self.code_string = 'if {}:\n    self.value = {}\nelse:\n    {}'.format(
                 formula, thenStat, other,
             )
             self.formula = self.code_string.replace('self.', '')
         else:
-            formula = pwd[0][0]
-            InfixParser.parse(formula)
-            for n in InfixParser.names:
-                if n not in self._names and n != '_TIME_':
-                    self._names.append(n)
-            formula = InfixParser.output
-            thenStat = pwd[0][1].replace('self.', 'self.mod.')
-            ##  thenStat = pwd[0][1]
-            ##  InfixParser.setNameStr('self.mod.', '')
-            ##  InfixParser.parse(thenStat)
-            ##  thenStat = InfixParser.output
             self.code_string = 'if {}:\n    self.value = {}\n'.format(formula, thenStat)
             pwd.pop(0)
             for p in pwd:
@@ -1414,14 +1400,10 @@ class PieceWise(NewCoreBase):
 
                 formula = InfixParser.output
                 thenStat = pwd[p][1].replace('self.', 'self.mod.')
-                ##  thenStat = pwd[p][1]
-                ##  InfixParser.setNameStr('self.mod.', '')
-                ##  InfixParser.parse(thenStat)
-                ##  thenStat = InfixParser.output
                 self.code_string += 'elif {}:\n    self.value = {}\n'.format(
                     formula, thenStat,
                 )
-            self.code_string += 'else:\n    .format'.format(other)
+            self.code_string += 'else:\n    {}'.format(other)
             self.formula = self.code_string.replace('self.', '')
         self.xcode = compile(self.code_string, 'PieceWise', 'exec')
 
@@ -3045,7 +3027,7 @@ See: https://jmodelica.org/assimulo'
             self.__settings__["cvode_reltol"] = 1.0e-6
             print(
                 'INFO: Piecewise functions detected increasing CVODE tolerance slightly\n\
-(mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).'
+(mod.__settings__[\"cvode_reltol\"] = 1.0e-6 ).'
             )
 
         # Normal simulation options
@@ -8798,7 +8780,7 @@ setting sim_points = 2.0\n*****'
                 elif x in self.reactions:
                     getattr(self.data_sstate, x)
                     print(
-                        "INFO: using steady-state flux for reaction ({} --> J_%s)".format(
+                        "INFO: using steady-state flux for reaction ({} --> J_{})".format(
                             x, x
                         )
                     )
