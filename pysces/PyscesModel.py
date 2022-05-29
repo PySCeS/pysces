@@ -3014,14 +3014,17 @@ See: https://jmodelica.org/assimulo'
 
         # CVode options
         self.mode_integrate_all_odes = False  # only available with CVODE
-        self.__settings__["cvode_abstol"] = 1.0e-15  # absolute tolerance
-        # self.__settings__["cvode_abstol_max"]  = 1.0e-3  # not used anymore
-        # self.__settings__["cvode_abstol_factor"] = 1.0e-6  # not used in Assimulo
+        self.__settings__["cvode_abstol"] = 1.0e-9  # absolute tolerance
         self.__settings__["cvode_reltol"] = 1.0e-9  # relative tolerance
-        # self.__settings__["cvode_auto_tol_adjust"] = True  # not used in Assimulo
-        self.__settings__["cvode_mxstep"] = 1000  # max step default
+        self.__settings__["cvode_mxstep"] = 5000  # max step default
         # print some pretty stuff after a simulation
         self.__settings__["cvode_stats"] = False
+        # the step size to be attempted on the first step.
+        self.__settings__["cvode_h0"] = 0.0
+        self.__settings__["cvode_hmax"] = 0.0  # the maximum absolute step size allowed.
+        self.__settings__["cvode_hmin"] = 0.0  # the minimum absolute step size allowed.
+        # maximum order to be used by the solver
+        self.__settings__["cvode_mxord"] = 5
 
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9:
             self.__settings__["cvode_reltol"] = 1.0e-6
@@ -3859,12 +3862,20 @@ See: https://jmodelica.org/assimulo'
         sim = CVode(problem)
         # for direct access to the solver class
         self._solver = sim
+
+        # initialise CVODE settings
         if self.__settings__["cvode_stats"]:
             sim.verbosity = 10
         else:
             sim.verbosity = 40
         sim.atol = self.__settings__["cvode_abstol"]
         sim.rtol = self.__settings__["cvode_reltol"]
+        sim.maxsteps = self.__settings__["cvode_mxstep"]
+        sim.inith = self.__settings__["cvode_h0"]
+        sim.maxh = self.__settings__["cvode_hmax"]
+        sim.minh = self.__settings__["cvode_hmin"]
+        sim.maxord = self.__settings__["cvode_mxord"]
+
         t, sim_res = sim.simulate(self.sim_end, ncp=0, ncp_list=self.sim_time)
         # needed because CVode adds extra time points around discontinuity
         t = numpy.array(t)
