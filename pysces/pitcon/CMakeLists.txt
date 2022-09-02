@@ -26,6 +26,6 @@ add_custom_command(
 
 install(FILES ${generated_module_file} DESTINATION "pysces/pitcon")
 if (WIN32)
-  install(DIRECTORY ${generated_libs_dir} DESTINATION hello
+  install(DIRECTORY ${generated_libs_dir} DESTINATION pysces
         FILES_MATCHING PATTERN "*.dll")
 endif()
