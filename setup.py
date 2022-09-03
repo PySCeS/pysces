@@ -182,6 +182,8 @@ mypackages = [
     'pysces',
     'pysces.tests',
     'pysces.examples',
+    'pysces.pscmodels',
+    'pysces.docs',
     'pysces.lib',
     'pysces.sandbox',
     'pysces.contrib',
@@ -221,13 +223,7 @@ mypackage_data['pysces.nleq2'] = ['nleq2_readme.txt', 'readme.txt']
 
 # Data files to copy
 mypackage_data['pysces'] = ['pyscfg.ini', 'version.txt', 'pysces.pth']
-
-# TODO!
-# JR 2021-08 userguide.pdf included as a symlink to built docs in submodule
-# mydata_files.append(
-#     (os.path.join("pysces", "docs"), [os.path.join("pysces", "docs", "userguide.pdf")])
-# )
-
+mypackage_data['pysces.docs'] = ['userguide.pdf']
 mypackage_data['pysces.examples'] = ['*.ipy']
 
 # TODO JR to test

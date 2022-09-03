@@ -18,7 +18,6 @@ include pysces/sandbox/*
 include pysces/pitcon/*
 include pysces/pscmodels/*
 include pysces/tests/*
-include pysces/pysces.pth
 include pysces/version.txt
 include pysces/win32/libgfortran-3.dll
 include pysces/win32/libquadmath-0.dll
