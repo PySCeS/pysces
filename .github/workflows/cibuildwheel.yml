@@ -15,14 +15,14 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_ARCHS_WINDOWS: "AMD64"
-#      CIBW_ARCHS_MACOS: "x86_64 arm64"
+      CIBW_ARCHS_MACOS: "arm64"
     strategy:
       matrix:
         include:
 #          - os: macos-12
 #            platform_id: x86_64
           - os: macos-12
-            platform_id: arm64
+            platform_id: macosx_arm64
 #        os: [ubuntu-20.04, windows-2019, macos-10.15]
 
     steps:
@@ -50,7 +50,7 @@ jobs:
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@v2.9.0
         env:
-          CIBW_BUILD: "cp310-*"
+          CIBW_BUILD: "cp310-${{ matrix.platform_id }}"
           CIBW_SKIP: "*musllinux*"
           CIBW_BEFORE_BUILD: pip install numpy~=1.21.0 scikit-build
 
