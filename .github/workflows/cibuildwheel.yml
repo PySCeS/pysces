@@ -41,7 +41,7 @@ jobs:
 #          sudo installer -pkg /Volumes/gfortran-Intel-12.1-Monterey/gfortran-Intel-12.1-Monterey/gfortran.pkg -target /
 
       - name: (macOS) Download and install gfortran on mac Apple silicon
-        if: matrix.os == 'macos-12' && matrix.platform_id == 'arm64'
+        if: matrix.os == 'macos-12' && matrix.platform_id == 'macosx_arm64'
         run: |
           curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/12.1-monterey/gfortran-ARM-12.1-Monterey.dmg -o /tmp/gfortran.dmg &&
           sudo hdiutil attach /tmp/gfortran.dmg &&
