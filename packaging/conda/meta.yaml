@@ -17,13 +17,11 @@ requirements:
     - {{ compiler('fortran') }}   # [unix]
     - m2w64-gcc-fortran           # [win]
     - cmake
-    - ninja
   host:
     - python {{ python }}
     - setuptools
     - numpy {{ numpy }}
     - scikit-build
-    - ninja
     - scipy
     - matplotlib
     - nose

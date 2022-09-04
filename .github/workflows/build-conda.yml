@@ -11,8 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019]
-#        os: [ubuntu-latest, windows-2019, macos-12]
+        os: [ubuntu-latest, windows-2019, macos-12]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
@@ -31,7 +30,7 @@ jobs:
       - name: Build packages
         run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: build_outputs
           path: ./build_output/*/pysces*.tar.bz2
