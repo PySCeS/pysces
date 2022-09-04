@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Wheels on ${{ matrix.os }} for Python ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     env:
       CIBW_TEST_COMMAND: python -s -c "import pysces; pysces.test(3)"
@@ -43,63 +43,45 @@ jobs:
           CIBW_SKIP: "*musllinux*"
           CIBW_BEFORE_BUILD: pip install numpy~=1.21.0 scikit-build
 
-#      - name: Build wheels for CPython 3.9
-#        uses: pypa/cibuildwheel@v2.1.1
-#        env:
-#          CIBW_BUILD: "cp39-*"
-#          CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
-#
-#      - name: Build wheels for CPython 3.8
-#        uses: pypa/cibuildwheel@v2.1.1
-#        env:
-#          CIBW_BUILD: "cp38-*"
-#          CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
-#
-#      - name: Build wheels for CPython 3.6 and 3.7
-#        uses: pypa/cibuildwheel@v2.1.1
-#        env:
-#          CIBW_BUILD: "cp36-* cp37-*"
-#          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
-
       - uses: actions/upload-artifact@v3
         with:
           name: wheels_and_tarball
           path: ./wheelhouse/*.whl
 
-#  build_sdist:
-#    name: Build source distribution
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - uses: actions/setup-python@v3
-#        name: Install Python
-#        with:
-#          python-version: '3.10'
-#
-#      - name: Build sdist
-#        run: |
-#          pip install scikit-build
-#          python setup.py sdist
-#
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: wheels_and_tarball
-#          path: dist/*.tar.gz
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-#  upload_pypi:
-#    needs: [build_wheels, build_sdist]
-#    runs-on: ubuntu-latest
-#    # to publish when a GitHub Release is created:
-#    if: github.event_name == 'release' && github.event.action == 'released'
-#    steps:
-#      - uses: actions/download-artifact@v3
-#        with:
-#          name: wheels_and_tarball
-#          path: dist
-#
-#      - uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          user: __token__
-#          password: ${{ secrets.PYPI_TOKEN }}
-##          repository_url: https://test.pypi.org/legacy/
+      - uses: actions/setup-python@v3
+        name: Install Python
+        with:
+          python-version: '3.10'
+
+      - name: Build sdist
+        run: |
+          pip install scikit-build
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels_and_tarball
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # to publish when a GitHub Release is created:
+    if: github.event_name == 'release' && github.event.action == 'released'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels_and_tarball
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+#          repository_url: https://test.pypi.org/legacy/
