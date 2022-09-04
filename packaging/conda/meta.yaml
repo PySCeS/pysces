@@ -1,6 +1,6 @@
 package:
   name: pysces
-  version: "1.0.2"
+  version: "1.0.3dev0"
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -16,10 +16,13 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}   # [unix]
     - m2w64-gcc-fortran           # [win]
+    - cmake
+    - ninja                       # [not win]
   host:
     - python {{ python }}
     - setuptools
     - numpy {{ numpy }}
+    - scikit-build
     - scipy
     - matplotlib
     - nose

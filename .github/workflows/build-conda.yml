@@ -11,16 +11,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2019, macOS-10.15]
+        os: [ubuntu-latest]
+#        os: [ubuntu-latest, windows-2019, macos-12]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: false
-          python-version: 3.8
           conda-channels: conda-forge
       
       - name: Prepare conda environment
