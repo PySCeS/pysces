@@ -15,10 +15,14 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_ARCHS_WINDOWS: "AMD64"
-      CIBW_ARCHS_MACOS: "x86_64 arm64"
+#      CIBW_ARCHS_MACOS: "x86_64 arm64"
     strategy:
       matrix:
-        os: [macos-12]
+        include:
+          - os: macos-12
+            platform_id: x86_64
+          - os: macos-12
+            platform_id: arm64
 #        os: [ubuntu-20.04, windows-2019, macos-10.15]
 
     steps:
@@ -30,11 +34,16 @@ jobs:
           python-version: '3.10'
 
       - name: (macOS) Download and install gfortran
-        if: matrix.os == 'macOS-12'
+        if: matrix.os == 'macOS-12' and matrix.platform_id == 'x86_64'
         run: |
           curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/12.1-monterey/gfortran-Intel-12.1-Monterey.dmg -o /tmp/gfortran.dmg &&
           sudo hdiutil attach /tmp/gfortran.dmg &&
           sudo installer -pkg /Volumes/gfortran-Intel-12.1-Monterey/gfortran-Intel-12.1-Monterey/gfortran.pkg -target /
+        if: matrix.os == 'macOS-12' and matrix.platform_id == 'arm64'
+        run: |
+          curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/12.1-monterey/gfortran-ARM-12.1-Monterey.dmg -o /tmp/gfortran.dmg &&
+          sudo hdiutil attach /tmp/gfortran.dmg &&
+          sudo installer -pkg /Volumes/gfortran-ARM-12.1-Monterey/gfortran-ARM-12.1-Monterey/gfortran.pkg -target /
 
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@v2.9.0
