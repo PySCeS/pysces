@@ -87,19 +87,19 @@ jobs:
 #          name: wheels_and_tarball
 #          path: dist/*.tar.gz
 
-  upload_pypi:
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    # to publish when a GitHub Release is created:
-    if: github.event_name == 'release' && github.event.action == 'released'
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: wheels_and_tarball
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-#          repository_url: https://test.pypi.org/legacy/
+#  upload_pypi:
+#    needs: [build_wheels, build_sdist]
+#    runs-on: ubuntu-latest
+#    # to publish when a GitHub Release is created:
+#    if: github.event_name == 'release' && github.event.action == 'released'
+#    steps:
+#      - uses: actions/download-artifact@v3
+#        with:
+#          name: wheels_and_tarball
+#          path: dist
+#
+#      - uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          user: __token__
+#          password: ${{ secrets.PYPI_TOKEN }}
+##          repository_url: https://test.pypi.org/legacy/
