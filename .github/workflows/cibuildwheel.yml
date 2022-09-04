@@ -18,15 +18,16 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-10.15]
+        os: [ubuntu-20.04]
+#        os: [ubuntu-20.04, windows-2019, macos-10.15]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         name: Install Python
         with:
-          python-version: '3.8'
+          python-version: '3.10'
 
       - name: (macOS) Download and install gfortran
         if: matrix.os == 'macOS-10.15'
@@ -36,30 +37,30 @@ jobs:
           sudo installer -pkg /Volumes/gfortran-10.2-Catalina/gfortran.pkg -target /
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@v2.1.1
+        uses: pypa/cibuildwheel@v2.9.0
         env:
           CIBW_BUILD: "cp310-*"
-          CIBW_BEFORE_BUILD: pip install numpy~=1.21.0
+          CIBW_BEFORE_BUILD: pip install numpy~=1.21.0 scikit-build
 
-      - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@v2.1.1
-        env:
-          CIBW_BUILD: "cp39-*"
-          CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
+#      - name: Build wheels for CPython 3.9
+#        uses: pypa/cibuildwheel@v2.1.1
+#        env:
+#          CIBW_BUILD: "cp39-*"
+#          CIBW_BEFORE_BUILD: pip install numpy~=1.20.0
+#
+#      - name: Build wheels for CPython 3.8
+#        uses: pypa/cibuildwheel@v2.1.1
+#        env:
+#          CIBW_BUILD: "cp38-*"
+#          CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
+#
+#      - name: Build wheels for CPython 3.6 and 3.7
+#        uses: pypa/cibuildwheel@v2.1.1
+#        env:
+#          CIBW_BUILD: "cp36-* cp37-*"
+#          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
 
-      - name: Build wheels for CPython 3.8
-        uses: pypa/cibuildwheel@v2.1.1
-        env:
-          CIBW_BUILD: "cp38-*"
-          CIBW_BEFORE_BUILD: pip install numpy~=1.17.0
-
-      - name: Build wheels for CPython 3.6 and 3.7
-        uses: pypa/cibuildwheel@v2.1.1
-        env:
-          CIBW_BUILD: "cp36-* cp37-*"
-          CIBW_BEFORE_BUILD: pip install numpy~=1.15.0
-
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels_and_tarball
           path: ./wheelhouse/*.whl
@@ -68,19 +69,19 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         name: Install Python
         with:
-          python-version: '3.8'
+          python-version: '3.10'
 
       - name: Build sdist
         run: |
-          pip install numpy
+          pip install scikit-build
           python setup.py sdist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels_and_tarball
           path: dist/*.tar.gz
@@ -91,12 +92,12 @@ jobs:
     # to publish when a GitHub Release is created:
     if: github.event_name == 'release' && github.event.action == 'released'
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: wheels_and_tarball
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
