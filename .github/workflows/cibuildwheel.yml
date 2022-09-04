@@ -40,6 +40,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.9.0
         env:
           CIBW_BUILD: "cp310-*"
+          CIBW_SKIP: "*musllinux*"
           CIBW_BEFORE_BUILD: pip install numpy~=1.21.0 scikit-build
 
 #      - name: Build wheels for CPython 3.9
