@@ -3834,7 +3834,10 @@ See: https://jmodelica.org/assimulo'
             if self.__HAS_RATE_RULES__:
                 initial = numpy.concatenate([initial, rrules])
 
-        # CVODE extra output
+        # self._CVODE_extra_output is initialized in InitialiseRules()
+        # if we do not want to track the assignment rules, this list needs to be reset
+        if not self.__settings__['cvode_track_assignment_rules']:
+            self._CVODE_extra_output = []
         self._CVODE_XOUT = False
         if len(self._CVODE_extra_output) > 0:
             out = []
