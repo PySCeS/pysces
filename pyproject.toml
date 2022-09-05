@@ -4,5 +4,5 @@ requires = ["setuptools>=42",
 	"scikit-build", 
 	"cmake", 
 	"ninja; platform_system!='Windows'", 
-	"numpy>=1.21"]
+	"numpy~=1.21.0"]
 build-backend = "setuptools.build_meta"
