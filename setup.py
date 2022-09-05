@@ -193,20 +193,6 @@ mypackages = [
     'pysces.kraken.controllers',
 ]
 
-# extra compile args for FORTRAN code that should meand that gfortran libraries are statically compiled into the pyd
-if os.sys.platform == 'win32':
-    # extra_f77_compile_args = ["-static-libgcc", "-static-libgfortran"]
-    extra_f77_compile_args = ["-static", "-static-libgcc", "-static-libgfortran"]
-elif os.sys.platform.startswith('freebsd13'):
-    # this is for future FreeBSD 13 compatability
-    extra_f77_compile_args = ["-lpython3.8", "-shared"]
-    #extra_link_args = ["-lpython3.8", "-shared"] # if the above doesn't work
-else:
-    extra_f77_compile_args = []
-
-print('extra_f77_compile_args: ', extra_f77_compile_args)
-
-
 if pitcon:
     print('\nBuilding pitcon')
     mypackages.append('pysces.pitcon')
