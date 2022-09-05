@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2019, macos-12]
-        python: [310, 39, 38, 37]
+        python: [310, 39, 38]
 
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
         env:
           CIBW_BUILD: "cp${{ matrix.python }}-*"
           CIBW_SKIP: "*musllinux*"
-          CIBW_BEFORE_BUILD: pip install numpy~=1.21.0 scikit-build
+          CIBW_BEFORE_BUILD: pip install scikit-build
 
       - uses: actions/upload-artifact@v3
         with:
