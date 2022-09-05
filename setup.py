@@ -226,21 +226,6 @@ mypackage_data['pysces'] = ['pyscfg.ini', 'version.txt', 'pysces.pth']
 mypackage_data['pysces.docs'] = ['userguide.pdf']
 mypackage_data['pysces.examples'] = ['*.ipy']
 
-# TODO JR to test
-## not sure if this is necessary anymore now that I am using static gfortran linking
-# if os.sys.platform == 'win32':
-#     mydata_files.append(
-#         (
-#             os.path.join('pysces', 'win32'),
-#             [
-#                 os.path.join('pysces', 'win32', 'libquadmath-0.dll'),
-#                 os.path.join('pysces', 'win32', 'libgfortran-3.dll'),
-#                 os.path.join('pysces', 'win32', 'libgcc_s_seh-1.dll'),
-#                 os.path.join('pysces', 'win32', 'libwinpthread-1.dll'),
-#             ],
-#         )
-#     )
-
 os.chdir(local_path)
 
 setup(
