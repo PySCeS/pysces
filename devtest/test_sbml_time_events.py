@@ -25,12 +25,15 @@ pysces.output_dir = out_dir
 pysces.interface.convertSBML2PSC(model_file, sbmldir=model_dir, pscdir=out_dir)
 
 mod = pysces.model(model_file+'.psc', dir=out_dir)
+mod.__settings__['cvode_return_event_timepoints'] = False
+mod.__settings__['cvode_track_assignment_rules'] = False
 mod.doSim(30, 301)
 mod.SimPlot()
 pysces.plt.export(model_file, directory=out_dir, outtype='png')
+sim_data = mod.data_sim.getAllSimData()
 
 ref_sim_data = pickle.load(open(data_dir+'/simdata.pkl', 'rb'))
-assert np.allclose(mod.data_sim.getAllSimData(), ref_sim_data), \
+assert np.allclose(sim_data, ref_sim_data), \
     "Data doesn't match reference!"
 
 print('\nOutput path: \"{}\"\n\nDone.\n'.format(out_dir))
