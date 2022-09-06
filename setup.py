@@ -208,7 +208,7 @@ else:
 mypackage_data['pysces.nleq2'] = ['nleq2_readme.txt', 'readme.txt']
 
 # Data files to copy
-mypackage_data['pysces'] = ['pyscfg.ini', 'version.txt', 'pysces.pth']
+mypackage_data['pysces'] = ['pyscfg.ini', 'version.txt']
 mypackage_data['pysces.docs'] = ['userguide.pdf']
 mypackage_data['pysces.examples'] = ['*.ipy']
 
