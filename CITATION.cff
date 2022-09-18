@@ -14,9 +14,9 @@ authors:
     affiliation: "Stellenbosch University"
     orcid: "https://orcid.org/0000-0001-6288-8904"
 title: "The Python Simulator for Cellular Systems: PySCeS"
-version: "1.0.2"
-repository-code: "https://github.com/PySCeS/pysces/tree/1.0.2"
-date-released: 2022-05-17
+version: "1.0.3"
+repository-code: "https://github.com/PySCeS/pysces/tree/1.0.3"
+date-released: 2022-09-18
 doi: "10.5281/zenodo.2600905"
 license: "BSD-3-Clause"
 url: https://pysces.github.io
