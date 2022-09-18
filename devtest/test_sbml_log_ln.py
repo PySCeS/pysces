@@ -25,6 +25,8 @@ pysces.output_dir = out_dir
 pysces.interface.convertSBML2PSC(model_file, sbmldir=model_dir, pscdir=out_dir)
 
 mod = pysces.model(model_file+'.psc', dir=out_dir)
+# explicitly call LSODA as CVODE gets invoked as soon as there are assignment rules
+mod.mode_integrator = 'LSODA'
 mod.doSim(1000, 1000)
 lsoda_data = np.copy(mod.data_sim.getAllSimData())
 mod.SimPlot(['PX','PY','PZ'])
@@ -33,6 +35,7 @@ pysces.plt.export(model_file, directory=out_dir, outtype='png')
 
 mod.reLoad()
 mod.mode_integrator='CVODE'
+mod.__settings__['cvode_track_assignment_rules'] = False
 mod.doSim(1000, 1000)
 cvode_data = np.copy(mod.data_sim.getAllSimData())
 

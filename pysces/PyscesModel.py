@@ -1375,34 +1375,20 @@ class PieceWise(NewCoreBase):
 
         InfixParser.setNameStr('self.mod.', '')
         self._names = []
+        formula = pwd[0][0]
+        InfixParser.parse(formula)
+        for n in InfixParser.names:
+            if n not in self._names and n != '_TIME_':
+                self._names.append(n)
+        formula = InfixParser.output
+        thenStat = pwd[0][1].replace('self.', 'self.mod.')
+
         if len(list(pwd.keys())) == 1:
-            formula = pwd[0][0]
-            InfixParser.parse(formula)
-            for n in InfixParser.names:
-                if n not in self._names and n != '_TIME_':
-                    self._names.append(n)
-            formula = InfixParser.output
-            thenStat = pwd[0][1].replace('self.', 'self.mod.')
-            ##  thenStat = pwd[0][1]
-            ##  InfixParser.setNameStr('self.mod.', '')
-            ##  InfixParser.parse(thenStat)
-            ##  thenStat = InfixParser.output
             self.code_string = 'if {}:\n    self.value = {}\nelse:\n    {}'.format(
                 formula, thenStat, other,
             )
             self.formula = self.code_string.replace('self.', '')
         else:
-            formula = pwd[0][0]
-            InfixParser.parse(formula)
-            for n in InfixParser.names:
-                if n not in self._names and n != '_TIME_':
-                    self._names.append(n)
-            formula = InfixParser.output
-            thenStat = pwd[0][1].replace('self.', 'self.mod.')
-            ##  thenStat = pwd[0][1]
-            ##  InfixParser.setNameStr('self.mod.', '')
-            ##  InfixParser.parse(thenStat)
-            ##  thenStat = InfixParser.output
             self.code_string = 'if {}:\n    self.value = {}\n'.format(formula, thenStat)
             pwd.pop(0)
             for p in pwd:
@@ -1414,14 +1400,10 @@ class PieceWise(NewCoreBase):
 
                 formula = InfixParser.output
                 thenStat = pwd[p][1].replace('self.', 'self.mod.')
-                ##  thenStat = pwd[p][1]
-                ##  InfixParser.setNameStr('self.mod.', '')
-                ##  InfixParser.parse(thenStat)
-                ##  thenStat = InfixParser.output
                 self.code_string += 'elif {}:\n    self.value = {}\n'.format(
                     formula, thenStat,
                 )
-            self.code_string += 'else:\n    .format'.format(other)
+            self.code_string += 'else:\n    {}'.format(other)
             self.formula = self.code_string.replace('self.', '')
         self.xcode = compile(self.code_string, 'PieceWise', 'exec')
 
@@ -3032,20 +3014,23 @@ See: https://jmodelica.org/assimulo'
 
         # CVode options
         self.mode_integrate_all_odes = False  # only available with CVODE
-        self.__settings__["cvode_abstol"] = 1.0e-15  # absolute tolerance
-        # self.__settings__["cvode_abstol_max"]  = 1.0e-3  # not used anymore
-        # self.__settings__["cvode_abstol_factor"] = 1.0e-6  # not used in Assimulo
+        self.__settings__["cvode_abstol"] = 1.0e-9  # absolute tolerance
         self.__settings__["cvode_reltol"] = 1.0e-9  # relative tolerance
-        # self.__settings__["cvode_auto_tol_adjust"] = True  # not used in Assimulo
-        self.__settings__["cvode_mxstep"] = 1000  # max step default
+        self.__settings__["cvode_mxstep"] = 5000  # max step default
         # print some pretty stuff after a simulation
         self.__settings__["cvode_stats"] = False
+        # the step size to be attempted on the first step.
+        self.__settings__["cvode_h0"] = 0.0
+        self.__settings__["cvode_hmax"] = 0.0  # the maximum absolute step size allowed.
+        self.__settings__["cvode_hmin"] = 0.0  # the minimum absolute step size allowed.
+        # maximum order to be used by the solver
+        self.__settings__["cvode_mxord"] = 5
 
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9:
             self.__settings__["cvode_reltol"] = 1.0e-6
             print(
                 'INFO: Piecewise functions detected increasing CVODE tolerance slightly\n\
-(mod.__settings__[\"cvode_reltol\"] = 1.0e-9 ).'
+(mod.__settings__[\"cvode_reltol\"] = 1.0e-6 ).'
             )
 
         # Normal simulation options
@@ -3849,7 +3834,10 @@ See: https://jmodelica.org/assimulo'
             if self.__HAS_RATE_RULES__:
                 initial = numpy.concatenate([initial, rrules])
 
-        # CVODE extra output
+        # self._CVODE_extra_output is initialized in InitialiseRules()
+        # if we do not want to track the assignment rules, this list needs to be reset
+        if not self.__settings__['cvode_track_assignment_rules']:
+            self._CVODE_extra_output = []
         self._CVODE_XOUT = False
         if len(self._CVODE_extra_output) > 0:
             out = []
@@ -3877,12 +3865,20 @@ See: https://jmodelica.org/assimulo'
         sim = CVode(problem)
         # for direct access to the solver class
         self._solver = sim
+
+        # initialise CVODE settings
         if self.__settings__["cvode_stats"]:
             sim.verbosity = 10
         else:
             sim.verbosity = 40
         sim.atol = self.__settings__["cvode_abstol"]
         sim.rtol = self.__settings__["cvode_reltol"]
+        sim.maxsteps = self.__settings__["cvode_mxstep"]
+        sim.inith = self.__settings__["cvode_h0"]
+        sim.maxh = self.__settings__["cvode_hmax"]
+        sim.minh = self.__settings__["cvode_hmin"]
+        sim.maxord = self.__settings__["cvode_mxord"]
+
         t, sim_res = sim.simulate(self.sim_end, ncp=0, ncp_list=self.sim_time)
         # needed because CVode adds extra time points around discontinuity
         t = numpy.array(t)
@@ -8798,7 +8794,7 @@ setting sim_points = 2.0\n*****'
                 elif x in self.reactions:
                     getattr(self.data_sstate, x)
                     print(
-                        "INFO: using steady-state flux for reaction ({} --> J_%s)".format(
+                        "INFO: using steady-state flux for reaction ({} --> J_{})".format(
                             x, x
                         )
                     )

@@ -49,15 +49,14 @@ except Exception as ex:
     print('setuptools not available.')
 
 try:
-    from numpy.distutils.core import setup, Extension
+    from skbuild import setup
 except Exception as ex:
     print(ex)
-    print("PySCeS requires NumPy and SciPy 0.6x+\n")
+    print("PySCeS requires scikit-build to build.\n")
     os.sys.exit(-1)
 
 try:
     import distutils.command.bdist_conda
-
     print('bdist_conda is available.')
 except Exception as ex:
     print('bdist_conda not available.')
@@ -89,25 +88,16 @@ for e in use:
 '''
 ### End user configuration section
 
-########## From here on it's up to distutils ##########
+########## From here on it's up to scikit-build ##########
 
 # get the dir of setup.py
-local_path = os.path.dirname(os.path.abspath(os.sys.argv[0]))
+local_path = os.path.dirname(os.path.abspath(__file__))
 os.chdir(local_path)
 
-myscripts = []
-mydata_files = []
+mypackage_data = {}
 
 # add some model files into pscmodels
-modfold = os.path.join('pysces', 'pscmodels')
-mods = os.listdir(modfold)
-alist = []
-for x in mods:
-    if x[-4:] != '.psc':
-        pass
-    else:
-        alist.append(os.path.join(modfold, x))
-mydata_files.append((os.path.join('pysces', 'pscmodels'), alist))
+mypackage_data['pysces.pscmodels'] = ['*.psc']
 
 # Default configurations for the pyscfg.ini files
 if os.sys.platform == 'win32':
@@ -179,23 +169,10 @@ def writeConfig(local_path, config={}):
     cp.add_section('ExternalModules')
     if nleq2:
         cp.set('ExternalModules', 'nleq2', 'True')
-        mydata_files.append(
-            (
-                os.path.join('pysces', 'nleq2'),
-                [os.path.join('pysces', 'nleq2', 'nleq2_readme.txt')],
-            )
-        )
     else:
         cp.set('ExternalModules', 'nleq2', 'False')
-        mydata_files.append(
-            (
-                os.path.join('pysces', 'nleq2'),
-                [os.path.join('pysces', 'nleq2', 'readme.txt')],
-            )
-        )
     cp.write(cfgfile)
     cfgfile.close()
-
 
 writeConfig(local_path, config)
 print('Default configuration file installed')
@@ -204,8 +181,10 @@ print('Default configuration file installed')
 mypackages = [
     'pysces',
     'pysces.tests',
+    'pysces.examples',
+    'pysces.pscmodels',
+    'pysces.docs',
     'pysces.lib',
-    'pysces.pitcon',
     'pysces.sandbox',
     'pysces.contrib',
     'pysces.contrib.demo',
@@ -214,118 +193,27 @@ mypackages = [
     'pysces.kraken.controllers',
 ]
 
-# PySCeS modules
-mymodules = []
-
-# extra compile args for FORTRAN code that should meand that gfortran libraries are statically compiled into the pyd
-if os.sys.platform == 'win32':
-    # extra_f77_compile_args = ["-static-libgcc", "-static-libgfortran"]
-    extra_f77_compile_args = ["-static", "-static-libgcc", "-static-libgfortran"]
-elif os.sys.platform.startswith('freebsd13'):
-    # this is for future FreeBSD 13 compatability
-    extra_f77_compile_args = ["-lpython3.8", "-shared"]
-    #extra_link_args = ["-lpython3.8", "-shared"] # if the above doesn't work
-else:
-    extra_f77_compile_args = []
-
-print('extra_f77_compile_args: ', extra_f77_compile_args)
-
-
 if pitcon:
     print('\nBuilding pitcon')
-    extpath = os.path.join('pysces', 'pitcon')
-    pitcon = Extension(
-        'pysces.pitcon.pitcon',
-        sources=[
-            os.path.join(extpath, 'pitcon.pyf'),
-            os.path.join(extpath, 'pcon61subd.f'),
-            os.path.join(extpath, 'dpcon61.f'),
-            os.path.join(extpath, 'dpcon61w.f'),
-        ],
-        extra_f77_compile_args=extra_f77_compile_args,
-    )
-    mymodules.append(pitcon)
-    # mydata_files.append((os.path.join('pysces','pitcon'), [os.path.join(local_path, 'pysces', 'pitcon','readme.txt'), os.path.join(local_path, 'pysces', 'pitcon','readme.txt')]))
+    mypackages.append('pysces.pitcon')
 else:
     print('\nSkipping pitcon')
 
 
 if nleq2:
     print('\nBuilding nleq2')
-    '''
-    # this is now obsolete with nleq2 4.3 ... i hope !
-    print 'System ByteOrder', os.sys.byteorder
-    if os.path.exists(os.path.join(local_path, 'pysces', 'nleq2','nleq2.f')) and nleq2_byteorder_override:
-        print 'INFO: using user supplied nleq2.f'
-    else:
-        if os.sys.byteorder == 'little':
-            shutil.copyfile(os.path.join(extpath,'nleq2_little.f'), os.path.join(extpath,'nleq2.f'))
-        elif os.sys.byteorder == 'big':
-            shutil.copyfile(os.path.join(extpath,'nleq2_big.f'), os.path.join(extpath,'nleq2.f'))
-    '''
-    extpath = os.path.join('pysces', 'nleq2')
-    nleq2 = Extension(
-        'pysces.nleq2.nleq2',
-        sources=[
-            os.path.join(extpath, 'nleq2.pyf'),
-            os.path.join(extpath, 'nleq2.f'),
-            os.path.join(extpath, 'linalg_nleq2.f'),
-            os.path.join(extpath, 'zibmon.f'),
-            os.path.join(extpath, 'zibsec.f'),
-            os.path.join(extpath, 'zibconst.f'),
-            os.path.join(extpath, 'wnorm.f'),
-        ],
-        extra_f77_compile_args=extra_f77_compile_args,
-    )
-    mymodules.append(nleq2)
     mypackages.append('pysces.nleq2')
 else:
-    print('\n')
-
-if len(mymodules) == 0:
-    noext = Extension('None', [], None)  # Not ideal but seems safe
-    mymodules.append(noext)
+    print('\nSkipping nleq2')
+mypackage_data['pysces.nleq2'] = ['nleq2_readme.txt', 'readme.txt']
 
 # Data files to copy
-mydata_files.append(
-    (
-        os.path.join('pysces'),
-        [os.path.join('pysces', 'pyscfg.ini'), os.path.join('pysces', 'version.txt')],
-    )
-)
-mydata_files.append(('', [os.path.join('pysces', 'pysces.pth')]))
-
-# JR 2021-08 userguide.pdf included as a symlink to built docs in submodule
-mydata_files.append(
-    (os.path.join("pysces", "docs"), [os.path.join("pysces", "docs", "userguide.pdf")])
-)
-mydata_files.append(
-    (
-        os.path.join('pysces', 'examples'),
-        [
-            os.path.join('pysces', 'examples', examplefile)
-            for examplefile in os.listdir(
-                os.path.join(local_path, 'pysces', 'examples')
-            )
-        ],
-    )
-)
-## not sure if this is necessary anymore now that I am using static gfortran linking
-if os.sys.platform == 'win32':
-    mydata_files.append(
-        (
-            os.path.join('pysces', 'win32'),
-            [
-                os.path.join('pysces', 'win32', 'libquadmath-0.dll'),
-                os.path.join('pysces', 'win32', 'libgfortran-3.dll'),
-                os.path.join('pysces', 'win32', 'libgcc_s_seh-1.dll'),
-                os.path.join('pysces', 'win32', 'libwinpthread-1.dll'),
-            ],
-        )
-    )
+mypackage_data['pysces'] = ['pyscfg.ini', 'version.txt']
+mypackage_data['pysces.docs'] = ['userguide.pdf']
+mypackage_data['pysces.examples'] = ['*.ipy']
 
 os.chdir(local_path)
-# Install packages and the metatool binaries as "data"
+
 setup(
     name="pysces",
     version=__version__,
@@ -378,6 +266,5 @@ setup(
         'Topic :: Scientific/Engineering :: Chemistry',
     ],
     packages=mypackages,
-    data_files=mydata_files,
-    ext_modules=mymodules,
+    package_data=mypackage_data,
 )
