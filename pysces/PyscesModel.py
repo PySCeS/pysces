@@ -163,41 +163,45 @@ if _HAVE_ASSIMULO:
         def handle_event(self, solver, event_info):
             self.event_times.append(solver.t)
             state_info = event_info[0]
-            idx = state_info.index(-1)
-            ev = self.events[idx]
-            if ev._assign_now:
-                for ass in ev.assignments:
-                    if ass.variable in self.mod.L0matrix.getLabels()[1] or (
-                        self.mod.mode_integrate_all_odes
-                        and ass.variable in self.mod.__species__
-                    ):
-                        assVal = ass.getValue()
-                        assIdx = self.mod.__species__.index(ass.variable)
-                        if self.mod.__KeyWords__["Species_In_Conc"]:
-                            solver.y[assIdx] = assVal * getattr(
-                                self.mod, self.mod.__CsizeAllIdx__[assIdx]
+            state_info = numpy.array(state_info)
+            idx = numpy.where(state_info == -1)
+            # idx = state_info.index(-1)
+            # ev = self.events[idx]
+            e = [self.events[j] for j in idx[0]]
+            for ev in e:
+                if ev._assign_now:
+                    for ass in ev.assignments:
+                        if ass.variable in self.mod.L0matrix.getLabels()[1] or (
+                            self.mod.mode_integrate_all_odes
+                            and ass.variable in self.mod.__species__
+                        ):
+                            assVal = ass.getValue()
+                            assIdx = self.mod.__species__.index(ass.variable)
+                            if self.mod.__KeyWords__["Species_In_Conc"]:
+                                solver.y[assIdx] = assVal * getattr(
+                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]
+                                )
+                            else:
+                                solver.y[assIdx] = assVal
+                        elif (
+                            not self.mod.mode_integrate_all_odes
+                            and ass.variable in self.mod.L0matrix.getLabels()[0]
+                        ):
+                            print(
+                                'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
                             )
+                        elif (
+                            self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
+                        ):
+                            assVal = ass.getValue()
+                            rrIdx = self.mod.__rate_rules__.index(ass.variable)
+                            self.mod.__rrule__[rrIdx] = assVal
+                            solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                            setattr(self.mod, ass.variable, assVal)
                         else:
-                            solver.y[assIdx] = assVal
-                    elif (
-                        not self.mod.mode_integrate_all_odes
-                        and ass.variable in self.mod.L0matrix.getLabels()[0]
-                    ):
-                        print(
-                            'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
-                        )
-                    elif (
-                        self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
-                    ):
-                        assVal = ass.getValue()
-                        rrIdx = self.mod.__rate_rules__.index(ass.variable)
-                        self.mod.__rrule__[rrIdx] = assVal
-                        solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
-                        setattr(self.mod, ass.variable, assVal)
-                    else:
-                        ass()
-            # track any parameter changes
-            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+                            ass()
+                # track any parameter changes
+                self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
 
 # for future fun
