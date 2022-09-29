@@ -1,6 +1,6 @@
 package:
   name: pysces
-  version: "1.0.3"
+  version: {{ GIT_DESCRIBE_TAG }}
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
