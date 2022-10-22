@@ -36,7 +36,6 @@ import os, copy, gc, time
 import math, operator, re
 import pprint, pickle, io
 import warnings
-
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
@@ -45,7 +44,7 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-
+import random as rndm
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
 try:
@@ -167,8 +166,10 @@ if _HAVE_ASSIMULO:
             idx = numpy.where(state_info == -1)
             # idx = state_info.index(-1)
             # ev = self.events[idx]
-            e = [self.events[j] for j in idx[0]]
-            for ev in e:
+            event = [self.events[j] for j in idx[0]]
+            # priority = [self.events[j].priority for j in idx[0]]
+            sequence = setsequence(event)
+            for ev in sequence:
                 if ev._assign_now:
                     for ass in ev.assignments:
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
@@ -203,6 +204,25 @@ if _HAVE_ASSIMULO:
                 # track any parameter changes
                 self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
+    def setsequence(event):
+        no_prio = [[x] for x in event if x.priority is None]
+        prio = [x for x in event if x.priority is not None]
+
+        sim = rndm.sample(prio, len(prio))
+        ev = sorted(sim, reverse=True, key=lambda x: x.priority)
+        fin = no_prio + [ev]
+
+        sequence = ''
+        if not no_prio:
+            sequence = ev
+        elif not ev:
+            temp = rndm.sample(no_prio, len(no_prio))
+            sequence = [i for x in temp for i in x]
+        else:
+            temp = rndm.sample(fin, len(fin))
+            sequence = [i for x in temp for i in x]
+
+        return sequence
 
 # for future fun
 _HAVE_VPYTHON = False
@@ -1284,6 +1304,7 @@ class Event(NewCoreBase):
     _time_symbol = None
     piecewises = None
     mod = None
+    priority = None
     __DEBUG__ = True
 
     def __init__(self, name, mod):
@@ -1338,6 +1359,9 @@ class Event(NewCoreBase):
         ass.setFormula(formula)
         self.assignments.append(ass)
         self.__setattr__('_' + var, ass)
+
+    def setpriority(self, priority):
+        self.priority = priority
 
     def reset(self):
         self.state0 = False
@@ -2740,6 +2764,7 @@ class PysMod(object):
             ev = Event(e, self)
             ev._time_symbol = self.__eDict__[e]['tsymb']
             ev.setTrigger(self.__eDict__[e]['trigger'], self.__eDict__[e]['delay'])
+            ev.setpriority(self.__eDict__[e]['priority'])
             # for each assignment
             for ass in self.__eDict__[e]['assignments']:
                 ev.setAssignment(ass, self.__eDict__[e]['assignments'][ass])
