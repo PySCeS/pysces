@@ -168,9 +168,10 @@ if _HAVE_ASSIMULO:
             # ev = self.events[idx]
             event = [self.events[j] for j in idx[0]]
             # priority = [self.events[j].priority for j in idx[0]]
-            sequence = setsequence(event)
+            sequence = self.setSequence(event)
             for ev in sequence:
                 if ev._assign_now:
+                    print(ev.name)
                     for ass in ev.assignments:
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
                             self.mod.mode_integrate_all_odes
@@ -204,25 +205,24 @@ if _HAVE_ASSIMULO:
                 # track any parameter changes
                 self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
-    def setsequence(event):
-        no_prio = [[x] for x in event if x.priority is None]
-        prio = [x for x in event if x.priority is not None]
+        def setSequence(self, event):
+            no_prio = [[x] for x in event if x.priority is None]
+            prio = [x for x in event if x.priority is not None]
 
-        sim = rndm.sample(prio, len(prio))
-        ev = sorted(sim, reverse=True, key=lambda x: x.priority)
-        fin = no_prio + [ev]
+            sim = rndm.sample(prio, len(prio))
+            ev = sorted(sim, reverse=True, key=lambda x: x.priority)
+            fin = no_prio + [ev]
 
-        sequence = ''
-        if not no_prio:
-            sequence = ev
-        elif not ev:
-            temp = rndm.sample(no_prio, len(no_prio))
-            sequence = [i for x in temp for i in x]
-        else:
-            temp = rndm.sample(fin, len(fin))
-            sequence = [i for x in temp for i in x]
+            if not no_prio:
+                sequence = ev
+            elif not ev:
+                temp = rndm.sample(no_prio, len(no_prio))
+                sequence = [i for x in temp for i in x]
+            else:
+                temp = rndm.sample(fin, len(fin))
+                sequence = [i for x in temp for i in x]
 
-        return sequence
+            return sequence
 
 # for future fun
 _HAVE_VPYTHON = False
@@ -1360,7 +1360,7 @@ class Event(NewCoreBase):
         self.assignments.append(ass)
         self.__setattr__('_' + var, ass)
 
-    def setpriority(self, priority):
+    def setPriority(self, priority):
         self.priority = priority
 
     def reset(self):
@@ -2764,7 +2764,7 @@ class PysMod(object):
             ev = Event(e, self)
             ev._time_symbol = self.__eDict__[e]['tsymb']
             ev.setTrigger(self.__eDict__[e]['trigger'], self.__eDict__[e]['delay'])
-            ev.setpriority(self.__eDict__[e]['priority'])
+            ev.setPriority(self.__eDict__[e]['priority'])
             # for each assignment
             for ass in self.__eDict__[e]['assignments']:
                 ev.setAssignment(ass, self.__eDict__[e]['assignments'][ass])
