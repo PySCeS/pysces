@@ -173,6 +173,7 @@ if _HAVE_ASSIMULO:
                 if ev._assign_now:
                     print(ev.name)
                     for ass in ev.assignments:
+                        ass.evaluateAssignment()
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
                             self.mod.mode_integrate_all_odes
                             and ass.variable in self.mod.__species__
@@ -183,8 +184,11 @@ if _HAVE_ASSIMULO:
                                 solver.y[assIdx] = assVal * getattr(
                                     self.mod, self.mod.__CsizeAllIdx__[assIdx]
                                 )
+                                setattr(self.mod, ass.variable, assVal * getattr(
+                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]))
                             else:
                                 solver.y[assIdx] = assVal
+                                setattr(self.mod, ass.variable, assVal)
                         elif (
                             not self.mod.mode_integrate_all_odes
                             and ass.variable in self.mod.L0matrix.getLabels()[0]
@@ -192,6 +196,7 @@ if _HAVE_ASSIMULO:
                             print(
                                 'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
                             )
+                            setattr(self.mod, ass.variable, ass.value)
                         elif (
                             self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
                         ):
@@ -202,6 +207,7 @@ if _HAVE_ASSIMULO:
                             setattr(self.mod, ass.variable, assVal)
                         else:
                             ass()
+                            setattr(self.mod, ass.variable, ass.value)
                 # track any parameter changes
                 self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
@@ -1319,8 +1325,8 @@ class Event(NewCoreBase):
         if self.state0 and not self.state:
             self.state0 = self.state
         if not self.state0 and self.state:
-            for ass in self.assignments:
-                ass.evaluateAssignment()
+            # for ass in self.assignments:
+            #     ass.evaluateAssignment()
             self.state0 = self.state
             self._need_action = True
             self._ASS_TIME_ = time + self.delay
