@@ -212,21 +212,20 @@ if _HAVE_ASSIMULO:
                 self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
         def setSequence(self, event):
-            no_prio = [[x] for x in event if x.priority is None]
+            no_prio = [x for x in event if x.priority is None]
             prio = [x for x in event if x.priority is not None]
 
             sim = rndm.sample(prio, len(prio))
             ev = sorted(sim, reverse=True, key=lambda x: x.priority)
-            fin = no_prio + [ev]
 
             if not no_prio:
                 sequence = ev
             elif not ev:
-                temp = rndm.sample(no_prio, len(no_prio))
-                sequence = [i for x in temp for i in x]
+                sequence = rndm.sample(no_prio, len(no_prio))
             else:
-                temp = rndm.sample(fin, len(fin))
-                sequence = [i for x in temp for i in x]
+                sequence = ev
+                for i in no_prio:
+                    sequence.insert(rndm.randint(0, len(ev)), i)
 
             return sequence
 
