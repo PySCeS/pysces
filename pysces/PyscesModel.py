@@ -44,7 +44,7 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-import random as rndm
+import random
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
 try:
@@ -166,9 +166,9 @@ if _HAVE_ASSIMULO:
             idx = numpy.where(state_info == -1)
             # idx = state_info.index(-1)
             # ev = self.events[idx]
-            event = [self.events[j] for j in idx[0]]
+            event_list = [self.events[j] for j in idx[0]]
             # priority = [self.events[j].priority for j in idx[0]]
-            sequence = self.setSequence(event)
+            sequence = self.setSequence(event_list)
             for ev in sequence:
                 if ev._assign_now:
                     print(ev.name)
@@ -211,21 +211,21 @@ if _HAVE_ASSIMULO:
                 # track any parameter changes
                 self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
-        def setSequence(self, event):
-            no_prio = [x for x in event if x.priority is None]
-            prio = [x for x in event if x.priority is not None]
+        def setSequence(self, event_list):
+            no_prio = [ev for ev in event_list if ev.priority is None]
+            prio = [ev for ev in event_list if ev.priority is not None]
 
-            sim = rndm.sample(prio, len(prio))
-            ev = sorted(sim, reverse=True, key=lambda x: x.priority)
+            random_prio_sample = random.sample(prio, len(prio))
+            prio_sorted = sorted(random_prio_sample, reverse=True, key=lambda x: x.priority)
 
             if not no_prio:
-                sequence = ev
-            elif not ev:
-                sequence = rndm.sample(no_prio, len(no_prio))
+                sequence = prio_sorted
+            elif not prio_sorted:
+                sequence = random.sample(no_prio, len(no_prio))
             else:
-                sequence = ev
+                sequence = prio_sorted
                 for i in no_prio:
-                    sequence.insert(rndm.randint(0, len(ev)), i)
+                    sequence.insert(random.randint(0, len(prio_sorted)), i)
 
             return sequence
 
