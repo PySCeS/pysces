@@ -790,9 +790,10 @@ class PySCeSParser:
         '''EventDec : EVENTDEC'''
         rawf = t[1].replace('Event:', '').lstrip()
         args = rawf[: rawf.find('{')].strip().split(',')
+        if len(args) == 3:    # append None priority if not specified (legacy support)
+            args.append('None')
         name = args.pop(0)
         delay = float(args.pop(1))
-        priority = ''
         for i in [args.pop(-1).lstrip()]:
             if i == 'None':
                 priority = None

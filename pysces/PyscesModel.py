@@ -44,7 +44,6 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-import random
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
 try:
@@ -96,7 +95,7 @@ del (
     random.getstate,
 )  # random.division,
 del random.randrange, random.Random, random.choice
-del random.sample, random.shuffle, random.jumpahead
+del random.shuffle, random.jumpahead   # random.sample
 del random.SystemRandom, random.WichmannHill, random.triangular
 # used by functions random.NV_MAGICCONST, random.SG_MAGICCONST, random.BPF, random.RECIP_BPF
 
@@ -171,7 +170,7 @@ if _HAVE_ASSIMULO:
             sequence = self.setSequence(event_list)
             for ev in sequence:
                 if ev._assign_now:
-                    print(ev.name)
+                    print('executing', ev.name)
                     for ass in ev.assignments:
                         ass.evaluateAssignment()
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
