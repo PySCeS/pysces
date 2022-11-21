@@ -601,8 +601,8 @@ class CoreToSBML(object):
     core = None
     name = None
     SBML = None
-    level = 2
-    version = 1
+    level = 3
+    version = 2
     model = None
     document = None
     time = None
@@ -1045,10 +1045,17 @@ class CoreToSBML(object):
             #print(self.SBML.formulaToL3String(ASTnode))
             ## set _TIME_ ASTnode tag to <csymbol> time
             #ASTnode = self.astSetCSymbolTime(ASTnode)
-
             tr = self.SBML.Trigger(self.level, self.version)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
+
+            # priority
+            if ev.priority is not None:
+                prio = self.SBML.Priority(self.level, self.version)
+                ASTnode = self.SBML.parseL3Formula(str(ev.priority))
+                prio.setMath(ASTnode)
+                EV.setPriority(prio)
+
             ea_cntr = 0
             for ass in ev.assignments:
                 #print('LOOKATME PARSE EVENTASSIGNMENT line 1003')
@@ -1424,6 +1431,11 @@ class SbmlToCore(object):
             name = self.getId(ev)
             trigger = ev.getTrigger()
             triggerf = self.sbmlFormulaToInfix(trigger.getMath())
+            priority = ev.getPriority()
+            if priority is not None:
+                priorityf = self.sbmlFormulaToInfix(priority.getMath())
+            else:
+                priorityf = None
 
             # check for csymbol time
             hasTimeS = self.searchForCsymbolTime(trigger.getMath())
@@ -1448,6 +1460,7 @@ class SbmlToCore(object):
                         'name': name,
                         'trigger': triggerf,
                         'delay': delay,
+                        'priority': priorityf,
                         'assignments': {},
                         'tsymb': tSymb,
                     }

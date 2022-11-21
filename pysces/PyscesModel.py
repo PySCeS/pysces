@@ -68,6 +68,7 @@ from . import install_dir as INSTALL_DIR
 from . import PyscesRandom as random
 from .PyscesScan import Scanner
 from .core2.InfixParser import MyInfixParser
+from .core2.PyscesCore2 import NewCoreBase, NumberBase
 
 from . import (
     nleq2,
@@ -1096,50 +1097,10 @@ class IntegrationDataObj(object):
             return output, lout
 
 
-# this must stay in sync with core2
-class NewCoreBase(object):
-    """
-    Core2 base class, needed here as we use Core2 derived classes
-    in PySCes
-    """
-
-    name = None
-    __DEBUG__ = False
-
-    def getName(self):
-        return self.name
-
-    def setName(self, name):
-        self.name = name
-
-    def get(self, attr):
-        """Return an attribute whose name is str(attr)"""
-        return self.__getattribute__(attr)
-
-
-# this must stay in sync with core2
-class NumberBase(NewCoreBase):
-    """
-    Derived Core2 number class.
-    """
-
-    value = None
-    value_initial = None
-
-    def __call__(self):
-        return self.value
-
-    def getValue(self):
-        return self.value
-
-    def setValue(self, v):
-        self.value = v
-
-
 # Finally killed my lambda functions - brett07
 class ReactionObj(NewCoreBase):
     """
-    Defines a reaction with a KineticLaw *kl8, *formula* and *name* bound
+    Defines a reaction with a KineticLaw *kl*, *formula* and *name* bound
     to a model instance, *mod*.
     """
 

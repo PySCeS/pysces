@@ -54,6 +54,10 @@ class MapList(list):
 
 
 class NewCoreBase(object):
+    """
+    Core2 base class
+    """
+
     __DEBUG__ = False
     name = None
     annotations = None
@@ -82,6 +86,10 @@ class NewCoreBase(object):
 
 
 class NumberBase(NewCoreBase):
+    """
+    Derived Core2 number class.
+    """
+
     value = None
     value_initial = None
 
@@ -794,6 +802,7 @@ class Event(NewCoreBase):
     _need_action = False
     _names = None
     _time_symbol = None
+    priority = None
 
     def __init__(self, name):
         self.setName(name)
@@ -840,7 +849,7 @@ class Event(NewCoreBase):
             self.formula = InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
         if self.__DEBUG__:
-            self.name, self.code_string
+            print(self.name, self.code_string)
 
     def setTriggerAttributes(self, core):
         # TODO: experimental
@@ -854,6 +863,8 @@ class Event(NewCoreBase):
         self.assignments.append(ass)
         self.__setattr__('_' + var.name, ass)
 
+    def setPriority(self, priority):
+        self.priority = priority
 
 class PieceWise(NewCoreBase):
     """
@@ -1437,6 +1448,7 @@ class NewCore(NewCoreBase):
         # associate model attributes with event
         # TODO: check that this still works
         ev.setTriggerAttributes(self)
+        ev.setPriority(e['priority'])
         ##  for n in ev._names:
         ##  setattr(ev, n, self.__getattribute__(n))
         # for each assignment
