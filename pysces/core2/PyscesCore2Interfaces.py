@@ -431,12 +431,11 @@ class CoreToPsc(object):
             if start:
                 out = '# Event definitions\n'
                 start = False
-            ##  formula = ev.code_string.split('=',1)
-            formula = ev.formula
-            out += 'Event: %s, %s, %s \n{\n' % (ev.name, formula, ev.delay)
+            out += 'Event: {}, {}, {}, {}'.format(ev.name, ev.formula, ev.delay, ev.priority)
+            out += ' {\n'
             for ass in ev.assignments:
-                out += '%s = %s\n' % (ass.variable.name, ass.formula)
-            out += '}\n'
+                out += '    {} = {}\n'.format(ass.variable.name, ass.formula)
+            out += '    }\n\n'
         if out != '':
             out += ' \n'
         self.event_block = out
