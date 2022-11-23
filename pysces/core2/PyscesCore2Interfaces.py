@@ -1353,8 +1353,8 @@ class SbmlToCore(object):
         warn = []
         fatal = []
 
-        if self.model.getLevel() >  2:
-            warn.append('Model is encoded as SBML Level 3, PySCeS only officially supports L2V5.')
+        # if self.model.getLevel() >  2:
+        #     warn.append('Model is encoded as SBML Level 3, PySCeS only officially supports L2V5.')
         if self.model.getNumConstraints() > 0:
             fatal.append('PySCeS does not support Constraints.')
         if self.model.getNumInitialAssignments() > 0:
