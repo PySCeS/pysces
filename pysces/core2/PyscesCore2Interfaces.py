@@ -431,12 +431,11 @@ class CoreToPsc(object):
             if start:
                 out = '# Event definitions\n'
                 start = False
-            ##  formula = ev.code_string.split('=',1)
-            formula = ev.formula
-            out += 'Event: %s, %s, %s \n{\n' % (ev.name, formula, ev.delay)
+            out += 'Event: {}, {}, {}, {}'.format(ev.name, ev.formula, ev.delay, ev.priority)
+            out += ' {\n'
             for ass in ev.assignments:
-                out += '%s = %s\n' % (ass.variable.name, ass.formula)
-            out += '}\n'
+                out += '    {} = {}\n'.format(ass.variable.name, ass.formula)
+            out += '    }\n\n'
         if out != '':
             out += ' \n'
         self.event_block = out
@@ -601,8 +600,8 @@ class CoreToSBML(object):
     core = None
     name = None
     SBML = None
-    level = 2
-    version = 1
+    level = 3
+    version = 2
     model = None
     document = None
     time = None
@@ -934,11 +933,10 @@ class CoreToSBML(object):
         mathMLin = self.SBML.writeMathMLToString(ast)
         strBuf.write(mathMLin)
         strBuf.seek(0)
+        ElementTree.register_namespace('', "http://www.w3.org/1998/Math/MathML")
         etree = ElementTree.parse(strBuf)
         root = etree.getroot()
-        counter = itertools.count(1)
-
-        def idxNode(node, idx=0):
+        for node in root.findall('.//{http://www.w3.org/1998/Math/MathML}ci'):
             if node.text != None and node.text.strip() == '_TIME_':
                 # <csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time"> t </csymbol>
                 node.text = node.text.replace('_TIME_', 'time')
@@ -948,14 +946,8 @@ class CoreToSBML(object):
                     {'definitionURL': 'http://www.sbml.org/sbml/symbols/time'}
                 )
 
-            children = node.getchildren()
-            for child in range(len(children)):
-                idxNode(children[child], next(counter))
-
-        idxNode(root, idx=0)
-
         strBuf = io.StringIO()
-        etree.write(strBuf)
+        etree.write(strBuf, xml_declaration=True, encoding='unicode', method='xml')
         strBuf.seek(0)
         mathMLout = strBuf.read()
         return self.SBML.readMathMLFromString(mathMLout)
@@ -1042,13 +1034,22 @@ class CoreToSBML(object):
                 print('\tTrigger: %s' % form)
             ASTnode = self.SBML.parseL3Formula(form)
             assert ASTnode != None, "ERROR: unable to parse formula (%s) to AST" % form
-            #print(self.SBML.formulaToL3String(ASTnode))
             ## set _TIME_ ASTnode tag to <csymbol> time
-            #ASTnode = self.astSetCSymbolTime(ASTnode)
+            ASTnode = self.astSetCSymbolTime(ASTnode)
 
             tr = self.SBML.Trigger(self.level, self.version)
+            tr.setInitialValue(True)
+            tr.setPersistent(True)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
+
+            # priority
+            if ev.priority is not None:
+                prio = self.SBML.Priority(self.level, self.version)
+                ASTnode = self.SBML.parseL3Formula(str(ev.priority))
+                prio.setMath(ASTnode)
+                EV.setPriority(prio)
+
             ea_cntr = 0
             for ass in ev.assignments:
                 #print('LOOKATME PARSE EVENTASSIGNMENT line 1003')
@@ -1352,14 +1353,14 @@ class SbmlToCore(object):
         warn = []
         fatal = []
 
-        if self.model.getLevel() >  2:
-            warn.append('Model is encoded as SBML Level 3, PySCeS only officially supports L2V5.')
+        # if self.model.getLevel() >  2:
+        #     warn.append('Model is encoded as SBML Level 3, PySCeS only officially supports L2V5.')
         if self.model.getNumConstraints() > 0:
             fatal.append('PySCeS does not support Constraints.')
         if self.model.getNumInitialAssignments() > 0:
             fatal.append('PySCeS does not support InitialAssignments.')
-        if self.model.getNumEvents() > 0 and self.model.getLevel() >  2:
-            fatal.append('PySCeS does not support L3 events.')
+        # if self.model.getNumEvents() > 0 and self.model.getLevel() >  2:
+        #     fatal.append('PySCeS does not support L3 events.')
         if len([r.getType() for r in  self.model.getListOfRules() if r.getType() > 1]) > 0:
             fatal.append('PySCeS only supports rate and assignment rules.')
 
@@ -1380,7 +1381,7 @@ class SbmlToCore(object):
             if action == 1:
                 raise RuntimeError
             elif action == 2:
-                time.sleep(5)
+                time.sleep(1)
             else:
                 time.sleep(0.1)
 
@@ -1424,6 +1425,11 @@ class SbmlToCore(object):
             name = self.getId(ev)
             trigger = ev.getTrigger()
             triggerf = self.sbmlFormulaToInfix(trigger.getMath())
+            priority = ev.getPriority()
+            if priority is not None:
+                priorityf = self.sbmlFormulaToInfix(priority.getMath())
+            else:
+                priorityf = None
 
             # check for csymbol time
             hasTimeS = self.searchForCsymbolTime(trigger.getMath())
@@ -1448,6 +1454,7 @@ class SbmlToCore(object):
                         'name': name,
                         'trigger': triggerf,
                         'delay': delay,
+                        'priority': priorityf,
                         'assignments': {},
                         'tsymb': tSymb,
                     }

@@ -790,8 +790,15 @@ class PySCeSParser:
         '''EventDec : EVENTDEC'''
         rawf = t[1].replace('Event:', '').lstrip()
         args = rawf[: rawf.find('{')].strip().split(',')
+        if len(args) == 3:    # append None priority if not specified (legacy support)
+            args.append('None')
         name = args.pop(0)
-        delay = float(args.pop(-1))
+        delay = float(args.pop(1))
+        for i in [args.pop(-1).lstrip()]:
+            if i == 'None':
+                priority = None
+            else:
+                priority = int(i)
         trigger = ''
         for a in args:
             trigger = trigger + a + ','
@@ -811,6 +818,8 @@ class PySCeSParser:
                     'trigger': trigger,
                     'assignments': assignments,
                     'tsymb': None,
+                    'priority': priority
+
                 }
             }
         )

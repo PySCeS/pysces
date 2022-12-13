@@ -31,6 +31,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.whl
 /packaging/many_linux/pip_cache
 .libs/
 
