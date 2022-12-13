@@ -3025,6 +3025,8 @@ See: https://jmodelica.org/assimulo'
         self.__settings__["cvode_hmin"] = 0.0  # the minimum absolute step size allowed.
         # maximum order to be used by the solver
         self.__settings__["cvode_mxord"] = 5
+        # Option not to add cvode solver class to model after simulation as cython objects prevent serialization
+        self.__settings__["cvode_access_solver"] = True
 
         if self.__HAS_PIECEWISE__ and self.__settings__["cvode_reltol"] <= 1.0e-9:
             self.__settings__["cvode_reltol"] = 1.0e-6
@@ -3864,7 +3866,8 @@ See: https://jmodelica.org/assimulo'
         self._problem = problem
         sim = CVode(problem)
         # for direct access to the solver class
-        self._solver = sim
+        if self.__settings__["cvode_access_solver"]:
+            self._solver = sim
 
         # initialise CVODE settings
         if self.__settings__["cvode_stats"]:
