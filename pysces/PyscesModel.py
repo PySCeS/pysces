@@ -164,10 +164,7 @@ if _HAVE_ASSIMULO:
             state_info = event_info[0]
             state_info = numpy.array(state_info)
             idx = numpy.where(state_info == -1)
-            # idx = state_info.index(-1)
-            # ev = self.events[idx]
             event_list = [self.events[j] for j in idx[0]]
-            # priority = [self.events[j].priority for j in idx[0]]
             sequence = self.setSequence(event_list)
             for ev in sequence:
                 if ev._assign_now:
@@ -1270,6 +1267,7 @@ class Event(NewCoreBase):
     piecewises = None
     mod = None
     priority = None
+    persistent = True
     __DEBUG__ = True
 
     def __init__(self, name, mod):
@@ -1284,8 +1282,6 @@ class Event(NewCoreBase):
         if self.state0 and not self.state:
             self.state0 = self.state
         if not self.state0 and self.state:
-            # for ass in self.assignments:
-            #     ass.evaluateAssignment()
             self.state0 = self.state
             self._need_action = True
             self._ASS_TIME_ = time + self.delay
@@ -1293,13 +1289,21 @@ class Event(NewCoreBase):
                 print('\nevent {} is evaluating at {}'.format(self.name, time))
             ret = True
         if self._need_action and self._TIME_ >= self._ASS_TIME_:
-            self._assign_now = True
-            if self.__DEBUG__:
-                print(
-                    'event {} is assigning at {} (delay={})'.format(
-                        self.name, time, self.delay
+            if not self.persistent and not self.state:
+                self._assign_now = False
+                if self.__DEBUG__:
+                    print('event {} NOT assigning after delay...'.format(self.name))
+                    print(
+                        '    ...non-persistent event, trigger ({}) no longer valid'.format(self.formula)
                     )
-                )
+            else:
+                self._assign_now = True
+                if self.__DEBUG__:
+                    print(
+                        'event {} is assigning at {} (delay={})'.format(
+                            self.name, time, self.delay
+                        )
+                    )
             self._need_action = False
             ret = True
         return ret

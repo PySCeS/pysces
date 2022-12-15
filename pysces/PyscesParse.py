@@ -802,7 +802,7 @@ class PySCeSParser:
         trigger = ''
         for a in args:
             trigger = trigger + a + ','
-        trigger = trigger[:-1]
+        trigger = trigger[:-1].strip()
 
         rawF = rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
         assignments = {}
