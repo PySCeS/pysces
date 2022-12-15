@@ -420,7 +420,7 @@ class PySCeSParser:
         self.AllRateEqsGiven = (
             1  # Flag to check that all rate equations have been given
         )
-        self.Debug = 0
+        self.Debug = False
 
         # elementary regular expressions used as building blocks
         self.Int = r'\d+'  # Integer
@@ -790,19 +790,52 @@ class PySCeSParser:
         '''EventDec : EVENTDEC'''
         rawf = t[1].replace('Event:', '').lstrip()
         args = rawf[: rawf.find('{')].strip().split(',')
-        if len(args) == 3:    # append None priority if not specified (legacy support)
-            args.append('None')
-        name = args.pop(0)
-        delay = float(args.pop(1))
-        for i in [args.pop(-1).lstrip()]:
-            if i == 'None':
-                priority = None
-            else:
-                priority = int(i)
-        trigger = ''
-        for a in args:
-            trigger = trigger + a + ','
-        trigger = trigger[:-1].strip()
+        posargs = args[:2] + [i for i in args[2:] if '=' not in i]
+        kwargs = [i.strip() for i in args[2:] if '=' in i]
+
+        if len(posargs) > 3:
+            raise ValueError('invalid event syntax, see https://pyscesdocs.readthedocs.io/en/latest/inputfile_doc.html#events')
+        elif len(posargs) == 3:  # handle legacy delay
+            print(
+                '''deprecation warning: event delay should be specified with keyword,
+        see https://pyscesdocs.readthedocs.io/en/latest/inputfile_doc.html#events'''
+            )
+            delay = float(posargs[2])
+        else:
+            delay = 0.0
+
+        name = posargs[0].strip()
+        trigger = posargs[1].strip()
+
+        # default kwargs
+        self.Events.update(
+            {
+                name: {
+                    'name': name,
+                    'trigger': trigger,
+                    'delay': delay,
+                    'persistent': True,
+                    'priority': None,
+                    'tsymb': None,
+                }
+            }
+        )
+
+        for arg in kwargs:
+            key, val = arg.split('=')
+            key = key.strip()
+            val = val.strip()
+            assert key in ['delay', 'priority', 'persistent'], 'invalid event attribute'
+            if key == 'delay':
+                val = float(val)
+            if key == 'priority':
+                if val == 'None':
+                    val = None
+                else:
+                    val = int(val)
+            if key == 'persistent':
+                val = eval(val)
+            self.Events[name][key] = val
 
         rawF = rawf[rawf.find('{') + 1 : rawf.find('}')].split('\n')
         assignments = {}
@@ -810,19 +843,8 @@ class PySCeSParser:
             if len(ass.strip()) > 0:
                 ass = ass.split('=')
                 assignments.update({ass[0].strip(): ass[1].strip()})
-        self.Events.update(
-            {
-                name: {
-                    'delay': delay,
-                    'name': name,
-                    'trigger': trigger,
-                    'assignments': assignments,
-                    'tsymb': None,
-                    'priority': priority
+        self.Events[name]['assignments'] = assignments
 
-                }
-            }
-        )
         self.Show('EventDec:', t[0])
 
     def p_objfuncdec(self, t):
