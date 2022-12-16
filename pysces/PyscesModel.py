@@ -1332,6 +1332,9 @@ class Event(NewCoreBase):
     def setPriority(self, priority):
         self.priority = priority
 
+    def setPersistent(self, persistent):
+        self.persistent = persistent
+
     def reset(self):
         self.state0 = False
         self.state = False
@@ -2734,6 +2737,7 @@ class PysMod(object):
             ev._time_symbol = self.__eDict__[e]['tsymb']
             ev.setTrigger(self.__eDict__[e]['trigger'], self.__eDict__[e]['delay'])
             ev.setPriority(self.__eDict__[e]['priority'])
+            ev.setPersistent(self.__eDict__[e]['persistent'])
             # for each assignment
             for ass in self.__eDict__[e]['assignments']:
                 ev.setAssignment(ass, self.__eDict__[e]['assignments'][ass])

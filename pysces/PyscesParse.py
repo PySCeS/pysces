@@ -825,7 +825,11 @@ class PySCeSParser:
             key, val = arg.split('=')
             key = key.strip()
             val = val.strip()
-            assert key in ['delay', 'priority', 'persistent'], 'invalid event attribute'
+            assert key in [
+                'delay',
+                'priority',
+                'persistent',
+            ], f'"{key}" is an invalid event attribute'
             if key == 'delay':
                 val = float(val)
             if key == 'priority':
