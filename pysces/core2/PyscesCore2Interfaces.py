@@ -708,12 +708,12 @@ class CoreToSBML(object):
         """
         Create an SBML model and document uses the class attributes:
 
-         - *self.level* [default=2] SBML level
-         - *self.version* [default=4] SBML version
+         - *self.level* [default=3] SBML level
+         - *self.version* [default=2] SBML version
 
         and creates:
 
-         - self.model and SBML model
+         - self.model an SBML model
          - self.document an SBML document
 
         """
@@ -1020,6 +1020,7 @@ class CoreToSBML(object):
             EV = self.model.createEvent()
             EV.setName(ev.getName())
             EV.setId(ev.getName())
+            EV.setUseValuesFromTriggerTime(True)  # default, PySCeS does not handle False
 
             #print(ev.getName())
             #print(ev.formula)
@@ -1038,8 +1039,8 @@ class CoreToSBML(object):
             ASTnode = self.astSetCSymbolTime(ASTnode)
 
             tr = self.SBML.Trigger(self.level, self.version)
-            tr.setInitialValue(True)
-            tr.setPersistent(True)
+            tr.setInitialValue(True)  # default, PySCeS does not handle False
+            tr.setPersistent(ev.persistent)
             tr.setMath(ASTnode)
             EV.setTrigger(tr)
 
@@ -1211,8 +1212,8 @@ class CoreToSBML(object):
 
 class SbmlToCore(object):
     SBML = None
-    level = 2
-    version = 5
+    level = 3
+    version = 2
     sbml_string = None
     sbml_file = None
     model = None
@@ -1425,6 +1426,22 @@ class SbmlToCore(object):
             name = self.getId(ev)
             trigger = ev.getTrigger()
             triggerf = self.sbmlFormulaToInfix(trigger.getMath())
+            persistent = trigger.getPersistent()
+            if trigger.initial_value == False:
+                raise NotImplementedError(
+                    '''
+    "trigger.initial_value = False" not implemented.
+        Change to True to run the model with PySCeS.
+                    '''
+                )
+            if ev.use_values_from_trigger_time == False:
+                raise NotImplementedError(
+                    '''
+    "event.use_values_from_trigger_time = False" not implemented.
+        PySCeS evaluates event assignments at trigger time.
+                    '''
+                )
+
             priority = ev.getPriority()
             if priority is not None:
                 priorityf = self.sbmlFormulaToInfix(priority.getMath())
@@ -1453,6 +1470,7 @@ class SbmlToCore(object):
                     name: {
                         'name': name,
                         'trigger': triggerf,
+                        'persistent': persistent,
                         'delay': delay,
                         'priority': priorityf,
                         'assignments': {},

@@ -779,7 +779,7 @@ class EventAssignment(NumberBase):
         self.code_string = 'self.value=%s' % InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
         if self.__DEBUG__:
-            '\t', self.name, self.code_string
+            print('\t', self.name, self.code_string)
 
     def evaluateAssignment(self):
         exec(self.xcode)
@@ -803,6 +803,7 @@ class Event(NewCoreBase):
     _names = None
     _time_symbol = None
     priority = None
+    persistent = True
 
     def __init__(self, name):
         self.setName(name)
@@ -865,6 +866,9 @@ class Event(NewCoreBase):
 
     def setPriority(self, priority):
         self.priority = priority
+
+    def setPersistent(self, persistent):
+        self.persistent = persistent
 
 class PieceWise(NewCoreBase):
     """
@@ -1449,6 +1453,7 @@ class NewCore(NewCoreBase):
         # TODO: check that this still works
         ev.setTriggerAttributes(self)
         ev.setPriority(e['priority'])
+        ev.setPersistent(e['persistent'])
         ##  for n in ev._names:
         ##  setattr(ev, n, self.__getattribute__(n))
         # for each assignment
