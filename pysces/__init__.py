@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Permission to use, modify, and distribute this software is given under the
 terms of the PySceS (BSD style) license. See LICENSE.txt that came with
@@ -40,7 +40,7 @@ __doc__ = """
             this distribution for specifics.
 
             NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
-            Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+            Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
             """
 
 import os, time
@@ -516,7 +516,7 @@ if not __SILENT_START__:
     )
     print('*                http://pysces.sourceforge.net                        *')
     ##  print '*                       Somewhere In Time                             *'
-    print('* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2022  *')
+    print('* Copyright(C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr, 2004-2023  *')
     print('* Triple-J Group for Molecular Cell Physiology                        *')
     print('* Stellenbosch University, ZA and VU University Amsterdam, NL         *')
     print('* PySCeS is distributed under the PySCeS (BSD style) licence, see     *')
