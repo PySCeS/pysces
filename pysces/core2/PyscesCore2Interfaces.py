@@ -431,7 +431,7 @@ class CoreToPsc(object):
             if start:
                 out = '# Event definitions\n'
                 start = False
-            out += 'Event: {}, {}, {}, {}'.format(ev.name, ev.formula, ev.delay, ev.priority)
+            out += f'Event: {ev.name}, {ev.formula}, delay={ev.delay}, priority={ev.priority}, persistent={ev.persistent}'
             out += ' {\n'
             for ass in ev.assignments:
                 out += '    {} = {}\n'.format(ass.variable.name, ass.formula)
@@ -1076,7 +1076,8 @@ class CoreToSBML(object):
                 dform = self.infixPSC2SBML(ev.delay)
                 ASTnodeD = self.SBML.parseFormula(dform)
                 ASTnodeD = self.astSetCSymbolTime(ASTnodeD)
-                D = self.SBML.Delay(ASTnodeD)
+                D = self.SBML.Delay(self.level, self.version)
+                D.setMath(ASTnodeD)
                 EV.setDelay(D)
 
     def setReactions(self):
