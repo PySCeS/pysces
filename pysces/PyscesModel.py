@@ -252,7 +252,7 @@ except:
     __psyco_active__ = 0
 '''
 # machine specs
-mach_spec = numpy.MachAr()
+mach_eps = numpy.finfo(float).eps
 # grab a parser
 pscParser = PyscesParse.PySCeSParser(debug=0)
 
@@ -1571,7 +1571,7 @@ class PysMod(object):
         # Initialize serial directory
         self.__settings__['serial_dir'] = os.path.join(self.ModelOutput, 'pscdat')
         # Initialize stoichiometric precision
-        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_spec.eps * 2.0e4
+        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_eps * 2.0e4
         self.__settings__['stoichiometric_analysis_lu_precision'] = self.__settings__[
             'stoichiometric_analysis_fp_zero'
         ]
@@ -1695,7 +1695,7 @@ class PysMod(object):
         # Initialize serial directory
         self.__settings__['serial_dir'] = os.path.join(self.ModelOutput, 'pscdat')
         # Initialize stoichiometric precision
-        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_spec.eps * 2.0e4
+        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_eps * 2.0e4
         self.__settings__['stoichiometric_analysis_lu_precision'] = self.__settings__[
             'stoichiometric_analysis_fp_zero'
         ]
@@ -2255,7 +2255,7 @@ class PysMod(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('L0 smallest abs(value)', abs(lsmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if (
             abs(ksmall)
@@ -2269,7 +2269,7 @@ class PysMod(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('K0 smallest abs(value)', abs(ksmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if SmallValueError:
             input(
@@ -2801,7 +2801,7 @@ class PysMod(object):
 
         # Machine specific values (for IEEE compliant FP machines this is around 2.e-16)
         # FutureNote: investigate arbitrary precision FP in Python, probably GNU-GMP based - brett 20040326
-        self.__settings__['mach_floateps'] = mach_spec.eps
+        self.__settings__['mach_floateps'] = mach_eps
 
         # PySCeS mode switches
         # this affects number output formatting in PySCeS)
@@ -4204,7 +4204,7 @@ to CVODE (mod.mode_integrator='CVODE')"""
             )
             self.__settings__['nleq2_jacgen'] = 0
 
-        rtol = mach_spec.eps * 10.0 * N
+        rtol = mach_eps * 10.0 * N
         iopt[2] = self.__settings__['nleq2_jacgen']  # 2
         iopt[8] = self.__settings__['nleq2_iscaln']  # 0
         iopt[10] = 0
