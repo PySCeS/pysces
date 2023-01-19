@@ -8706,7 +8706,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def Scan1(self, range1=[], runUF=0):
         """
@@ -8998,7 +8998,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def Scan2D(self, p1, p2, output, log=False):
         """
@@ -9058,7 +9058,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def SetQuiet(self):
         """
