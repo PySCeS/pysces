@@ -433,7 +433,7 @@ class Stoich(MathArrayFunc):
         self.nmatrix_col = tuple(numpy.array(list(range(col))))
         self.nmatrix_row = tuple(numpy.array(list(range(row))))
 
-        self.stoichiometric_analysis_fp_zero = mach_eps * 2.0e4
+        self.stoichiometric_analysis_fp_zero = self.mach_eps * 2.0e4
         self.stoichiometric_analysis_lu_precision = self.stoichiometric_analysis_fp_zero
         self.stoichiometric_analysis_gj_precision = (
             self.stoichiometric_analysis_lu_precision * 10.0
@@ -1424,7 +1424,7 @@ class Stoich(MathArrayFunc):
             TrMat = 1
 
         u, s, vh = scipy.linalg.svd(matrix)
-        maskF = mach_eps * factor
+        maskF = self.mach_eps * factor
 
         if TrMat == 0:
             print('SVD zero mask:', maskF)
