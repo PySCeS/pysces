@@ -18,9 +18,9 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [macos-12]
 #        os: [ubuntu-latest, windows-latest, macos-12]
-        python: [39, 38]
+        python: [311, 310, 39, 38]
 
     steps:
       - uses: actions/checkout@v3
