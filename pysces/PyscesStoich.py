@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -46,11 +46,6 @@ __doc__ = """
           """
 
 ##  print 'Stoichiometry ver ' + __version__ + ' runtime: '+ time.strftime("%H:%M:%S")
-
-##stoich_zero_valM = scipy.machar.MachAr().eps*2.0e4 # safer --> about 4e-11 (unofficially - a minpivot size)
-##stoich_zero_valM = scipy.machar.MachAr().eps*2.0e4 # safe --> about 4e-12 (unofficially - a minpivot size)
-##print '\tStoichiometric precision = ', stoich_zero_valM
-
 
 class StructMatrix:
     """
@@ -426,6 +421,10 @@ class Stoich(MathArrayFunc):
     USE_QR = False
     info_moiety_conserve = False
 
+    # Create a machine specific instance
+    from numpy import finfo
+    mach_eps = finfo(float).eps
+
     def __init__(self, input):
         """Initialize class variables"""
 
@@ -434,12 +433,7 @@ class Stoich(MathArrayFunc):
         self.nmatrix_col = tuple(numpy.array(list(range(col))))
         self.nmatrix_row = tuple(numpy.array(list(range(row))))
 
-        # Create a machine specific instance
-        from numpy import MachAr
-
-        mach_spec = MachAr()
-
-        self.stoichiometric_analysis_fp_zero = mach_spec.eps * 2.0e4
+        self.stoichiometric_analysis_fp_zero = self.mach_eps * 2.0e4
         self.stoichiometric_analysis_lu_precision = self.stoichiometric_analysis_fp_zero
         self.stoichiometric_analysis_gj_precision = (
             self.stoichiometric_analysis_lu_precision * 10.0
@@ -1430,7 +1424,7 @@ class Stoich(MathArrayFunc):
             TrMat = 1
 
         u, s, vh = scipy.linalg.svd(matrix)
-        maskF = scipy.machar.machar_double.eps * factor
+        maskF = self.mach_eps * factor
 
         if TrMat == 0:
             print('SVD zero mask:', maskF)

@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -48,8 +48,8 @@ class Core2interfaces(object):
     core2sbml = None
     core2psc = None
     sbml2core = None
-    sbml_level = 2
-    sbml_version = 1
+    sbml_level = 3
+    sbml_version = 2
 
     def __buildPscComponents__(self):
         """

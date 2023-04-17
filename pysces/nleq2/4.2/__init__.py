@@ -2,7 +2,7 @@
 PySCeS - Python Simulator for Cellular Systems
            (http://pysces.sourceforge.net)
 Copyright (C) B.G. Olivier, J.M. Rohwer, J.-H.S. Hofmeyr
-Stellenbosch, 2004-2022.
+Stellenbosch, 2004-2023.
 Triple-J Group for Molecular Cell Physiology
 Stellenbosch University, South Africa
 Author: Brett G. Olivier

@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -32,9 +32,9 @@ from .lib import lex
 from .lib import yacc
 from getpass import getuser
 from time import sleep, strftime
-from numpy import MachAr
+from numpy import finfo
 
-MyMachArr = MachAr()
+mach_eps = finfo(float).eps
 
 
 class JWSParser:
@@ -56,7 +56,6 @@ class JWSParser:
     InitParams = []  # Initialised parameters
     ParseErrors = []
 
-    mach_spec = MyMachArr
     AllRateEqsGiven = 1  # Flag to check that all rate equations have been given
     Debug = 0
 
@@ -291,7 +290,7 @@ class JWSParser:
         for i in self.NetworkDict[ReacID]['Reagents']:
             if (
                 abs(self.NetworkDict[ReacID]['Reagents'][i])
-                < self.mach_spec.eps * 100.0
+                < mach_eps * 100.0
             ):
                 killList.append(i)
                 # print self.mach_spec.eps*100.0, self.NetworkDict[ReacID]['Reagents']

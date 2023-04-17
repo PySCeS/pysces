@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -33,9 +33,8 @@ import numpy
 from pysces import PyscesStoich
 from pysces import PyscesParse
 
-mach_spec = numpy.MachAr()
+mach_eps = numpy.finfo(float).eps
 pscParser = PyscesParse.PySCeSParser(debug=0)
-
 
 class PyscesInputFileParser(object):
     """
@@ -57,7 +56,7 @@ class PyscesInputFileParser(object):
             assert os.path.exists(output_dir), "\n%s is not a valid path" % output_dir
         self.__settings__ = {}
         # Initialize stoichiometric precision
-        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_spec.eps * 2.0e4
+        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_eps * 2.0e4
         self.__settings__['stoichiometric_analysis_lu_precision'] = self.__settings__[
             'stoichiometric_analysis_fp_zero'
         ]
@@ -342,7 +341,7 @@ class PyscesInputFileParser(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('L0 smallest abs(value)', abs(lsmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if (
             abs(ksmall)
@@ -356,7 +355,7 @@ class PyscesInputFileParser(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('K0 smallest abs(value)', abs(ksmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if SmallValueError:
             input(

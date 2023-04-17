@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -36,7 +36,6 @@ import os, copy, gc, time
 import math, operator, re
 import pprint, pickle, io
 import warnings
-
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
@@ -45,7 +44,6 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-
 ScipyDerivative = None
 HAVE_SCIPY_DERIV = False
 try:
@@ -70,6 +68,7 @@ from . import install_dir as INSTALL_DIR
 from . import PyscesRandom as random
 from .PyscesScan import Scanner
 from .core2.InfixParser import MyInfixParser
+from .core2.PyscesCore2 import NewCoreBase, NumberBase
 
 from . import (
     nleq2,
@@ -97,7 +96,7 @@ del (
     random.getstate,
 )  # random.division,
 del random.randrange, random.Random, random.choice
-del random.sample, random.shuffle, random.jumpahead
+del random.shuffle, random.jumpahead   # random.sample
 del random.SystemRandom, random.WichmannHill, random.triangular
 # used by functions random.NV_MAGICCONST, random.SG_MAGICCONST, random.BPF, random.RECIP_BPF
 
@@ -163,42 +162,69 @@ if _HAVE_ASSIMULO:
         def handle_event(self, solver, event_info):
             self.event_times.append(solver.t)
             state_info = event_info[0]
-            idx = state_info.index(-1)
-            ev = self.events[idx]
-            if ev._assign_now:
-                for ass in ev.assignments:
-                    if ass.variable in self.mod.L0matrix.getLabels()[1] or (
-                        self.mod.mode_integrate_all_odes
-                        and ass.variable in self.mod.__species__
-                    ):
-                        assVal = ass.getValue()
-                        assIdx = self.mod.__species__.index(ass.variable)
-                        if self.mod.__KeyWords__["Species_In_Conc"]:
-                            solver.y[assIdx] = assVal * getattr(
-                                self.mod, self.mod.__CsizeAllIdx__[assIdx]
+            state_info = numpy.array(state_info)
+            idx = numpy.where(state_info == -1)
+            event_list = [self.events[j] for j in idx[0]]
+            sequence = self.setSequence(event_list)
+            for ev in sequence:
+                if ev._assign_now:
+                    print('executing', ev.name)
+                    for ass in ev.assignments:
+                        ass.evaluateAssignment()
+                        if ass.variable in self.mod.L0matrix.getLabels()[1] or (
+                            self.mod.mode_integrate_all_odes
+                            and ass.variable in self.mod.__species__
+                        ):
+                            assVal = ass.getValue()
+                            assIdx = self.mod.__species__.index(ass.variable)
+                            if self.mod.__KeyWords__["Species_In_Conc"]:
+                                solver.y[assIdx] = assVal * getattr(
+                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]
+                                )
+                                setattr(self.mod, ass.variable, assVal * getattr(
+                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]))
+                            else:
+                                solver.y[assIdx] = assVal
+                                setattr(self.mod, ass.variable, assVal)
+                        elif (
+                            not self.mod.mode_integrate_all_odes
+                            and ass.variable in self.mod.L0matrix.getLabels()[0]
+                        ):
+                            print(
+                                'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
                             )
+                            setattr(self.mod, ass.variable, ass.value)
+                        elif (
+                            self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
+                        ):
+                            assVal = ass.getValue()
+                            rrIdx = self.mod.__rate_rules__.index(ass.variable)
+                            self.mod.__rrule__[rrIdx] = assVal
+                            solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                            setattr(self.mod, ass.variable, assVal)
                         else:
-                            solver.y[assIdx] = assVal
-                    elif (
-                        not self.mod.mode_integrate_all_odes
-                        and ass.variable in self.mod.L0matrix.getLabels()[0]
-                    ):
-                        print(
-                            'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
-                        )
-                    elif (
-                        self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
-                    ):
-                        assVal = ass.getValue()
-                        rrIdx = self.mod.__rate_rules__.index(ass.variable)
-                        self.mod.__rrule__[rrIdx] = assVal
-                        solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
-                        setattr(self.mod, ass.variable, assVal)
-                    else:
-                        ass()
-            # track any parameter changes
-            self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
+                            ass()
+                            setattr(self.mod, ass.variable, ass.value)
+                # track any parameter changes
+                self.parvals.append([getattr(self.mod, p) for p in self.mod.parameters])
 
+        def setSequence(self, event_list):
+            no_prio = [ev for ev in event_list if ev.priority is None]
+            prio = [ev for ev in event_list if ev.priority is not None]
+
+            random_prio_sample = random.sample(prio, len(prio))
+            prio_sorted = sorted(random_prio_sample, reverse=True, key=lambda x: x.priority)
+
+            if not no_prio:
+                sequence = prio_sorted
+            elif not prio_sorted:
+                sequence = random.sample(no_prio, len(no_prio))
+            else:
+                sequence = prio_sorted
+                for i in no_prio:
+                    sequence.insert(random.randint(0, len(prio_sorted)), i)
+
+            return sequence
 
 # for future fun
 _HAVE_VPYTHON = False
@@ -226,7 +252,7 @@ except:
     __psyco_active__ = 0
 '''
 # machine specs
-mach_spec = numpy.MachAr()
+mach_eps = numpy.finfo(float).eps
 # grab a parser
 pscParser = PyscesParse.PySCeSParser(debug=0)
 
@@ -1068,50 +1094,10 @@ class IntegrationDataObj(object):
             return output, lout
 
 
-# this must stay in sync with core2
-class NewCoreBase(object):
-    """
-    Core2 base class, needed here as we use Core2 derived classes
-    in PySCes
-    """
-
-    name = None
-    __DEBUG__ = False
-
-    def getName(self):
-        return self.name
-
-    def setName(self, name):
-        self.name = name
-
-    def get(self, attr):
-        """Return an attribute whose name is str(attr)"""
-        return self.__getattribute__(attr)
-
-
-# this must stay in sync with core2
-class NumberBase(NewCoreBase):
-    """
-    Derived Core2 number class.
-    """
-
-    value = None
-    value_initial = None
-
-    def __call__(self):
-        return self.value
-
-    def getValue(self):
-        return self.value
-
-    def setValue(self, v):
-        self.value = v
-
-
 # Finally killed my lambda functions - brett07
 class ReactionObj(NewCoreBase):
     """
-    Defines a reaction with a KineticLaw *kl8, *formula* and *name* bound
+    Defines a reaction with a KineticLaw *kl*, *formula* and *name* bound
     to a model instance, *mod*.
     """
 
@@ -1280,6 +1266,8 @@ class Event(NewCoreBase):
     _time_symbol = None
     piecewises = None
     mod = None
+    priority = None
+    persistent = True
     __DEBUG__ = True
 
     def __init__(self, name, mod):
@@ -1294,8 +1282,6 @@ class Event(NewCoreBase):
         if self.state0 and not self.state:
             self.state0 = self.state
         if not self.state0 and self.state:
-            for ass in self.assignments:
-                ass.evaluateAssignment()
             self.state0 = self.state
             self._need_action = True
             self._ASS_TIME_ = time + self.delay
@@ -1303,13 +1289,21 @@ class Event(NewCoreBase):
                 print('\nevent {} is evaluating at {}'.format(self.name, time))
             ret = True
         if self._need_action and self._TIME_ >= self._ASS_TIME_:
-            self._assign_now = True
-            if self.__DEBUG__:
-                print(
-                    'event {} is assigning at {} (delay={})'.format(
-                        self.name, time, self.delay
+            if not self.persistent and not self.state:
+                self._assign_now = False
+                if self.__DEBUG__:
+                    print('event {} NOT assigning after delay...'.format(self.name))
+                    print(
+                        '    ...non-persistent event, trigger ({}) no longer valid'.format(self.formula)
                     )
-                )
+            else:
+                self._assign_now = True
+                if self.__DEBUG__:
+                    print(
+                        'event {} is assigning at {} (delay={})'.format(
+                            self.name, time, self.delay
+                        )
+                    )
             self._need_action = False
             ret = True
         return ret
@@ -1334,6 +1328,12 @@ class Event(NewCoreBase):
         ass.setFormula(formula)
         self.assignments.append(ass)
         self.__setattr__('_' + var, ass)
+
+    def setPriority(self, priority):
+        self.priority = priority
+
+    def setPersistent(self, persistent):
+        self.persistent = persistent
 
     def reset(self):
         self.state0 = False
@@ -1571,7 +1571,7 @@ class PysMod(object):
         # Initialize serial directory
         self.__settings__['serial_dir'] = os.path.join(self.ModelOutput, 'pscdat')
         # Initialize stoichiometric precision
-        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_spec.eps * 2.0e4
+        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_eps * 2.0e4
         self.__settings__['stoichiometric_analysis_lu_precision'] = self.__settings__[
             'stoichiometric_analysis_fp_zero'
         ]
@@ -1695,7 +1695,7 @@ class PysMod(object):
         # Initialize serial directory
         self.__settings__['serial_dir'] = os.path.join(self.ModelOutput, 'pscdat')
         # Initialize stoichiometric precision
-        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_spec.eps * 2.0e4
+        self.__settings__['stoichiometric_analysis_fp_zero'] = mach_eps * 2.0e4
         self.__settings__['stoichiometric_analysis_lu_precision'] = self.__settings__[
             'stoichiometric_analysis_fp_zero'
         ]
@@ -2255,7 +2255,7 @@ class PysMod(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('L0 smallest abs(value)', abs(lsmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if (
             abs(ksmall)
@@ -2269,7 +2269,7 @@ class PysMod(object):
                 self.__structural__.stoichiometric_analysis_lu_precision,
             )
             print('K0 smallest abs(value)', abs(ksmall))
-            print('Machine precision:', mach_spec.eps)
+            print('Machine precision:', mach_eps)
             SmallValueError = 1
         if SmallValueError:
             input(
@@ -2736,6 +2736,8 @@ class PysMod(object):
             ev = Event(e, self)
             ev._time_symbol = self.__eDict__[e]['tsymb']
             ev.setTrigger(self.__eDict__[e]['trigger'], self.__eDict__[e]['delay'])
+            ev.setPriority(self.__eDict__[e]['priority'])
+            ev.setPersistent(self.__eDict__[e]['persistent'])
             # for each assignment
             for ass in self.__eDict__[e]['assignments']:
                 ev.setAssignment(ass, self.__eDict__[e]['assignments'][ass])
@@ -2799,7 +2801,7 @@ class PysMod(object):
 
         # Machine specific values (for IEEE compliant FP machines this is around 2.e-16)
         # FutureNote: investigate arbitrary precision FP in Python, probably GNU-GMP based - brett 20040326
-        self.__settings__['mach_floateps'] = mach_spec.eps
+        self.__settings__['mach_floateps'] = mach_eps
 
         # PySCeS mode switches
         # this affects number output formatting in PySCeS)
@@ -4202,7 +4204,7 @@ to CVODE (mod.mode_integrator='CVODE')"""
             )
             self.__settings__['nleq2_jacgen'] = 0
 
-        rtol = mach_spec.eps * 10.0 * N
+        rtol = mach_eps * 10.0 * N
         iopt[2] = self.__settings__['nleq2_jacgen']  # 2
         iopt[8] = self.__settings__['nleq2_iscaln']  # 0
         iopt[10] = 0
@@ -8704,7 +8706,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def Scan1(self, range1=[], runUF=0):
         """
@@ -8996,7 +8998,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def Scan2D(self, p1, p2, output, log=False):
         """
@@ -9056,7 +9058,7 @@ setting sim_points = 2.0\n*****'
             plt.setGraphTitle(title)
         plt.replot()
         if filename != None:
-            plt.export(filename, directory=self.ModelOutput, type='png')
+            plt.export(filename, directory=self.ModelOutput, outtype='png')
 
     def SetQuiet(self):
         """

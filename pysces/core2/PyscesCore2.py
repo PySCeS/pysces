@@ -1,7 +1,7 @@
 """
 PySCeS - Python Simulator for Cellular Systems (http://pysces.sourceforge.net)
 
-Copyright (C) 2004-2022 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
+Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
 
 Brett G. Olivier (bgoli@users.sourceforge.net)
 Triple-J Group for Molecular Cell Physiology
@@ -54,6 +54,10 @@ class MapList(list):
 
 
 class NewCoreBase(object):
+    """
+    Core2 base class
+    """
+
     __DEBUG__ = False
     name = None
     annotations = None
@@ -82,6 +86,10 @@ class NewCoreBase(object):
 
 
 class NumberBase(NewCoreBase):
+    """
+    Derived Core2 number class.
+    """
+
     value = None
     value_initial = None
 
@@ -771,7 +779,7 @@ class EventAssignment(NumberBase):
         self.code_string = 'self.value=%s' % InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
         if self.__DEBUG__:
-            '\t', self.name, self.code_string
+            print('\t', self.name, self.code_string)
 
     def evaluateAssignment(self):
         exec(self.xcode)
@@ -794,6 +802,8 @@ class Event(NewCoreBase):
     _need_action = False
     _names = None
     _time_symbol = None
+    priority = None
+    persistent = True
 
     def __init__(self, name):
         self.setName(name)
@@ -840,7 +850,7 @@ class Event(NewCoreBase):
             self.formula = InfixParser.output
         self.xcode = compile(self.code_string, '<string>', 'exec')
         if self.__DEBUG__:
-            self.name, self.code_string
+            print(self.name, self.code_string)
 
     def setTriggerAttributes(self, core):
         # TODO: experimental
@@ -854,6 +864,11 @@ class Event(NewCoreBase):
         self.assignments.append(ass)
         self.__setattr__('_' + var.name, ass)
 
+    def setPriority(self, priority):
+        self.priority = priority
+
+    def setPersistent(self, persistent):
+        self.persistent = persistent
 
 class PieceWise(NewCoreBase):
     """
@@ -1437,6 +1452,8 @@ class NewCore(NewCoreBase):
         # associate model attributes with event
         # TODO: check that this still works
         ev.setTriggerAttributes(self)
+        ev.setPriority(e['priority'])
+        ev.setPersistent(e['persistent'])
         ##  for n in ev._names:
         ##  setattr(ev, n, self.__getattribute__(n))
         # for each assignment
