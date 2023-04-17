@@ -37,7 +37,7 @@ jobs:
           sudo installer -pkg /Volumes/gfortran-Intel-12.1-Monterey/gfortran-Intel-12.1-Monterey/gfortran.pkg -target /
 
       - name: Build wheels for CPython
-        uses: pypa/cibuildwheel@v2.9.0
+        uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_BUILD: "cp${{ matrix.python }}-*"
           CIBW_SKIP: "*musllinux*"
