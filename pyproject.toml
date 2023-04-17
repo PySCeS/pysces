@@ -3,6 +3,7 @@ requires = ["setuptools>=42",
 	"wheel", 
 	"scikit-build", 
 	"cmake", 
-	"ninja; platform_system!='Windows'", 
-	"oldest-supported-numpy"]
+	"ninja; platform_system!='Windows'",
+	"numpy~=1.21.0; python_version<'3.11'",
+    "oldest-supported-numpy; python_version>='3.11'"]
 build-backend = "setuptools.build_meta"
