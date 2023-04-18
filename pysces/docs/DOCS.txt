@@ -1,1 +1,4 @@
-The PySCeS user guide and additional documentation is available in various formats on the PySCeS website: http://pysces.sourceforge.net
+The PySCeS user guide and additional documentation are available in various formats
+on the PySCeS website: https://pysces.github.io
+
+Online documentation is available on: https://pyscesdocs.readthedocs.io
