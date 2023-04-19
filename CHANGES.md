@@ -1,5 +1,162 @@
 # PySCeS changes (per GitHub release)
 
+
+## PySCeS release 1.1.0 (Apr 2023)
+
+We are pleased to announce a new minor release (version 1.1.0) of the Python 
+Simulator for Cellular Systems: PySCeS (https://pysces.github.io/). This is the 
+first release in the 1.1 series.
+
+### What's new?
+
+The most significant new feature in Version 1.1 is a major upgrade in the way 
+**PySCeS handles events in simulations**. The definition of events follows the 
+framework described in the SBML Level 3 Version 2 specification, thus making the 
+event handling SBML-compliant. Specifically, event **persistence** (for events with 
+a delay) is now handled correctly, and simultaneous events can be executed 
+according to their assigned **priorities**.
+
+The new **event specification** in the PySCeS input file reads:
+```
+Event: <name>, <trigger>, <optional_kwargs> { <assignments> }
+```
+
+To achieve this, three new optional keyword arguments have been added as a 
+comma-separated list to the event specification. The general syntax for these 
+arguments is `<attribute>=<value>`. The keywords are:
+
+- *delay* (float): specifies a delay between when the trigger is fired (and the 
+  assignments are evaluated) and the eventual assignment to the model. If this 
+  keyword is not specified, a value of `0.0` is assumed.
+- *priority* (integer or None): specifies a priority for events that trigger at the 
+  same simulation time. Events with a higher priority are executed before those 
+  with a lower priority, while events without a priority (`None`) are executed in 
+  random positions in the sequence. If this keyword is not specified, a value of 
+  `None` is assumed.
+- *persistent* (boolean): is only relevant to events with a delay, where the 
+  situation may occur that the trigger condition no longer holds by the time the 
+  delay in the simulation has passed. The persistent attribute specifies how to 
+  deal with this situation: if `True`, the event executes nevertheless; if `False`, 
+  the event does not execute if the trigger condition is no longer valid. If the 
+  keyword is not specified, a default of `True` is assumed.
+
+The following event illustrates the use of a delay of ten time units with a 
+non-persistent trigger and a priority of 3:
+```
+Event: event2, geq(_TIME_, 15.0), delay=10.0, persistent=False, priority=3 {
+V3 = V3*vfact2
+}
+```
+The legacy event syntax is still supported.
+
+### Other changes
+
+- A new setting has been added to the settings dictionary of the `PysMod` class 
+  with the following default:    
+  `mod.__settings__["cvode_access_solver"] = True`    
+  This specifies if the Assimulo solver object is available from within the 
+  `PysMod` instance to make low-level changes to the integration algorithm. The 
+  current default emulates previous behaviour, but the setting can be changed to 
+  `False`, which facilitates serialization of the `PysMod` class in e.g. parallel 
+  computations. Previously, the attached Assimulo solver object would prevent 
+  serialization. Thanks @c-barry
+- Documentation has been updated to reflect the changes to the event syntax.
+- Various bug fixes, including dealing with deprecations for Numpy 1.24.x 
+  compatibility.
+
+README: https://github.com/PySCeS/pysces/blob/master/README.md
+
+DOCUMENTATION: https://pyscesdocs.readthedocs.io/en/latest/
+
+© Brett Olivier and Johann Rohwer, April 2023.
+
+
+## PySCeS release 1.0.3 (Sep 2022)
+
+We are pleased to announce the release of the Python Simulator for Cellular 
+Systems: PySCeS (https://pysces.github.io/) version 1.0.3. This is the third 
+release in the 1.0 series.
+
+### What's new?
+- The build-system has been adapted to make use of `scikit-build`. This gets rid of 
+the `distutils` and `numpy.distutils` dependencies, which are deprecated and will 
+be removed with the release of Python 3.12.
+
+### Bug Fixes:
+- Fixed CVODE defaults and set default tolerances to more sane levels
+- Fixed string replacement in parsing and construction of `PieceWise` functions
+
+README: https://github.com/PySCeS/pysces/blob/master/README.md
+
+DOCUMENTATION: https://pyscesdocs.readthedocs.io/en/latest/
+
+&copy; Brett Olivier and Johann Rohwer, September 2022.
+
+
+## PySCeS release 1.0.2 (May 2022)
+
+We are pleased to announce the release of the Python Simulator for Cellular Systems: 
+PySCeS (https://pysces.github.io/) version 1.0.2. 
+This is the second bug-fix release in the 1.0 series.
+
+### Fixes:
+
+- Fixed a number of bugs with `RateRule` execution with CVODE
+- Reintroduced the functionality to track additional items such as Assignment Rules 
+  during a simulation with CVODE
+- The Assimulo `CVODE` implementation has been updated, and legacy PySUNDIALS CVODE 
+  code removed
+- The `RateRule` and `AssignmentRule` implementations have been checked against the 
+  SBML Test Suite
+
+README: https://github.com/PySCeS/pysces/blob/master/README.md
+
+DOCUMENTATION: https://pyscesdocs.readthedocs.io/en/latest/
+
+&copy; Brett Olivier and Johann Rohwer, May 2022.
+
+## PySCeS release 1.0.1 (Feb 2022)
+
+We are pleased to announce the release of the Python Simulator for Cellular Systems: 
+PySCeS (https://pysces.github.io/) version 1.0.1. This is the first bug-fix release 
+in the 1.0 series.
+
+### Fixes:
+
+- Fixed references to numpy/scipy
+- Fixed a bug in `mod.Simulate(userinit=1)` with CVODE
+- Fixed bug where the maximal number of steps in LSODA would not be honoured from the 
+  `mod.__settings__["lsoda_mxstep"]` dictionary entry
+- General cleanup of license files, version files, and the way requirements are handled
+
+README: https://github.com/PySCeS/pysces/blob/master/README.md
+
+DOCUMENTATION: https://pyscesdocs.readthedocs.io/en/latest/
+
+&copy; Brett Olivier and Johann Rohwer, February 2022.
+
+## PySCeS release 1.0.0 (Sep 2021)
+
+We are pleased to announce the release of the Python Simulator for Cellular 
+Systems: PySCeS (https://pysces.github.io/) version 1.0.0.
+
+**What's new in this release:**
+
+- Re-introduced support for CVODE as integrator under Python 3 (via Assimulo), 
+  which brings back support of events in models
+- Improved import and export of SBML
+- Automatic installation of optional dependencies with `pip install "pysces
+  [optional_dep]"`
+- Extensive update of documentation
+- Numerous bug fixes
+
+**README:** https://github.com/PySCeS/pysces/blob/master/README.md
+
+**DOCUMENTATION:** https://pyscesdocs.readthedocs.io/en/latest/
+
+&copy; Brett Olivier and Johann Rohwer, September 2021.
+
+
 ## PySCeS release 0.9.8 (May 2020)
 
 We are pleased to announce the release of the Python Simulator for Cellular Systems:
