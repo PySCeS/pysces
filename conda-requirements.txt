@@ -10,7 +10,6 @@ python-libsbml>=5.18.0
 biopython
 ipython
 jupyter
-nose
 pip
 pyparsing
 setuptools

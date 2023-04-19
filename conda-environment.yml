@@ -17,7 +17,6 @@ dependencies:
   - biopython
   - pip
   - pytest
-  - nose
   - pysces
 prefix: c:\Anaconda3\envs\psc
 

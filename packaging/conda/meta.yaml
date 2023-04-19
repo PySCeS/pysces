@@ -24,14 +24,12 @@ requirements:
     - scikit-build
     - scipy
     - matplotlib
-    - nose
   run:
     - python {{ python }}
     - setuptools
     - numpy
     - scipy
     - matplotlib
-    - nose
     - ipyparallel
     - python-libsbml
     - assimulo

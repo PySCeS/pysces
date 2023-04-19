@@ -51,7 +51,7 @@ The fastest way to build your own copy of PySCeS is to use Anaconda Python.
 
 ```bash
 $ conda create -n pyscesdev -c conda-forge python=3.8 numpy scipy \ 
-  matplotlib sympy packaging pip wheel nose ipython python-libsbml \
+  matplotlib sympy packaging pip wheel ipython python-libsbml \
   fortran-compiler assimulo scikit-build
 $ conda activate pyscesdev
 ```
