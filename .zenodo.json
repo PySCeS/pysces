@@ -19,11 +19,5 @@
         }
     ],
     "access_right": "open",
-    "related_identifiers": [
-        {
-            "scheme": "doi",
-            "identifier": "10.5281/zenodo.2600905",
-            "relation": "isVersionOf"
-        }
-    ]
+
 }
