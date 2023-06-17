@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from .version import __version__
+from .PyscesCore2 import AssignmentRule
 
 import os, copy, re, time
 from getpass import getuser
@@ -606,7 +607,6 @@ class CoreToSBML(object):
     document = None
     time = None
     __events__ = None
-    __DEBUG__ = False
     UNINIT_DEFAULT = 1e-3
 
     NumpyToMathML = {
@@ -628,6 +628,7 @@ class CoreToSBML(object):
         'numpy.sin': 'sin',
         'numpy.cos': 'cos',
         'numpy.tan': 'tan',
+        'numpy.pi': 'pi',
         'math.log10': 'log',
         'math.log': 'ln',
         'numpy.floor': 'floor',
@@ -641,8 +642,6 @@ class CoreToSBML(object):
         'operator.ge': 'geq',
         'operator.lt': 'lt',
         'operator.le': 'leq',
-        'operator.eq': 'equal',
-        'operator.ne': 'neq',
         'self._piecewise_': 'piecewise',
         '_piecewise_': 'piecewise',
         'operator.not_': 'not',
@@ -670,6 +669,7 @@ class CoreToSBML(object):
         'numpy.sin',
         'numpy.cos',
         'numpy.tan',
+        'numpy.pi',
         'math.log10',
         'math.log',
         'numpy.floor',
@@ -683,8 +683,6 @@ class CoreToSBML(object):
         'operator.ge',
         'operator.lt',
         'operator.le',
-        'operator.eq',
-        'operator.ne',
         'self._piecewise_',
         '_piecewise_',
         'operator.not_',
@@ -692,7 +690,8 @@ class CoreToSBML(object):
         ' or ',
     ]
 
-    def __init__(self, core):
+    def __init__(self, core, debug):
+        self.__DEBUG__ = debug
         self.core = core
         self.name = self.core.getName().replace('.psc', '').replace('.xml', '')
         try:
@@ -817,6 +816,8 @@ class CoreToSBML(object):
 
         """
         for spe in self.core.species:
+            if self.__DEBUG__:
+                print('Adding species: %s' % spe.name)
             s = self.model.createSpecies()
             s.setId(spe.name)
             s.setName(spe.name)
@@ -865,20 +866,23 @@ class CoreToSBML(object):
             #print('PAR', par.name, par())
             # TODO: sort out this ZeroDivision and parameter initialisation error in a more sophisticated way, for example, evaluation assignment rules on export.
             try:
-                if par() is None:
-                    print(
-                        'INFO: parameter \"{}\" not been defined setting to {}'.format(par.getName(), self.UNINIT_DEFAULT)
-                    )
-                    if par.name in self.core.__InitDict__ and self.core.__InitDict__[par.name] is None:
-                        self.core.__InitDict__[par.name] = self.UNINIT_DEFAULT
-                    par.value = par.value_initial = self.core.__InitDict__[par.name]
-                # check for uninitialise parameters that have a value
-                elif par.name in self.core.__InitDict__:
-                    print(
-                        'INFO: parameter \"{}\" not initialised setting to ({})'.format(par.name, par())
-                    )
-                    self.core.__InitDict__[par.name] = par()
-                    par.value = par.value_initial = self.core.__InitDict__[par.name]
+                if not isinstance(par, AssignmentRule):
+                    if self.__DEBUG__:
+                        print('Adding parameter: %s' % par.name)
+                    if par() is None:
+                        print(
+                            'INFO: parameter \"{}\" not been defined setting to {}'.format(par.getName(), self.UNINIT_DEFAULT)
+                        )
+                        if par.name in self.core.__InitDict__ and self.core.__InitDict__[par.name] is None:
+                            self.core.__InitDict__[par.name] = self.UNINIT_DEFAULT
+                        par.value = par.value_initial = self.core.__InitDict__[par.name]
+                    # check for uninitialise parameters that have a value
+                    elif par.name in self.core.__InitDict__:
+                        print(
+                            'INFO: parameter \"{}\" not initialised setting to ({})'.format(par.name, par())
+                        )
+                        self.core.__InitDict__[par.name] = par()
+                        par.value = par.value_initial = self.core.__InitDict__[par.name]
             except ZeroDivisionError:
                 print('INFO: parameter \"{}\"initialisation error setting to 0.0'.format(par.name))
                 par.value = par.value_initial = self.core.__InitDict__[par.name] = 0.0
@@ -887,6 +891,8 @@ class CoreToSBML(object):
 
             # first attempt, check for a formula ... could be done with introspection
             if hasattr(par, 'formula'):
+                if self.__DEBUG__:
+                    print('Adding assignment rule: %s' % par.name)
                 p.setConstant(False)
                 r = self.model.createAssignmentRule()
                 r.setVariable(par.name)
@@ -955,6 +961,8 @@ class CoreToSBML(object):
     def setRules(self):
         """Set rate rules"""
         for rule in self.core.rate_rules:
+            if self.__DEBUG__:
+                print('Adding rate rule: %s' % rule.getName())
             RR = self.model.createRateRule()
             RR.setVariable(rule.getName())
             # replace PySCeS infix with libSBML infix
@@ -997,7 +1005,8 @@ class CoreToSBML(object):
 
     def setFunctions(self):
         for func in self.core.functions:
-            #print(func)
+            if self.__DEBUG__:
+                print('Adding function: %s' % func.getName())
             FNC = self.model.createFunctionDefinition()
             FNC.setName(func.getName())
             FNC.setId(func.getName())
@@ -1082,7 +1091,8 @@ class CoreToSBML(object):
 
     def setReactions(self):
         for rxn in self.core.reactions:
-            # print 'Adding reaction:', rxn.name
+            if self.__DEBUG__:
+                print('Adding reaction: %s' % rxn.name)
             SBML_R = self.model.createReaction()
             SBML_R.setId(rxn.name)
             SBML_R.setName(rxn.name)

@@ -119,6 +119,7 @@ class Core2interfaces(object):
         iValues=True,
         getdocument=False,
         getstrbuf=False,
+        debug=False,
     ):
         """
         Writes a PySCeS model object to an SBML file.
@@ -132,7 +133,7 @@ class Core2interfaces(object):
         self.core = NewCore(mod, iValues=iValues)
         ##  assert os.sys.platform != 'win32', '\nSBML translation currently only supported on Linux (Mac?)'
         assert self.core != None, "\nPlease set a PySCeS model or Core2 object"
-        self.core2sbml = CoreToSBML(self.core)
+        self.core2sbml = CoreToSBML(self.core, debug=debug)
         self.core2sbml.level = self.sbml_level
         self.core2sbml.version = self.sbml_version
         assert self.core2sbml.SBML != None, "\nProblems loading SBML/Python interface"
