@@ -3946,10 +3946,16 @@ See: https://jmodelica.org/assimulo'
 
         if self.__settings__['cvode_return_event_timepoints']:
             self.sim_time = t
+            self._ev_idx = idx
         else:
-            tidx = [numpy.where(t==i)[0][0] for i in self.sim_time]
+            tidx = [numpy.where(t == i)[0][0] for i in self.sim_time]
             sim_res = sim_res[tidx]
             rates = rates[tidx]
+            self._ev_idx = (
+                [0]
+                + [numpy.min(numpy.where(self.sim_time >= i)) for i in problem.event_times]
+                + [len(t)]
+            )
 
         return sim_res, rates, True
 
@@ -4745,12 +4751,20 @@ setting sim_points = 2.0\n*****'
             r = self.__rules__
             ars = {name: r[name] for name in r if r[name]['type'] == 'assignment'}
             # loop through extra output and evaluate from simulation data
-            for i in range(len(self._CVODE_extra_output)):
-                name = self._CVODE_extra_output[i]
+            # set parameters for each event in case they changed
+            for k in range(len(self._CVODE_extra_output)):
+                name = self._CVODE_extra_output[k]
                 self._update_assignment_rule_code(ars[name])
-                self._CVODE_xdata[:, i] = eval(ars[name]['data_sim_string'])
-                self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
+                for i in range(len(self._ev_idx) - 1):
+                    for j in range(len(self.parameters)):
+                        setattr(self, self.parameters[j], self._problem.parvals[i][j])
+                    p = self._ev_idx[i]
+                    q = self._ev_idx[i + 1]
+                    self._CVODE_xdata[p:q, k] = eval(ars[name]['data_sim_string'])
+            self.data_sim.setXData(self._CVODE_xdata,
+                                   lbls=self._CVODE_extra_output)
             self._CVODE_xdata = None
+
         if not simOK:
             print('Simulation failure')
         del sim_res
@@ -4759,11 +4773,17 @@ setting sim_points = 2.0\n*****'
         replacements = []
         rule['data_sim_string'] = rule['code_string']
         for s in rule['symbols']:
-            if s in self.__reactions__ or s in self.__rules__ or s in self.__species__:
+            if (
+                s in self.__reactions__
+                or (s in self.__rules__ and self.__rules__[s]['type'] == 'rate')
+                or s in self.__species__
+            ):
                 # catch any _init so it doesn't get replaced
                 replacements.append((s + '_init', '_zzzz_'))
                 # replace symbol to get sim data
-                replacements.append(('self.' + s, 'self.data_sim.getSimData("' + s + '")[:,1]'))
+                replacements.append(
+                    ('self.' + s, 'self.data_sim.getSimData("' + s + '")[p:q,1]')
+                )
                 # revert the _init
                 replacements.append(('_zzzz_', s + '_init'))
 
