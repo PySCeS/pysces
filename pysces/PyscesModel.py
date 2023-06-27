@@ -104,12 +104,11 @@ del random.SystemRandom, random.WichmannHill, random.triangular
 # Scipy version check
 if (
     int(scipy.__version__.split('.')[0]) < 1
-    and int(scipy.__version__.split('.')[1]) < 6
 ):
     print(
         '\nINFO: Your version of SciPy ('
         + scipy.version.version
-        + ') might be too old\n\tVersion 0.6.x or newer is strongly recommended\n'
+        + ') might be too old\n\tVersion 1.0.x or newer is strongly recommended\n'
     )
 else:
     if not __SILENT_START__:
@@ -118,6 +117,17 @@ else:
                 numpy.__version__, scipy.__version__
             )
         )
+
+# Pandas check
+try:
+    import pandas
+    _HAVE_PANDAS = True
+    if not __SILENT_START__:
+        print('Pandas available')
+except ModuleNotFoundError:
+    _HAVE_PANDAS = False
+    if not __SILENT_START__:
+        print('Pandas not available')
 
 _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
@@ -4794,7 +4804,10 @@ setting sim_points = 2.0\n*****'
     def sim(self):
         if self._sim is None and self.data_sim is not None:
             data = self.data_sim.getAllSimData(lbls=True)
-            self._sim = numpy.rec.fromrecords(data[0], names=data[1])
+            if _HAVE_PANDAS:
+                self._sim = pandas.DataFrame(data[0], columns=data[1])
+            else:
+                self._sim = numpy.rec.fromrecords(data[0], names=data[1])
         return self._sim
 
     def State(self):
