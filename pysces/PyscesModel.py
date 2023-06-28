@@ -182,17 +182,19 @@ if _HAVE_ASSIMULO:
                     for ass in ev.assignments:
                         ass.evaluateAssignment()
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
-                            self.mod.mode_integrate_all_odes
-                            and ass.variable in self.mod.__species__
+                            self.mod.mode_integrate_all_odes and ass.variable in self.mod.__species__
                         ):
                             assVal = ass.getValue()
                             assIdx = self.mod.__species__.index(ass.variable)
-                            if self.mod.__KeyWords__["Species_In_Conc"]:
+                            if self.mod.__KeyWords__['Species_In_Conc']:
                                 solver.y[assIdx] = assVal * getattr(
                                     self.mod, self.mod.__CsizeAllIdx__[assIdx]
                                 )
-                                setattr(self.mod, ass.variable, assVal * getattr(
-                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]))
+                                setattr(
+                                    self.mod,
+                                    ass.variable,
+                                    assVal * getattr(self.mod, self.mod.__CsizeAllIdx__[assIdx]),
+                                )
                             else:
                                 solver.y[assIdx] = assVal
                                 setattr(self.mod, ass.variable, assVal)
@@ -201,16 +203,17 @@ if _HAVE_ASSIMULO:
                             and ass.variable in self.mod.L0matrix.getLabels()[0]
                         ):
                             print(
-                                'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
+                                'Event assignment to dependent species!\nConsider setting "mod.mode_integrate_all_odes = True"'
                             )
                             setattr(self.mod, ass.variable, ass.value)
-                        elif (
-                            self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
-                        ):
+                        elif self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__:
+                            assert (
+                                self.mod.mode_integrate_all_odes
+                            ), 'Assigning events to RateRules requires integrating all ODEs.\n Set "mod.mode_integrate_all_odes = True"'
                             assVal = ass.getValue()
                             rrIdx = self.mod.__rate_rules__.index(ass.variable)
                             self.mod.__rrule__[rrIdx] = assVal
-                            solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                            solver.y[self.mod.Nmatrix.shape[0] + rrIdx] = assVal
                             setattr(self.mod, ass.variable, assVal)
                         else:
                             ass()
