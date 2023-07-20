@@ -4774,8 +4774,7 @@ setting sim_points = 2.0\n*****'
                     p = self._ev_idx[i]
                     q = self._ev_idx[i + 1]
                     self._CVODE_xdata[p:q, k] = eval(ars[name]['data_sim_string'])
-            self.data_sim.setXData(self._CVODE_xdata,
-                                   lbls=self._CVODE_extra_output)
+                self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
             self._CVODE_xdata = None
 
         if not simOK:
@@ -4788,7 +4787,7 @@ setting sim_points = 2.0\n*****'
         for s in rule['symbols']:
             if (
                 s in self.__reactions__
-                or (s in self.__rules__ and self.__rules__[s]['type'] == 'rate')
+                or s in self.__rules__
                 or s in self.__species__
             ):
                 # catch any _init so it doesn't get replaced
