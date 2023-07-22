@@ -18,78 +18,48 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysces.version import __version__
-
-__doc__ = '''
+__doc__ = """
             PyscesConfig
             ------------
 
             This module contains templates for the default configuration files
             on POSIX and WIN32 systems as well as utility functions for reading
             and writing them.
-            '''
+            """
 
 try:
     import configparser  # Py 3
 except ImportError:
     import ConfigParser as configparser  # Py 2
 
-import string
 import os
+import sysconfig
 
-if os.sys.platform == 'win32':
-    __DefaultWin = {
-        "install_dir": os.path.join(os.sys.prefix, 'lib', 'site-packages', 'pysces'),
-        "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
-        "gnuplot_dir": None,
-        "pitcon": True,
-        "nleq2": True,
-        "gnuplot": False,
-        "matplotlib": True,
-        "matplotlib_backend": 'TKagg',
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-    __DefaultWinUsr = {
-        "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-else:
-    if hasattr(os.sys, 'lib'):
-        lib = os.sys.lib
-    else:
-        lib = 'lib'
-    __DefaultPosix = {
-        "install_dir": os.path.join(
-            os.sys.prefix,
-            lib,
-            "python%d.%d" % tuple(os.sys.version_info[:2]),
-            'site-packages',
-            'pysces',
-        ),
-        "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
-        "gnuplot_dir": None,
-        "pitcon": True,
-        "nleq2": True,
-        "gnuplot": False,
-        "matplotlib": True,
-        "matplotlib_backend": 'TKagg',
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-    __DefaultPosixUsr = {
-        "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-    # OSX patch by AF
-    if os.sys.platform == 'darwin':
-        __DefaultPosix["matplotlib_backend"] = 'MacOSX'
+__DefaultConfig = {
+    'install_dir': os.path.join(
+        sysconfig.get_path('platlib'),
+        'pysces',
+    ),
+    'model_dir': os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
+    'output_dir': os.path.join(os.path.expanduser('~'), 'Pysces'),
+    'gnuplot_dir': None,
+    'pitcon': True,
+    'nleq2': True,
+    'gnuplot': False,
+    'matplotlib': True,
+    'matplotlib_backend': 'TKagg',
+    'silentstart': False,
+    'change_dir_on_start': False,
+}
+__DefaultConfigUsr = {
+    'model_dir': os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
+    'output_dir': os.path.join(os.path.expanduser('~'), 'Pysces'),
+    'silentstart': False,
+    'change_dir_on_start': False,
+}
+# OSX patch by AF
+if os.sys.platform == 'darwin':
+    __DefaultConfig['matplotlib_backend'] = 'MacOSX'
 
 
 def ReadConfig(file_path, config={}):
@@ -101,9 +71,8 @@ def ReadConfig(file_path, config={}):
     """
     filein = open(file_path, 'r')
     cp = configparser.ConfigParser()
-    cp.readfp(filein)
+    cp.read_file(filein)
     for sec in cp.sections():
-        name = sec.lower()
         for opt in cp.options(sec):
             config[opt.lower()] = cp.get(sec, opt).strip()
     filein.close()

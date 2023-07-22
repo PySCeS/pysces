@@ -43,8 +43,8 @@ __doc__ = """
             Copyright (C) 2004-2023 B.G. Olivier, J.M. Rohwer, J.-H.S Hofmeyr all rights reserved,
             """
 
-import os, time
-from pkg_resources import get_build_platform
+import os
+import time
 from . import PyscesConfig
 from . import PyscesParse
 from . import PyscesLink as link
@@ -52,8 +52,8 @@ from . import PyscesSED as SED
 
 from .PyscesUtils import str2bool
 from .PyscesModelMap import ModelMap
+from .version import current_version_tuple
 
-# TODO get rid unused imports
 from .PyscesWeb import PyscesHTML
 
 html = PyscesHTML()
@@ -78,32 +78,30 @@ if os.sys.platform == 'win32' and os.path.isdir(extra_dll_dir):
     if hasattr(os, 'add_dll_directory'):
         os.add_dll_directory(extra_dll_dir)
 
-if os.sys.platform == 'win32':
-    __PyscesConfigDefault = PyscesConfig.__DefaultWin
-else:
-    __PyscesConfigDefault = PyscesConfig.__DefaultPosix
+__PyscesConfigDefault = PyscesConfig.__DefaultConfig
 
 if DEBUG:
     print(time.strftime('1-%H:%M:%S'))
 
-eggdir = 'pysces-%s-py%s.%s-%s.egg' % (
-    __version__,
-    os.sys.version_info[0],
-    os.sys.version_info[1],
-    get_build_platform(),
-)
 for path in os.sys.path:
     chkPath = path.split(os.path.sep)[-1]
     if chkPath == 'pysces' and path != os.getcwd():
+        # for in-place development with setup.py develop (legacy)
         if os.path.isdir(os.path.join(path, 'pysces')):
-            # for in-place development with setup.py develop
             install_dir = os.path.join(path, 'pysces')
         else:
             install_dir = path
         inipath = os.path.join(install_dir, 'pyscfg.ini')
         break
-    elif chkPath == eggdir:
-        install_dir = os.path.join(path, 'pysces')
+    # for in-place development with setup.py develop (new)
+    elif '__editable__.pysces' in path:
+        MAJOR, MINOR, MICRO = current_version_tuple()
+        exec(
+            'import __editable___pysces_{}_{}_{}_finder as finder'.format(
+                MAJOR, MINOR, MICRO
+            )
+        )
+        install_dir = finder.MAPPING['pysces']
         inipath = os.path.join(install_dir, 'pyscfg.ini')
         break
 if inipath == None:
@@ -112,11 +110,6 @@ if inipath == None:
             install_dir = k
             inipath = os.path.join(install_dir, 'pyscfg.ini')
             break
-        elif k.split(os.path.sep)[-1] == eggdir:
-            install_dir = os.path.join(k, 'pysces')
-            inipath = os.path.join(install_dir, 'pyscfg.ini')
-            break
-del eggdir
 if DEBUG:
     print(time.strftime('2-%H:%M:%S'))
 
@@ -156,55 +149,37 @@ if DEBUG:
     print(time.strftime('3-%H:%M:%S'))
 
 __userdict = None
-if os.sys.platform != 'win32':
+# search for legacy Windows Pysces directory location
+if os.sys.platform == 'win32' and os.path.exists(
+    os.path.join(os.getenv('HOMEDRIVE') + os.path.sep, 'Pysces', '.pys_usercfg.ini')
+):
+    __userdict = PyscesConfig.ReadConfig(
+        os.path.join(
+            os.getenv('HOMEDRIVE') + os.path.sep, 'Pysces', '.pys_usercfg.ini'
+        ),
+        PyscesConfig.__DefaultConfigUsr,
+    )
+else:
     if os.path.exists(
         os.path.join(os.path.expanduser('~'), 'Pysces', '.pys_usercfg.ini')
     ):
         __userdict = PyscesConfig.ReadConfig(
             os.path.join(os.path.expanduser('~'), 'Pysces', '.pys_usercfg.ini'),
-            PyscesConfig.__DefaultPosixUsr,
+            PyscesConfig.__DefaultConfigUsr,
         )
     else:
         if not os.path.exists(os.path.join(os.path.expanduser('~'), 'Pysces')):
             os.makedirs(os.path.join(os.path.expanduser('~'), 'Pysces'))
         PyscesConfig.WriteConfig(
             os.path.join(os.path.expanduser('~'), 'Pysces', '.pys_usercfg.ini'),
-            config=PyscesConfig.__DefaultPosixUsr,
+            config=PyscesConfig.__DefaultConfigUsr,
             section='Pysces',
         )
         __userdict = PyscesConfig.ReadConfig(
             os.path.join(os.path.expanduser('~'), 'Pysces', '.pys_usercfg.ini'),
-            PyscesConfig.__DefaultPosixUsr,
+            PyscesConfig.__DefaultConfigUsr,
         )
-else:
-    if os.path.exists(
-        os.path.join(os.getenv('HOMEDRIVE') + os.path.sep, 'Pysces', '.pys_usercfg.ini')
-    ):
-        __userdict = PyscesConfig.ReadConfig(
-            os.path.join(
-                os.getenv('HOMEDRIVE') + os.path.sep, 'Pysces', '.pys_usercfg.ini'
-            ),
-            PyscesConfig.__DefaultWinUsr,
-        )
-    elif os.path.exists(
-        os.path.join(os.getenv('USERPROFILE'), 'Pysces', '.pys_usercfg.ini')
-    ):
-        __userdict = PyscesConfig.ReadConfig(
-            os.path.join(os.getenv('USERPROFILE'), 'Pysces', '.pys_usercfg.ini'),
-            PyscesConfig.__DefaultWinUsr,
-        )
-    else:
-        if not os.path.exists(os.path.join(os.getenv('USERPROFILE'), 'Pysces')):
-            os.makedirs(os.path.join(os.getenv('USERPROFILE'), 'Pysces'))
-        PyscesConfig.WriteConfig(
-            os.path.join(os.getenv('USERPROFILE'), 'Pysces', '.pys_usercfg.ini'),
-            config=PyscesConfig.__DefaultWinUsr,
-            section='Pysces',
-        )
-        __userdict = PyscesConfig.ReadConfig(
-            os.path.join(os.getenv('USERPROFILE'), 'Pysces', '.pys_usercfg.ini'),
-            PyscesConfig.__DefaultWinUsr,
-        )
+
 for key in __userdict:
     if key == 'output_dir':
         output_dir = __userdict[key]
