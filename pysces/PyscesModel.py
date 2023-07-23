@@ -32,9 +32,8 @@ __doc__ = '''
             create the model and associated data objects
 
             '''
-import os, copy, gc, time
-import math, operator, re
-import pprint, pickle, io
+import os, copy, time
+import pickle
 import warnings
 try:
     input = raw_input  # Py2 compatibility
@@ -80,6 +79,7 @@ from . import (
     PyscesParse,
     __SILENT_START__,
     __CHGDIR_ON_START__,
+    __CUSTOM_DATATYPE__,
     SED,
 )
 
@@ -118,16 +118,20 @@ else:
             )
         )
 
-# Pandas check
-try:
-    import pandas
-    _HAVE_PANDAS = True
-    if not __SILENT_START__:
-        print('Pandas available')
-except ModuleNotFoundError:
-    _HAVE_PANDAS = False
-    if not __SILENT_START__:
-        print('Pandas not available')
+# Custom datatype check
+if __CUSTOM_DATATYPE__ == 'pandas':
+    try:
+        import pandas
+    except ModuleNotFoundError:
+        print(
+            """
+Custom datatype set in configuration but pandas not installed. Install with:
+    pip install pandas        or
+    conda install pandas
+Unsetting custom datatype!
+            """
+        )
+        __CUSTOM_DATATYPE__ = None
 
 _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''

@@ -143,6 +143,10 @@ for key in __config_dict:
         __SILENT_START__ = str2bool(__config_dict[key])
     elif key == 'change_dir_on_start':
         __CHGDIR_ON_START__ = str2bool(__config_dict[key])
+    elif key == 'custom_datatype':
+        __CUSTOM_DATATYPE__ = __config_dict[key]
+        if __CUSTOM_DATATYPE__ == 'None':
+            __CUSTOM_DATATYPE__ = None
 assert inipath != None, '\nNo configuration file found'
 
 if DEBUG:
@@ -203,6 +207,10 @@ for key in __userdict:
         __SILENT_START__ = str2bool(__userdict[key])
     elif key == 'change_dir_on_start':
         __CHGDIR_ON_START__ = str2bool(__userdict[key])
+    elif key == 'custom_datatype':
+        __CUSTOM_DATATYPE__ = __userdict[key]
+        if __CUSTOM_DATATYPE__ == 'None':
+            __CUSTOM_DATATYPE__ = None
 assert output_dir != None, '\nNo output directory defined'
 assert model_dir != None, '\nNo model directory defined'
 
@@ -432,6 +440,14 @@ except ImportError as ex:
         print(ex)
     if not __SILENT_START__:
         print("INFO: libSBML not installed, SBML support not available.")
+
+# custom datatype for mod.sim and mod.scan
+if __CUSTOM_DATATYPE__:
+    assert (
+        __CUSTOM_DATATYPE__ == 'pandas'
+    ), f'Custom datatype {__CUSTOM_DATATYPE__} not supported, only pandas is supported.'
+    if not __SILENT_START__:
+        print('INFO: Custom datatype set to pandas.')
 
 # This has to come at the end
 from .PyscesModel import PysMod as model

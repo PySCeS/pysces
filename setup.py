@@ -107,6 +107,7 @@ config = {
     "gnuplot_dir": None,
     "silentstart": False,
     "change_dir_on_start": False,
+    "custom_datatype": None,
 }
 
 def writeConfig(local_path, config={}):

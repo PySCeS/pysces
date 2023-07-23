@@ -50,12 +50,14 @@ __DefaultConfig = {
     'matplotlib_backend': 'TKagg',
     'silentstart': False,
     'change_dir_on_start': False,
+    'custom_datatype': None,
 }
 __DefaultConfigUsr = {
     'model_dir': os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
     'output_dir': os.path.join(os.path.expanduser('~'), 'Pysces'),
     'silentstart': False,
     'change_dir_on_start': False,
+    'custom_datatype': None,
 }
 # OSX patch by AF
 if os.sys.platform == 'darwin':
