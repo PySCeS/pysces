@@ -1486,6 +1486,7 @@ class PysMod(object):
         self.__settings__['mode_substitute_assignment_rules'] = False
         self.__settings__['cvode_track_assignment_rules'] = True
         self.__settings__['display_compartment_warnings'] = False
+        self.__settings__['custom_datatype'] = __CUSTOM_DATATYPE__
         self._TIME_ = 0.0  # this will be the built-in time
         self.piecewise_functions = []
         self.__piecewises__ = {}
@@ -1495,6 +1496,31 @@ class PysMod(object):
             self.__PSC_auto_load = True
         else:
             self.__PSC_auto_load = False
+
+    def enableDataPandas(self, var=True):
+        """
+        Toggle custom data type for `mod.sim` and `mod.scan` objects.
+
+        - *var* if True, return pandas DataFrame, else numpy recarray
+        """
+        if var:
+            try:
+                import pandas
+                self.__settings__['custom_datatype'] = 'pandas'
+                print('Pandas output enabled.')
+            except ModuleNotFoundError:
+                print(
+                    '''
+        Pandas is not installed. Install with:
+            pip install pandas        or
+            conda install pandas
+        Unsetting custom datatype!
+                    '''
+                )
+                self.__settings__['custom_datatype'] = None
+        else:
+            self.__settings__['custom_datatype'] = None
+            print('Pandas output disabled.')
 
     def ModelLoad(self, stoich_load=0):
         """
@@ -4810,7 +4836,7 @@ setting sim_points = 2.0\n*****'
     def sim(self):
         if self._sim is None and self.data_sim is not None:
             data = self.data_sim.getAllSimData(lbls=True)
-            if _HAVE_PANDAS:
+            if self.__settings__['custom_datatype'] == 'pandas':
                 self._sim = pandas.DataFrame(data[0], columns=data[1])
             else:
                 self._sim = numpy.rec.fromrecords(data[0], names=data[1])
@@ -8987,9 +9013,14 @@ setting sim_points = 2.0\n*****'
     @property
     def scan(self):
         if self._scan is None and self.scan_res is not None:
-            self._scan = numpy.rec.fromrecords(
-                self.scan_res, names=[self.scan_in] + self.scan_out
-            )
+            if self.__settings__['custom_datatype'] == 'pandas':
+                self._scan = pandas.DataFrame(
+                    self.scan_res, columns=[self.scan_in] + self.scan_out
+                )
+            else:
+                self._scan = numpy.rec.fromrecords(
+                    self.scan_res, names=[self.scan_in] + self.scan_out
+                )
         return self._scan
 
     def Scan1Plot(self, plot=[], title=None, log=None, format='lines', filename=None):
