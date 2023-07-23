@@ -449,7 +449,36 @@ if __CUSTOM_DATATYPE__:
     if not __SILENT_START__:
         print('INFO: Custom datatype set to pandas.')
 
+def _checkPandas():
+    try:
+        import pandas
+        return True
+    except ModuleNotFoundError:
+        print(
+            """
+Custom datatype set in configuration but pandas not installed. Install with:
+    pip install pandas        or
+    conda install pandas
+Unsetting custom datatype!
+            """
+        )
+        return False
+
+def enablePandas(var=True):
+    """
+    Enable pandas data type globally per session for `mod.sim` and `mod.scan` objects.
+
+    - *var* if True, return pandas DataFrame, else numpy recarray
+    """
+    if var and _checkPandas():
+        PyscesModel.__CUSTOM_DATATYPE__ = 'pandas'
+        print('Enabling pandas globally...')
+    else:
+        PyscesModel.__CUSTOM_DATATYPE__ = None
+        print('Disabling pandas globally...')
+
 # This has to come at the end
+from . import PyscesModel
 from .PyscesModel import PysMod as model
 from .PyscesModel import ScanDataObj as ScanDataObj
 

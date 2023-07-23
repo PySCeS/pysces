@@ -81,6 +81,7 @@ from . import (
     __CHGDIR_ON_START__,
     __CUSTOM_DATATYPE__,
     SED,
+    _checkPandas,
 )
 
 if __CHGDIR_ON_START__:
@@ -120,17 +121,9 @@ else:
 
 # Custom datatype check
 if __CUSTOM_DATATYPE__ == 'pandas':
-    try:
+    if _checkPandas():
         import pandas
-    except ModuleNotFoundError:
-        print(
-            """
-Custom datatype set in configuration but pandas not installed. Install with:
-    pip install pandas        or
-    conda install pandas
-Unsetting custom datatype!
-            """
-        )
+    else:
         __CUSTOM_DATATYPE__ = None
 
 _HAVE_ASSIMULO = False
