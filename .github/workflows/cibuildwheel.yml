@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-12]
-        python: [311, 310, 39, 38]
+        python: [311] #, 310, 39, 38]
 
     steps:
       - uses: actions/checkout@v3
