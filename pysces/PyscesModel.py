@@ -1485,12 +1485,11 @@ class PysMod(object):
             self.__PSC_auto_load = False
 
         # autoload a custom datatype ... currently pandas
-        if  __CUSTOM_DATATYPE__ == 'pandas':
+        if __CUSTOM_DATATYPE__ == 'pandas':
             if _checkPandas():
                 self.enableDataPandas(True)
             else:
                 self.enableDataPandas(False)
-
 
     def enableDataPandas(self, var=True):
         """
@@ -1500,7 +1499,7 @@ class PysMod(object):
         """
         if var:
             try:
-                import pandas as pandas
+                import pandas
                 self.__pandas = pandas
                 self.__settings__['custom_datatype'] = 'pandas'
                 print('Pandas output enabled.')
