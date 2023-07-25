@@ -119,13 +119,6 @@ else:
             )
         )
 
-# Custom datatype check
-if __CUSTOM_DATATYPE__ == 'pandas':
-    if _checkPandas():
-        import pandas
-    else:
-        __CUSTOM_DATATYPE__ = None
-
 _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
 
@@ -1484,11 +1477,20 @@ class PysMod(object):
         self.piecewise_functions = []
         self.__piecewises__ = {}
         self.__HAS_PIECEWISE__ = False
+
         if autoload:
             self.ModelLoad()
             self.__PSC_auto_load = True
         else:
             self.__PSC_auto_load = False
+
+        # autoload a custom datatype ... currently pandas
+        if  __CUSTOM_DATATYPE__ == 'pandas':
+            if _checkPandas():
+                self.enableDataPandas(True)
+            else:
+                self.enableDataPandas(False)
+
 
     def enableDataPandas(self, var=True):
         """
@@ -1498,7 +1500,8 @@ class PysMod(object):
         """
         if var:
             try:
-                import pandas
+                import pandas as pandas
+                self.__pandas = pandas
                 self.__settings__['custom_datatype'] = 'pandas'
                 print('Pandas output enabled.')
             except ModuleNotFoundError:
@@ -4830,7 +4833,7 @@ setting sim_points = 2.0\n*****'
         if self._sim is None and self.data_sim is not None:
             data = self.data_sim.getAllSimData(lbls=True)
             if self.__settings__['custom_datatype'] == 'pandas':
-                self._sim = pandas.DataFrame(data[0], columns=data[1])
+                self._sim = self.__pandas.DataFrame(data[0], columns=data[1])
             else:
                 self._sim = numpy.rec.fromrecords(data[0], names=data[1])
         return self._sim
@@ -9007,7 +9010,7 @@ setting sim_points = 2.0\n*****'
     def scan(self):
         if self._scan is None and self.scan_res is not None:
             if self.__settings__['custom_datatype'] == 'pandas':
-                self._scan = pandas.DataFrame(
+                self._scan = self.__pandas.DataFrame(
                     self.scan_res, columns=[self.scan_in] + self.scan_out
                 )
             else:
