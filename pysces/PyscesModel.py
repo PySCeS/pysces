@@ -32,9 +32,8 @@ __doc__ = '''
             create the model and associated data objects
 
             '''
-import os, copy, gc, time
-import math, operator, re
-import pprint, pickle, io
+import os, copy, time
+import pickle
 import warnings
 try:
     input = raw_input  # Py2 compatibility
@@ -80,7 +79,9 @@ from . import (
     PyscesParse,
     __SILENT_START__,
     __CHGDIR_ON_START__,
+    __CUSTOM_DATATYPE__,
     SED,
+    _checkPandas,
 )
 
 if __CHGDIR_ON_START__:
@@ -104,12 +105,11 @@ del random.SystemRandom, random.WichmannHill, random.triangular
 # Scipy version check
 if (
     int(scipy.__version__.split('.')[0]) < 1
-    and int(scipy.__version__.split('.')[1]) < 6
 ):
     print(
         '\nINFO: Your version of SciPy ('
         + scipy.version.version
-        + ') might be too old\n\tVersion 0.6.x or newer is strongly recommended\n'
+        + ') might be too old\n\tVersion 1.0.x or newer is strongly recommended\n'
     )
 else:
     if not __SILENT_START__:
@@ -172,17 +172,19 @@ if _HAVE_ASSIMULO:
                     for ass in ev.assignments:
                         ass.evaluateAssignment()
                         if ass.variable in self.mod.L0matrix.getLabels()[1] or (
-                            self.mod.mode_integrate_all_odes
-                            and ass.variable in self.mod.__species__
+                            self.mod.mode_integrate_all_odes and ass.variable in self.mod.__species__
                         ):
                             assVal = ass.getValue()
                             assIdx = self.mod.__species__.index(ass.variable)
-                            if self.mod.__KeyWords__["Species_In_Conc"]:
+                            if self.mod.__KeyWords__['Species_In_Conc']:
                                 solver.y[assIdx] = assVal * getattr(
                                     self.mod, self.mod.__CsizeAllIdx__[assIdx]
                                 )
-                                setattr(self.mod, ass.variable, assVal * getattr(
-                                    self.mod, self.mod.__CsizeAllIdx__[assIdx]))
+                                setattr(
+                                    self.mod,
+                                    ass.variable,
+                                    assVal * getattr(self.mod, self.mod.__CsizeAllIdx__[assIdx]),
+                                )
                             else:
                                 solver.y[assIdx] = assVal
                                 setattr(self.mod, ass.variable, assVal)
@@ -191,16 +193,17 @@ if _HAVE_ASSIMULO:
                             and ass.variable in self.mod.L0matrix.getLabels()[0]
                         ):
                             print(
-                                'Event assignment to dependent species consider setting "mod.mode_integrate_all_odes = True"'
+                                'Event assignment to dependent species!\nConsider setting "mod.mode_integrate_all_odes = True"'
                             )
                             setattr(self.mod, ass.variable, ass.value)
-                        elif (
-                            self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__
-                        ):
+                        elif self.mod.__HAS_RATE_RULES__ and ass.variable in self.mod.__rate_rules__:
+                            assert (
+                                self.mod.mode_integrate_all_odes
+                            ), 'Assigning events to RateRules requires integrating all ODEs.\n Set "mod.mode_integrate_all_odes = True"'
                             assVal = ass.getValue()
                             rrIdx = self.mod.__rate_rules__.index(ass.variable)
                             self.mod.__rrule__[rrIdx] = assVal
-                            solver.y[self.mod.L0matrix.shape[1] + rrIdx] = assVal
+                            solver.y[self.mod.Nmatrix.shape[0] + rrIdx] = assVal
                             setattr(self.mod, ass.variable, assVal)
                         else:
                             ass()
@@ -1469,15 +1472,50 @@ class PysMod(object):
         self.__settings__['mode_substitute_assignment_rules'] = False
         self.__settings__['cvode_track_assignment_rules'] = True
         self.__settings__['display_compartment_warnings'] = False
+        self.__settings__['custom_datatype'] = __CUSTOM_DATATYPE__
         self._TIME_ = 0.0  # this will be the built-in time
         self.piecewise_functions = []
         self.__piecewises__ = {}
         self.__HAS_PIECEWISE__ = False
+
         if autoload:
             self.ModelLoad()
             self.__PSC_auto_load = True
         else:
             self.__PSC_auto_load = False
+
+        # autoload a custom datatype ... currently pandas
+        if __CUSTOM_DATATYPE__ == 'pandas':
+            if _checkPandas():
+                self.enableDataPandas(True)
+            else:
+                self.enableDataPandas(False)
+
+    def enableDataPandas(self, var=True):
+        """
+        Toggle custom data type for `mod.sim` and `mod.scan` objects.
+
+        - *var* if True, return pandas DataFrame, else numpy recarray
+        """
+        if var:
+            try:
+                import pandas
+                self.__pandas = pandas
+                self.__settings__['custom_datatype'] = 'pandas'
+                print('Pandas output enabled.')
+            except ModuleNotFoundError:
+                print(
+                    '''
+        Pandas is not installed. Install with:
+            pip install pandas        or
+            conda install pandas
+        Unsetting custom datatype!
+                    '''
+                )
+                self.__settings__['custom_datatype'] = None
+        else:
+            self.__settings__['custom_datatype'] = None
+            print('Pandas output disabled.')
 
     def ModelLoad(self, stoich_load=0):
         """
@@ -3946,10 +3984,16 @@ See: https://jmodelica.org/assimulo'
 
         if self.__settings__['cvode_return_event_timepoints']:
             self.sim_time = t
+            self._ev_idx = idx
         else:
-            tidx = [numpy.where(t==i)[0][0] for i in self.sim_time]
+            tidx = [numpy.where(t == i)[0][0] for i in self.sim_time]
             sim_res = sim_res[tidx]
             rates = rates[tidx]
+            self._ev_idx = (
+                [0]
+                + [numpy.min(numpy.where(self.sim_time >= i)) for i in problem.event_times]
+                + [len(t)]
+            )
 
         return sim_res, rates, True
 
@@ -4745,12 +4789,19 @@ setting sim_points = 2.0\n*****'
             r = self.__rules__
             ars = {name: r[name] for name in r if r[name]['type'] == 'assignment'}
             # loop through extra output and evaluate from simulation data
-            for i in range(len(self._CVODE_extra_output)):
-                name = self._CVODE_extra_output[i]
+            # set parameters for each event in case they changed
+            for k in range(len(self._CVODE_extra_output)):
+                name = self._CVODE_extra_output[k]
                 self._update_assignment_rule_code(ars[name])
-                self._CVODE_xdata[:, i] = eval(ars[name]['data_sim_string'])
+                for i in range(len(self._ev_idx) - 1):
+                    for j in range(len(self.parameters)):
+                        setattr(self, self.parameters[j], self._problem.parvals[i][j])
+                    p = self._ev_idx[i]
+                    q = self._ev_idx[i + 1]
+                    self._CVODE_xdata[p:q, k] = eval(ars[name]['data_sim_string'])
                 self.data_sim.setXData(self._CVODE_xdata, lbls=self._CVODE_extra_output)
             self._CVODE_xdata = None
+
         if not simOK:
             print('Simulation failure')
         del sim_res
@@ -4759,11 +4810,17 @@ setting sim_points = 2.0\n*****'
         replacements = []
         rule['data_sim_string'] = rule['code_string']
         for s in rule['symbols']:
-            if s in self.__reactions__ or s in self.__rules__ or s in self.__species__:
+            if (
+                s in self.__reactions__
+                or s in self.__rules__
+                or s in self.__species__
+            ):
                 # catch any _init so it doesn't get replaced
                 replacements.append((s + '_init', '_zzzz_'))
                 # replace symbol to get sim data
-                replacements.append(('self.' + s, 'self.data_sim.getSimData("' + s + '")[:,1]'))
+                replacements.append(
+                    ('self.' + s, 'self.data_sim.getSimData("' + s + '")[p:q,1]')
+                )
                 # revert the _init
                 replacements.append(('_zzzz_', s + '_init'))
 
@@ -4774,7 +4831,10 @@ setting sim_points = 2.0\n*****'
     def sim(self):
         if self._sim is None and self.data_sim is not None:
             data = self.data_sim.getAllSimData(lbls=True)
-            self._sim = numpy.rec.fromrecords(data[0], names=data[1])
+            if self.__settings__['custom_datatype'] == 'pandas':
+                self._sim = self.__pandas.DataFrame(data[0], columns=data[1])
+            else:
+                self._sim = numpy.rec.fromrecords(data[0], names=data[1])
         return self._sim
 
     def State(self):
@@ -8948,9 +9008,14 @@ setting sim_points = 2.0\n*****'
     @property
     def scan(self):
         if self._scan is None and self.scan_res is not None:
-            self._scan = numpy.rec.fromrecords(
-                self.scan_res, names=[self.scan_in] + self.scan_out
-            )
+            if self.__settings__['custom_datatype'] == 'pandas':
+                self._scan = self.__pandas.DataFrame(
+                    self.scan_res, columns=[self.scan_in] + self.scan_out
+                )
+            else:
+                self._scan = numpy.rec.fromrecords(
+                    self.scan_res, names=[self.scan_in] + self.scan_out
+                )
         return self._scan
 
     def Scan1Plot(self, plot=[], title=None, log=None, format='lines', filename=None):

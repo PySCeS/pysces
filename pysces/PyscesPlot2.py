@@ -783,6 +783,7 @@ class MatplotlibUPI(PlotBase):
         'cocoaagg',
         'agg',
         'nbagg',
+        'module://ipympl.backend_nbagg',
         'cairo',
         'emf',
         'gdk',
@@ -805,6 +806,7 @@ class MatplotlibUPI(PlotBase):
         'wxagg',
         'cocoaagg',
         'nbagg',
+        'module://ipympl.backend_nbagg',
     ]
 
     __NON_INTERACTIVE_BACKENDS__ = [
@@ -825,9 +827,13 @@ class MatplotlibUPI(PlotBase):
             import matplotlib
 
             if self.isnotebook():
-                backend = 'nbAgg'
+                try:
+                    import ipympl       # for jupyterlab
+                    backend = 'module://ipympl.backend_nbagg'
+                except ModuleNotFoundError:
+                    backend = 'nbAgg'   # for notebook if ipympl not installed
                 import pysces
-                pysces.__MATPLOTLIB_BACKEND__ = 'nbAgg'
+                pysces.__MATPLOTLIB_BACKEND__ = backend
 
             if backend.lower() in self.__INTERACTIVE_BACKENDS__:
                 matplotlib.use(backend)
@@ -874,10 +880,8 @@ class MatplotlibUPI(PlotBase):
                 )
 
         from matplotlib import pyplot
-        from matplotlib import pylab
 
-        ##  self.pyplot = pyplot
-        self.pyplot = pylab
+        self.pyplot = pyplot
         if self.__MODE_INTERACTIVE__:
             self.pyplot.ion()
         self._setNewFigureGenerator(self.MAX_OPEN_WINDOWS)

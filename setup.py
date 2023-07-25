@@ -29,17 +29,14 @@ with open('pysces/version.txt') as f:
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
-import os, re
+import os
+import re
+import sysconfig
 
 try:
     import configparser  # Py 3
 except ImportError:
     import ConfigParser as configparser  # Py 2
-
-try:
-    print('Building an egg? %s.' % FRYING_EGGS)
-except:
-    FRYING_EGGS = False
 
 try:
     import setuptools
@@ -100,47 +97,18 @@ mypackage_data = {}
 mypackage_data['pysces.pscmodels'] = ['*.psc']
 
 # Default configurations for the pyscfg.ini files
-if os.sys.platform == 'win32':
-    if FRYING_EGGS:
-        eggdir = 'pysces-%s-py%s.%s-%s.egg' % (
-            __version__,
-            os.sys.version_info[0],
-            os.sys.version_info[1],
-            os.sys.platform,
-        )
-        installdir = os.path.join(
-            os.sys.prefix, 'lib', 'site-packages', eggdir, 'pysces'
-        )
-    else:
-        installdir = os.path.join(os.sys.prefix, 'lib', 'site-packages', 'pysces')
-    config = {
-        "install_dir": installdir,
-        "model_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.getenv('USERPROFILE'), 'Pysces'),
-        "gnuplot_dir": None,
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-else:
-    if hasattr(os.sys, 'lib'):
-        lib = os.sys.lib
-    else:
-        lib = 'lib'
-    config = {
-        "install_dir": os.path.join(
-            os.sys.prefix,
-            lib,
-            "python%d.%d" % tuple(os.sys.version_info[:2]),
-            'site-packages',
-            'pysces',
-        ),
-        "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
-        "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
-        "gnuplot_dir": None,
-        "silentstart": False,
-        "change_dir_on_start": False,
-    }
-
+config = {
+    "install_dir": os.path.join(
+        sysconfig.get_path('platlib'),
+        'pysces',
+    ),
+    "model_dir": os.path.join(os.path.expanduser('~'), 'Pysces', 'psc'),
+    "output_dir": os.path.join(os.path.expanduser('~'), 'Pysces'),
+    "gnuplot_dir": None,
+    "silentstart": False,
+    "change_dir_on_start": False,
+    "custom_datatype": None,
+}
 
 def writeConfig(local_path, config={}):
     cfgfile = open(os.path.join(local_path, 'pysces', 'pyscfg.ini'), 'w')

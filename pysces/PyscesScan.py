@@ -353,8 +353,6 @@ class Scanner(object):
         If *stst* is True output has dimensions [scan_parameters]+[state_species+state_flux]+[Useroutput]
         otherwise [scan_parameters]+[Useroutput].
         """
-        output_array = None
-        labels = []
         if stst:
             if self.HAS_USER_OUTPUT:
                 output_array = scipy.hstack(
@@ -377,8 +375,10 @@ class Scanner(object):
         if lbls:
             return output_array, labels
         else:
-            return output_array
-
+            if self.mod.__settings__['custom_datatype'] == 'pandas':
+                return self.mod._PysMod__pandas.DataFrame(output_array, columns=labels)
+            else:
+                return output_array
 
 class PITCONScanUtils(object):
     """

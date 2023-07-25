@@ -45,7 +45,7 @@ def str2bool(s):
     - *s* True if 'True', 'true' or'1' else False
 
     """
-    if s in ['True', 'true', '1']:
+    if s in ['True', 'true', '1', True]:
         return True
     else:
         return False
