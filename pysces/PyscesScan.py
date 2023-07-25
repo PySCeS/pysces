@@ -376,8 +376,7 @@ class Scanner(object):
             return output_array, labels
         else:
             if self.mod.__settings__['custom_datatype'] == 'pandas':
-                import pandas
-                return pandas.DataFrame(output_array, columns=labels)
+                return self.mod._PysMod__pandas.DataFrame(output_array, columns=labels)
             else:
                 return output_array
 
