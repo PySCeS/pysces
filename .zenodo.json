@@ -1,23 +1,21 @@
 {
-    "description": "<p>Computer modelling has become an integral tool in the analysis and understanding of the reaction networks that underlie cellular processes. PySCeS, first released in 2003, is extremely flexible, user-extensible, open source, software actively used and developed by a community of researchers and developers.</p>\n\n<p><strong>Features</strong></p>\n\n<ul>\n\t<li>Simulate&nbsp;your time courses with solvers like LSODA and CVODE.</li>\n\t<li>Efficiently determine&nbsp;steady states&nbsp;using a selection of non-linear, root-finding algorithms (e.g. HYBRD, NLEQ2).</li>\n\t<li>Use&nbsp;Metabolic Control Analysis&nbsp;(MCA) to investigate control and regulation of cellular systems (elasticities, flux- and concentration-control and response coefficients).</li>\n\t<li>Auto-generate the stoichiometric matrix and perform&nbsp;structural analysis, determine nullspaces and reduced stoichiometric and MCA matrices.</li>\n\t<li>Investigate systems which exhibit multiple (stable and unstable) steady-state solutions using a PITCON-based bifurcation analysis module.</li>\n\t<li>Define models with a human-readable&nbsp;Model Description Language.</li>\n\t<li>Use the full power of Python available to test, build and share your modelling experiments.</li>\n\t<li>User-friendly methods for generating and 1-, 2- and n-dimensional&nbsp;parameter scans.</li>\n\t<li>Distributed parameter scanning with the&nbsp;ParScanner&nbsp;module within the&nbsp;<em>ipyparallel</em>&nbsp;framework.</li>\n\t<li>Visualise&nbsp;results of simulations with flexible Matplotlib and Gnuplot interfaces.</li>\n\t<li>PySCeS supports open community standards for&nbsp;model exchange&nbsp;(<a href=\"http://sbml.org/\">SBML</a>) and archiving (SEDML, OMEX).</li>\n</ul>\n\n<p><strong>Installation</strong></p>\n\n<p>PyPI</p>\n\n<pre>pip install pysces</pre>\n\n<p>Anaconda.org</p>\n\n<pre>conda install -c conda-forge -c pysces pysces</pre>\n\n<p><strong>Getting help</strong></p>\n\n<p>We currently encourage users to ask questions and request support using a GitHub&nbsp;<a href=\"https://github.com/PySCeS/pysces/issues\">issue</a>.</p>\n\n<p>General information on PySCeS can be found on the&nbsp;<a href=\"https://pysces.github.io/\">website</a>&nbsp;and extensive documentation on installing, configuring and using PySCeS is available on&nbsp;<a href=\"https://pyscesdocs.readthedocs.io/en/latest/\">pyscesdocs.readthedocs.io</a>.</p>",
-    "license": "BSD-3-Clause",
-    "title": "The Python Simulator for Cellular Systems: PySCeS",
-    "notes": "If you use this software, please cite it using the information provided in this metadata.",
-    "version": "1.1.0",
-    "upload_type": "software",
-    "publication_date": "2023-04-19",
-    "creators": [
-        {
-            "orcid": "0000-0002-5293-5321",
-            "affiliation": "Vrije Universiteit Amsterdam",
-            "name": "Olivier, Brett"
-        },
-        {
-            "orcid": "0000-0001-6288-8904",
-            "affiliation": "Stellenbosch University",
-            "name": "Rohwer, Johann"
-        }
-    ],
-    "access_right": "open",
-
+	"description": "<p>Computer modelling has become an integral tool in the analysis and understanding of the reaction networks that underlie cellular processes. PySCeS, first released in 2003, is extremely flexible, user-extensible, open source, software actively used and developed by a community of researchers and developers.</p>\n\n<p><strong>Features</strong></p>\n\n<ul>\n\t<li>Simulate&nbsp;your time courses with solvers like LSODA and CVODE.</li>\n\t<li>Efficiently determine&nbsp;steady states&nbsp;using a selection of non-linear, root-finding algorithms (e.g. HYBRD, NLEQ2).</li>\n\t<li>Use&nbsp;Metabolic Control Analysis&nbsp;(MCA) to investigate control and regulation of cellular systems (elasticities, flux- and concentration-control and response coefficients).</li>\n\t<li>Auto-generate the stoichiometric matrix and perform&nbsp;structural analysis, determine nullspaces and reduced stoichiometric and MCA matrices.</li>\n\t<li>Investigate systems which exhibit multiple (stable and unstable) steady-state solutions using a PITCON-based bifurcation analysis module.</li>\n\t<li>Define models with a human-readable&nbsp;Model Description Language.</li>\n\t<li>Use the full power of Python available to test, build and share your modelling experiments.</li>\n\t<li>User-friendly methods for generating and 1-, 2- and n-dimensional&nbsp;parameter scans.</li>\n\t<li>Distributed parameter scanning with the&nbsp;ParScanner&nbsp;module within the&nbsp;<em>ipyparallel</em>&nbsp;framework.</li>\n\t<li>Visualise&nbsp;results of simulations with flexible Matplotlib and Gnuplot interfaces.</li>\n\t<li>PySCeS supports open community standards for&nbsp;model exchange&nbsp;(<a href=\"http://sbml.org/\">SBML</a>) and archiving (SEDML, OMEX).</li>\n</ul>\n\n<p><strong>Installation</strong></p>\n\n<p>PyPI</p>\n\n<pre>pip install pysces</pre>\n\n<p>Anaconda.org</p>\n\n<pre>conda install -c conda-forge -c pysces pysces</pre>\n\n<p><strong>Getting help</strong></p>\n\n<p>We currently encourage users to ask questions and request support using a GitHub&nbsp;<a href=\"https://github.com/PySCeS/pysces/issues\">issue</a>.</p>\n\n<p>General information on PySCeS can be found on the&nbsp;<a href=\"https://pysces.github.io/\">website</a>&nbsp;and extensive documentation on installing, configuring and using PySCeS is available on&nbsp;<a href=\"https://pyscesdocs.readthedocs.io/en/latest/\">pyscesdocs.readthedocs.io</a>.</p>",
+	"license": "BSD-3-Clause",
+	"title": "The Python Simulator for Cellular Systems: PySCeS",
+	"notes": "If you use this software, please cite it using the information provided in this metadata.",
+	"version": "1.1.1",
+	"upload_type": "software",
+	"publication_date": "2023-07-26",
+	"creators": [{
+			"orcid": "0000-0002-5293-5321",
+			"affiliation": "Vrije Universiteit Amsterdam",
+			"name": "Olivier, Brett"
+		},
+		{
+			"orcid": "0000-0001-6288-8904",
+			"affiliation": "Stellenbosch University",
+			"name": "Rohwer, Johann"
+		}
+	],
+	"access_right": "open"
 }
