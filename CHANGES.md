@@ -1,5 +1,31 @@
 # PySCeS changes (per GitHub release)
 
+## PySCeS release 1.1.1 (Jul 2023)
+
+We are pleased to announce the release of the Python Simulator for Cellular Systems: 
+PySCeS (https://pysces.github.io/) version 1.1.1. This is the first release in the 1.1 
+series and contains some new features and various bug fixes.
+
+### New features
+
+- When used in a notebook environment, the `ipympl` backend for matplotlib is now enabled if installed. This allows use in JupyterLab (as opposed to classic notebook). If `ipympl` is not installed, fallback is to the standard `nbAgg`, which is part of matplotlib.
+- Simulation results (`mod.sim` object) can now be returned as a pandas DataFrame if pandas is installed, otherwise a numpy recarray is returned as before. This option is configurable with `custom_datatype = pandas` in the user and system configuration files (see https://pyscesdocs.readthedocs.io/en/latest/userguide_doc.html#configuration), and can be enabled or disabled per session or per model:
+  ```python
+  pysces.enablePandas()
+  pysces.enablePandas(False)
+  mod.enableDataPandas()
+  mod.enableDataPandas(False)
+  ```
+
+### Bug fixes
+
+- Fixed a bug in simulations with `RateRules` using Assimulo, where a wrong solver variable was being assigned internally.
+- Fixed SBML export when assignment rules were evaluating reaction rates.
+- Enabled assignment rules (forcing functions) to track parameter changes when using CVODE. This is needed in case events change parameters during the course of the simulation.
+
+README: https://github.com/PySCeS/pysces/blob/master/README.md
+
+DOCUMENTATION: https://pyscesdocs.readthedocs.io/en/latest/
 
 ## PySCeS release 1.1.0 (Apr 2023)
 
