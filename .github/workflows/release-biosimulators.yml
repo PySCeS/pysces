@@ -1,6 +1,7 @@
 name: Update BioSimulators command-line interface and Docker image
 
 on:
+  workflow_dispatch: 
   release:
     types:
       - published
