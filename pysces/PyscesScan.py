@@ -176,7 +176,7 @@ class Scanner(object):
         if log:
             rng = numpy.logspace(numpy.log10(start), numpy.log10(end), points)
         else:
-            rng = scipy.linspace(start, end, points)
+            rng = numpy.linspace(start, end, points)
         return rng
 
     def rangeGen(self, name, start, end, points, log):
@@ -453,7 +453,7 @@ class PITCONScanUtils(object):
         else:
             self.pitcon_range_low = low
             self.pitcon_range_high = high
-            self.model.pitcon_par_space = scipy.linspace(
+            self.model.pitcon_par_space = numpy.linspace(
                 self.pitcon_range_low, self.pitcon_range_high, self.pitcon_scan_density
             )
 
