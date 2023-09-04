@@ -20,9 +20,8 @@ from __future__ import unicode_literals
 
 from .version import __version__
 from . import __SILENT_START__
-import subprocess, os, shutil, time, math, itertools, copy
-from getpass import getuser
-import numpy, scipy
+import subprocess, os, shutil, time, itertools, copy
+import numpy
 
 try:
     input = raw_input  # Py2 compatibility

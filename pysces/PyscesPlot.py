@@ -22,7 +22,7 @@ from pysces.version import __version__
 
 __doc__ = '''PySCeS plotting module'''
 
-import numpy, scipy
+import numpy
 import os
 import itertools
 from time import strftime
