@@ -251,8 +251,8 @@ class RateChar:
         scan_min = getattr(basemod, fixed + '_ss') / self.min_concrange_factor
         scan_max = getattr(basemod, fixed + '_ss') * self.max_concrange_factor
         # do scan
-        rng = scipy.logspace(
-            scipy.log10(scan_min), scipy.log10(scan_max), self.scan_points
+        rng = numpy.logspace(
+            numpy.log10(scan_min), numpy.log10(scan_max), self.scan_points
         )
         sc1 = pysces.Scanner(mod)
         sc1.quietRun = True
@@ -917,14 +917,14 @@ class RcFigure:
             ec_slope = self.parent.basemod.ec.get(step, self.parent.fix)
             ec_constant = J_ss / (fix_ss ** ec_slope)
 
-            ydist = scipy.log10(self.lims[3] / self.lims[2])
-            xdist = scipy.log10(self.lims[1] / self.lims[0])
+            ydist = numpy.log10(self.lims[3] / self.lims[2])
+            xdist = numpy.log10(self.lims[1] / self.lims[0])
             xyscale = xdist / ydist
 
             scale_factor = scipy.cos(scipy.arctan(ec_slope * xyscale))
             range_min_old = fix_ss / self.parent.slope_range_factor
             range_max_old = fix_ss * self.parent.slope_range_factor
-            distance = scipy.log10(fix_ss / range_min_old) * scale_factor
+            distance = numpy.log10(fix_ss / range_min_old) * scale_factor
             range_min = fix_ss / (10 ** distance)
             range_max = fix_ss * (10 ** distance)
 
@@ -958,14 +958,14 @@ class RcFigure:
             rc_slope = self.parent.mod.rc.get(step, self.parent.fix)
             rc_constant = J_ss / (fix_ss ** rc_slope)
 
-            ydist = scipy.log10(self.lims[3] / self.lims[2])
-            xdist = scipy.log10(self.lims[1] / self.lims[0])
+            ydist = numpy.log10(self.lims[3] / self.lims[2])
+            xdist = numpy.log10(self.lims[1] / self.lims[0])
             xyscale = xdist / ydist
 
             scale_factor = scipy.cos(scipy.arctan(rc_slope * xyscale))
             range_min_old = fix_ss / self.parent.slope_range_factor
             range_max_old = fix_ss * self.parent.slope_range_factor
-            distance = scipy.log10(fix_ss / range_min_old) * scale_factor
+            distance = numpy.log10(fix_ss / range_min_old) * scale_factor
             range_min = fix_ss / (10 ** distance)
             range_max = fix_ss * (10 ** distance)
 
@@ -1002,14 +1002,14 @@ class RcFigure:
                 ) * self.parent.mod.cc.get(reaction, step)
                 prc_constant = J_ss / (fix_ss ** prc_slope)
 
-                ydist = scipy.log10(self.lims[3] / self.lims[2])
-                xdist = scipy.log10(self.lims[1] / self.lims[0])
+                ydist = numpy.log10(self.lims[3] / self.lims[2])
+                xdist = numpy.log10(self.lims[1] / self.lims[0])
                 xyscale = xdist / ydist
 
                 scale_factor = scipy.cos(scipy.arctan(prc_slope * xyscale))
                 range_min_old = fix_ss / self.parent.slope_range_factor
                 range_max_old = fix_ss * self.parent.slope_range_factor
-                distance = scipy.log10(fix_ss / range_min_old) * scale_factor
+                distance = numpy.log10(fix_ss / range_min_old) * scale_factor
                 range_min = fix_ss / (10 ** distance)
                 range_max = fix_ss * (10 ** distance)
 

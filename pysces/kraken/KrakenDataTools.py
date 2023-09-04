@@ -188,10 +188,10 @@ class IntersectionAnalysis(DataTools):
         print("Logging VTK coords")
         # log for vtk
         for r in range(self.vtkcoords.shape[0]):
-            self.vtkcoords[r,:self.coords.shape[1]] = scipy.log10(self.vtkcoords[r,:self.coords.shape[1]])
+            self.vtkcoords[r,:self.coords.shape[1]] = numpy.log10(self.vtkcoords[r,:self.coords.shape[1]])
 
     def LogVTKIntersectiondata(self):
         print("Logging VTK intersection")
         # log for vtk intersect
         for r in range(self.vtkintersection.shape[0]):
-            self.vtkintersection[r,:] = scipy.log10(self.intersection[r,:])
+            self.vtkintersection[r,:] = numpy.log10(self.intersection[r,:])

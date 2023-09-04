@@ -174,7 +174,7 @@ class Scanner(object):
         - bool(log)
         """
         if log:
-            rng = scipy.logspace(scipy.log10(start), scipy.log10(end), points)
+            rng = numpy.logspace(numpy.log10(start), numpy.log10(end), points)
         else:
             rng = scipy.linspace(start, end, points)
         return rng
@@ -445,9 +445,9 @@ class PITCONScanUtils(object):
         self.pitcon_scan_parameter = parameter
         self.pitcon_scan_parameter_3d = par3d
         if logrange:
-            self.pitcon_range_low = scipy.log10(low)
-            self.pitcon_range_high = scipy.log10(high)
-            self.model.pitcon_par_space = scipy.logspace(
+            self.pitcon_range_low = numpy.log10(low)
+            self.pitcon_range_high = numpy.log10(high)
+            self.model.pitcon_par_space = numpy.logspace(
                 self.pitcon_range_low, self.pitcon_range_high, self.pitcon_scan_density
             )
         else:
