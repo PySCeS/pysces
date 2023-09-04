@@ -141,7 +141,7 @@ class Intersect:
                 isectCount += 1
                 self.STDOUT.write(str(isectCount) + ' intersections found!\n')
 
-        self.isect_data = scipy.array(isect)
+        self.isect_data = numpy.array(isect)
         ##  BB = open(os.path.join(self.data_dir,isect_data_file),'w')
         scipy.io.write_array(
             os.path.join(self.data_dir, isect_data_file), self.isect_data, keep_open=0
@@ -351,6 +351,6 @@ class IntersectD3(Intersect):
                 isectCount += 1
                 self.STDOUT.write(str(isectCount) + ' intersections found!\n')
 
-        self.isect_data = scipy.array(isect)
+        self.isect_data = numpy.array(isect)
         BB = open(os.path.join(self.data_dir, isect_data_file), 'w')
         scipy.io.write_array(BB, self.isect_data, keep_open=0)

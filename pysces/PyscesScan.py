@@ -293,9 +293,9 @@ class Scanner(object):
             if pcntr >= self.MSG_PRINT_INTERVAL:
                 print('\t', analysis_counter, next(self.scanT.RUN))
                 pcntr = 0
-        self.ScanSpace = scipy.array(self.ScanSpace)
-        self.SteadyStateResults = scipy.array(self.SteadyStateResults)
-        self.UserOutputResults = scipy.array(self.UserOutputResults)
+        self.ScanSpace = numpy.array(self.ScanSpace)
+        self.SteadyStateResults = numpy.array(self.SteadyStateResults)
+        self.UserOutputResults = numpy.array(self.UserOutputResults)
         self.resetInputParameters()
         if self.nan_on_bad_state:
             self.mod.mode_state_nan_on_fail = False
@@ -332,7 +332,7 @@ class Scanner(object):
             )
         if self.HAS_USER_OUTPUT and self._MODE_ != 'null':
             self.UserOutputResults.append(
-                scipy.array([getattr(self.mod, res) for res in self.UserOutputList])
+                numpy.array([getattr(self.mod, res) for res in self.UserOutputList])
             )
 
     def getOutput(self):
@@ -535,7 +535,7 @@ class PITCONScanUtils(object):
                     except Exception as ex:
                         print(ex)
                 self.res_user.append(state_out)
-        self.res_user = scipy.array(self.res_user)
+        self.res_user = numpy.array(self.res_user)
         print('\n\t%s evaluation complete\n' % analysis)
 
     def getArrayListAsArray(self, array_list):

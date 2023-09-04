@@ -307,7 +307,7 @@ class RateChar:
             # number of results between NaN ends
             midpart = endpoint - startpoint
             newUserOutputResults = sc1.UserOutputResults[startpoint:endpoint]
-            newUserOutputResults = scipy.array(newUserOutputResults).reshape(
+            newUserOutputResults = numpy.array(newUserOutputResults).reshape(
                 midpart, resultsperdimension
             )
             sc1.UserOutputResults = newUserOutputResults
