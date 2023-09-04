@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os, sys
-import pysces, scipy
+import pysces, scipy, numpy
 import scipy.io
 import gc
 from time import sleep
@@ -70,8 +70,8 @@ class Intersect:
         self.P2min = min2
         self.P2max = max2
         self.P2steps = step2
-        self.P1range = scipy.logspace(scipy.log10(min1), scipy.log10(max1), step1)
-        self.P2range = scipy.logspace(scipy.log10(min2), scipy.log10(max2), step2)
+        self.P1range = numpy.logspace(numpy.log10(min1), numpy.log10(max1), step1)
+        self.P2range = numpy.logspace(numpy.log10(min2), numpy.log10(max2), step2)
 
     def load_raw_data(self, raw_data_file):
         raw_file = open(os.path.join(self.data_dir, raw_data_file), 'r')
@@ -84,7 +84,7 @@ class Intersect:
         assert len(output) > 0
         self.inputP = input
         self.outputP = output
-        self.data_raw = scipy.zeros(
+        self.data_raw = numpy.zeros(
             (self.P1steps * self.P2steps, len(output) + 2), self.dtype
         )
         raw_file = open(os.path.join(self.data_dir, raw_data_file), 'w')
@@ -94,7 +94,7 @@ class Intersect:
             # not agaaaaaaaaaaaaaaaain
             gc.collect()
             del gc.garbage[:]
-            data_dump = scipy.zeros((len(self.P2range), len(output) + 2), self.dtype)
+            data_dump = numpy.zeros((len(self.P2range), len(output) + 2), self.dtype)
             setattr(self.mod, input[0], self.P1range[P1])
             flush += 1
             # print ' '
@@ -272,9 +272,9 @@ class IntersectD3(Intersect):
         self.P3min = min3
         self.P3max = max3
         self.P3steps = step3
-        self.P1range = scipy.logspace(scipy.log10(min1), scipy.log10(max1), step1)
-        self.P2range = scipy.logspace(scipy.log10(min2), scipy.log10(max2), step2)
-        self.P3range = scipy.logspace(scipy.log10(min3), scipy.log10(max3), step3)
+        self.P1range = numpy.logspace(numpy.log10(min1), numpy.log10(max1), step1)
+        self.P2range = numpy.logspace(numpy.log10(min2), numpy.log10(max2), step2)
+        self.P3range = numpy.logspace(numpy.log10(min3), numpy.log10(max3), step3)
 
     def D3_generate_raw_data(self, input, output, raw_data_file):
         assert len(input) == 3
@@ -282,7 +282,7 @@ class IntersectD3(Intersect):
         # needs cleaning
         self.inputP = input
         self.outputP = output
-        self.data_raw = scipy.zeros(
+        self.data_raw = numpy.zeros(
             (self.P1steps * self.P2steps * self.P3steps, len(output) + 3), self.dtype
         )
 
@@ -300,7 +300,7 @@ class IntersectD3(Intersect):
             setattr(self.mod, input[0], self.P1range[P1])
             for P2 in range(len(self.P2range)):
                 setattr(self.mod, input[1], self.P2range[P2])
-                data_dump = scipy.zeros(
+                data_dump = numpy.zeros(
                     (len(self.P3range), len(output) + 3), self.dtype
                 )
                 flush += 1

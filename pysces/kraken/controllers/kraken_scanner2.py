@@ -13,16 +13,16 @@ def concatenateArrays(array_list):
             if arr == 0:
                 output = array_list[arr]
             else:
-                output = scipy.concatenate((output,array_list[arr]))
+                output = numpy.concatenate((output,array_list[arr]))
     return output
 
 def splitScan(start, end, intervals, job, log=False):
     """Splits a range into a number of jobs with intervals"""
     assert intervals >= 1, '\n* Minimum of 1 interval'
     if log:
-        kpoints = scipy.logspace(scipy.log10(start), scipy.log10(end), intervals+1)
+        kpoints = numpy.logspace(numpy.log10(start), numpy.log10(end), intervals+1)
     else:
-        kpoints = scipy.linspace(start, end, intervals+1)
+        kpoints = numpy.linspace(start, end, intervals+1)
     job_list = []
     for p in range(len(kpoints)-1):
         job2 = job % (kpoints[p], kpoints[p+1])
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     print('coords[0]\n', coords[0])
     writeGnuPlot_3D(task_name, coords)
     for r in range(coords.shape[0]):
-        coords[r,:] = scipy.log10(coords[r,:])
+        coords[r,:] = numpy.log10(coords[r,:])
     writeVTK_UnstructuredGrid(task_name, coords)
 
     print(time.strftime('%y%m%d-%H%M'))
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     xpoints = 64
 
     # create a list of values
-    delta_list = scipy.logspace(scipy.log10(0.01),scipy.log10(10000.0), yrange)
+    delta_list = numpy.logspace(numpy.log10(0.01),numpy.log10(10000.0), yrange)
     # initiate an 'looping' generator with it
     delta_gen = buildCycler(delta_list)
 
@@ -395,7 +395,7 @@ if __name__ == '__main__':
     # prepare vtk data
     vtkcoords = numpy.transpose(numpy.array((FinalArrayClean[:,0],FinalArrayClean[:,1],FinalArrayClean[:,2],FinalArrayClean[:,3]),'d'))
     for row in range(vtkcoords.shape[0]):
-        vtkcoords[row,:3] = scipy.log10(vtkcoords[row,:3])
+        vtkcoords[row,:3] = numpy.log10(vtkcoords[row,:3])
 
     print vtkcoords[:10,:]
     vtkcoords = GridSortLR(vtkcoords)
