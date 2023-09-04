@@ -328,7 +328,7 @@ class Scanner(object):
         """
         if self.HAS_STATE_OUTPUT and self._MODE_ != 'null':
             self.SteadyStateResults.append(
-                scipy.hstack((self.mod.state_species, self.mod.state_flux))
+                numpy.hstack((self.mod.state_species, self.mod.state_flux))
             )
         if self.HAS_USER_OUTPUT and self._MODE_ != 'null':
             self.UserOutputResults.append(
@@ -355,7 +355,7 @@ class Scanner(object):
         """
         if stst:
             if self.HAS_USER_OUTPUT:
-                output_array = scipy.hstack(
+                output_array = numpy.hstack(
                     [self.ScanSpace, self.SteadyStateResults, self.UserOutputResults]
                 )
                 labels = (
@@ -365,12 +365,12 @@ class Scanner(object):
                     + self.UserOutputList
                 )
             else:
-                output_array = scipy.hstack([self.ScanSpace, self.SteadyStateResults])
+                output_array = numpy.hstack([self.ScanSpace, self.SteadyStateResults])
                 labels = (
                     self.GenOrder + list(self.mod.species) + list(self.mod.reactions)
                 )
         else:
-            output_array = scipy.hstack([self.ScanSpace, self.UserOutputResults])
+            output_array = numpy.hstack([self.ScanSpace, self.UserOutputResults])
             labels = self.GenOrder + self.UserOutputList
         if lbls:
             return output_array, labels
@@ -544,7 +544,7 @@ class PITCONScanUtils(object):
         """
         output = None
         if len(array_list) > 1:
-            output = scipy.vstack(array_list)
+            output = numpy.vstack(array_list)
         elif len(array_list) == 1:
             output = array_list[0]
         return output
