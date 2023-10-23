@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
 #        os: [ubuntu-latest, windows-latest, macos-12]
-        os: [windows-latest]
+        os: [macos-12]
 #        python: [311, 310, 39, 38]
         python: [312]
 
@@ -31,12 +31,13 @@ jobs:
         with:
           python-version: '3.11'
 
-#      - name: (macOS) Download and install gfortran
-#        if: matrix.os == 'macos-12'
-#        run: |
-#          curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/12.1-monterey/gfortran-Intel-12.1-Monterey.dmg -o /tmp/gfortran-intel.dmg &&
-#          sudo hdiutil attach /tmp/gfortran-intel.dmg &&
-#          sudo installer -pkg /Volumes/gfortran-Intel-12.1-Monterey/gfortran-Intel-12.1-Monterey/gfortran.pkg -target /
+      - name: (macOS) Provide gfortran
+        if: matrix.os == 'macos-12'
+        run: |
+          sudo ln -s /usr/local/bin/gfortran-11 /usr/local/bin/gfortran
+          sudo mkdir /usr/local/gfortran
+          sudo ln -s /usr/local/Cellar/gcc@11/*/lib/gcc/11 /usr/local/gfortran/lib
+          gfortran --version
 
       - name: Build wheels for CPython
         uses: pypa/cibuildwheel@v2.16.2
