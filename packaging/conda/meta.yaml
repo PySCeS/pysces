@@ -23,6 +23,7 @@ requirements:
     - setuptools
     - numpy {{ numpy }}
     - scikit-build
+    - meson
     - scipy
     - matplotlib
   run:

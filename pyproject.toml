@@ -2,7 +2,8 @@
 requires = ["setuptools>=42", 
 	"wheel", 
 	"scikit-build", 
-	"cmake", 
+	"cmake",
+	"meson; python_version>='3.12'",
 	"ninja; platform_system!='Windows'",
 	"numpy~=1.21.0; python_version<'3.11'",
     "oldest-supported-numpy; python_version>='3.11'"]
