@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
 #        os: [ubuntu-latest, windows-latest, macos-12]
-        os: [macos-12]
+        os: [windows-latest]
 #        python: [311, 310, 39, 38]
         python: [312]
 
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-python@v3
         name: Install Python
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: (macOS) Provide gfortran
         if: matrix.os == 'macos-12'
@@ -39,12 +39,19 @@ jobs:
           sudo ln -s /usr/local/Cellar/gcc@11/*/lib/gcc/11 /usr/local/gfortran/lib
           gfortran --version
 
+      - name: (windows) Update PATH for Strawberry
+        if: matrix.os == 'windows-latest'
+        uses: myci-actions/export-env-var-powershell@1
+        with:
+          name: PATH
+          value: C:\Strawberry\c\bin;$env:PATH
+
       - name: Build wheels for CPython
         uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_BUILD: "cp${{ matrix.python }}-*"
           CIBW_SKIP: "*musllinux*"
-          CIBW_BEFORE_BUILD: pip install scikit-build meson
+          CIBW_BEFORE_BUILD: python -m pip install scikit-build meson
 
       - uses: actions/upload-artifact@v3
         with:
