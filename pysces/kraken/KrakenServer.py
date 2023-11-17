@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 
 # begin header
 import pysces
-import numpy, scipy
+import numpy
 
 from .KrakenNET import os, time, socket
 from .KrakenNET import StatusServer, BasicServer

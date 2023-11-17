@@ -27,7 +27,7 @@ __doc__ = """
           PySCeS classes for continuations and multi-dimensional parameter scans
           """
 
-import scipy
+import numpy
 from pysces.PyscesUtils import TimerBox
 
 __psyco_active__ = 0
