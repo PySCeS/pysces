@@ -12,7 +12,7 @@ set(generated_libs_dir "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_name}/.libs")
 
 # work around path expansion bug in Windows
 # see https://groups.google.com/g/scikit-build/c/L7SmriBFeFk
-# set(f2py_build_dir f2py_build)
+set(f2py_build_dir f2py_build)
 
 add_custom_target(${f2py_module_name} ALL
   DEPENDS ${generated_module_file}
@@ -22,6 +22,7 @@ add_custom_command(
   OUTPUT ${generated_module_file}
   COMMAND ${F2PY_EXECUTABLE}
     -c ${fortran_src_file}
+    --build-dir ${f2py_build_dir}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 
