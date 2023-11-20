@@ -1,7 +1,6 @@
 include *.md
 include LICENCE.txt
 include requirements.txt
-include setupegg.py
 include pysces/*
 include pysces/contrib/*
 include pysces/contrib/demo/*
@@ -19,8 +18,4 @@ include pysces/pitcon/*
 include pysces/pscmodels/*
 include pysces/tests/*
 include pysces/version.txt
-include pysces/win32/libgfortran-3.dll
-include pysces/win32/libquadmath-0.dll
-include pysces/win32/libgcc_s_seh-1.dll
-include pysces/win32/libwinpthread-1.dll
 global-include CMakeLists.txt
