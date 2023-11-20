@@ -15,11 +15,11 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_ARCHS_WINDOWS: "AMD64"
-      CIBW_ARCHS_MACOS: "x86_64"
+      CIBW_ARCHS_MACOS: "x86_64 arm64"
     strategy:
       matrix:
 #        os: [ubuntu-latest, windows-latest, macos-12]
-        os: [windows-latest]
+        os: [macos-12]
 #        python: [311, 310, 39, 38]
         python: [311]
 
