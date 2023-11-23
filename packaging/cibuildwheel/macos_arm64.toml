@@ -1,0 +1,7 @@
+[tool.cibuildwheel]
+build = "cp312-* cp311-*"
+build-verbosity = "3"
+test-command = "python -s -c \"import pysces; pysces.test(3)\""
+build-frontend="pip"
+archs = "arm64"
+before-build = "rm -rf {project}/_skbuild"
