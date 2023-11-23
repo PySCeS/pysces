@@ -7,5 +7,40 @@ requires = ["setuptools>=42",
 	"ninja",
 	"numpy~=1.21.0; python_version<'3.11'",
 	"oldest-supported-numpy; python_version=='3.11'",
-	"numpy>=2.0.0.dev0; python_version=='3.12'"]
+	"numpy~=1.26.0; python_version=='3.12'"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+build = "cp312-* cp311-* cp310-* cp39-* cp38-*"
+skip = "*musllinux* pp*"
+build-verbosity = "3"
+test-command = "python -s -c \"import pysces; pysces.test(3)\""
+build-frontend="pip"
+
+[tool.cibuildwheel.linux]
+archs = "x86_64"
+manylinux-x86_64-image = "manylinux2014"
+
+[tool.cibuildwheel.macos]
+archs = "x86_64"
+before-build = [
+	"sudo ln -sf /usr/local/bin/gfortran-11 /usr/local/bin/gfortran",
+	"sudo mkdir -p /usr/local/gfortran",
+	"sudo ln -sf /usr/local/Cellar/gcc@11/*/lib/gcc/11 /usr/local/gfortran/lib",
+	"gfortran --version",
+]
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+
+[[tool.cibuildwheel.overrides]]
+select = "cp312-*win*"
+before-build = [
+	"python -m pip install scikit-build meson cmake ninja",
+	"python -m pip install -i https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy==2.0.0.dev0",
+]
+build-frontend = "pip; args: --no-build-isolation"
+
+[tool.cibuildwheel.overrides.environment]
+CMAKE_GENERATOR = "MSYS Makefiles"
+PATH = "c:\\\\rtools40\\\\ucrt64\\\\bin;c:\\\\rtools40\\\\usr\\\\bin;$PATH"
