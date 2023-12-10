@@ -67,7 +67,7 @@ pitcon = 1
 ##Special licence libraries see the relevant readme.txt file for details
 nleq2 = 1  # pysces/nleq2/readme.txt
 
-use = re.split('\s+', os.getenv('PYSCES_USE', ''))
+use = re.split(r'\s+', os.getenv('PYSCES_USE', ''))
 for e in use:
     if e == 'pitcon':
         pitcon = 1
