@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 import os
 
@@ -18,3 +20,6 @@ def current_version_tuple():
     return (MAJOR, MINOR, MICRO)
 
 __version__ = current_version()
+
+if __name__ == '__main__':
+    print(__version__)

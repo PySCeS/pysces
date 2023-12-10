@@ -1,9 +1,10 @@
-fs = import('fs')
-
 project(
   'pysces',
   ['c', 'fortran'],
-  version : fs.read('pysces/version.txt').strip(),
+  version : run_command(
+    ['pysces/version.py'],
+    check: true
+  ).stdout().strip(),
   meson_version: '>= 1.2.3'
 )
 

@@ -8,9 +8,9 @@ pitcon_wrappers = custom_target(
 py.extension_module(
   'pitcon',
   [
-    'pcon61subd.f'
-    'dpcon61.f'
-    'dpcon61w.f'
+    'pcon61subd.f',
+    'dpcon61.f',
+    'dpcon61w.f',
     pitcon_wrappers,
     fortranobject_c
   ],
