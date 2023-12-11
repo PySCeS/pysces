@@ -3,8 +3,8 @@ build-backend = 'mesonpy'
 requires = [
   'meson-python',
   'meson>=1.2.3',
-	'numpy~=1.21.0; python_version<"3.11"',
-	'oldest-supported-numpy; python_version>="3.11"'
+	'numpy==1.23.2; python_version<="3.11"',
+	'numpy>=1.26.0,<1.27; python_version=="3.12"',
 ]
 
 [tool.meson-python.args]
@@ -16,7 +16,7 @@ compile = ['-j4']
 [project]
 name = 'pysces'
 dependencies = [
-	'numpy',
+	'numpy>=1.23.2',
 	'matplotlib',
 	'scipy'
 ]
