@@ -50,7 +50,13 @@ foreach subdir: pure_subdirs
   install_subdir(
     subdir,
     install_dir: pysces_dir,
-    exclude_directories: ['sbw', 'visualise', '__pycache__']
+    exclude_directories: [
+      'sbw',
+      'visualise',
+      '__pycache__',
+      'demo/__pycache__',
+      'controllers/__pycache__',
+    ]
   )
 endforeach
 
