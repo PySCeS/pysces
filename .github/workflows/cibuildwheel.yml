@@ -12,7 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+#        os: [ubuntu-latest, windows-latest, macos-12]
+        os: [macos-12]
 
     steps:
       - uses: actions/checkout@v3
@@ -43,7 +44,7 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install scikit-build build
+          pip install build
           python -m build -s .
 
       - uses: actions/upload-artifact@v3
