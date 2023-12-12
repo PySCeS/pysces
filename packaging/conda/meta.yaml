@@ -1,7 +1,7 @@
 package:
   name: pysces
-  version: {{ GIT_DESCRIBE_TAG }}
-#  version: 1.1.1
+#  version: {{ GIT_DESCRIBE_TAG }}
+  version: 1.1.2
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -10,22 +10,25 @@ source:
 build:
   number: 0
   include_recipe: True
-  script: "python -m pip install --no-deps --ignore-installed . -vv"
+  # script: "python -m pip install --no-deps --ignore-installed . -vv"
 
 requirements:
   build:
     - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}   # [unix]
-    - m2w64-gcc-fortran           # [win]
-    - cmake
+    - clang                       # [win]
+    - flang                       # [win]
+    - lld                         # [win]
   host:
+    - compiler-rt                 # [win]
     - python {{ python }}
     - setuptools
     - numpy {{ numpy }}
-    - scikit-build
-    - meson
-    - scipy
-    - matplotlib
+    - meson>=1.2.3
+    - meson-python
+    - ninja
+    - pip
   run:
     - python {{ python }}
     - setuptools
@@ -43,9 +46,9 @@ test:
     - python -s -c "import pysces; pysces.test(3)"
 
 about:
-  home: http://pysces.sourceforge.net
+  home: http://pysces.github.io
   license: BSD
-  licence_file: LICENCE.txt
+  license_file: LICENSE.txt
   summary: Python Simulator for Cellular Systems
 
 extra:

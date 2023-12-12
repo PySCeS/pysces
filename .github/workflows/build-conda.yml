@@ -12,24 +12,25 @@ jobs:
     strategy:
       matrix:
 #        os: [ubuntu-latest, windows-2019, macos-12]
-        os: [ubuntu-latest]
+        os: [windows-latest]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
-          update-conda: true
+          update-conda: false
           conda-channels: conda-forge
       
       - name: Prepare conda environment
         run: |
-          conda install mamba conda-build conda-verify anaconda-client
+          conda install mamba boa conda-verify anaconda-client
+          mamba update --all
           mkdir build_output
           
       - name: Build packages
-        run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
       - uses: actions/upload-artifact@v3
         with:
