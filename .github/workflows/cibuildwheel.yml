@@ -16,7 +16,7 @@ jobs:
         os: [macos-12]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: (windows) Install rtools MinGW compilers
         if: matrix.os == 'windows-latest'

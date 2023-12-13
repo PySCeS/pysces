@@ -1,4 +1,4 @@
-name: CI build Anaconda
+name: CI build Anaconda on Windows
 
 on:
   workflow_dispatch:
@@ -8,15 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-#        os: [ubuntu-latest, windows-2019, macos-12]
-        os: [windows-latest]
-    name: Build Anaconda packages on ${{ matrix.os }}
+    runs-on: windows-latest
+    name: Build Anaconda packages on windows-latest
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install rtools MinGW compilers
+        run: |
+          choco install rtools -y --no-progress --force --version=4.0.0.20220206
+
+      - name: Add compiler path to PATH
+        uses: myci-actions/export-env-var-powershell@1
+        with:
+          name: PATH
+          value: c:\rtools40\ucrt64\bin;c:\rtools40\usr\bin;$env:PATH
+
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
@@ -30,7 +37,7 @@ jobs:
           mkdir build_output
           
       - name: Build packages
-        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
       
       - uses: actions/upload-artifact@v3
         with:

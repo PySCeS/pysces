@@ -10,18 +10,14 @@ source:
 build:
   number: 0
   include_recipe: True
-  # script: "python -m pip install --no-deps --ignore-installed . -vv"
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed --no-build-isolation . -vv"
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('fortran') }}   # [unix]
-    - clang                       # [win]
-    - flang                       # [win]
-    - lld                         # [win]
+    - {{ compiler('fortran') }}
   host:
-    - compiler-rt                 # [win]
     - python {{ python }}
     - setuptools
     - numpy {{ numpy }}
@@ -32,7 +28,7 @@ requirements:
   run:
     - python {{ python }}
     - setuptools
-    - numpy
+    - numpy>=1.23
     - scipy
     - matplotlib
     - ipyparallel

@@ -1,0 +1,43 @@
+name: CI build Anaconda on Linux and macOS
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - released
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+#        os: [ubuntu-latest, macos-12]
+        os: [macos-12]
+    name: Build Anaconda packages on ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: false
+          conda-channels: conda-forge
+      
+      - name: Prepare conda environment
+        run: |
+          conda install mamba boa conda-verify anaconda-client
+          mamba update --all
+          mkdir build_output
+          
+      - name: Build packages
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-unix
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build_outputs
+          path: ./build_output/*/pysces*.tar.bz2
+
+      - name: Upload to anaconda.org
+        # to publish when a GitHub Release is created:
+        if: github.event_name == 'release' && github.event.action == 'released'
+        run: anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u pysces ./build_output/*/pysces*.tar.bz2
