@@ -52,7 +52,7 @@ PySCeS releases are available on [PyPI](https://pypi.org/project/pysces/#files),
 [Anaconda.org](https://anaconda.org/pysces/pysces) and 
 [Github](https://github.com/PySCeS/pysces)
 
-PySCeS binaries are available for Python 3.6+ on Windows, Linux and OSX and can be
+PySCeS binaries are available for Python 3.9+ on Windows, Linux and OSX and can be
 installed using
 
 **PyPI**
