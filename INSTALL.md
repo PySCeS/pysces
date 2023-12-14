@@ -1,7 +1,9 @@
 # Installing PySCeS
 
-Binary install packages for all three OSs and Python versions 3.6-3.9 are provided.
-Anaconda users can conveniently install PySCeS with:
+Binary install packages for all three OSs and recent Python versions are 
+provided. Anaconda packages are available for 64-bit Windows and Linux, as well as 
+macOS *x86_64* architecture. Apple Silicon (*arm64*) macOS users should install with 
+`pip` (see below). Anaconda users can conveniently install PySCeS with:
 
 ```bash
 $ conda install -c conda-forge -c pysces pysces
@@ -11,7 +13,9 @@ Any dependencies will be installed automatically, including the optional depende
 *Assimulo*, *ipyparallel* and *libSBML*. 
 
 Alternatively, you can use *pip* to
-install PySCeS from PyPI. Core dependencies will be installed automatically.
+install PySCeS from PyPI. Core dependencies will be installed automatically. Wheels 
+are available for 64-bit Windows and Linux, as well as macOS architectures *x86_64* and 
+*arm64* (starting from PySCeS version 1.2.0).
 
 ```bash
 $ pip install pysces
@@ -30,7 +34,7 @@ To install the optional dependences:
 >  very limited number of Python versions and operating systems on PyPI. 
 >  **This is not guaranteed to work!** If you require Assimulo, the conda
 >  install is by far the easier option as up-to-date binaries are supplied
->  for all OS and recent Python versions.
+>  for all OSs and recent Python versions.
 
 For more information on installing and configuring PySCeS please see the
 [PySCeS User Guide](https://github.com/PySCeS/pysces-documentation/blob/main/source/userguide_doc.rst#installing-and-configuring)
@@ -42,17 +46,25 @@ installation from source. This requires Fortran and C compilers.
 
 ### Windows build
 
-The fastest way to build your own copy of PySCeS is to use Anaconda Python.
+The fastest way to build your own copy of PySCeS is to use Anaconda for 
+installing Python and the required libraries. In addition, the *RTools* compiler 
+toolchain is required.
 
 * Download and install 
-  [Anaconda for Python 3](https://www.anaconda.com/products/individual#Downloads)
+  [Anaconda for Python 3](https://www.anaconda.com/download#Downloads)
 * Obtain [Git for Windows](https://git-scm.com/download/win)
+* Obtain the *RTools* compiler toolchain (**version 4.0.0.20220206**), either using
+  [Chocolatey](https://chocolatey.org/install) 
+  (`choco install rtools -y --version=4.0.0.20220206`) or by
+  [direct download](https://github.com/r-windows/rtools-installer/releases/download/2022-02-06/rtools40-x86_64.exe)
+  - Install in `C:\rtools40` (Chocolatey automatically installs to this path)
+  - Add `c:\rtools40\ucrt64\bin` and `c:\rtools40\usr\bin` to the system `PATH`
 * Create a PySCeS environment using conda and activate it:
 
 ```bash
-$ conda create -n pyscesdev -c conda-forge python=3.8 numpy scipy \ 
+$ conda create -n pyscesdev -c conda-forge python=3.11 numpy=1.26 scipy \ 
   matplotlib sympy packaging pip wheel ipython python-libsbml \
-  fortran-compiler assimulo scikit-build
+  assimulo meson meson-python ninja
 $ conda activate pyscesdev
 ```
 
@@ -63,11 +75,10 @@ $ conda activate pyscesdev
 (pyscesdev)$ cd pysces-src
 ```
 
-* Now you can build and install PySCeS into the pyscesdev environment
+* Now you can build and install PySCeS into the *pyscesdev* environment
 
 ```bash
-(pyscesdev)$ python setup.py build
-(pyscesdev)$ python setup.py install
+(pyscesdev)$ pip install --no-deps --no-build-isolation .
 ```
 
 ### Linux build
@@ -80,7 +91,7 @@ Clone the source from Github as described above, change into the source director
 run:
 
 ```bash
-$ python setup.py install
+$ pip install .
 ```
 
 ### macOS build
@@ -92,7 +103,7 @@ compilers may be installed via [Xcode](https://developer.apple.com/xcode). Clone
 source from Github as described above, change into the source directory and run:
 
 ```bash
-$ python setup.py install
+$ pip install .
 ```
 
-© Brett G. Olivier & Johann M. Rohwer, August 2021
+© Johann M. Rohwer & Brett G. Olivier, January 2024
