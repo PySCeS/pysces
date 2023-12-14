@@ -41,11 +41,11 @@ jobs:
           mamba update --all
           mkdir build_output
           
-      - name: Build packages for ${{ matrix.os }}
+      - name: (unix) Build packages for ${{ matrix.os }}
         if: matrix.os != 'windows-latest'
         run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-unix
       
-      - name: Build packages for ${{ matrix.os }}
+      - name: (windows) Build packages for ${{ matrix.os }}
         if: matrix.os == 'windows-latest'
         run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
 
