@@ -1,4 +1,4 @@
-name: CI build Anaconda on Windows
+name: CI build Anaconda
 
 on:
   workflow_dispatch:
@@ -8,17 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    name: Build Anaconda packages on windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-12]
+    name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install rtools MinGW compilers
+      - name: (windows) Install rtools MinGW compilers
+        if: matrix.os == 'windows-latest'
         run: |
           choco install rtools -y --no-progress --force --version=4.0.0.20220206
 
-      - name: Add compiler path to PATH
+      - name: (windows) Add compiler path to PATH
+        if: matrix.os == 'windows-latest'
         uses: myci-actions/export-env-var-powershell@1
         with:
           name: PATH
@@ -36,9 +41,14 @@ jobs:
           mamba update --all
           mkdir build_output
           
-      - name: Build packages
-        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
+      - name: Build packages for ${{ matrix.os }}
+        if: matrix.os != 'windows-latest'
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-unix
       
+      - name: Build packages for ${{ matrix.os }}
+        if: matrix.os == 'windows-latest'
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
+
       - uses: actions/upload-artifact@v3
         with:
           name: build_outputs
