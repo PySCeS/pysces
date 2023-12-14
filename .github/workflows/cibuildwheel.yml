@@ -8,40 +8,22 @@ on:
 
 jobs:
   build_wheels:
-    name: Wheels on ${{ matrix.os }} for Python ${{ matrix.python }}
+    name: Wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    env:
-      CIBW_TEST_COMMAND: python -s -c "import pysces; pysces.test(3)"
-      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_ARCHS_LINUX: "x86_64"
-      CIBW_ARCHS_WINDOWS: "AMD64"
-      CIBW_ARCHS_MACOS: "x86_64"
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-12]
-        python: [311, 310, 39, 38]
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v3
-        name: Install Python
-        with:
-          python-version: '3.10'
-
-      - name: (macOS) Download and install gfortran
-        if: matrix.os == 'macos-12'
+      - name: (windows) Install rtools MinGW compilers
+        if: matrix.os == 'windows-latest'
         run: |
-          curl -L https://github.com/fxcoudert/gfortran-for-macOS/releases/download/12.1-monterey/gfortran-Intel-12.1-Monterey.dmg -o /tmp/gfortran-intel.dmg &&
-          sudo hdiutil attach /tmp/gfortran-intel.dmg &&
-          sudo installer -pkg /Volumes/gfortran-Intel-12.1-Monterey/gfortran-Intel-12.1-Monterey/gfortran.pkg -target /
+          choco install rtools -y --no-progress --force --version=4.0.0.20220206
 
       - name: Build wheels for CPython
-        uses: pypa/cibuildwheel@v2.12.1
-        env:
-          CIBW_BUILD: "cp${{ matrix.python }}-*"
-          CIBW_SKIP: "*musllinux*"
-          CIBW_BEFORE_BUILD: pip install scikit-build
+        uses: pypa/cibuildwheel@v2.16.2
 
       - uses: actions/upload-artifact@v3
         with:
@@ -57,12 +39,12 @@ jobs:
       - uses: actions/setup-python@v3
         name: Install Python
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Build sdist
         run: |
-          pip install scikit-build
-          python setup.py sdist
+          pip install scikit-build build
+          python -m build -s .
 
       - uses: actions/upload-artifact@v3
         with:

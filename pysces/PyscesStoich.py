@@ -568,7 +568,7 @@ class Stoich(MathArrayFunc):
 
         self.nrmatrix = nrmatrix
         self.nrmatrix_row = tuple(Nred_vector)
-        self.nrmatrix_col = tuple(scipy.copy(self.nmatrix_col))
+        self.nrmatrix_col = tuple(numpy.copy(self.nmatrix_col))
         print(' done.')
 
     def PivotSort(self, a, row_vector, column_vector):
@@ -857,7 +857,7 @@ class Stoich(MathArrayFunc):
             # as idiotic as it seems, we pad the vector with a zero row (no difference numerically)
             # run it through getrf and then strip it afterwards !@#$%^&*() - brett 20050707
             if a.shape[0] == 1:
-                tarr = scipy.zeros((a.shape[0]+1,a.shape[1]),'d')
+                tarr = numpy.zeros((a.shape[0]+1,a.shape[1]),'d')
                 tarr[0] = a[0]
 
                 results = getrf(tarr) #scipy cblas (ATLAS) 20030506 -- this is normal
@@ -1035,7 +1035,7 @@ class Stoich(MathArrayFunc):
             if abs(upper_out[x, x]) > self.stoichiometric_analysis_lu_precision:
                 pos_holder = x
 
-        upper_out_r = scipy.zeros((pos_holder + 1, col)).astype(t)
+        # upper_out_r = numpy.zeros((pos_holder + 1, col)).astype(t)
         upper_out_r = upper_out[: pos_holder + 1, :]
         row_vector_r = row_vector[: pos_holder + 1]
 
@@ -1080,8 +1080,8 @@ class Stoich(MathArrayFunc):
             if abs(upper_out[x, x]) > self.stoichiometric_analysis_lu_precision:
                 pos_holder = x
 
-        upper_out_r = scipy.zeros((pos_holder + 1, col)).astype(t)
-        p_out = scipy.diag(upper_out.shape[1] * [1.0])
+        upper_out_r = numpy.zeros((pos_holder + 1, col)).astype(t)
+        p_out = numpy.diag(upper_out.shape[1] * [1.0])
         upper_out_r = upper_out[: pos_holder + 1, :]
         row_vector_r = row_vector[: pos_holder + 1]
 
@@ -1207,7 +1207,7 @@ class Stoich(MathArrayFunc):
 
         '''This bit extracts the identity part from R (future note this could be replaced by an I matrix formed by min(row,col))'''
 
-        r_ipart = scipy.zeros((pos_holder + 1, pos_holder + 1)).astype(t)
+        r_ipart = numpy.zeros((pos_holder + 1, pos_holder + 1)).astype(t)
         r_ipart = R_a[: pos_holder + 1, : pos_holder + 1]
 
         row_i, col_i = r_ipart.shape
@@ -1218,14 +1218,14 @@ class Stoich(MathArrayFunc):
         K_switch = 0  # added 20020416 class attribute for conservation detection 0 = none, 1 = exists
 
         if col - col_i > self.stoichiometric_analysis_fp_zero:
-            r_fpart = scipy.zeros((pos_holder + 1, col - (pos_holder + 1))).astype(t)
+            r_fpart = numpy.zeros((pos_holder + 1, col - (pos_holder + 1))).astype(t)
             r_fpart = R_a[: pos_holder + 1, pos_holder + 1 :]
 
             row_vector_dependent = column_vector[: pos_holder + 1]
             row_vector_independent = column_vector[pos_holder + 1 :]
 
-            # row_vector = scipy.concatenate((row_vector_independent,row_vector_dependent),1)
-            row_vector = scipy.hstack(
+            # row_vector = numpy.concatenate((row_vector_independent,row_vector_dependent),1)
+            row_vector = numpy.hstack(
                 (row_vector_independent, row_vector_dependent)
             )  # numpy 0.10
             column_vector = column_vector[pos_holder + 1 :]
@@ -1250,7 +1250,7 @@ class Stoich(MathArrayFunc):
         else:
             row, col = r_fpart.shape
             id = numpy.identity(col).astype(t)
-            nullspace = scipy.concatenate((id, -r_fpart), 0).astype(t)
+            nullspace = numpy.concatenate((id, -r_fpart), 0).astype(t)
 
         # brett 05/11/2002 changed r_fpart to -r_fpart
         return (
@@ -1292,7 +1292,7 @@ class Stoich(MathArrayFunc):
 
         '''Here we extract the identity matrix from R (future note this could be replaced by an I matrix formed by min(row,col))'''
 
-        r_ipart = scipy.zeros((pos_holder + 1, pos_holder + 1)).astype(t)
+        r_ipart = numpy.zeros((pos_holder + 1, pos_holder + 1)).astype(t)
         r_ipart = R_a[: pos_holder + 1, : pos_holder + 1]
 
         row_i, col_i = r_ipart.shape
@@ -1304,18 +1304,18 @@ class Stoich(MathArrayFunc):
         '''If there are free variable then they are extracted and packaged, row/col vectors are formed'''
 
         if col - col_i > self.stoichiometric_analysis_fp_zero:
-            r_fpart = scipy.zeros((pos_holder + 1, col - (pos_holder + 1))).astype(t)
+            r_fpart = numpy.zeros((pos_holder + 1, col - (pos_holder + 1))).astype(t)
             r_fpart = R_a[: pos_holder + 1, pos_holder + 1 :]
 
             col_vector_dependent = column_vector[pos_holder + 1 :]
             col_vector_independent = column_vector[: pos_holder + 1]
-            # cons_col_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
-            cons_col_vector = scipy.hstack(
+            # cons_col_vector = numpy.concatenate((col_vector_independent,col_vector_dependent),1)
+            cons_col_vector = numpy.hstack(
                 (col_vector_independent, col_vector_dependent)
             )  # numpy 0.10
             cons_row_vector = col_vector_dependent
-            # lmatrix_row_vector = scipy.concatenate((col_vector_independent,col_vector_dependent),1)
-            lmatrix_row_vector = scipy.hstack(
+            # lmatrix_row_vector = numpy.concatenate((col_vector_independent,col_vector_dependent),1)
+            lmatrix_row_vector = numpy.hstack(
                 (col_vector_independent, col_vector_dependent)
             )  # numpy 0.10
             lmatrix_col_vector = col_vector_independent
@@ -1343,7 +1343,7 @@ class Stoich(MathArrayFunc):
             # this simply synchronizes Nr with its labels - brett 20050805
             Nfull = numpy.transpose(Nfull)
             row, col = Nfull.shape
-            Nred = scipy.zeros((row_i, col)).astype(t)
+            Nred = numpy.zeros((row_i, col)).astype(t)
             for x in range(0, row_i):
                 Nred[x, :] = Nfull[Nred_vector[x], :]
             # return the right stuff - brett 20050805
@@ -1369,17 +1369,17 @@ class Stoich(MathArrayFunc):
             row, col = r_fpart.shape
 
             id = numpy.identity(row).astype(t)
-            # consmatrix = scipy.concatenate((-r_fpart,id),1).astype(t)
-            consmatrix = scipy.hstack((-r_fpart, id)).astype(t)  # numpy 0.10
+            # consmatrix = numpy.concatenate((-r_fpart,id),1).astype(t)
+            consmatrix = numpy.hstack((-r_fpart, id)).astype(t)  # numpy 0.10
 
             id = numpy.identity(col).astype(t)
-            lmatrix = scipy.concatenate((id, r_fpart), 0).astype(t)
+            lmatrix = numpy.concatenate((id, r_fpart), 0).astype(t)
 
             '''This bit creates Nr. The transpose is only necessary if Nfull is already transposed in the input function'''
 
             Nfull = numpy.transpose(Nfull)
             row, col = Nfull.shape
-            Nred = scipy.zeros((row_i, col)).astype(t)
+            Nred = numpy.zeros((row_i, col)).astype(t)
             for x in range(0, row_i):
                 Nred[x, :] = Nfull[Nred_vector[x], :]
 

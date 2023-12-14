@@ -17,7 +17,7 @@ def concatenateArrays(array_list):
             if arr == 0:
                 output = array_list[arr]
             else:
-                output = scipy.concatenate((output, array_list[arr]))
+                output = numpy.concatenate((output, array_list[arr]))
     return output
 
 
@@ -235,11 +235,11 @@ if __name__ == '__main__':
     xpoints = 256
 
     # create a list of values
-    ##  delta_list_vl = scipy.logspace(scipy.log10(0.1),scipy.log10(5.0), yrange)
-    ##  delta_list_l = scipy.logspace(scipy.log10(5.1),scipy.log10(100.0), yrange)
-    ##  delta_list_h = scipy.logspace(scipy.log10(100.1),scipy.log10(5000.0), yrange*3)
-    ##  delta_list = scipy.hstack((delta_list_vl, delta_list_l, delta_list_h))
-    delta_list = scipy.logspace(scipy.log10(0.1), scipy.log10(1.0), yrange)
+    ##  delta_list_vl = numpy.logspace(numpy.log10(0.1),numpy.log10(5.0), yrange)
+    ##  delta_list_l = numpy.logspace(numpy.log10(5.1),numpy.log10(100.0), yrange)
+    ##  delta_list_h = numpy.logspace(numpy.log10(100.1),numpy.log10(5000.0), yrange*3)
+    ##  delta_list = numpy.hstack((delta_list_vl, delta_list_l, delta_list_h))
+    delta_list = numpy.logspace(numpy.log10(0.1), numpy.log10(1.0), yrange)
     # initiate an 'looping' generator with it
     delta_gen = buildCycler(delta_list)
 
@@ -362,7 +362,7 @@ if __name__ == '__main__':
         )
     )
     for row in range(vtkcoords.shape[0]):
-        vtkcoords[row, :3] = scipy.log10(vtkcoords[row, :3])
+        vtkcoords[row, :3] = numpy.log10(vtkcoords[row, :3])
 
     print(vtkcoords[:10, :])
     vtkcoords = GridSortLR(vtkcoords)

@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 
 # begin header
 import pysces
-import numpy, scipy
+import numpy
 
 from .KrakenNET import os, time, socket
 from .KrakenNET import StatusServer, BasicServer
@@ -223,9 +223,9 @@ class PyscesServer(BasicServer):
         args = args[0]
         print('Args', args)
 
-        self.model.pitcon_par_space = scipy.logspace(
-            scipy.log10(float(args[1].strip())),
-            scipy.log10(float(args[2].strip())),
+        self.model.pitcon_par_space = numpy.logspace(
+            numpy.log10(float(args[1].strip())),
+            numpy.log10(float(args[2].strip())),
             int(args[3].strip()),
         )
 

@@ -21,7 +21,6 @@ add_custom_target(${f2py_module_name} ALL
 add_custom_command(
   OUTPUT ${generated_module_file}
   COMMAND ${F2PY_EXECUTABLE}
-    -m ${f2py_module_name}
     -c ${fortran_src_file}
     --build-dir ${f2py_build_dir}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

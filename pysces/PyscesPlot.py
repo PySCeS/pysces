@@ -22,7 +22,7 @@ from pysces.version import __version__
 
 __doc__ = '''PySCeS plotting module'''
 
-import numpy, scipy
+import numpy
 import os
 import itertools
 from time import strftime
@@ -147,7 +147,7 @@ class PyscesGPlot:
         plotfile.append(ginput[:, x])
         plotfile.append(ginput[:, y])
         plotfile.append(ginput[:, z])
-        ginput = scipy.transpose(scipy.array(plotfile))
+        ginput = numpy.transpose(numpy.array(plotfile))
 
         if cmdout and name != None:
             if arrayout:

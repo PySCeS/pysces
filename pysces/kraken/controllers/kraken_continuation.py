@@ -26,7 +26,7 @@ I_list = ['P_INIT,' + blob.model_server.model_file_name, 'P_LOAD',\
 # continuation
 yrange = 100
 xpoints = 512
-delta_list = scipy.logspace(scipy.log10(0.2),scipy.log10(1.0), yrange)
+delta_list = numpy.logspace(numpy.log10(0.2),numpy.log10(1.0), yrange)
 print(delta_list)
 delta_gen = buildCycler(delta_list)
 
@@ -130,9 +130,9 @@ if __name__ == '__main__':
 
     ##  # add log(data)
     ##  for r in range(coords.shape[0]):
-        ##  x.append(scipy.log10(coords[r,0]))
-        ##  y.append(scipy.log10(coords[r,1]))
-        ##  z.append(scipy.log10(coords[r,2]))
+        ##  x.append(numpy.log10(coords[r,0]))
+        ##  y.append(numpy.log10(coords[r,1]))
+        ##  z.append(numpy.log10(coords[r,2]))
 
     n=coords.shape[0]
     print("n:",n)
@@ -148,8 +148,8 @@ if __name__ == '__main__':
     # write xyz data
     for r in range(n):
         #s = '%15.2f %15.2f %15.2f' % (x[i], y[i], z[i])
-        out.write(str(scipy.log10(coords[r,0]))+" "+str(scipy.log10(coords[r,1]))+" "+str(scipy.log10(coords[r,2]))+'\n')
-        ##  out.write(str(scipy.log10(coords[r,2]))+" "+str(scipy.log10(coords[r,1]))+" "+str(scipy.log10(coords[r,0]))+'\n')
+        out.write(str(numpy.log10(coords[r,0]))+" "+str(numpy.log10(coords[r,1]))+" "+str(numpy.log10(coords[r,2]))+'\n')
+        ##  out.write(str(numpy.log10(coords[r,2]))+" "+str(numpy.log10(coords[r,1]))+" "+str(numpy.log10(coords[r,0]))+'\n')
 
     # write cell data
     out.write("CELLS "+ str(n)+ " "+ str(2*n)+'\n')
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     out.write(h2+ h3)
 
     for r in range(n):
-        sc=(scipy.log10(coords[r,2]))
+        sc=(numpy.log10(coords[r,2]))
         out.write(str(sc)+ "\n")
 
     out.write('\n')

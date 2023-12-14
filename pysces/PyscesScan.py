@@ -27,7 +27,7 @@ __doc__ = """
           PySCeS classes for continuations and multi-dimensional parameter scans
           """
 
-import scipy
+import numpy
 from pysces.PyscesUtils import TimerBox
 
 __psyco_active__ = 0
@@ -174,9 +174,9 @@ class Scanner(object):
         - bool(log)
         """
         if log:
-            rng = scipy.logspace(scipy.log10(start), scipy.log10(end), points)
+            rng = numpy.logspace(numpy.log10(start), numpy.log10(end), points)
         else:
-            rng = scipy.linspace(start, end, points)
+            rng = numpy.linspace(start, end, points)
         return rng
 
     def rangeGen(self, name, start, end, points, log):
@@ -293,9 +293,9 @@ class Scanner(object):
             if pcntr >= self.MSG_PRINT_INTERVAL:
                 print('\t', analysis_counter, next(self.scanT.RUN))
                 pcntr = 0
-        self.ScanSpace = scipy.array(self.ScanSpace)
-        self.SteadyStateResults = scipy.array(self.SteadyStateResults)
-        self.UserOutputResults = scipy.array(self.UserOutputResults)
+        self.ScanSpace = numpy.array(self.ScanSpace)
+        self.SteadyStateResults = numpy.array(self.SteadyStateResults)
+        self.UserOutputResults = numpy.array(self.UserOutputResults)
         self.resetInputParameters()
         if self.nan_on_bad_state:
             self.mod.mode_state_nan_on_fail = False
@@ -328,11 +328,11 @@ class Scanner(object):
         """
         if self.HAS_STATE_OUTPUT and self._MODE_ != 'null':
             self.SteadyStateResults.append(
-                scipy.hstack((self.mod.state_species, self.mod.state_flux))
+                numpy.hstack((self.mod.state_species, self.mod.state_flux))
             )
         if self.HAS_USER_OUTPUT and self._MODE_ != 'null':
             self.UserOutputResults.append(
-                scipy.array([getattr(self.mod, res) for res in self.UserOutputList])
+                numpy.array([getattr(self.mod, res) for res in self.UserOutputList])
             )
 
     def getOutput(self):
@@ -355,7 +355,7 @@ class Scanner(object):
         """
         if stst:
             if self.HAS_USER_OUTPUT:
-                output_array = scipy.hstack(
+                output_array = numpy.hstack(
                     [self.ScanSpace, self.SteadyStateResults, self.UserOutputResults]
                 )
                 labels = (
@@ -365,12 +365,12 @@ class Scanner(object):
                     + self.UserOutputList
                 )
             else:
-                output_array = scipy.hstack([self.ScanSpace, self.SteadyStateResults])
+                output_array = numpy.hstack([self.ScanSpace, self.SteadyStateResults])
                 labels = (
                     self.GenOrder + list(self.mod.species) + list(self.mod.reactions)
                 )
         else:
-            output_array = scipy.hstack([self.ScanSpace, self.UserOutputResults])
+            output_array = numpy.hstack([self.ScanSpace, self.UserOutputResults])
             labels = self.GenOrder + self.UserOutputList
         if lbls:
             return output_array, labels
@@ -445,15 +445,15 @@ class PITCONScanUtils(object):
         self.pitcon_scan_parameter = parameter
         self.pitcon_scan_parameter_3d = par3d
         if logrange:
-            self.pitcon_range_low = scipy.log10(low)
-            self.pitcon_range_high = scipy.log10(high)
-            self.model.pitcon_par_space = scipy.logspace(
+            self.pitcon_range_low = numpy.log10(low)
+            self.pitcon_range_high = numpy.log10(high)
+            self.model.pitcon_par_space = numpy.logspace(
                 self.pitcon_range_low, self.pitcon_range_high, self.pitcon_scan_density
             )
         else:
             self.pitcon_range_low = low
             self.pitcon_range_high = high
-            self.model.pitcon_par_space = scipy.linspace(
+            self.model.pitcon_par_space = numpy.linspace(
                 self.pitcon_range_low, self.pitcon_range_high, self.pitcon_scan_density
             )
 
@@ -535,7 +535,7 @@ class PITCONScanUtils(object):
                     except Exception as ex:
                         print(ex)
                 self.res_user.append(state_out)
-        self.res_user = scipy.array(self.res_user)
+        self.res_user = numpy.array(self.res_user)
         print('\n\t%s evaluation complete\n' % analysis)
 
     def getArrayListAsArray(self, array_list):
@@ -544,7 +544,7 @@ class PITCONScanUtils(object):
         """
         output = None
         if len(array_list) > 1:
-            output = scipy.vstack(array_list)
+            output = numpy.vstack(array_list)
         elif len(array_list) == 1:
             output = array_list[0]
         return output

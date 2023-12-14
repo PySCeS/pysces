@@ -4809,7 +4809,7 @@ setting sim_points = 2.0\n*****'
     def _update_assignment_rule_code(self, rule):
         replacements = []
         rule['data_sim_string'] = rule['code_string']
-        for s in rule['symbols']:
+        for s in sorted(rule['symbols'], key=len, reverse=True):
             if (
                 s in self.__reactions__
                 or s in self.__rules__

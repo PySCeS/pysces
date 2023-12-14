@@ -19,13 +19,13 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
-import numpy, scipy, itertools, time
+import numpy, itertools
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
     pass
 
-from .KrakenNET import socket, time, cPickle
+from .KrakenNET import time, cPickle
 from .KrakenNET import SimpleClient, SimpleMultiReadClient, ThreadedClient
 from .KrakenNET import ModelFileServer, TentacleScanner, ServerListLoader
 from .KrakenNET import ServerStatusCheck, HOSTNAME, BLOCK_SIZE, PICKLE_PROTOCOL, STATUS_PORT, PYSCES_PORT, CFSERVE_PORT
@@ -248,9 +248,9 @@ class KrakenScanController(KrakenController):
         """Splits a range into a number of jobs with intervals"""
         assert intervals >= 1, '\n* Minimum of 1 interval'
         if log:
-            kpoints = scipy.logspace(scipy.log10(start), scipy.log10(end), intervals+1)
+            kpoints = numpy.logspace(numpy.log10(start), numpy.log10(end), intervals+1)
         else:
-            kpoints = scipy.linspace(start, end, intervals+1)
+            kpoints = numpy.linspace(start, end, intervals+1)
         self.job_list = []
         for p in range(len(kpoints)-1):
             job2 = job % (kpoints[p], kpoints[p+1])
@@ -356,7 +356,7 @@ class KrakenScanController(KrakenController):
                 if arr == 0:
                     output = self.result_list[arr]
                 else:
-                    output = scipy.concatenate((output,self.result_list[arr]))
+                    output = numpy.concatenate((output,self.result_list[arr]))
         self.result_array = output
 
     def getResultArray(self):
