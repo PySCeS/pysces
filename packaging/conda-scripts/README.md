@@ -1,3 +1,12 @@
+# IMPORTANT INFORMATION
+## OUTDATED!
+
+The information in this file is **outdated**! For updated building instructions 
+refer to [INSTALL.md](../../INSTALL.md).
+
+Note that *updated conda packages* are distributed via 
+[anaconda.org](https://anaconda.org/pysces/pysces).
+
 # Building Anaconda packages and Python wheels
 
 This guide describes building **portable** Anaconda packages and binary Python wheels for 
