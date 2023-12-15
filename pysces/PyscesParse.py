@@ -424,7 +424,7 @@ class PySCeSParser:
 
         # elementary regular expressions used as building blocks
         self.Int = r'\d+'  # Integer
-        self.Dec = self.Int + '\.' + self.Int  # Decimal
+        self.Dec = self.Int + r'\.' + self.Int  # Decimal
         self.Exp = r'([E|e][\+|\-]?)' + self.Int  # Exponent
         self.Real = (
             self.Dec + '(' + self.Exp + ')?' + '|' + self.Int + self.Exp
@@ -438,7 +438,7 @@ class PySCeSParser:
         self.t_MINUS = r'-'
         self.t_TIMES = r'\*'
         self.t_DIVIDE = r'/'
-        self.t_POWER = '\*\*'
+        self.t_POWER = r'\*\*'
         self.t_LPAREN = r'\('
         self.t_RPAREN = r'\)'
         self.t_EQUALS = r'='

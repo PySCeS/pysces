@@ -1410,7 +1410,7 @@ class LineObj2(object):
 
     - **data** a ndarray column of data shape = (r, 1)
     - **label** a string label describing the column
-    - **\*\*kwargs** (optional) key=value pairs of property descriptors
+    - **kwargs** (optional) key=value pairs of property descriptors
 
     Properties are stored as LineObj2 attributes
     """

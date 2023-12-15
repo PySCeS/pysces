@@ -10,8 +10,8 @@ with open(os.path.join(cwd, 'version.txt'), 'r') as f:
 
 MAJOR = int(v[0])
 MINOR = int(v[1])
-MICRO = int(re.split('(\d+)', v[2])[1])
-STATUS = re.split('(\d+)', v[2])[2]
+MICRO = int(re.split(r'(\d+)', v[2])[1])
+STATUS = re.split(r'(\d+)', v[2])[2]
 
 def current_version():
     return '%s.%s.%s%s' % (MAJOR, MINOR, MICRO, STATUS)
