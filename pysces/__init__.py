@@ -45,6 +45,7 @@ __doc__ = """
 
 import os
 import time
+from importlib import util
 from . import PyscesConfig
 from . import PyscesParse
 from . import PyscesLink as link
@@ -83,33 +84,9 @@ __PyscesConfigDefault = PyscesConfig.__DefaultConfig
 if DEBUG:
     print(time.strftime('1-%H:%M:%S'))
 
-for path in os.sys.path:
-    chkPath = path.split(os.path.sep)[-1]
-    if chkPath == 'pysces' and path != os.getcwd():
-        # for in-place development with setup.py develop (legacy)
-        if os.path.isdir(os.path.join(path, 'pysces')):
-            install_dir = os.path.join(path, 'pysces')
-        else:
-            install_dir = path
-        inipath = os.path.join(install_dir, 'pyscfg.ini')
-        break
-    # for in-place development with setup.py develop (new)
-    elif '__editable__.pysces' in path:
-        MAJOR, MINOR, MICRO = current_version_tuple()
-        exec(
-            'import __editable___pysces_{}_{}_{}_finder as finder'.format(
-                MAJOR, MINOR, MICRO
-            )
-        )
-        install_dir = finder.MAPPING['pysces']
-        inipath = os.path.join(install_dir, 'pyscfg.ini')
-        break
-if inipath == None:
-    for k in os.sys.path_importer_cache:
-        if k.split(os.path.sep)[-1] == 'pysces':
-            install_dir = k
-            inipath = os.path.join(install_dir, 'pyscfg.ini')
-            break
+install_dir = os.path.dirname(util.find_spec('pysces').origin)
+inipath = os.path.join(install_dir, 'pyscfg.ini')
+
 if DEBUG:
     print(time.strftime('2-%H:%M:%S'))
 
