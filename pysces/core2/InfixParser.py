@@ -48,9 +48,9 @@ class MyInfixLexer:
         'pow': 'pow',
         'root': 'pow',
         'abs': 'abs',
-        'exp': 'math.exp',
-        'ln': 'math.log',
-        'log': 'math.log10',
+        'exp': 'numpy.exp',
+        'ln': 'numpy.log',
+        'log': 'numpy.log10',
         'floor': 'numpy.floor',
         'ceiling': 'numpy.ceil',
         'factorial': None,
@@ -85,7 +85,7 @@ class MyInfixLexer:
         'lt': 'operator.lt',
         'leq': 'operator.le',
         'ceil': 'numpy.ceil',
-        'sqrt': 'math.sqrt',  # libsbml aliases
+        'sqrt': 'numpy.sqrt',  # libsbml aliases
         'equal': 'operator.eq',
         'not_equal': 'operator.ne',  # numpy2numpy aliases
         'greater': 'operator.gt',

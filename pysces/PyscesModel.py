@@ -39,7 +39,6 @@ try:
     input = raw_input  # Py2 compatibility
 except NameError:
     pass
-import math
 import numpy
 import scipy
 import scipy.linalg
