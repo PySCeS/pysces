@@ -598,7 +598,7 @@ class PySCeSParser:
         return t
 
     def t_NAME(self, t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
+        r'numpy\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
         SciCons = False
         if '@' in t.value:
             ts = t.value.split('@')
@@ -626,7 +626,6 @@ class PySCeSParser:
             self.Names.append('self.' + t.value)
         if (
             t.value[:6] == 'numpy.'
-            or t.value[:5] == 'math.'
             or t.value[:9] == 'operator.'
             or t.value[:7] == 'random.'
         ):
@@ -1242,14 +1241,12 @@ class PySCeSParser:
                 and (
                     t[1]
                     .replace('numpy.', '')
-                    .replace('math.', '')
                     .replace('operator.', '')
                     not in self.MathmlToNumpy_funcs
                 )
                 and (
                     t[1]
                     .replace('numpy.', '')
-                    .replace('math.', '')
                     .replace('operator.', '')
                     not in self.MathmlToNumpy_symb
                 )
@@ -1287,7 +1284,7 @@ class PySCeSParser:
         else:
             # assume some arbitrary function definition
             if (
-                t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.'
+                t[1][:6] == 'numpy.' or t[1][:9] == 'operator.'
             ):  # NEW UNTESTED
                 t[0] = t[1] + t[2] + t[3] + t[4]
             else:

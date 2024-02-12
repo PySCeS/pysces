@@ -1145,7 +1145,6 @@ class ReactionObj(NewCoreBase):
         self.formula = (
             kl.replace(klrepl, '')
             .replace('numpy.', '')
-            .replace('math.', '')
             .replace('operator.', '')
         )
 

@@ -176,9 +176,10 @@ class MyInfixLexer:
         self.t_NOTEQUALS = r'!='
 
     def t_NAME(self, t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
+        r'numpy\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
 
-        # names are defined as anything starting with a letter OR numpy. math. or operator.
+        #old: r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
+        # names are defined as anything starting with a letter OR numpy. or operator.
         t.type = 'NAME'
         # allow self. to be in names but always remove! dodgy testing stage
         t.value = t.value.replace('self.', '')
@@ -329,7 +330,7 @@ class MyInfixParser(MyInfixLexer):
                     t[0] = self.MathmlToNumpy_symb[t[1]]
                 self.ModelUsesNumpyFuncs = 1
             elif (
-                t[1].replace('numpy.', '').replace('math.', '').replace('operator.', '')
+                t[1].replace('numpy.', '').replace('operator.', '')
                 in self.MathmlToNumpy_symb
             ):
                 t[0] = t[1]
@@ -459,7 +460,7 @@ class MyInfixParser(MyInfixLexer):
         else:
             # t[0] = t[1] + t[2] + t[3]
             # or a numpy fucntion
-            if t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.':
+            if t[1][:6] == 'numpy.' or t[1][:9] == 'operator.':
                 t[0] = t[1] + t[2] + t[3] + t[4]
             else:
                 # assume some arbitrary function definition
