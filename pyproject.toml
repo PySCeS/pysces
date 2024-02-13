@@ -1,17 +1,78 @@
 [build-system]
-requires = ["setuptools>=42", 
-	"wheel", 
-	"scikit-build", 
-	"cmake",
-	"meson; python_version>='3.12'",
-	"ninja",
-	"numpy~=1.21.0; python_version<'3.11'",
-	"oldest-supported-numpy; python_version=='3.11'",
-	"numpy~=1.26.0; python_version=='3.12'"]
-build-backend = "setuptools.build_meta"
+build-backend = 'mesonpy'
+requires = [
+  'meson-python',
+  'meson>=1.2.3',
+	'ninja',
+	'numpy>=1.26.0,<1.27',
+]
+
+[tool.meson-python.args]
+#setup = ['-Dc_link_args=-lquadmath']
+compile = ['-j4']
+#install = []
+#dist = []
+
+[project]
+name = 'pysces'
+dependencies = [
+	'numpy>=1.23.0',
+	'matplotlib',
+	'scipy'
+]
+dynamic = ['version']
+description = 'The Python Simulator for Cellular Systems - simulation and analysis tools for modelling biological systems'
+readme = 'DESCRIPTION.md'
+requires-python = '>=3.9'
+license = {text = 'BSD 3-Clause'}
+authors = [
+  {name = 'Brett Olivier', email = 'pysces@googlegroups.com'},
+  {name = 'Johann Rohwer', email = 'pysces@googlegroups.com'},
+]
+maintainers = [
+  {name = 'Brett Olivier', email = 'pysces@googlegroups.com'},
+  {name = 'Johann Rohwer', email = 'pysces@googlegroups.com'},
+]
+keywords = [
+	'computational systems biology',
+	'modelling',
+	'simulation',
+	'systems biology',
+]
+classifiers=[
+	'Development Status :: 5 - Production/Stable',
+	'Development Status :: 6 - Mature',
+	'Environment :: Console',
+	'Intended Audience :: End Users/Desktop',
+	'Intended Audience :: Science/Research',
+	'License :: OSI Approved :: BSD License',
+	'Natural Language :: English',
+	'Operating System :: OS Independent',
+	'Programming Language :: Fortran',
+	'Programming Language :: Python',
+	'Topic :: Scientific/Engineering :: Bio-Informatics',
+	'Topic :: Scientific/Engineering :: Chemistry',
+]
+
+[project.optional-dependencies]
+parscan = ['ipyparallel']
+cvode = ['assimulo']
+sbml = ['python_libsbml']
+all = [
+	'ipyparallel',
+	'assimulo',
+	'python_libsbml'
+]
+
+[project.urls]
+homepage = "https://pysces.github.io"
+documentation = "https://pyscesdocs.readthedocs.io"
+source = "https://github.com/PySCeS/pysces"
+download = "https://github.com/PySCeS/pysces/releases"
+tracker = "https://github.com/PySCeS/pysces/issues"
 
 [tool.cibuildwheel]
-build = "cp312-* cp311-* cp310-* cp39-* cp38-*"
+build = "cp312-* cp311-* cp310-* cp39-*"
 skip = "*musllinux* pp*"
 build-verbosity = "3"
 test-command = "python -s -c \"import pysces; pysces.test(3)\""
@@ -33,14 +94,5 @@ before-build = [
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 
-[[tool.cibuildwheel.overrides]]
-select = "cp312-*win*"
-before-build = [
-	"python -m pip install scikit-build meson cmake ninja",
-	"python -m pip install -i https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy==2.0.0.dev0",
-]
-build-frontend = "pip; args: --no-build-isolation"
-
-[tool.cibuildwheel.overrides.environment]
-CMAKE_GENERATOR = "MSYS Makefiles"
+[tool.cibuildwheel.windows.environment]
 PATH = "c:\\\\rtools40\\\\ucrt64\\\\bin;c:\\\\rtools40\\\\usr\\\\bin;$PATH"

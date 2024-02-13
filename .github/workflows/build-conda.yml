@@ -11,26 +11,44 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        os: [ubuntu-latest, windows-2019, macos-12]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-12]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: (windows) Install rtools MinGW compilers
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install rtools -y --no-progress --force --version=4.0.0.20220206
+
+      - name: (windows) Add compiler path to PATH
+        if: matrix.os == 'windows-latest'
+        uses: myci-actions/export-env-var-powershell@1
+        with:
+          name: PATH
+          value: c:\rtools40\ucrt64\bin;c:\rtools40\usr\bin;$env:PATH
+
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
-          update-conda: true
+          update-conda: false
           conda-channels: conda-forge
       
       - name: Prepare conda environment
         run: |
-          conda install mamba conda-build conda-verify anaconda-client
+          conda install mamba boa conda-verify anaconda-client
+          mamba update --all
           mkdir build_output
           
-      - name: Build packages
-        run: mamba build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
+      - name: (unix) Build packages for ${{ matrix.os }}
+        if: matrix.os != 'windows-latest'
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-unix
       
+      - name: (windows) Build packages for ${{ matrix.os }}
+        if: matrix.os == 'windows-latest'
+        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
+
       - uses: actions/upload-artifact@v3
         with:
           name: build_outputs

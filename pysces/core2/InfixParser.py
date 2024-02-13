@@ -48,9 +48,9 @@ class MyInfixLexer:
         'pow': 'pow',
         'root': 'pow',
         'abs': 'abs',
-        'exp': 'math.exp',
-        'ln': 'math.log',
-        'log': 'math.log10',
+        'exp': 'numpy.exp',
+        'ln': 'numpy.log',
+        'log': 'numpy.log10',
         'floor': 'numpy.floor',
         'ceiling': 'numpy.ceil',
         'factorial': None,
@@ -85,7 +85,7 @@ class MyInfixLexer:
         'lt': 'operator.lt',
         'leq': 'operator.le',
         'ceil': 'numpy.ceil',
-        'sqrt': 'math.sqrt',  # libsbml aliases
+        'sqrt': 'numpy.sqrt',  # libsbml aliases
         'equal': 'operator.eq',
         'not_equal': 'operator.ne',  # numpy2numpy aliases
         'greater': 'operator.gt',
@@ -156,7 +156,7 @@ class MyInfixLexer:
         self.LexErrors = []
 
         self.Int = r'\d+'  # Integer
-        self.Dec = self.Int + '\.' + self.Int  # Decimal
+        self.Dec = self.Int + r'\.' + self.Int  # Decimal
         self.Exp = r'([E|e][\+|\-]?)' + self.Int  # Exponent
         self.Real = (
             self.Dec + '(' + self.Exp + ')?' + '|' + self.Int + self.Exp
@@ -169,16 +169,17 @@ class MyInfixLexer:
         self.t_MINUS = r'-'
         self.t_TIMES = r'\*'
         self.t_DIVIDE = r'/'
-        self.t_POWER = '\*\*'
+        self.t_POWER = r'\*\*'
         self.t_LPAREN = r'\('
         self.t_RPAREN = r'\)'
         self.t_COMMA = r','
         self.t_NOTEQUALS = r'!='
 
     def t_NAME(self, t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
+        r'numpy\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
 
-        # names are defined as anything starting with a letter OR numpy. math. or operator.
+        #old: r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|self\.[\w]*|[a-zA-Z_][\w]*'
+        # names are defined as anything starting with a letter OR numpy. or operator.
         t.type = 'NAME'
         # allow self. to be in names but always remove! dodgy testing stage
         t.value = t.value.replace('self.', '')
@@ -329,7 +330,7 @@ class MyInfixParser(MyInfixLexer):
                     t[0] = self.MathmlToNumpy_symb[t[1]]
                 self.ModelUsesNumpyFuncs = 1
             elif (
-                t[1].replace('numpy.', '').replace('math.', '').replace('operator.', '')
+                t[1].replace('numpy.', '').replace('operator.', '')
                 in self.MathmlToNumpy_symb
             ):
                 t[0] = t[1]
@@ -459,7 +460,7 @@ class MyInfixParser(MyInfixLexer):
         else:
             # t[0] = t[1] + t[2] + t[3]
             # or a numpy fucntion
-            if t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.':
+            if t[1][:6] == 'numpy.' or t[1][:9] == 'operator.':
                 t[0] = t[1] + t[2] + t[3] + t[4]
             else:
                 # assume some arbitrary function definition

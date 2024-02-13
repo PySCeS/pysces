@@ -940,7 +940,7 @@ class RcFigure:
             elif step in self.parent.isModifierOf:
                 the_dict = mod_elas
 
-            lbl = '$\epsilon^{' + step + '}_{' + self.parent.fix + '}$'
+            lbl = r'$\epsilon^{' + step + '}_{' + self.parent.fix + '}$'
             the_dict['J_' + step] = self.ax.plot(
                 fix_conc, ec_rate, color=colr, linewidth=2, label=lbl
             )

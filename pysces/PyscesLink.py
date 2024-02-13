@@ -118,7 +118,7 @@ class SBWlink(object):
         ans = 'Y'
         if module_name[-3:] == 'GUI':
             ans = input(
-                'Warning! This may hang the console\n\yPress \'Y\' to continue: '
+                "Warning! This may hang the console\nPress 'Y' to continue: "
             )
         if ans == 'Y':
             module_id = self.psbw.SBWGetModuleInstance(module_name)
@@ -903,7 +903,7 @@ class IntegrationStochasticDataObj(object):
     It has methods for setting the Time, Labels, Species and Propensity data and
     getting Time, Species and Rate (including time) arrays. However, of more use:
 
-    - getOutput(\*args) feed this method species/rate labels and it will return
+    - getOutput(*args) feed this method species/rate labels and it will return
       an array of [time, sp1, r1, ....]
     - getDataAtTime(time) the data generated at time point "time".
     - getDataInTimeInterval(time, bounds=None) more intelligent version of the above

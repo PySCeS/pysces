@@ -594,7 +594,7 @@ class ScanDataObj(object):
 
     def getScanData(self, *args, **kwargs):
         """
-        getScanData(\*args) feed this method species/flux/rule/mod labels and it
+        getScanData(*args) - feed this method species/flux/rule/mod labels and it
         will return an array of [parameter(s), sp1, f1, ....]
         """
         if 'lbls' in kwargs:
@@ -780,7 +780,7 @@ class StateDataObj(object):
             return output, labels
 
     def getStateData(self, *args, **kwargs):
-        """getSimData(\*args) feed this method species/rate labels and it
+        """getSimData(*args) - feed this method species/rate labels and it
         will return an array of [time, sp1, r1, ....]
         """
 
@@ -817,7 +817,7 @@ class IntegrationDataObj(object):
     It has methods for setting the Time, Labels, Species and Rate data and
     getting Time, Species and Rate (including time) arrays. However, of more use:
 
-    - getOutput(\*args) feed this method species/rate labels and it will return
+    - getOutput(*args) - feed this method species/rate labels and it will return
       an array of [time, sp1, r1, ....]
     - getDataAtTime(time) the data generated at time point "time".
     - getDataInTimeInterval(time, bounds=None) more intelligent version of the above
@@ -1028,7 +1028,7 @@ class IntegrationDataObj(object):
     def getOutput(self, *args, **kwargs):
         """
         Old alias for getSimData()
-        getOutput(\*args) feed this method species/rate labels and it
+        getOutput(*args) - feed this method species/rate labels and it
         will return an array of [time, sp1, r1, ....]
         """
         return self.getSimData(*args, **kwargs)
@@ -1057,7 +1057,7 @@ class IntegrationDataObj(object):
             return output, labels
 
     def getSimData(self, *args, **kwargs):
-        """getSimData(\*args) feed this method species/rate labels and it
+        """getSimData(*args) - feed this method species/rate labels and it
         will return an array of [time, sp1, r1, ....]
         """
         output = self.time
@@ -1145,7 +1145,6 @@ class ReactionObj(NewCoreBase):
         self.formula = (
             kl.replace(klrepl, '')
             .replace('numpy.', '')
-            .replace('math.', '')
             .replace('operator.', '')
         )
 
@@ -1421,7 +1420,7 @@ class PysMod(object):
     further analyses. PySCeS model descriptions can be loaded from files or strings
     (see the *loader* argument for details).
 
-    - *File* the name of the PySCeS input file if not explicit a \*.psc extension is
+    - *File* the name of the PySCeS input file if not explicit a *.psc extension is
       assumed.
     - *dir* if specified, the path to the input file otherwise the default PyscesModel
       directory (defined in the pys_config.ini file) is assumed.
@@ -1445,7 +1444,7 @@ class PysMod(object):
         Create a model object and instantiate a PySCeS model so that it can be used for further analyses. PySCeS
         model descriptions can be loaded from files or strings (see the *loader* argument for details).
 
-        - *File* the name of the PySCeS input file if not explicit a \*.psc extension is assumed.
+        - *File* the name of the PySCeS input file if not explicit a *.psc extension is assumed.
         - *dir* if specified, the path to the input file otherwise the default PyscesModel directory (defined in the pys_config.ini file) is assumed.
         - *autoload* autoload the model, pre 0.7.1 call mod.doLoad(). (default=True) **new**
         - *loader* the default behaviour is to load PSC file, however, if this argument is set to 'string' an input file can be supplied as the *fString* argument (default='file')
@@ -8405,7 +8404,7 @@ setting sim_points = 2.0\n*****'
                 for x in range(inputa.shape[0]):
                     if Col != None and x == 0:
                         for el in range(len(Col)):
-                            elx = str(Col[el]).replace('_', '\_')
+                            elx = str(Col[el]).replace('_', r'\_')
                             if Row != None:
                                 File.write(' & $\\small{' + elx + '}$')
                             else:

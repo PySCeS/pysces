@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-12]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: (windows) Install rtools MinGW compilers
         if: matrix.os == 'windows-latest'
@@ -43,7 +43,7 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install scikit-build build
+          pip install build
           python -m build -s .
 
       - uses: actions/upload-artifact@v3

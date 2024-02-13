@@ -171,13 +171,13 @@ class MathArrayFunc(object):
 
     def commonType(self, *arrays):
         """
-        commonType(\*arrays)
+        commonType(*arrays)
 
         Numeric detect and set array precision (will be replaced with new scipy.core compatible code when ready)
 
         Arguments:
 
-        \*arrays: input arrays
+        *arrays: input arrays
 
         """
         kind = 0
@@ -193,14 +193,14 @@ class MathArrayFunc(object):
 
     def castCopyAndTranspose(self, type, *arrays):
         """
-        castCopyAndTranspose(type, \*arrays)
+        castCopyAndTranspose(type, *arrays)
 
         Cast numeric arrays to required type and transpose
 
         Arguments:
 
         type: the required type to cast to
-        \*arrays: the arrays to be processed
+        *arrays: the arrays to be processed
 
         """
         cast_arrays = ()
@@ -218,13 +218,13 @@ class MathArrayFunc(object):
 
     def assertRank2(self, *arrays):
         """
-        assertRank2(\*arrays)
+        assertRank2(*arrays)
 
         Check that we are using a 2D array
 
         Arguments:
 
-        \*arrays: input array(s)
+        *arrays: input array(s)
 
         """
         for a in arrays:

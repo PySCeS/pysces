@@ -235,9 +235,9 @@ class PySCeSParser:
         'pow': 'pow',
         'root': 'pow',
         'abs': 'abs',
-        'exp': 'math.exp',
-        'ln': 'math.log',
-        'log': 'math.log10',
+        'exp': 'numpy.exp',
+        'ln': 'numpy.log',
+        'log': 'numpy.log10',
         'floor': 'numpy.floor',
         'ceiling': 'numpy.ceil',
         'factorial': None,
@@ -424,7 +424,7 @@ class PySCeSParser:
 
         # elementary regular expressions used as building blocks
         self.Int = r'\d+'  # Integer
-        self.Dec = self.Int + '\.' + self.Int  # Decimal
+        self.Dec = self.Int + r'\.' + self.Int  # Decimal
         self.Exp = r'([E|e][\+|\-]?)' + self.Int  # Exponent
         self.Real = (
             self.Dec + '(' + self.Exp + ')?' + '|' + self.Int + self.Exp
@@ -438,7 +438,7 @@ class PySCeSParser:
         self.t_MINUS = r'-'
         self.t_TIMES = r'\*'
         self.t_DIVIDE = r'/'
-        self.t_POWER = '\*\*'
+        self.t_POWER = r'\*\*'
         self.t_LPAREN = r'\('
         self.t_RPAREN = r'\)'
         self.t_EQUALS = r'='
@@ -598,7 +598,7 @@ class PySCeSParser:
         return t
 
     def t_NAME(self, t):
-        r'numpy\.[\w]*|math\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
+        r'numpy\.[\w]*|operator\.[\w]*|random\.[\w]*|[a-zA-Z_][\w@]*'
         SciCons = False
         if '@' in t.value:
             ts = t.value.split('@')
@@ -626,7 +626,6 @@ class PySCeSParser:
             self.Names.append('self.' + t.value)
         if (
             t.value[:6] == 'numpy.'
-            or t.value[:5] == 'math.'
             or t.value[:9] == 'operator.'
             or t.value[:7] == 'random.'
         ):
@@ -1242,14 +1241,12 @@ class PySCeSParser:
                 and (
                     t[1]
                     .replace('numpy.', '')
-                    .replace('math.', '')
                     .replace('operator.', '')
                     not in self.MathmlToNumpy_funcs
                 )
                 and (
                     t[1]
                     .replace('numpy.', '')
-                    .replace('math.', '')
                     .replace('operator.', '')
                     not in self.MathmlToNumpy_symb
                 )
@@ -1287,7 +1284,7 @@ class PySCeSParser:
         else:
             # assume some arbitrary function definition
             if (
-                t[1][:6] == 'numpy.' or t[1][:5] == 'math.' or t[1][:9] == 'operator.'
+                t[1][:6] == 'numpy.' or t[1][:9] == 'operator.'
             ):  # NEW UNTESTED
                 t[0] = t[1] + t[2] + t[3] + t[4]
             else:

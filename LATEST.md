@@ -9,7 +9,7 @@ git clone git@github.com:PySCeS/pysces.git
 ```
 
 PySCeS binaries for release versions are available from PyPI and the Anaconda.org 
-for 64-bit Windows, Linux and macOS.
+repository for 64-bit Windows, Linux and macOS.
 
 **For PyPI:**
 
@@ -20,7 +20,7 @@ pip install pysces
 **For Anaconda:**
 
 ```
-conda install -c sbmlteam -c pysces pysces
+conda install -c conda-forge -c pysces pysces
 ```
 
-© Brett G. Olivier & Johann M. Rohwer, August 2021
+© Brett G. Olivier & Johann M. Rohwer, January 2024
