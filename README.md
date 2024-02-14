@@ -135,4 +135,4 @@ organisations:
 * The South African National Bioinformatics Network (2003-2008)
 * The South African National Research Foundation (2000-2004)
 
-© Brett G. Olivier & Johann M. Rohwer, April 2023
+© Brett G. Olivier & Johann M. Rohwer, February 2024

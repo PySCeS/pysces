@@ -16,7 +16,7 @@ authors:
 title: "The Python Simulator for Cellular Systems: PySCeS"
 version: "1.2.0"
 repository-code: "https://github.com/PySCeS/pysces/tree/1.2.0"
-date-released: 2023-12-14
+date-released: 2024-02-14
 doi: "10.5281/zenodo.2600905"
 license: "BSD-3-Clause"
 url: https://pysces.github.io
