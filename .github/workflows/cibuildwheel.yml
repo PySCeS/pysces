@@ -26,10 +26,10 @@ jobs:
       - name: Build wheels for CPython
         uses: pypa/cibuildwheel@v2.16.5
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels_and_tarball
-          path: ./wheelhouse/*.whl
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: wheels_and_tarball
+#          path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -47,10 +47,21 @@ jobs:
           pip install build
           python -m build -s .
 
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: wheels_and_tarball
+#          path: dist/*.tar.gz
+
+  upload_artifacts:
+    name: Upload build artifacts
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/upload-artifact@v4
         with:
           name: wheels_and_tarball
-          path: dist/*.tar.gz
+          path: |
+            ./dist/*.tar.gz
+            ./wheelhouse/*.whl
 
   upload_pypi:
     needs: [build_wheels, build_sdist]
