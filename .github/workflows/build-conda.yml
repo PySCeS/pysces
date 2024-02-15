@@ -51,7 +51,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: build_outputs
+          name: build_outputs-${{ matrix.os }}
           path: ./build_output/*/pysces*.tar.bz2
 
       - name: Upload to anaconda.org

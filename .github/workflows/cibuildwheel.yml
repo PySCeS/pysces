@@ -12,8 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macos-12]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-12]
 
     steps:
       - uses: actions/checkout@v4
@@ -66,8 +65,8 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -lR dist
 
-#      - uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          user: __token__
-#          password: ${{ secrets.PYPI_TOKEN }}
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
 #          repository_url: https://test.pypi.org/legacy/
