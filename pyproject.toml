@@ -72,7 +72,8 @@ download = "https://github.com/PySCeS/pysces/releases"
 tracker = "https://github.com/PySCeS/pysces/issues"
 
 [tool.cibuildwheel]
-build = "cp312-* cp311-* cp310-* cp39-*"
+build = "cp312-* cp311-*"
+#build = "cp312-* cp311-* cp310-* cp39-*"
 skip = "*musllinux* pp*"
 build-verbosity = "3"
 test-command = "python -s -c \"import pysces; pysces.test(3)\""

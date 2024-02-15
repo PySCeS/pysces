@@ -12,7 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+        os: [windows-latest, macos-12]
+        # os: [ubuntu-latest, windows-latest, macos-12]
 
     steps:
       - uses: actions/checkout@v4
@@ -23,9 +24,9 @@ jobs:
           choco install rtools -y --no-progress --force --version=4.0.0.20220206
 
       - name: Build wheels for CPython
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.16.5
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels_and_tarball
           path: ./wheelhouse/*.whl
@@ -34,9 +35,9 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: '3.11'
@@ -46,7 +47,7 @@ jobs:
           pip install build
           python -m build -s .
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels_and_tarball
           path: dist/*.tar.gz
@@ -57,7 +58,7 @@ jobs:
     # to publish when a GitHub Release is created:
     if: github.event_name == 'release' && github.event.action == 'released'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheels_and_tarball
           path: dist

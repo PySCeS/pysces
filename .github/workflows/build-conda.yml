@@ -49,7 +49,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build_outputs
           path: ./build_output/*/pysces*.tar.bz2
