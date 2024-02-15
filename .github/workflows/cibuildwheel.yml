@@ -55,7 +55,7 @@ jobs:
             ./wheelhouse/*.whl
 
   upload_pypi:
-    needs: build_artifacts
+    needs: upload_artifacts
     runs-on: ubuntu-latest
     # to publish when a GitHub Release is created:
     if: github.event_name == 'release' && github.event.action == 'released'
