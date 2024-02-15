@@ -12,8 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-12]
         # os: [ubuntu-latest, windows-latest, macos-12]
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -25,11 +25,6 @@ jobs:
 
       - name: Build wheels for CPython
         uses: pypa/cibuildwheel@v2.16.5
-
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels_and_tarball
-#          path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -47,12 +42,8 @@ jobs:
           pip install build
           python -m build -s .
 
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels_and_tarball
-#          path: dist/*.tar.gz
-
   upload_artifacts:
+    needs: [build_wheels, build_sdist]
     name: Upload build artifacts
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +55,7 @@ jobs:
             ./wheelhouse/*.whl
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: build_artifacts
     runs-on: ubuntu-latest
     # to publish when a GitHub Release is created:
     if: github.event_name == 'release' && github.event.action == 'released'
