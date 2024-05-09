@@ -4822,14 +4822,14 @@ setting sim_points = 2.0\n*****'
                         partialmatches.append(sym)
                 # catch any partial matches so they don't get replaced
                 for e in enumerate(partialmatches):
-                    replacements.append((e[1], '_zzzz_' + str(e[0]) + '_z'))
+                    replacements.append((e[1], f'_zzzz_{e[0]}_z'))
                 # replace symbol to get sim data
                 replacements.append(
-                    ('self.' + s, 'self.data_sim.getSimData("' + s + '")[p:q,1]')
+                    (f'self.{s}', f'self.data_sim.getSimData("{s}")[p:q,1]')
                 )
                 # revert the partial match symbol
                 for e in enumerate(partialmatches):
-                    replacements.append(('_zzzz_' + str(e[0]) + '_z', e[1]))
+                    replacements.append((f'_zzzz_{e[0]}_z', e[1]))
 
         for old, new in replacements:
             rule['data_sim_string'] = rule['data_sim_string'].replace(old, new)
