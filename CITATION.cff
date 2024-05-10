@@ -1,6 +1,6 @@
 # YAML 1.2
 ---
-cff-version: "1.2.0"
+cff-version: "1.2.1"
 message: "If you use this software, please cite it using the information provided in this metadata."
 authors:
   -
@@ -14,9 +14,9 @@ authors:
     affiliation: "Stellenbosch University"
     orcid: "https://orcid.org/0000-0001-6288-8904"
 title: "The Python Simulator for Cellular Systems: PySCeS"
-version: "1.2.0"
-repository-code: "https://github.com/PySCeS/pysces/tree/1.2.0"
-date-released: 2024-02-14
+version: "1.2.1"
+repository-code: "https://github.com/PySCeS/pysces/tree/1.2.1"
+date-released: 2024-05-10
 doi: "10.5281/zenodo.2600905"
 license: "BSD-3-Clause"
 url: https://pysces.github.io

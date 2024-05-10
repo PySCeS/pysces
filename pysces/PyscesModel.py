@@ -33,6 +33,7 @@ __doc__ = '''
 
             '''
 import os, copy, time
+import re
 import pickle
 import warnings
 try:
@@ -4814,14 +4815,21 @@ setting sim_points = 2.0\n*****'
                 or s in self.__rules__
                 or s in self.__species__
             ):
-                # catch any _init so it doesn't get replaced
-                replacements.append((s + '_init', '_zzzz_'))
+                # deal with substrings in symbols
+                partialmatches = []
+                for sym in rule['symbols']:
+                    if not re.fullmatch(s, sym) and re.search(s, sym):
+                        partialmatches.append(sym)
+                # catch any partial matches so they don't get replaced
+                for e in enumerate(partialmatches):
+                    replacements.append((e[1], f'_zzzz_{e[0]}_z'))
                 # replace symbol to get sim data
                 replacements.append(
-                    ('self.' + s, 'self.data_sim.getSimData("' + s + '")[p:q,1]')
+                    (f'self.{s}', f'self.data_sim.getSimData("{s}")[p:q,1]')
                 )
-                # revert the _init
-                replacements.append(('_zzzz_', s + '_init'))
+                # revert the partial match symbol
+                for e in enumerate(partialmatches):
+                    replacements.append((f'_zzzz_{e[0]}_z', e[1]))
 
         for old, new in replacements:
             rule['data_sim_string'] = rule['data_sim_string'].replace(old, new)
