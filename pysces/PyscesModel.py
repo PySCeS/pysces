@@ -76,6 +76,7 @@ from . import (
     pitcon,
     plt,
     gplt,
+    interface,
     PyscesStoich,
     PyscesParse,
     __SILENT_START__,
@@ -89,8 +90,6 @@ if __CHGDIR_ON_START__:
     CWD = OUTPUT_DIR
 else:
     CWD = os.getcwd()
-
-interface = None
 
 # this is incredibly crude but effectively masks off unsupported random functions
 del (
@@ -3773,7 +3772,25 @@ See: https://jmodelica.org/assimulo'
         """
         exec(self.__CODE_user)
 
-    # pysundials
+    def savePSC(self, filename=None, directory=None, iValues=True):
+        """
+        Saves the model object to a PSC file.
+
+        - *filename*: writes <filename>.psc or <Modelname>.psc if None
+        - *directory*: (optional) an output directory
+        - *iValues*: if True then the models initial values are used (or the current values if False).
+        """
+        interface.writeMod2PSC(self, filename, directory, iValues)
+
+    def exportSBML(self, filename=None, directory=None, iValues=True):
+        """
+        Exports the model object to an SBML file.
+
+        - *filename*: writes <filename>.xml or <Modelname>.xml if None
+        - *directory*: (optional) an output directory
+        - *iValues*: if True then the models initial values are used (or the current values if False).
+        """
+        interface.writeMod2SBML(self, filename, directory, iValues)
 
     def _EvalExtraData(self, xdata):
         """
