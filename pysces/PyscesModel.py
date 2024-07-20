@@ -35,7 +35,6 @@ __doc__ = '''
 import os, copy, time
 import re
 import pickle
-import warnings
 try:
     input = raw_input  # Py2 compatibility
 except NameError:
@@ -123,10 +122,8 @@ _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
 
 try:
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=numpy.VisibleDeprecationWarning)
-        from assimulo.solvers import CVode
-        from assimulo.problem import Explicit_Problem
+    from assimulo.solvers import CVode
+    from assimulo.problem import Explicit_Problem
     _HAVE_ASSIMULO = True
     if not __SILENT_START__:
         print('Assimulo CVode available')
@@ -4132,7 +4129,7 @@ to CVODE (mod.mode_integrator='CVODE')"""
                 )
             elif self.__HAS_MOIETY_CONSERVATION__ == True:
                 sim_res = numpy.zeros((sim_res.shape[0], len(self.__species__)), 'd')
-            sim_res[:] = scipy.NaN
+            sim_res[:] = numpy.nan
             return sim_res, rates, False
 
     def HYBRD(self, initial):
@@ -5123,8 +5120,8 @@ setting sim_points = 2.0\n*****'
                 '\n***\nWARNING: invalid steady state solution (species concentrations and fluxes)\n***\n'
             )
             if self.__settings__['mode_state_nan_on_fail']:
-                self.state_species[:] = numpy.NaN
-                self.state_flux[:] = numpy.NaN
+                self.state_species[:] = numpy.nan
+                self.state_flux[:] = numpy.nan
 
         # set the instance steady state flux and species attributes
         self.SetStateSymb(self.state_flux, self.state_species)
@@ -5751,7 +5748,7 @@ setting sim_points = 2.0\n*****'
                     )
                     print('becomes too small numeric error can become significant')
                     print(ex)
-                    a = numpy.NaN
+                    a = numpy.nan
 
                 if numpy.isnan(a) or abs(a) > self.__settings__['mach_floateps']:
                     if self.__settings__['display_debug'] == 1:
@@ -8993,7 +8990,7 @@ setting sim_points = 2.0\n*****'
                     pass
                 elif not self.__StateOK__:
                     if self.__settings__["scan1_nan_on_bad"]:
-                        result.append([numpy.NaN] * len(rawres))
+                        result.append([numpy.nan] * len(rawres))
                     else:
                         result.append(rawres)
                     badList.append(x)

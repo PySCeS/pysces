@@ -292,7 +292,7 @@ class PySCeSParser:
     }
 
     MathmlToNumpy_symb = {
-        'notanumber': 'numpy.NaN',
+        'notanumber': 'numpy.nan',
         'pi': 'numpy.pi',
         'infinity': 'numpy.Infinity',
         'exponentiale': 'numpy.e',

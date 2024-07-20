@@ -996,7 +996,7 @@ class IntegrationStochasticDataObj(object):
             lbls = LB[1:]
             lbls = ['p'+str(r) for r in lbls]
         P_ARR = numpy.zeros((len(propensities), len(propensities[0])-1), 'd')
-        P_ARR[-1,:] = numpy.NaN
+        P_ARR[-1,:] = numpy.nan
         for r in range(1, P_ARR.shape[0]):
             P_ARR[r, :] = propensities[r][1:]
         self.propensities = P_ARR
