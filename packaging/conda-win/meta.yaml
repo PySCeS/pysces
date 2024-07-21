@@ -16,7 +16,7 @@ requirements:
   host:
     - python {{ python }}
     - setuptools
-    - numpy=1.26
+    - numpy=2.0
     - meson>=1.2.3
     - meson-python
     - ninja
@@ -24,10 +24,11 @@ requirements:
   run:
     - python {{ python }}
     - setuptools
-    - numpy>=1.23
+    - numpy>=1.23.5
     - scipy
     - matplotlib
     - ipyparallel
+    - dill
     - python-libsbml
     - assimulo
 

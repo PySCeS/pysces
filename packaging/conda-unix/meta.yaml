@@ -1,7 +1,7 @@
 package:
   name: pysces
   version: {{ GIT_DESCRIBE_TAG }}
-#  version: 1.2.1
+#  version: 1.2.2.dev0
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -20,7 +20,7 @@ requirements:
   host:
     - python {{ python }}
     - setuptools
-    - numpy {{ numpy }}
+    - numpy=2.0
     - meson>=1.2.3
     - meson-python
     - ninja
@@ -28,10 +28,11 @@ requirements:
   run:
     - python {{ python }}
     - setuptools
-    - numpy>=1.23
+    - numpy>=1.23.5
     - scipy
     - matplotlib
     - ipyparallel
+    - dill
     - python-libsbml
     - assimulo
 
