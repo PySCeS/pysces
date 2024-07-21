@@ -19,7 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import sys, pickle
-import multiprocessing
+from multiprocessing_on_dill import Pool
 from pysces.PyscesParScan import Analyze
 from time import sleep
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # called with
     # subprocess.call(['python', MULTISCANFILE, self._MODE_, fN])
     MODE = sys.argv[1]
-    pool = multiprocessing.Pool()
+    pool = Pool()
 
     # load stuff from the pickle
     with open(sys.argv[2], 'rb') as F:
