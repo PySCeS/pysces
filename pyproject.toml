@@ -55,11 +55,12 @@ classifiers=[
 ]
 
 [project.optional-dependencies]
-parscan = ['ipyparallel']
+parscan = ['ipyparallel', 'multiprocessing_on_dill']
 cvode = ['assimulo']
 sbml = ['python_libsbml']
 all = [
 	'ipyparallel',
+	'multiprocessing_on_dill',
 	'assimulo',
 	'python_libsbml'
 ]
