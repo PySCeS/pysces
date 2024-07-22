@@ -19,7 +19,6 @@ requirements:
     - {{ compiler('fortran') }}
   host:
     - python {{ python }}
-    - setuptools
     - numpy=2.0
     - meson>=1.2.3
     - meson-python
@@ -27,7 +26,6 @@ requirements:
     - pip
   run:
     - python {{ python }}
-    - setuptools
     - numpy>=1.23.5
     - scipy
     - matplotlib
