@@ -18,46 +18,18 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-"""
-TODO: Parameter elasticities wrt the compartments
-"""
-
 from pysces.version import __version__
 
-__doc__ = '''
-            PyscesModel
-            -----------
-
-            This module contains the core PySCeS classes which
-            create the model and associated data objects
-
-            '''
-import os, copy, time
+import os
+import copy
+import time
+import contextlib
 import re
 import pickle
-try:
-    input = raw_input  # Py2 compatibility
-except NameError:
-    pass
 import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-ScipyDerivative = None
-HAVE_SCIPY_DERIV = False
-try:
-    ScipyDerivative = scipy.derivative
-    HAVE_SCIPY_DERIV = True
-except AttributeError:
-    try:
-        import scipy.misc
-
-        ScipyDerivative = scipy.misc.derivative
-        HAVE_SCIPY_DERIV = True
-    except ImportError as AttributeError:
-        pass
-if not HAVE_SCIPY_DERIV:
-    raise RuntimeError('\nSciPy derivative function not available')
 
 from getpass import getuser
 
@@ -84,6 +56,40 @@ from . import (
     SED,
     _checkPandas,
 )
+
+"""
+TODO: Parameter elasticities wrt the compartments
+"""
+
+__doc__ = '''
+            PyscesModel
+            -----------
+
+            This module contains the core PySCeS classes which
+            create the model and associated data objects
+
+            '''
+
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
+
+ScipyDerivative = None
+HAVE_SCIPY_DERIV = False
+try:
+    ScipyDerivative = scipy.derivative
+    HAVE_SCIPY_DERIV = True
+except AttributeError:
+    try:
+        import scipy.misc
+
+        ScipyDerivative = scipy.misc.derivative
+        HAVE_SCIPY_DERIV = True
+    except ImportError as AttributeError:
+        pass
+if not HAVE_SCIPY_DERIV:
+    raise RuntimeError('\nSciPy derivative function not available')
 
 if __CHGDIR_ON_START__:
     CWD = OUTPUT_DIR
@@ -122,8 +128,10 @@ _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
 
 try:
-    from assimulo.solvers import CVode
-    from assimulo.problem import Explicit_Problem
+    # catch assimulo solver import error messages on Python 3.12
+    with contextlib.redirect_stderr(open(os.devnull, 'w')):
+        from assimulo.solvers import CVode
+        from assimulo.problem import Explicit_Problem
     _HAVE_ASSIMULO = True
     if not __SILENT_START__:
         print('Assimulo CVode available')
