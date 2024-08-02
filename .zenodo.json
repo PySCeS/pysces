@@ -3,9 +3,9 @@
 	"license": "BSD-3-Clause",
 	"title": "The Python Simulator for Cellular Systems: PySCeS",
 	"notes": "If you use this software, please cite it using the information provided in this metadata.",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"upload_type": "software",
-	"publication_date": "2024-05-10",
+	"publication_date": "2024-08-02",
 	"creators": [{
 			"orcid": "0000-0002-5293-5321",
 			"affiliation": "Vrije Universiteit Amsterdam",
