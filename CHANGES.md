@@ -1,5 +1,23 @@
 # PySCeS changes (per GitHub release)
 
+## PySCeS release 1.2.2 (August 2024)
+
+We are pleased to announce the release of the Python Simulator for Cellular Systems:
+PySCeS (https://pysces.github.io/) version 1.2.2.
+
+This is the first release to support `numpy 2.0`. All extension modules are now  
+compiled against `numpy 2.0` to work with `numpy>=2.0`. The minimum supported `numpy` 
+version is now 1.23.5 in line with `scipy` and other downstream projects.
+
+### Fixes
+
+- Fixed `numpy 2.0` compatibility-related bugs and updated build and runtime requirements.
+- Added convenience functions for loading a model directly from and exporting a model 
+  directly to SBML, as well as saving as PSC.
+- Fixed parallel scanning (requires `dill` to pickle model object).
+- Released Anaconda packages for Python 3.12 (now that `assimulo` has been ported to 
+  Python 3.12).
+
 ## PySCeS release 1.2.1 (May 2024)
 
 We are pleased to announce the release of the Python Simulator for Cellular Systems:
