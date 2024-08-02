@@ -459,7 +459,23 @@ from . import PyscesModel
 from .PyscesModel import PysMod as model
 from .PyscesModel import ScanDataObj as ScanDataObj
 
-PyscesModel.interface = interface
+def loadSBML(sbmlfile, sbmldir=None, pscfile=None, pscdir=None):
+    """
+    Load a PySCeS model from an SBML file. The file is first converted to a 
+    PySCeS MDL input file, and this is then loaded.
+
+    - *sbmlfile*: the SBML file name
+    - *sbmldir*: the directory of SBML files (if None current working directory is assumed)
+    - *pscfile*: the output PSC file name (if None *sbmlfile*.psc is used)
+    - *pscdir*: the PSC output directory (if None the pysces.model_dir is used)
+    """
+    if pscdir == None or not os.path.exists(pscdir):
+        pscdir = model_dir
+    if pscfile == None:
+        pscfile = '{}.psc'.format(sbmlfile)
+    interface.convertSBML2PSC(sbmlfile, sbmldir, pscfile, pscdir)
+    return model(pscfile, pscdir)
+
 from .PyscesTest import PyscesTest as test
 
 write = None

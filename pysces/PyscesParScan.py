@@ -31,7 +31,8 @@ __doc__ = """
 import numpy as np
 from pysces.PyscesUtils import TimerBox
 from pysces.PyscesScan import Scanner
-import sys, os, pickle
+import sys, os
+import dill as pickle
 
 flush = sys.stdout.flush
 from time import sleep, time
@@ -98,6 +99,7 @@ class ParScanner(Scanner):
                     + '\nPARSCANNER: Requires a running IPython cluster. See "ipcluster --help".\n'
                 )
             dv = rc[:]  # direct view
+            dv.use_dill()
             lv = rc.load_balanced_view()
             self.dv = dv
             self.lv = lv

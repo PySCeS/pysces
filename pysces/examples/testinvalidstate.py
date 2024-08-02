@@ -66,23 +66,23 @@ p2uo = par2.UserOutputResults
 
 print("\nTesting nan's:")
 print("serial and parallel (tc):      ", \
-np.alltrue(np.where(np.isnan(sss))[0] == np.where(np.isnan(pss))[0]), \
-np.alltrue(np.where(np.isnan(sss))[1] == np.where(np.isnan(pss))[1]), \
-np.alltrue(np.where(np.isnan(suo))[0] == np.where(np.isnan(puo))[0]), \
-np.alltrue(np.where(np.isnan(suo))[1] == np.where(np.isnan(puo))[1]))
+np.all(np.where(np.isnan(sss))[0] == np.where(np.isnan(pss))[0]), \
+np.all(np.where(np.isnan(sss))[1] == np.where(np.isnan(pss))[1]), \
+np.all(np.where(np.isnan(suo))[0] == np.where(np.isnan(puo))[0]), \
+np.all(np.where(np.isnan(suo))[1] == np.where(np.isnan(puo))[1]))
 print("serial and parallel (scatter): ", \
-np.alltrue(np.where(np.isnan(sss))[0] == np.where(np.isnan(p2ss))[0]), \
-np.alltrue(np.where(np.isnan(sss))[1] == np.where(np.isnan(p2ss))[1]), \
-np.alltrue(np.where(np.isnan(suo))[0] == np.where(np.isnan(p2uo))[0]), \
-np.alltrue(np.where(np.isnan(suo))[1] == np.where(np.isnan(p2uo))[1]))
+np.all(np.where(np.isnan(sss))[0] == np.where(np.isnan(p2ss))[0]), \
+np.all(np.where(np.isnan(sss))[1] == np.where(np.isnan(p2ss))[1]), \
+np.all(np.where(np.isnan(suo))[0] == np.where(np.isnan(p2uo))[0]), \
+np.all(np.where(np.isnan(suo))[1] == np.where(np.isnan(p2uo))[1]))
 
 print("\nTesting finite values:")
 print("serial and parallel (tc):      ", \
-np.alltrue(sss[np.where(np.isfinite(sss))]==pss[np.where(np.isfinite(pss))]), \
-np.alltrue(suo[np.where(np.isfinite(suo))]==puo[np.where(np.isfinite(puo))]))
+np.all(sss[np.where(np.isfinite(sss))]==pss[np.where(np.isfinite(pss))]), \
+np.all(suo[np.where(np.isfinite(suo))]==puo[np.where(np.isfinite(puo))]))
 print("serial and parallel (scatter): ", \
-np.alltrue(sss[np.where(np.isfinite(sss))]==p2ss[np.where(np.isfinite(p2ss))]), \
-np.alltrue(suo[np.where(np.isfinite(suo))]==p2uo[np.where(np.isfinite(p2uo))]))
+np.all(sss[np.where(np.isfinite(sss))]==p2ss[np.where(np.isfinite(p2ss))]), \
+np.all(suo[np.where(np.isfinite(suo))]==p2uo[np.where(np.isfinite(p2uo))]))
 
 
 os.chdir(backupdir)

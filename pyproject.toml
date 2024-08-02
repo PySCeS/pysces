@@ -4,7 +4,7 @@ requires = [
   'meson-python',
   'meson>=1.2.3',
 	'ninja',
-	'numpy>=1.26.0,<1.27',
+	'numpy>=2.0.0',
 ]
 
 [tool.meson-python.args]
@@ -16,7 +16,7 @@ compile = ['-j4']
 [project]
 name = 'pysces'
 dependencies = [
-	'numpy>=1.23.0',
+	'numpy>=1.23.5',
 	'matplotlib',
 	'scipy'
 ]
@@ -55,11 +55,12 @@ classifiers=[
 ]
 
 [project.optional-dependencies]
-parscan = ['ipyparallel']
+parscan = ['ipyparallel', 'multiprocessing_on_dill']
 cvode = ['assimulo']
 sbml = ['python_libsbml']
 all = [
 	'ipyparallel',
+	'multiprocessing_on_dill',
 	'assimulo',
 	'python_libsbml'
 ]

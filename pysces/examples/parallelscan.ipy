@@ -52,6 +52,6 @@ print("Number of engines:", len(dv))
 print("Speedup:", (t2-t1)/(t4-t3))
 
 print("Checking results:")
-print("serial vs parallel:                  ", np.alltrue(np.equal(ser_res,par_res.get())))
+print("serial vs parallel:                  ", np.all(np.equal(ser_res,par_res.get())))
 
 os.chdir(curDir)

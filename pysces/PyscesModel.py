@@ -18,47 +18,18 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-"""
-TODO: Parameter elasticities wrt the compartments
-"""
-
 from pysces.version import __version__
 
-__doc__ = '''
-            PyscesModel
-            -----------
-
-            This module contains the core PySCeS classes which
-            create the model and associated data objects
-
-            '''
-import os, copy, time
+import os
+import copy
+import time
+import contextlib
 import re
 import pickle
-import warnings
-try:
-    input = raw_input  # Py2 compatibility
-except NameError:
-    pass
 import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
-ScipyDerivative = None
-HAVE_SCIPY_DERIV = False
-try:
-    ScipyDerivative = scipy.derivative
-    HAVE_SCIPY_DERIV = True
-except AttributeError:
-    try:
-        import scipy.misc
-
-        ScipyDerivative = scipy.misc.derivative
-        HAVE_SCIPY_DERIV = True
-    except ImportError as AttributeError:
-        pass
-if not HAVE_SCIPY_DERIV:
-    raise RuntimeError('\nSciPy derivative function not available')
 
 from getpass import getuser
 
@@ -76,6 +47,7 @@ from . import (
     pitcon,
     plt,
     gplt,
+    interface,
     PyscesStoich,
     PyscesParse,
     __SILENT_START__,
@@ -85,12 +57,44 @@ from . import (
     _checkPandas,
 )
 
+"""
+TODO: Parameter elasticities wrt the compartments
+"""
+
+__doc__ = '''
+            PyscesModel
+            -----------
+
+            This module contains the core PySCeS classes which
+            create the model and associated data objects
+
+            '''
+
+try:
+    input = raw_input  # Py2 compatibility
+except NameError:
+    pass
+
+ScipyDerivative = None
+HAVE_SCIPY_DERIV = False
+try:
+    ScipyDerivative = scipy.derivative
+    HAVE_SCIPY_DERIV = True
+except AttributeError:
+    try:
+        import scipy.misc
+
+        ScipyDerivative = scipy.misc.derivative
+        HAVE_SCIPY_DERIV = True
+    except ImportError as AttributeError:
+        pass
+if not HAVE_SCIPY_DERIV:
+    raise RuntimeError('\nSciPy derivative function not available')
+
 if __CHGDIR_ON_START__:
     CWD = OUTPUT_DIR
 else:
     CWD = os.getcwd()
-
-interface = None
 
 # this is incredibly crude but effectively masks off unsupported random functions
 del (
@@ -124,8 +128,8 @@ _HAVE_ASSIMULO = False
 _ASSIMULO_LOAD_ERROR = ''
 
 try:
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=numpy.VisibleDeprecationWarning)
+    # catch assimulo solver import error messages on Python 3.12
+    with contextlib.redirect_stderr(open(os.devnull, 'w')):
         from assimulo.solvers import CVode
         from assimulo.problem import Explicit_Problem
     _HAVE_ASSIMULO = True
@@ -3773,7 +3777,25 @@ See: https://jmodelica.org/assimulo'
         """
         exec(self.__CODE_user)
 
-    # pysundials
+    def savePSC(self, filename=None, directory=None, iValues=True):
+        """
+        Saves the model object to a PSC file.
+
+        - *filename*: writes <filename>.psc or <Modelname>.psc if None
+        - *directory*: (optional) an output directory
+        - *iValues*: if True then the models initial values are used (or the current values if False).
+        """
+        interface.writeMod2PSC(self, filename, directory, iValues)
+
+    def exportSBML(self, filename=None, directory=None, iValues=True):
+        """
+        Exports the model object to an SBML file.
+
+        - *filename*: writes <filename>.xml or <Modelname>.xml if None
+        - *directory*: (optional) an output directory
+        - *iValues*: if True then the models initial values are used (or the current values if False).
+        """
+        interface.writeMod2SBML(self, filename, directory, iValues)
 
     def _EvalExtraData(self, xdata):
         """
@@ -4115,7 +4137,7 @@ to CVODE (mod.mode_integrator='CVODE')"""
                 )
             elif self.__HAS_MOIETY_CONSERVATION__ == True:
                 sim_res = numpy.zeros((sim_res.shape[0], len(self.__species__)), 'd')
-            sim_res[:] = scipy.NaN
+            sim_res[:] = numpy.nan
             return sim_res, rates, False
 
     def HYBRD(self, initial):
@@ -5106,8 +5128,8 @@ setting sim_points = 2.0\n*****'
                 '\n***\nWARNING: invalid steady state solution (species concentrations and fluxes)\n***\n'
             )
             if self.__settings__['mode_state_nan_on_fail']:
-                self.state_species[:] = numpy.NaN
-                self.state_flux[:] = numpy.NaN
+                self.state_species[:] = numpy.nan
+                self.state_flux[:] = numpy.nan
 
         # set the instance steady state flux and species attributes
         self.SetStateSymb(self.state_flux, self.state_species)
@@ -5734,7 +5756,7 @@ setting sim_points = 2.0\n*****'
                     )
                     print('becomes too small numeric error can become significant')
                     print(ex)
-                    a = numpy.NaN
+                    a = numpy.nan
 
                 if numpy.isnan(a) or abs(a) > self.__settings__['mach_floateps']:
                     if self.__settings__['display_debug'] == 1:
@@ -8976,7 +8998,7 @@ setting sim_points = 2.0\n*****'
                     pass
                 elif not self.__StateOK__:
                     if self.__settings__["scan1_nan_on_bad"]:
-                        result.append([numpy.NaN] * len(rawres))
+                        result.append([numpy.nan] * len(rawres))
                     else:
                         result.append(rawres)
                     badList.append(x)

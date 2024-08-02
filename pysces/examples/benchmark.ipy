@@ -83,7 +83,7 @@ print("\nUsing parallel scanner class with Run...(ipcluster)")
 print("---------------------------------------------------")
 parrun=pysces.ParScanner(m, engine='ipcluster')
 parrun.quietRun = True
-parrun.scans_per_run = 100
+parrun.scans_per_run = 313
 parrun.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
 parrun.addUserOutput('J_R1', 'ccJR1_R4')
 t9=clock()
@@ -97,7 +97,7 @@ print("\nUsing parallel scanner class with Run...(multiprocessing)")
 print("---------------------------------------------------------")
 parrunmp=pysces.ParScanner(m)
 parrunmp.quietRun = True
-parrunmp.scans_per_run = 100
+parrunmp.scans_per_run = 313
 parrunmp.addScanParameter('V4',10**0.5,10**1.2,5000,log=True)
 parrunmp.addUserOutput('J_R1', 'ccJR1_R4')
 t11=clock()
