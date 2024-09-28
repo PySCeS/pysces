@@ -459,7 +459,7 @@ class CoreToPsc(object):
             self.notes_block = '\n'
 
     def write(self, filename=None, directory=None, getstrbuf=False):
-        if filename == None:
+        if filename is None:
             filename = self.name + '.psc'
         if directory != None:
             assert os.path.exists(directory), '\n%s does not exist.' % directory
@@ -529,10 +529,10 @@ class PscToCore(object):
         if ModelFile[-4:] != '.psc':
             print("Assuming .psc extension")
             ModelFile += '.psc'
-        if ModelDir == None:
+        if ModelDir is None:
             # this will probably change in future - bgoli
             ModelDir = CWD
-        if WorkDir == None:
+        if WorkDir is None:
             WorkDir = CWD
         assert os.path.exists(
             os.path.join(ModelDir, ModelFile)
@@ -546,7 +546,7 @@ class PscToCore(object):
         """
         set up a temporary psc file for parsing from model string
         """
-        if WorkDir == None:
+        if WorkDir is None:
             WorkDir = CWD
         assert os.path.exists(WorkDir), '\nDirectory %s does not exist' % WorkDir
         setattr(self, 'WorkDir', WorkDir)
@@ -745,7 +745,7 @@ class CoreToSBML(object):
 
         '''
 
-        if txt == None:
+        if txt is None:
             txt = self.core.getDescription()
         else:
             self.core.setDescription(txt)
@@ -994,9 +994,9 @@ class CoreToSBML(object):
             RR.setMath(ASTnode)
             # after creating the rule set the parameter to be non constant
             rpar = self.model.getParameter(rule.getName())
-            if rpar == None:
+            if rpar is None:
                 rpar = self.model.getCompartment(rule.getName())
-            if rpar == None:
+            if rpar is None:
                 rpar = self.model.getSpecies(rule.getName())
             if rpar != None:
                 rpar.setConstant(False)
@@ -1191,7 +1191,7 @@ class CoreToSBML(object):
          - *directory* [default=None] by default use filename otherwise join, <dir><filename>
 
         """
-        if filename == None:
+        if filename is None:
             filename = self.name + '.xml'
         if directory != None:
             assert os.path.exists(directory), '\n%s does not exist.' % directory

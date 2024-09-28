@@ -285,11 +285,11 @@ class PyscesGPlot:
 
         if path != None:
             imagenameout = os.path.join(path, imagename)
-            if File == None:
+            if File is None:
                 File = open(os.path.join(path, imagename[:-3] + 'html'), 'w')
         else:
             imagenameout = os.path.join(os.getcwd(), imagename)
-            if File == None:
+            if File is None:
                 File = open(os.path.join(os.getcwd(), imagename[:-3] + 'html'), 'w')
         self.__save_command__(imagename)
 
@@ -979,11 +979,11 @@ class PyscesGPlot2MPL:
 
         if path != None:
             imagenameout = os.path.join(path, imagename)
-            if File == None:
+            if File is None:
                 File = open(os.path.join(path, imagename[:-3] + 'html'), 'w')
         else:
             imagenameout = os.path.join(os.getcwd(), imagename)
-            if File == None:
+            if File is None:
                 File = open(os.path.join(os.getcwd(), imagename[:-3] + 'html'), 'w')
         self.P.savefig(imagenameout, dpi=80)
 

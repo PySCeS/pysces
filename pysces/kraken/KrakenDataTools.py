@@ -32,7 +32,7 @@ class DataTools:
     def DataFilter(self, data, filter_func=None, report=True):
         """Takes in an array and a function which returns a boolean for filter==True"""
 
-        if filter_func == None:
+        if filter_func is None:
             filter_func = self.data_filter_func
 
         data_out = numpy.zeros(data.shape,'d')
@@ -96,7 +96,7 @@ class DataTools:
         Hacked quite a bit by brett 20070221
         """
         assert arr.shape[1] == 3 or arr.shape[1] == 4, '\nneed 3 or 4 columns for this'
-        if scalar_func == None:
+        if scalar_func is None:
             scalar_func = self.vtk_scalar_func
         if arr.shape[1] == 4:
             HAVE_SCALARS = 1

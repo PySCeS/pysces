@@ -487,9 +487,9 @@ class JWSParser:
         debug [default=0]:  optionally output debug information
 
         """
-        if indir == None:
+        if indir is None:
             indir = os.getcwd()
-        if outdir == None:
+        if outdir is None:
             outdir = os.getcwd()
         if os.path.exists(os.path.join(indir, File)) and File[-4:] == '.psc':
             go = 1

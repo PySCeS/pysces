@@ -102,7 +102,7 @@ class Core2interfaces(object):
             self.core2psc.PARAMETER_CURRENT_VALUE = True
 
         self.__buildPscComponents__()
-        if filename == None:
+        if filename is None:
             filename = self.core.name
         if filename[-4:] != '.psc':
             filename += '.psc'
@@ -138,7 +138,7 @@ class Core2interfaces(object):
         self.core2sbml.version = self.sbml_version
         assert self.core2sbml.SBML != None, "\nProblems loading SBML/Python interface"
         self.__buildSbmlComponents__()
-        if filename == None:
+        if filename is None:
             filename = self.core.name
         if filename[-4:] != '.xml':
             filename += '.xml'
@@ -189,7 +189,7 @@ class Core2interfaces(object):
         ##  print 'Using existing self.core'
         self.core2psc = CoreToPsc(self.core)
         self.__buildPscComponents__()
-        if filename == None:
+        if filename is None:
             filename = self.core.name
         if filename[-4:] != '.psc':
             filename += '.psc'
@@ -213,7 +213,7 @@ class Core2interfaces(object):
         self.core2sbml.version = self.sbml_version
         assert self.core2sbml.SBML != None, "\nProblems loading SBML/Python interface"
         self.__buildSbmlComponents__()
-        if filename == None:
+        if filename is None:
             filename = self.core.name
         if filename[-4:] != '.xml':
             filename += '.xml'
@@ -231,15 +231,15 @@ class Core2interfaces(object):
         - *pscfile*: the output PSC file name (if None *sbmlfile*.psc is used)
         - *pscdir*: the PSC output directory (if None the pysces.model_dir is used)
         """
-        if sbmldir == None or not os.path.exists(sbmldir):
+        if sbmldir is None or not os.path.exists(sbmldir):
             sbmldir = os.getcwd()
         if not os.path.exists(os.path.join(sbmldir, sbmlfile)):
             raise RuntimeError(
                 '\nSBML file \"%s\" does not exist!' % os.path.join(sbmldir, sbmlfile)
             )
-        if pscdir == None or not os.path.exists(pscdir):
+        if pscdir is None or not os.path.exists(pscdir):
             pscdir = model_dir
-        if pscfile == None:
+        if pscfile is None:
             pscfile = '%s.psc' % sbmlfile
         self.readSBMLToCore(filename=sbmlfile, directory=sbmldir)
         self.writeCore2PSC(filename=pscfile, directory=pscdir, getstrbuf=False)

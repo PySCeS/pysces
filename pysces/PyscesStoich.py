@@ -1406,7 +1406,7 @@ class Stoich(MathArrayFunc):
         resultback [default=0]: return the SVD results, U, S, vh
 
         """
-        if matrix == None:
+        if matrix is None:
             matrix = self.nmatrix
 
         nrow, ncol = matrix.shape

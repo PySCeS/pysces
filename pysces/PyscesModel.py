@@ -1003,7 +1003,7 @@ class IntegrationDataObj(object):
         """
         # TODO add rate rule data
         temp_t = self.time.reshape(len(self.time),)
-        if bounds == None:
+        if bounds is None:
             bounds = temp_t[1] - temp_t[0]
         c1 = temp_t >= time - bounds
         c2 = temp_t <= time + bounds
@@ -1657,7 +1657,7 @@ class PysMod(object):
             dir = MODEL_DIR
 
         mfgo = 0
-        if File == None:
+        if File is None:
             mfgo = 1
         try:
             if File != None:
@@ -1749,7 +1749,7 @@ class PysMod(object):
     # """
     # Load the StomPy Stochastic simulation interface
     # """
-    # if _HAVE_STOMPY and self.__STOMPY__ == None:
+    # if _HAVE_STOMPY and self.__STOMPY__ is None:
     # self.__STOMPY__ = StomPyInterface(MODEL_DIR, OUTPUT_DIR)
     # print 'PySCeS/StomPy interface active'
 
@@ -1854,20 +1854,20 @@ class PysMod(object):
 
             # setup keywords
             self.__KeyWords__ = pscParser.KeyWords.copy()
-            if self.__KeyWords__['Modelname'] == None:
+            if self.__KeyWords__['Modelname'] is None:
                 self.__KeyWords__['Modelname'] = self.ModelFile.replace('.psc', '')
-            if self.__KeyWords__['Description'] == None:
+            if self.__KeyWords__['Description'] is None:
                 self.__KeyWords__['Description'] = self.ModelFile.replace('.psc', '')
             # if SpeciesTypes undefined assume []
-            if self.__KeyWords__['Species_In_Conc'] == None:
+            if self.__KeyWords__['Species_In_Conc'] is None:
                 self.__KeyWords__['Species_In_Conc'] = True
             # if OutputType is undefined assume it is the same as SpeciesType
-            if self.__KeyWords__['Output_In_Conc'] == None:
+            if self.__KeyWords__['Output_In_Conc'] is None:
                 if self.__KeyWords__['Species_In_Conc']:
                     self.__KeyWords__['Output_In_Conc'] = True
                 else:
                     self.__KeyWords__['Output_In_Conc'] = False
-            if self.__KeyWords__['ModelType'] == None:
+            if self.__KeyWords__['ModelType'] is None:
                 self.__KeyWords__['ModelType'] = ['Deterministic']
             else:
                 self.__KeyWords__['ModelType'] = tuple(
@@ -2525,7 +2525,7 @@ class PysMod(object):
         """
         (x, y) = xxx_todo_changeme1
         go = 1
-        if x == None or y == None:
+        if x is None or y is None:
             print('\nSpecies (nmatrix) index  =', x)
             print('Reaction (nmatrix) index =', y)
             print(
@@ -2683,7 +2683,7 @@ class PysMod(object):
         if self.__HAS_COMPARTMENTS__:
             for sp in list(self.__sDict__.keys()):
                 if (
-                    self.__sDict__[sp]['compartment'] == None
+                    self.__sDict__[sp]['compartment'] is None
                     and len(list(self.__compartments__.keys())) == 1
                 ):
                     self.__sDict__[sp]['compartment'] = self.__compartments__[
@@ -2700,7 +2700,7 @@ class PysMod(object):
                     )
                     ##  print self.__sDict__[sp]
                 elif (
-                    self.__sDict__[sp]['compartment'] == None
+                    self.__sDict__[sp]['compartment'] is None
                     and len(list(self.__compartments__.keys())) > 1
                 ):
                     assert (
@@ -3473,7 +3473,7 @@ See: https://jmodelica.org/assimulo'
                 rrobj = getattr(self, rr)
                 warn = False
                 if (
-                    rrobj.compartment == None
+                    rrobj.compartment is None
                     and self.__settings__['display_compartment_warnings']
                 ):
                     warnings += "# {} is not located in a compartment.\n".format(
@@ -3821,7 +3821,7 @@ See: https://jmodelica.org/assimulo'
         assert (
             self.mode_integrator == 'CVODE'
         ), "\nFor what should be rather obvious reasons, this method requires CVODE to be used as the default integration algorithm.\n"
-        if self.CVODE_continuous_result == None:
+        if self.CVODE_continuous_result is None:
             self.CVODE_continuous_result = [self.data_sim]
 
         self.__CVODE_initialise__ = False
@@ -5441,7 +5441,7 @@ setting sim_points = 2.0\n*****'
          - elas_scaling_div0_fix [default=False] if INf's are detected after scaling set to zero
 
         """
-        if input == None or input2 == None:
+        if input is None or input2 is None:
             input = self.state_species
             input2 = self.state_flux
             # print 'INFO: Using state_species and state_flux as input'
@@ -5673,7 +5673,7 @@ setting sim_points = 2.0\n*****'
          - elas_scaling_div0_fix [default=False] if NaN's are detected in the variable and parameter elasticity matrix replace with zero
 
         """
-        if input == None or input2 == None:
+        if input is None or input2 is None:
             input = self.state_species
             input2 = self.state_flux
         else:
@@ -5960,7 +5960,7 @@ setting sim_points = 2.0\n*****'
         """
         ScaleKL(input,input2)
 
-        Scale the K and L matrices with current steady state (if either input1 or 2 == None) or user input.
+        Scale the K and L matrices with current steady state (if either input1 or 2 is None) or user input.
 
         Arguments:
 
@@ -7223,7 +7223,7 @@ setting sim_points = 2.0\n*****'
         print('\nSpecies values')
         out_list.append('\n## species values\n')
         for x in range(len(self.__species__)):
-            if File == None:
+            if File is None:
                 ##  print self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % eval('self.' + self.__species__[x])
                 print(
                     self.__species__[x]
@@ -7260,7 +7260,7 @@ setting sim_points = 2.0\n*****'
         print('\nSpecies initial values')
         out_list.append('\n## species initial values\n')
         for x in range(len(self.__species__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__species__[x]
                     + '_init = '
@@ -7295,7 +7295,7 @@ setting sim_points = 2.0\n*****'
         print('\nFixed species')
         out_list.append('\n## fixed species\n')
         for x in range(len(self.__fixed_species__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__fixed_species__[x]
                     + ' = '
@@ -7330,7 +7330,7 @@ setting sim_points = 2.0\n*****'
         print('\nParameters')
         out_list.append('\n## parameters\n')
         for x in range(len(self.__parameters__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__parameters__[x]
                     + ' = '
@@ -7368,25 +7368,25 @@ setting sim_points = 2.0\n*****'
         for reac in self.__modifiers__:
             rstr = ''
             if len(reac[1]) == 1:
-                if File == None:
+                if File is None:
                     print(reac[0] + ' has modifier:', end=' ')
                 rstr = rstr + reac[0] + ' has modifier: '
                 for x in reac[1]:
-                    if File == None:
+                    if File is None:
                         print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None:
+                if File is None:
                     print(' ')
                 rstr += '\n'
             elif len(reac[1]) > 1:
-                if File == None:
+                if File is None:
                     print(reac[0] + ' has modifiers: ', end=' ')
                 rstr = rstr + reac[0] + ' has modifiers: '
                 for x in reac[1]:
-                    if File == None:
+                    if File is None:
                         print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None:
+                if File is None:
                     print(' ')
                 rstr += '\n'
             else:
@@ -7401,14 +7401,14 @@ setting sim_points = 2.0\n*****'
             for n in range(len(noMod)):
                 cntr += 1
                 if cntr > 6:
-                    if File == None:
+                    if File is None:
                         print(' ')
                     rstr += '\n'
                     cntr = 0
-                if File == None:
+                if File is None:
                     print(noMod[n], end=' ')
                 rstr = rstr + noMod[n] + ' '
-            if File == None:
+            if File is None:
                 print(' ')
             rstr += '\n'
             out_list.append(rstr)
@@ -7434,7 +7434,7 @@ setting sim_points = 2.0\n*****'
         out_list.append('\n## Current steady-state species concentrations\n')
         if self.__StateOK__:
             for x in range(len(self.state_species)):
-                if File == None:
+                if File is None:
                     print(
                         self.__species__[x]
                         + '_ss = '
@@ -7457,7 +7457,7 @@ setting sim_points = 2.0\n*****'
         out_list.append('\n## Steady-state fluxes\n')
         if self.__StateOK__:
             for x in range(len(self.state_flux)):
-                if File == None:
+                if File is None:
                     print(
                         'J_'
                         + self.__reactions__[x]
@@ -7527,7 +7527,7 @@ setting sim_points = 2.0\n*****'
 
         # writes these out in a better order
         for key in self.Kmatrix.row:
-            if File == None:
+            if File is None:
                 print(key + ':')
             else:
                 out_list.append(key + ':\n')
@@ -7576,7 +7576,7 @@ setting sim_points = 2.0\n*****'
                 symbol = ' = '
             else:
                 symbol = ' > '
-            if File == None:
+            if File is None:
                 print('\t' + substring + symbol + prodstring)
                 print('\t' + self.__nDict__[key]['RateEq'].replace('self.', ''))
             else:
@@ -7798,10 +7798,10 @@ setting sim_points = 2.0\n*****'
         skipcheck [default=0]: skip check to see if the file exists (1) auto-averwrite
 
         """
-        if filepath == None:
+        if filepath is None:
             filepath = self.ModelDir
 
-        if filename == None:
+        if filename is None:
             print('\nFixed species')
             if len(self.__fixed_species__) == 0:
                 print('<none>')
@@ -8784,7 +8784,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Simulation ('
                 + self.ModelFile
@@ -9081,7 +9081,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Scan1 ('
                 + self.ModelFile
@@ -9141,7 +9141,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('z', 'Steady-state variable')
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Scan2D ('
                 + self.ModelFile

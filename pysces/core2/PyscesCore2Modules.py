@@ -95,7 +95,7 @@ class StructuralModule(object):
     def setCore(self, core):
         self.core = core
         self.struct = None
-        if self.core.stoichiometric_matrix == None:
+        if self.core.stoichiometric_matrix is None:
             print("StructuralModule building stoichiometric matrix ...")
             self.core.setStoichiometricMatrix()
 
@@ -276,19 +276,19 @@ class StateDataObj(object):
             output = self.species
             labels += self.species_labels
         if self.HAS_FLUXES:
-            if output == None:
+            if output is None:
                 output = self.fluxes
             else:
                 output = numpy.hstack((output, self.fluxes))
             labels += self.flux_labels
         if self.HAS_RULES:
-            if output == None:
+            if output is None:
                 output = self.rules
             else:
                 output = numpy.hstack((output, self.rules))
             labels += self.rules_labels
         if self.HAS_XDATA:
-            if output == None:
+            if output is None:
                 output = self.xdata
             else:
                 output = numpy.hstack((output, self.xdata))
@@ -411,7 +411,7 @@ class IntegrationDataObj(object):
          where bound defaults to stepsize
         """
         temp_t = self.time.reshape(len(self.time),)
-        if bounds == None:
+        if bounds is None:
             bounds = temp_t[1] - temp_t[0]
         c1 = (temp_t >= time-bounds)
         c2 = (temp_t <= time+bounds)
@@ -637,7 +637,7 @@ class IntegrationDataObj(object):
         """
         # TODO add rate rule data
         temp_t = self.time.reshape(len(self.time),)
-        if bounds == None:
+        if bounds is None:
             bounds = temp_t[1] - temp_t[0]
         c1 = temp_t >= time - bounds
         c2 = temp_t <= time + bounds

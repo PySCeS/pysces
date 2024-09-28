@@ -270,7 +270,7 @@ class GnuPlotUPI(PlotBase):
         except Exception as ex:
             print('\nGnuPlot load failure\n')
             print(ex)
-        if work_dir == None or not os.path.exists(work_dir):
+        if work_dir is None or not os.path.exists(work_dir):
             work_dir = os.getcwd()
         self.__DATA_FILE_PATH__ = os.path.join(work_dir, self.__DATA_FILE_NAME__)
         self.__WORK_DIR__ = work_dir
@@ -308,7 +308,7 @@ class GnuPlotUPI(PlotBase):
         - *arr* the array (r>0, c>1)
         - *fmt* default '%.8e'
         """
-        if dfmt == None:
+        if dfmt is None:
             dfmt = self.DATF_FORMAT
         numpy.savetxt(self.__DATA_FILE_PATH__, arr, fmt=dfmt, delimiter=' ')
         if self.__ECHO__:
@@ -336,7 +336,7 @@ class GnuPlotUPI(PlotBase):
         if set_idx < arr.shape[0]:
             outlist.append(arr[set_idx:, :])
 
-        if dfmt == None:
+        if dfmt is None:
             dfmt = self.DATF_FORMAT
         if len(outlist) <= 1:
             self.g_file_write_array(arr, dfmt=dfmt)
@@ -407,7 +407,7 @@ class GnuPlotUPI(PlotBase):
                 % (data.shape[1], formats[-1])
             )
             formats = [formats[-1]]
-        elif formats[0] == '' or formats[0] == None:
+        elif formats[0] == '' or formats[0] is None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1] * formats
@@ -480,7 +480,7 @@ class GnuPlotUPI(PlotBase):
                 % (data.shape[1], formats[-1])
             )
             formats = [formats[-1]]
-        elif formats[0] == '' or formats[0] == None:
+        elif formats[0] == '' or formats[0] is None:
             formats = ['w l']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1] * formats
@@ -594,11 +594,11 @@ class GnuPlotUPI(PlotBase):
         ranges to the data.
         """
         axout = self.axisInputStringToList(axis)
-        if min == None:
+        if min is None:
             min = '*'
         else:
             min = '%s' % min
-        if max == None:
+        if max is None:
             max = '*'
         else:
             max = '%s' % max
@@ -623,7 +623,7 @@ class GnuPlotUPI(PlotBase):
 
         - *title* (string, default='PySCeS Plot') the graph title
         """
-        if title == None:
+        if title is None:
             self.unset('title')
         else:
             self.set('title', '\"%s\"' % title)
@@ -981,7 +981,7 @@ class MatplotlibUPI(PlotBase):
                 % (data.shape[1], formats[-1])
             )
             formats = [copy.copy(formats[-1])]
-        elif formats[0] == '' or formats[0] == None:
+        elif formats[0] == '' or formats[0] is None:
             formats = ['-']
         if len(formats) == 1 and data.shape[1] > 1:
             formats = data.shape[1] * formats
@@ -1528,12 +1528,12 @@ class AxisObj2(object):
         if axis in ['x','X']:
             self.IS_AXIS = True
             self.axis = 'x'
-            if self.label == None or self.label in ['y','Y']:
+            if self.label is None or self.label in ['y','Y']:
                 self.label = 'x'
         elif axis in ['y','Y']:
             self.IS_AXIS = True
             self.axis = 'y'
-            if self.label == None or self.label in ['x','X']:
+            if self.label is None or self.label in ['x','X']:
                 self.label = 'y'
         else:
             print 'setAxis: %s is not a valid axis name' % axis
@@ -1598,7 +1598,7 @@ class GraphicsObj2(object):
         assert arr.shape[1] >= 1, '\nndarray must be 2D'
         self.series = []
 
-        if labels == None or len(labels) != arr.shape[1]:
+        if labels is None or len(labels) != arr.shape[1]:
             labels = ['line%s' % c for c in range(arr.shape[1])]
 
         for c in range(arr.shape[1]):

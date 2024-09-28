@@ -237,7 +237,7 @@ if __USE_MATPLOTLIB__:
             print(ex)
         __USE_MATPLOTLIB__ = False
 if __USE_GNUPLOT__:
-    if GNUPLOT_DIR == None or not os.path.exists(GNUPLOT_DIR):
+    if GNUPLOT_DIR is None or not os.path.exists(GNUPLOT_DIR):
         if not __SILENT_START__:
             print(
                 '''GnuPlot has been enabled but the path to the executable has
@@ -469,9 +469,9 @@ def loadSBML(sbmlfile, sbmldir=None, pscfile=None, pscdir=None):
     - *pscfile*: the output PSC file name (if None *sbmlfile*.psc is used)
     - *pscdir*: the PSC output directory (if None the pysces.model_dir is used)
     """
-    if pscdir == None or not os.path.exists(pscdir):
+    if pscdir is None or not os.path.exists(pscdir):
         pscdir = model_dir
-    if pscfile == None:
+    if pscfile is None:
         pscfile = '{}.psc'.format(sbmlfile)
     interface.convertSBML2PSC(sbmlfile, sbmldir, pscfile, pscdir)
     return model(pscfile, pscdir)
