@@ -365,7 +365,7 @@ if DEBUG:
 if alt_import:
     savedir = os.getcwd()
     for tpath in os.sys.path:
-        if alt_import_pitcon:
+        if alt_import_pitcon and pitcon_switch:
             try:
                 if (
                     os.path.exists(os.path.join(tpath, 'pysces', 'pitcon'))

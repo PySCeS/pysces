@@ -890,6 +890,8 @@ class MatplotlibUPI(PlotBase):
             shell = get_ipython().__class__.__name__
             if shell == 'ZMQInteractiveShell':
                 return True  # Jupyter notebook or qtconsole
+            elif shell == 'Interpreter':
+                return True  # pyodide kernel from JupyterLite
             elif shell == 'TerminalInteractiveShell':
                 return False  # Terminal running IPython
             else:

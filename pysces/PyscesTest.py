@@ -25,7 +25,9 @@ import os, sys, shutil
 import unittest
 from time import sleep
 
-from . import PyscesStoich, pitcon
+from . import PyscesStoich, pitcon_switch
+if pitcon_switch:
+    from . import pitcon
 from . import install_dir as INSTALL_DIR
 from . import model_dir as MODEL_DIR
 from . import model as PSCMODEL
@@ -749,6 +751,8 @@ class PyscesExternalTest(unittest.TestCase):
     model_dir = MODEL_DIR
 
     def test_PITCON1(self):
+
+        assert pitcon_switch, 'PITCON is not installed! Continuation analysis not available.'
 
         print(
             '''

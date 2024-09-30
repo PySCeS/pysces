@@ -42,9 +42,8 @@ from .core2.InfixParser import MyInfixParser
 from .core2.PyscesCore2 import NewCoreBase, NumberBase
 
 from . import (
-    nleq2,
     nleq2_switch,
-    pitcon,
+    pitcon_switch,
     plt,
     gplt,
     interface,
@@ -56,6 +55,11 @@ from . import (
     SED,
     _checkPandas,
 )
+
+if nleq2_switch:
+    from . import nleq2
+if pitcon_switch:
+    from . import pitcon
 
 """
 TODO: Parameter elasticities wrt the compartments
@@ -4373,6 +4377,8 @@ to CVODE (mod.mode_integrator='CVODE')"""
         scanpar3d [default=None]: additional output parameter for 3D plots
 
         """
+        assert pitcon_switch, 'PITCON is not installed! Continuation analysis not available.'
+
         if self.__HAS_RATE_RULES__:
             raise NotImplementedError(
                 '\nBifurcation analysis not currently available for models containing RateRules'
@@ -5000,7 +5006,7 @@ setting sim_points = 2.0\n*****'
             self.mode_solver = 'NLEQ2'
 
         # check for nleq2 and add if available this should be first
-        if nleq2_switch == 1:
+        if nleq2_switch :
             available_solvers.append('NLEQ2')
         else:
             if self.mode_solver == 'NLEQ2':
