@@ -24,6 +24,7 @@ __doc__ = "PySCeS parser module -- uses  PLY 1.5 or newer"
 
 
 import os, copy
+import tempfile
 from .lib import lex
 from .lib import yacc
 from getpass import getuser
@@ -1390,10 +1391,9 @@ class PySCeSParser:
             tempDir = os.environ['TMP']
         elif 'TEMP' in os.environ:
             tempDir = os.environ['TEMP']
-        elif os.path.isdir(modeloutput):
-            tempDir = modeloutput
         else:
-            tempDir = os.getcwd()
+            td = tempfile.TemporaryDirectory()
+            tempDir = td.name
 
         os.chdir(tempDir)
 
