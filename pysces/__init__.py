@@ -539,7 +539,7 @@ if not __SILENT_START__:
     print('***********************************************************************')
 
 try:
-    del os, key, gplt, mplt
+    del key, gplt, mplt
 except Exception as ex:
     print(ex)
     print('\n\nOops I did it again error ...\n\n')
