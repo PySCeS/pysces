@@ -30,6 +30,7 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
+from numdifftools import Derivative
 
 from getpass import getuser
 
@@ -78,22 +79,6 @@ try:
     input = raw_input  # Py2 compatibility
 except NameError:
     pass
-
-ScipyDerivative = None
-HAVE_SCIPY_DERIV = False
-try:
-    ScipyDerivative = scipy.derivative
-    HAVE_SCIPY_DERIV = True
-except AttributeError:
-    try:
-        import scipy.misc
-
-        ScipyDerivative = scipy.misc.derivative
-        HAVE_SCIPY_DERIV = True
-    except ImportError as AttributeError:
-        pass
-if not HAVE_SCIPY_DERIV:
-    raise RuntimeError('\nSciPy derivative function not available')
 
 if __CHGDIR_ON_START__:
     CWD = OUTPUT_DIR
@@ -2874,9 +2859,9 @@ class PysMod(object):
         self.__settings__['solver_switch_warning'] = True
         # 0:no fallback to forward integration 1:fallback to integration
         self.__settings__['mode_solver_fallback_integration'] = 1
-        # this is now initialised in the model parsing sectiomn ParseModel
-        # the order of ScipyDerivative - 3 seems good for most situations
-        self.__settings__['mode_elas_deriv_order'] = 3
+        # this is now initialised in the model parsing section ParseModel
+        # the default order for numdiftools.Derivative is 2
+        self.__settings__['mode_elas_deriv_order'] = 2
         # MCA scaling option 0:unscaled E+C+Eig 1:scaled E+C+Eig
         self.__settings__['mode_mca_scaled'] = 1
         # 0:normal, 1:extended eigen value + left/right vectors
@@ -5528,14 +5513,14 @@ setting sim_points = 2.0\n*****'
                     ):  # self.__settings__['mode_elas_deriv_min'] = 1.0e-12
                         hstep = self.__settings__['mode_elas_deriv_min']
 
-                    a = ScipyDerivative(
+                    der = Derivative(
                         self.__num_deriv_function__,
-                        input[met],
+                        step=hstep,
                         order=self.__settings__['mode_elas_deriv_order'],
-                        dx=hstep,
-                        n=1,
-                        args=(self.__reactions__[react], self.__species__[met]),
+                        n=1
                     )
+                    a = der(input[met], *(self.__reactions__[react], self.__species__[met]))
+
                 except Exception as ex:
                     print(ex)
                     print(
@@ -5737,14 +5722,17 @@ setting sim_points = 2.0\n*****'
                     ):  # self.__settings__['mode_elas_deriv_min'] = 1.0e-12
                         hstep = self.__settings__['mode_elas_deriv_min']
 
-                    a = ScipyDerivative(
+                    der = Derivative(
                         self.__num_deriv_function__,
-                        getattr(self, self.__parameters__[par]),
+                        step=hstep,
                         order=self.__settings__['mode_elas_deriv_order'],
-                        dx=hstep,
-                        n=1,
-                        args=(self.__reactions__[react], self.__parameters__[par]),
+                        n=1
                     )
+                    a = der(
+                        getattr(self, self.__parameters__[par]),
+                        *(self.__reactions__[react],  self.__parameters__[par])
+                    )
+
                 except Exception as ex:
                     print(
                         '\nNumeric derivative evaluation failure in ',
@@ -6056,7 +6044,8 @@ setting sim_points = 2.0\n*****'
         __num_deriv_function__(x,react,met)
 
         System function that evaluates the rate equation, used by numeric perturbation methods to derive
-        elasticities. It uses a specific format assigning x to met and evaluating react for v and is tailored for the ScipyDerivative() function using precompiled function strings.
+        elasticities. It uses a specific format assigning x to met and evaluating react for v and is tailored for the
+        Derivative() function using precompiled function strings.
 
         Arguments:
 
