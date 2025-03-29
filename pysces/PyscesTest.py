@@ -108,9 +108,9 @@ class PyscesTest:
         CopyTestModels()
         print('done.')
         self.basic_runner = unittest.TextTestRunner()
-        self.BasicTest = unittest.makeSuite(PyscesBasicTest, 'test')
-        self.ExtendedTest = unittest.makeSuite(PyscesExtendedTest, 'test')
-        self.ExternalTest = unittest.makeSuite(PyscesExternalTest, 'test')
+        self.BasicTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesBasicTest)
+        self.ExtendedTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesExtendedTest)
+        self.ExternalTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesExternalTest)
         if lvl > 3:
             lvl = 3
 
