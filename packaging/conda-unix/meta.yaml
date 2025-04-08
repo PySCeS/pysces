@@ -33,6 +33,7 @@ requirements:
     - dill
     - python-libsbml
     - assimulo
+    - numdifftools
 
 test:
   imports:

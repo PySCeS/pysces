@@ -18,7 +18,8 @@ name = 'pysces'
 dependencies = [
 	'numpy>=1.23.5',
 	'matplotlib',
-	'scipy'
+	'scipy',
+	'numdifftools'
 ]
 dynamic = ['version']
 description = 'The Python Simulator for Cellular Systems - simulation and analysis tools for modelling biological systems'
