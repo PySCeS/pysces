@@ -4006,7 +4006,11 @@ See: https://jmodelica.org/assimulo'
                 + [len(t)]
             )
 
-        return sim_res, rates, True
+        if sim.statistics['nnfails'] == 0:
+            return sim_res, rates, True
+        else:
+            print('CVode nonlinear convergence failure!\nResults may be inaccurate...')
+            return sim_res, rates, False
 
     def CVODE_VPYTHON(self, s):
         """Future VPython hook for CVODE"""
