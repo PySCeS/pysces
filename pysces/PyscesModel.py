@@ -4191,30 +4191,61 @@ to CVODE (mod.mode_integrator='CVODE')"""
         # print sim_time
         Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
 
-        def function_sim(s, t):
-            return self._EvalODE(s, Vtemp)
+        if self.mode_integrator == 'LSODA':
+            def function_sim(s, t):
+                return self._EvalODE(s, Vtemp)
 
-        res, infodict = scipy.integrate.odeint(
-            function_sim,
-            initial.copy(),
-            sim_time,
-            atol=self.__settings__['lsoda_atol'],
-            rtol=self.__settings__[
-                'lsoda_rtol'
-            ],  ##  mxstep=self.__settings__["lsoda_mxstep"],\
-            mxstep=10000,
-            h0=self.__settings__["lsoda_h0"],
-            hmax=self.__settings__["lsoda_hmax"],
-            hmin=self.__settings__["lsoda_hmin"],
-            mxordn=self.__settings__["lsoda_mxordn"],
-            mxords=self.__settings__["lsoda_mxords"],
-            printmessg=self.__settings__["lsoda_mesg"],
-            full_output=1,
-        )
-        if infodict['message'] == 'Integration successful.':
-            status = True
-        else:
-            status = False
+            res, infodict = scipy.integrate.odeint(
+                function_sim,
+                initial.copy(),
+                sim_time,
+                atol=self.__settings__['lsoda_atol'],
+                rtol=self.__settings__[
+                    'lsoda_rtol'
+                ],  ##  mxstep=self.__settings__["lsoda_mxstep"],\
+                mxstep=10000,
+                h0=self.__settings__["lsoda_h0"],
+                hmax=self.__settings__["lsoda_hmax"],
+                hmin=self.__settings__["lsoda_hmin"],
+                mxordn=self.__settings__["lsoda_mxordn"],
+                mxords=self.__settings__["lsoda_mxords"],
+                printmessg=self.__settings__["lsoda_mesg"],
+                full_output=1,
+            )
+            if infodict['message'] == 'Integration successful.':
+                status = True
+            else:
+                status = False
+
+        elif self.mode_integrator == 'CVODE':
+            assert (
+                _HAVE_ASSIMULO
+            ), '\nAssimulo is not installed or did not import correctly\n{}'.format(
+                _ASSIMULO_LOAD_ERROR
+            )
+            def function_sim(t, s):
+                self._TIME_ = t
+                return self._EvalODE(s, Vtemp)
+
+            problem = EventsProblem(self, rhs=function_sim, y0=initial.copy())
+            sim = CVode(problem)
+            # initialise CVODE settings
+            if self.__settings__["cvode_stats"]:
+                sim.verbosity = 10
+            else:
+                sim.verbosity = 40
+            sim.atol = self.__settings__["cvode_abstol"]
+            sim.rtol = self.__settings__["cvode_reltol"]
+            sim.maxsteps = 10000
+            sim.inith = self.__settings__["cvode_h0"]
+            sim.maxh = self.__settings__["cvode_hmax"]
+            sim.minh = self.__settings__["cvode_hmin"]
+            sim.maxord = self.__settings__["cvode_mxord"]
+            _, res = sim.simulate(sim_time[-1], ncp=0, ncp_list=sim_time)
+            if sim.statistics['nnfails'] == 0:
+                status = True
+            else:
+                status = False
 
         # run through results if max(abs([x]-[x-1])) < self.__settings__['fintslv_tol'] score +1
         # if you get 5 points by seq end ... happiness
