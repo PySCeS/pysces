@@ -10,8 +10,9 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
     name: Build Anaconda packages on ${{ matrix.os }}
 
     steps:
@@ -29,33 +30,30 @@ jobs:
           name: PATH
           value: c:\rtools40\ucrt64\bin;c:\rtools40\usr\bin;$env:PATH
 
-      - name: Setup conda
-        uses: s-weigand/setup-conda@v1
+      - name: Setup miniforge
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          update-conda: false
-          python-version: 3.11
-          conda-channels: conda-forge
-      
+          miniforge-version: latest
+          auto-update-conda: true
+          python-version: 3.12
+          channels: conda-forge
+
       - name: Prepare conda environment
+        shell: bash -el {0}
         run: |
-          conda install mamba boa conda-verify anaconda-client
-          mamba update --all
+          conda install conda-build conda-verify anaconda-client
           mkdir build_output
           
-      - name: (unix) Build packages for ${{ matrix.os }}
-        if: matrix.os != 'windows-latest'
-        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-unix
+      - name: Build packages for ${{ matrix.os }}
+        shell: bash -el {0}
+        run: conda build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
       
-      - name: (windows) Build packages for ${{ matrix.os }}
-        if: matrix.os == 'windows-latest'
-        run: conda mambabuild --no-anaconda-upload --output-folder ./build_output ./packaging/conda-win
-
       - uses: actions/upload-artifact@v4
         with:
           name: build_outputs-${{ matrix.os }}
-          path: ./build_output/*/pysces*.tar.bz2
+          path: ./build_output/*/pysces*.*
 
       - name: Upload to anaconda.org
         # to publish when a GitHub Release is created:
         if: github.event_name == 'release' && github.event.action == 'released'
-        run: anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u pysces ./build_output/*/pysces*.tar.bz2
+        run: anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u pysces ./build_output/*/pysces*.*

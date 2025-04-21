@@ -1,7 +1,7 @@
 package:
   name: pysces
-  version: {{ GIT_DESCRIBE_TAG }}
-#  version: 1.2.2.dev0
+#  version: {{ GIT_DESCRIBE_TAG }}
+  version: 1.2.3.dev0
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -14,12 +14,12 @@ build:
 
 requirements:
   build:
-    - {{ compiler('c') }}
-    - {{ compiler('cxx') }}
-    - {{ compiler('fortran') }}
+    - {{ compiler('c') }}          # [unix]
+    - {{ compiler('cxx') }}        # [unix]
+    - {{ compiler('fortran') }}    # [unix]
   host:
     - python {{ python }}
-    - numpy=2.0
+    - numpy {{ numpy }}
     - meson>=1.2.3
     - meson-python
     - ninja
@@ -31,7 +31,8 @@ requirements:
     - matplotlib
     - ipyparallel
     - dill
-    - python-libsbml
+    - python-libsbml  # [win and py<=312]
+    - python-libsbml  # [linux and py<=312]
     - assimulo
     - numdifftools
 

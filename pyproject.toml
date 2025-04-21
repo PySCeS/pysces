@@ -74,27 +74,22 @@ download = "https://github.com/PySCeS/pysces/releases"
 tracker = "https://github.com/PySCeS/pysces/issues"
 
 [tool.cibuildwheel]
-build = "cp312-* cp311-* cp310-* cp39-*"
+build = "cp313-* cp312-* cp311-* cp310-*"
+archs = "auto64"
 skip = "*musllinux* pp*"
 build-verbosity = "3"
 test-command = "python -s -c \"import pysces; pysces.test(3)\""
 build-frontend="pip"
 
 [tool.cibuildwheel.linux]
-archs = "x86_64"
 manylinux-x86_64-image = "manylinux2014"
 
-[tool.cibuildwheel.macos]
-archs = "x86_64"
-before-build = [
-	"sudo ln -sf /usr/local/bin/gfortran-11 /usr/local/bin/gfortran",
-	"sudo mkdir -p /usr/local/gfortran",
-	"sudo ln -sf /usr/local/Cellar/gcc@11/*/lib/gcc/11 /usr/local/gfortran/lib",
-	"gfortran --version",
-]
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "13.0"
 
-[tool.cibuildwheel.windows]
-archs = "AMD64"
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_*arm64*"
+environment = { MACOSX_DEPLOYMENT_TARGET = "14.0" }
 
 [tool.cibuildwheel.windows.environment]
 PATH = "c:\\\\rtools40\\\\ucrt64\\\\bin;c:\\\\rtools40\\\\usr\\\\bin;$PATH"

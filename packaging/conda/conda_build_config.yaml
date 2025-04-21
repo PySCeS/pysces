@@ -1,0 +1,13 @@
+python:
+  - 3.10
+  - 3.11
+  - 3.12
+  - 3.13  # [arm64 or linux64 or win]
+numpy:
+  - 2.0
+  - 2.0
+  - 2.0
+  - 2.1  # [arm64 or linux64 or win]
+zip_keys:
+  - python
+  - numpy
