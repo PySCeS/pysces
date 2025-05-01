@@ -19,13 +19,16 @@ from __future__ import division, print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-__doc__ = '''PySCeS unittest module'''
+__doc__ = """PySCeS unittest module"""
 
-import os, sys, shutil
+import os
+import sys
+import shutil
 import unittest
 from time import sleep
 
 from . import PyscesStoich, pitcon_switch
+
 if pitcon_switch:
     from . import pitcon
 from . import install_dir as INSTALL_DIR
@@ -41,7 +44,9 @@ from scipy.integrate import odeint
 
 
 def CopyTestModels(
-    dirIn=os.path.join(INSTALL_DIR, 'pscmodels'), dirOut=MODEL_DIR, overwrite=0,
+    dirIn=os.path.join(INSTALL_DIR, 'pscmodels'),
+    dirOut=MODEL_DIR,
+    overwrite=0,
 ):
     """
     CopyTestModels(dirIn=os.path.join(pysces_install,'pscmodels'),dirOut=pysces_model,overwrite=0)
@@ -98,7 +103,7 @@ def CopyTestModels(
 
 
 class PyscesTest:
-    '''PySCeS test suite: takes a test level as an argument'''
+    """PySCeS test suite: takes a test level as an argument"""
 
     __version__ = __version__
 
@@ -108,9 +113,15 @@ class PyscesTest:
         CopyTestModels()
         print('done.')
         self.basic_runner = unittest.TextTestRunner()
-        self.BasicTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesBasicTest)
-        self.ExtendedTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesExtendedTest)
-        self.ExternalTest = unittest.defaultTestLoader.loadTestsFromTestCase(PyscesExternalTest)
+        self.BasicTest = unittest.defaultTestLoader.loadTestsFromTestCase(
+            PyscesBasicTest
+        )
+        self.ExtendedTest = unittest.defaultTestLoader.loadTestsFromTestCase(
+            PyscesExtendedTest
+        )
+        self.ExternalTest = unittest.defaultTestLoader.loadTestsFromTestCase(
+            PyscesExternalTest
+        )
         if lvl > 3:
             lvl = 3
 
@@ -154,7 +165,7 @@ class PyscesTest:
 
 
 class PyscesBasicTest(unittest.TestCase):
-    '''Basic test class, tests low-level numerical algorithms'''
+    """Basic test class, tests low-level numerical algorithms"""
 
     __version__ = __version__
     model_dir = MODEL_DIR
@@ -271,7 +282,7 @@ class PyscesBasicTest(unittest.TestCase):
 
 
 class PyscesExtendedTest(unittest.TestCase):
-    '''Extended test class, tests modelling related methods'''
+    """Extended test class, tests modelling related methods"""
 
     __version__ = __version__
     model_dir = MODEL_DIR
@@ -809,23 +820,25 @@ class PyscesExtendedTest(unittest.TestCase):
         )
         assert_allclose(moiscan, moi.scan_res)
 
+
 class PyscesExternalTest(unittest.TestCase):
-    '''Extended test class, tests external/add-in numerical algorithms'''
+    """Extended test class, tests external/add-in numerical algorithms"""
 
     __version__ = __version__
     model_dir = MODEL_DIR
 
     def test_PITCON1(self):
-
-        assert pitcon_switch, 'PITCON is not installed! Continuation analysis not available.'
+        assert pitcon_switch, (
+            'PITCON is not installed! Continuation analysis not available.'
+        )
 
         print(
-            '''
+            """
         C  PCPRB1.FOR  The Freudenstein-Roth function.
         C  Limit points in the first variable occur at:
         C    (14.28309, -1.741377,  0.2585779)
         C    (61.66936,  1.983801, -0.6638797)
-        '''
+        """
         )
 
         def fx(X):
@@ -1027,6 +1040,13 @@ class PyscesExternalTest(unittest.TestCase):
     # [1.21560089e+01,2.10464256e-01,1.52603757e+00,2.11439651e+00,2.11439651e+00,2.11439651e+00]])
     # assert_array_almost_equal(benchmark[:5,:],res[:5,:],3)
     # assert_array_almost_equal(benchmark[-5:,:],res[-5:,:],1)
+
+
+class PyscesOptionalDependencyTest(unittest.TestCase):
+    """Test functions that require optional dependencies: assimulo and libsbml"""
+
+    __version__ = __version__
+    model_dir = MODEL_DIR
 
 
 if __name__ == '__main__':
