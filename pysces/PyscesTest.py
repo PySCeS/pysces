@@ -34,8 +34,8 @@ from . import model as PSCMODEL
 from .version import __version__
 
 # evaluation comparison stuff
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-from numpy import array, zeros
+from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_allclose
+from numpy import array, zeros, linspace
 from scipy.optimize import fsolve
 from scipy.integrate import odeint
 
@@ -743,6 +743,71 @@ class PyscesExtendedTest(unittest.TestCase):
             # os.sys.stderr.write(str(moicc[x]) + ' --> ' + str(moicc_new[x])+'\n')
         assert_array_almost_equal(moicc, moicc_new)
 
+    def test_scan_linear1(self):
+        lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
+        lin.scan_in = 'x0'
+        lin.scan_out = ['J_R1', 's0_ss', 's1_ss', 's2_ss']
+        scan_range = linspace(2, 20, 10)
+        lin.Scan1(scan_range)
+        linscan = array(
+            [
+                [2.0, 15.35897436, 4.64102564, 7.84615385, 8.17948718],
+                [4.0, 30.74358974, 9.25641026, 15.53846154, 15.87179487],
+                [6.0, 46.12820513, 13.87179487, 23.23076923, 23.56410256],
+                [8.0, 61.51282051, 18.48717949, 30.92307692, 31.25641026],
+                [10.0, 76.8974359, 23.1025641, 38.61538462, 38.94871795],
+                [12.0, 92.28205128, 27.71794872, 46.30769231, 46.64102564],
+                [14.0, 107.66666667, 32.33333333, 54.0, 54.33333333],
+                [16.0, 123.05128205, 36.94871795, 61.69230769, 62.02564103],
+                [18.0, 138.43589744, 41.56410256, 69.38461538, 69.71794872],
+                [20.0, 153.82051282, 46.17948718, 77.07692308, 77.41025641],
+            ]
+        )
+        assert_allclose(linscan, lin.scan_res)
+
+    def test_scan_branch1(self):
+        bra = PSCMODEL('pysces_test_branch1.psc', self.model_dir)
+        bra.scan_in = 'Vf5'
+        bra.scan_out = ['J_R1', 'J_R3', 's1_ss', 's2_ss', 's4_ss']
+        scan_range = linspace(5, 50, 10)
+        bra.Scan1(scan_range)
+        brascan = array(
+            [
+                [5.0, 2.31904671, 0.98414893, 5.17769673, 2.23691074, 2.57516754],
+                [10.0, 2.42139889, 1.21069945, 4.8583996, 1.88547254, 1.49124431],
+                [15.0, 2.47522288, 1.32840199, 4.70029299, 1.71892539, 1.08136736],
+                [20.0, 2.50940431, 1.4026989, 4.60314727, 1.61904914, 0.86179112],
+                [25.0, 2.53330794, 1.45446464, 4.53665539, 1.55176582, 0.72390142],
+                [30.0, 2.55106248, 1.49281822, 4.48801604, 1.50310207, 0.62890054],
+                [35.0, 2.56481301, 1.52246889, 4.45077512, 1.4661592, 0.55932108],
+                [40.0, 2.57579746, 1.5461228, 4.42129073, 1.43710561, 0.50609274],
+                [45.0, 2.58478513, 1.56545628, 4.39733911, 1.41363069, 0.46402152],
+                [50.0, 2.5922813, 1.58156758, 4.37748021, 1.39425319, 0.42991222],
+            ]
+        )
+        assert_allclose(brascan, bra.scan_res)
+
+    def test_scan_moiety1(self):
+        moi = PSCMODEL('pysces_test_moiety1.psc', self.model_dir)
+        moi.scan_in = 's0_init'
+        moi.scan_out = ['J_R1', 's0_ss', 's1_ss', 's4_ss', 's5_ss']
+        scan_range = linspace(1, 10, 10)
+        moi.Scan1(scan_range)
+        moiscan = array(
+            [
+                [1.0, 250.01825652, 0.42718994, 2.57281006, 3.6886875, 7.3113125],
+                [2.0, 273.03336666, 1.07112697, 2.92887303, 3.84554096, 7.15445904],
+                [3.0, 281.12962035, 1.83808367, 3.16191633, 3.9009623, 7.0990377],
+                [4.0, 284.88428449, 2.6408052, 3.3591948, 3.9267074, 7.0732926],
+                [5.0, 287.00414515, 3.45698856, 3.54301144, 3.94125508, 7.05874492],
+                [6.0, 288.35651302, 4.27949058, 3.72050942, 3.95054037, 7.04945963],
+                [7.0, 289.29162429, 5.10542741, 3.89457259, 3.95696289, 7.04303711],
+                [8.0, 289.97583488, 5.93342945, 4.06657055, 3.96166326, 7.03833674],
+                [9.0, 290.49779112, 6.76276696, 4.23723304, 3.9652496, 7.0347504],
+                [10.0, 290.90891151, 7.59301668, 4.40698332, 3.96807476, 7.03192524],
+            ]
+        )
+        assert_allclose(moiscan, moi.scan_res)
 
 class PyscesExternalTest(unittest.TestCase):
     '''Extended test class, tests external/add-in numerical algorithms'''
