@@ -833,13 +833,10 @@ class PyscesExternalTest(unittest.TestCase):
         limit0 = [14.28309125, -1.74137688, 0.25857788]
         limit1 = [61.66936258, 1.98380112, -0.66387974]
         out6 = [4.48781323e001, 4.87659925e-001, 5.95322940e-002]
-        output6 = []
-        for x in range(3):
-            output6.append(output[6, x])
 
         assert_array_almost_equal(limits[0], limit0, 4)
         assert_array_almost_equal(limits[1], limit1, 4)
-        assert_array_almost_equal(output6, out6, 4)
+        assert_array_almost_equal(output[6], out6, 4)
 
     def test_NLEQ2_statemetab_linear1(self):
         lin = PSCMODEL('pysces_test_linear1.psc', self.model_dir)
