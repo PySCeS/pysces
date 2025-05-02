@@ -634,7 +634,7 @@ class PyscesExtendedTest(unittest.TestCase):
         moi.State()
         moi.EvalEvar()
         moi.EvalCC()
-        moicc = moicc = [
+        moicc = [
             0.01114694087227875000,
             0.07381787576415140000,
             0.18139104475836643000,
