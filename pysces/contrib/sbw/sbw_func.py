@@ -106,7 +106,7 @@ class StructAnalysis(SBW_base):
         self.rank = self.SBW.getRank()
 
     def loadSBML(self, sbml_str=None):
-        if sbml_str == None:
+        if sbml_str is None:
             sbml_str = self.sbml_string
         else:
             self.sbml_string = sbml_str
@@ -118,7 +118,7 @@ class StructAnalysis(SBW_base):
         self._InitStuff()
         
     def Run(self, sbml_str=None):
-        if sbml_str == None:
+        if sbml_str is None:
             sbml_str = self.sbml_string
         else:
             self.sbml_string = sbml_str
@@ -130,7 +130,7 @@ class StructAnalysis(SBW_base):
         self._InitStuff()
 
     def RunWithTests(self, sbml_str=None):
-        if sbml_str == None:
+        if sbml_str is None:
             sbml_str = self.sbml_string
         else:
             self.sbml_string = sbml_str
@@ -157,7 +157,7 @@ class DrawNetworkGUI(SBW_base):
 
 
     def loadSBML(self,sbml_str=None):
-        if sbml_str == None:
+        if sbml_str is None:
             sbml_str = self.sbml_string
         else:
             self.sbml_string = sbml_str

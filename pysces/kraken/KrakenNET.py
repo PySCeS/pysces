@@ -285,7 +285,7 @@ class ModelFileServer(BasicServerSocket):
         self.setDaemon(True)
 
     def ReadFile(self, model_file_name, model_directory=None):
-        if self.model_directory != None and model_directory == None:
+        if self.model_directory != None and model_directory is None:
             model_directory = self.model_directory
         fullP = os.path.join(model_directory,model_file_name)
         if os.path.exists(fullP):

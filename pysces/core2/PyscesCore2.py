@@ -74,13 +74,13 @@ class NewCoreBase(object):
 
     def getAnnotation(self):
         """Returns an annotation dictionary"""
-        if self.annotations == None:
+        if self.annotations is None:
             self.annotations = {}
         return self.annotations.copy()
 
     def setAnnotation(self, key, value):
         """Set an annotation as a key:value pair"""
-        if self.annotations == None:
+        if self.annotations is None:
             self.annotations = {}
         self.annotations.update({key: value})
 
@@ -126,11 +126,11 @@ class Compartment(NewCoreBase):
         self.dimensions = dim
 
     def setArea(self, area=None):
-        if area == None and self.dimensions == 2:
+        if area is None and self.dimensions == 2:
             self.area = self.size
             if self.__DEBUG__:
                 print('Setting reactive area to size for 2D compartment %s' % self.name)
-        elif area == None and self.dimensions == 3:
+        elif area is None and self.dimensions == 3:
             self.area = (113.09733552923255 * self.size ** 2.0) ** (0.33333333333333331)
             if self.__DEBUG__:
                 print(

@@ -50,7 +50,7 @@ class PyscesInputFileParser(object):
     def __init__(self, model_file, directory, output_dir=None):
         self.ModelDir = directory
         self.ModelFile = model_file
-        if output_dir == None:
+        if output_dir is None:
             self.ModelOutput = os.getcwd()
         else:
             assert os.path.exists(output_dir), "\n%s is not a valid path" % output_dir
@@ -146,15 +146,15 @@ class PyscesInputFileParser(object):
 
             # setup keywords
             self.__KeyWords__ = pscParser.KeyWords.copy()
-            if self.__KeyWords__['Modelname'] == None:
+            if self.__KeyWords__['Modelname'] is None:
                 self.__KeyWords__['Modelname'] = self.ModelFile.replace('.psc', '')
-            if self.__KeyWords__['Description'] == None:
+            if self.__KeyWords__['Description'] is None:
                 self.__KeyWords__['Description'] = self.ModelFile.replace('.psc', '')
             # if SpeciesTypes undefined assume []
-            if self.__KeyWords__['Species_In_Conc'] == None:
+            if self.__KeyWords__['Species_In_Conc'] is None:
                 self.__KeyWords__['Species_In_Conc'] = True
             # if OutputType is undefined assume it is the same as SpeciesType
-            if self.__KeyWords__['Output_In_Conc'] == None:
+            if self.__KeyWords__['Output_In_Conc'] is None:
                 if self.__KeyWords__['Species_In_Conc']:
                     self.__KeyWords__['Output_In_Conc'] = True
                 else:

@@ -237,7 +237,7 @@ if __USE_MATPLOTLIB__:
             print(ex)
         __USE_MATPLOTLIB__ = False
 if __USE_GNUPLOT__:
-    if GNUPLOT_DIR == None or not os.path.exists(GNUPLOT_DIR):
+    if GNUPLOT_DIR is None or not os.path.exists(GNUPLOT_DIR):
         if not __SILENT_START__:
             print(
                 '''GnuPlot has been enabled but the path to the executable has
@@ -365,7 +365,7 @@ if DEBUG:
 if alt_import:
     savedir = os.getcwd()
     for tpath in os.sys.path:
-        if alt_import_pitcon:
+        if alt_import_pitcon and pitcon_switch:
             try:
                 if (
                     os.path.exists(os.path.join(tpath, 'pysces', 'pitcon'))
@@ -469,9 +469,9 @@ def loadSBML(sbmlfile, sbmldir=None, pscfile=None, pscdir=None):
     - *pscfile*: the output PSC file name (if None *sbmlfile*.psc is used)
     - *pscdir*: the PSC output directory (if None the pysces.model_dir is used)
     """
-    if pscdir == None or not os.path.exists(pscdir):
+    if pscdir is None or not os.path.exists(pscdir):
         pscdir = model_dir
-    if pscfile == None:
+    if pscfile is None:
         pscfile = '{}.psc'.format(sbmlfile)
     interface.convertSBML2PSC(sbmlfile, sbmldir, pscfile, pscdir)
     return model(pscfile, pscdir)
@@ -539,7 +539,7 @@ if not __SILENT_START__:
     print('***********************************************************************')
 
 try:
-    del os, key, gplt, mplt
+    del key, gplt, mplt
 except Exception as ex:
     print(ex)
     print('\n\nOops I did it again error ...\n\n')

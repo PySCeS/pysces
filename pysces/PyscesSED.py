@@ -41,7 +41,7 @@ class SBWSEDMLWebApps:
         - *url* the url to the SBW SED-ML SOAP web services only set if the default doesn't work
 
         """
-        if url == None:
+        if url is None:
             url = self.SBWSEDMLURI
 
         try:
@@ -71,7 +71,7 @@ class SBWSEDMLWebApps:
         The ubiquitous connection test, returns the webservices version
 
         """
-        if not self.HAVE_SUDS or self.Kclient == None:
+        if not self.HAVE_SUDS or self.Kclient is None:
             print(
                 '\nERROR: No suds client or connection, cannot comply with your request\n'
             )
@@ -93,7 +93,7 @@ class SBWSEDMLWebApps:
          - *sedscript* A string containing a sedml script
 
         """
-        if not self.HAVE_SUDS or self.Kclient == None:
+        if not self.HAVE_SUDS or self.Kclient is None:
             print(
                 '\nERROR: No suds client or connection, cannot comply with your request\n'
             )
@@ -138,7 +138,7 @@ class SED(object):
          - *sbwsedmluri* [default=None] uses the default uri for the SBW webservices unless specified
 
         """
-        if libSEDMLpath == None:
+        if libSEDMLpath is None:
             self.libSEDMLpath = (
                 "\"C:\\Program Files (x86)\\SED-ML Script Editor\\SedMLConsole.exe\""
             )
@@ -190,7 +190,7 @@ class SED(object):
     def addSimulation(
         self, mid, start, end, steps, output, initial=None, algorithm='KISAO:0000019'
     ):
-        if initial == None:
+        if initial is None:
             initial = start
         S = {
             'start': start,

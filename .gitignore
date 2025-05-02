@@ -34,6 +34,7 @@ var/
 *.whl
 /packaging/many_linux/pip_cache
 .libs/
+.pyodide-xbuildenv-*/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

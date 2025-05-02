@@ -301,7 +301,7 @@ class METATOOLlink(object):
     def __init__(self, mod, __metatool_path__=None):
         # Initialise elementary modes
         self.__mod__ = mod
-        if __metatool_path__ == None:
+        if __metatool_path__ is None:
             self.__metatool_path__ = os.path.join(mod.__pysces_directory__, 'metatool')
         else:
             self.__metatool_path__ = os.path.join(__metatool_path__, 'metatool')
@@ -482,7 +482,7 @@ class METATOOLlink(object):
                             go2 = 1
                         if e != None:
                             go2 = 0
-                        if go == 1 and go2 == 1 and f == None:
+                        if go == 1 and go2 == 1 and f is None:
                             line = line.replace('reversible', '\n  reversible\n')
                             line = line.replace('ir\n  ', '\n  ir')
                             if self.__emode_intmode__ == 1:
@@ -867,7 +867,7 @@ class StomPyInterface(object):
             else:
                 return None, None
         self.SSA.GetWaitingtimes()
-        if reactions == None:
+        if reactions is None:
             reactions = self.SSA_REACTIONS
         vect = []
         vect_lbls = []
@@ -991,7 +991,7 @@ class IntegrationStochasticDataObj(object):
 
         """
 
-        if lbls == None:
+        if lbls is None:
             LB = copy.copy(propensities[0])
             lbls = LB[1:]
             lbls = ['p'+str(r) for r in lbls]
@@ -1173,7 +1173,7 @@ class IntegrationStochasticDataObj(object):
         """
 
         temp_t = self.time.reshape(len(self.time),)
-        if bounds == None:
+        if bounds is None:
             bounds = temp_t[1] - temp_t[0]
         c1 = (temp_t >= time-bounds)
         c2 = (temp_t <= time+bounds)
@@ -1348,7 +1348,7 @@ class PysMod:
             yl = 'Propensities'
         elif plot == 'waiting_times':
             yl = 'Frequency'
-            if log == None:
+            if log is None:
                 log = 'xy'
         elif plot == 'species':
             yl = '%s' % M
@@ -1358,7 +1358,7 @@ class PysMod:
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle('PySCeS/StochPy simulation (' + self.ModelFile + ') ' + time.strftime("%a, %d %b %Y %H:%M:%S"))
         else:
             plt.setGraphTitle(title)

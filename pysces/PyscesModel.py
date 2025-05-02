@@ -30,6 +30,7 @@ import numpy
 import scipy
 import scipy.linalg
 import scipy.integrate
+from numdifftools import Derivative
 
 from getpass import getuser
 
@@ -42,9 +43,8 @@ from .core2.InfixParser import MyInfixParser
 from .core2.PyscesCore2 import NewCoreBase, NumberBase
 
 from . import (
-    nleq2,
     nleq2_switch,
-    pitcon,
+    pitcon_switch,
     plt,
     gplt,
     interface,
@@ -56,6 +56,11 @@ from . import (
     SED,
     _checkPandas,
 )
+
+if nleq2_switch:
+    from . import nleq2
+if pitcon_switch:
+    from . import pitcon
 
 """
 TODO: Parameter elasticities wrt the compartments
@@ -74,22 +79,6 @@ try:
     input = raw_input  # Py2 compatibility
 except NameError:
     pass
-
-ScipyDerivative = None
-HAVE_SCIPY_DERIV = False
-try:
-    ScipyDerivative = scipy.derivative
-    HAVE_SCIPY_DERIV = True
-except AttributeError:
-    try:
-        import scipy.misc
-
-        ScipyDerivative = scipy.misc.derivative
-        HAVE_SCIPY_DERIV = True
-    except ImportError as AttributeError:
-        pass
-if not HAVE_SCIPY_DERIV:
-    raise RuntimeError('\nSciPy derivative function not available')
 
 if __CHGDIR_ON_START__:
     CWD = OUTPUT_DIR
@@ -1003,7 +992,7 @@ class IntegrationDataObj(object):
         """
         # TODO add rate rule data
         temp_t = self.time.reshape(len(self.time),)
-        if bounds == None:
+        if bounds is None:
             bounds = temp_t[1] - temp_t[0]
         c1 = temp_t >= time - bounds
         c2 = temp_t <= time + bounds
@@ -1657,7 +1646,7 @@ class PysMod(object):
             dir = MODEL_DIR
 
         mfgo = 0
-        if File == None:
+        if File is None:
             mfgo = 1
         try:
             if File != None:
@@ -1749,7 +1738,7 @@ class PysMod(object):
     # """
     # Load the StomPy Stochastic simulation interface
     # """
-    # if _HAVE_STOMPY and self.__STOMPY__ == None:
+    # if _HAVE_STOMPY and self.__STOMPY__ is None:
     # self.__STOMPY__ = StomPyInterface(MODEL_DIR, OUTPUT_DIR)
     # print 'PySCeS/StomPy interface active'
 
@@ -1854,20 +1843,20 @@ class PysMod(object):
 
             # setup keywords
             self.__KeyWords__ = pscParser.KeyWords.copy()
-            if self.__KeyWords__['Modelname'] == None:
+            if self.__KeyWords__['Modelname'] is None:
                 self.__KeyWords__['Modelname'] = self.ModelFile.replace('.psc', '')
-            if self.__KeyWords__['Description'] == None:
+            if self.__KeyWords__['Description'] is None:
                 self.__KeyWords__['Description'] = self.ModelFile.replace('.psc', '')
             # if SpeciesTypes undefined assume []
-            if self.__KeyWords__['Species_In_Conc'] == None:
+            if self.__KeyWords__['Species_In_Conc'] is None:
                 self.__KeyWords__['Species_In_Conc'] = True
             # if OutputType is undefined assume it is the same as SpeciesType
-            if self.__KeyWords__['Output_In_Conc'] == None:
+            if self.__KeyWords__['Output_In_Conc'] is None:
                 if self.__KeyWords__['Species_In_Conc']:
                     self.__KeyWords__['Output_In_Conc'] = True
                 else:
                     self.__KeyWords__['Output_In_Conc'] = False
-            if self.__KeyWords__['ModelType'] == None:
+            if self.__KeyWords__['ModelType'] is None:
                 self.__KeyWords__['ModelType'] = ['Deterministic']
             else:
                 self.__KeyWords__['ModelType'] = tuple(
@@ -2525,7 +2514,7 @@ class PysMod(object):
         """
         (x, y) = xxx_todo_changeme1
         go = 1
-        if x == None or y == None:
+        if x is None or y is None:
             print('\nSpecies (nmatrix) index  =', x)
             print('Reaction (nmatrix) index =', y)
             print(
@@ -2683,7 +2672,7 @@ class PysMod(object):
         if self.__HAS_COMPARTMENTS__:
             for sp in list(self.__sDict__.keys()):
                 if (
-                    self.__sDict__[sp]['compartment'] == None
+                    self.__sDict__[sp]['compartment'] is None
                     and len(list(self.__compartments__.keys())) == 1
                 ):
                     self.__sDict__[sp]['compartment'] = self.__compartments__[
@@ -2700,7 +2689,7 @@ class PysMod(object):
                     )
                     ##  print self.__sDict__[sp]
                 elif (
-                    self.__sDict__[sp]['compartment'] == None
+                    self.__sDict__[sp]['compartment'] is None
                     and len(list(self.__compartments__.keys())) > 1
                 ):
                     assert (
@@ -2870,9 +2859,9 @@ class PysMod(object):
         self.__settings__['solver_switch_warning'] = True
         # 0:no fallback to forward integration 1:fallback to integration
         self.__settings__['mode_solver_fallback_integration'] = 1
-        # this is now initialised in the model parsing sectiomn ParseModel
-        # the order of ScipyDerivative - 3 seems good for most situations
-        self.__settings__['mode_elas_deriv_order'] = 3
+        # this is now initialised in the model parsing section ParseModel
+        # the default order for numdiftools.Derivative is 2
+        self.__settings__['mode_elas_deriv_order'] = 2
         # MCA scaling option 0:unscaled E+C+Eig 1:scaled E+C+Eig
         self.__settings__['mode_mca_scaled'] = 1
         # 0:normal, 1:extended eigen value + left/right vectors
@@ -3473,7 +3462,7 @@ See: https://jmodelica.org/assimulo'
                 rrobj = getattr(self, rr)
                 warn = False
                 if (
-                    rrobj.compartment == None
+                    rrobj.compartment is None
                     and self.__settings__['display_compartment_warnings']
                 ):
                     warnings += "# {} is not located in a compartment.\n".format(
@@ -3821,7 +3810,7 @@ See: https://jmodelica.org/assimulo'
         assert (
             self.mode_integrator == 'CVODE'
         ), "\nFor what should be rather obvious reasons, this method requires CVODE to be used as the default integration algorithm.\n"
-        if self.CVODE_continuous_result == None:
+        if self.CVODE_continuous_result is None:
             self.CVODE_continuous_result = [self.data_sim]
 
         self.__CVODE_initialise__ = False
@@ -4017,7 +4006,11 @@ See: https://jmodelica.org/assimulo'
                 + [len(t)]
             )
 
-        return sim_res, rates, True
+        if sim.statistics['nnfails'] == 0:
+            return sim_res, rates, True
+        else:
+            print('CVode nonlinear convergence failure!\nResults may be inaccurate...')
+            return sim_res, rates, False
 
     def CVODE_VPYTHON(self, s):
         """Future VPython hook for CVODE"""
@@ -4198,30 +4191,61 @@ to CVODE (mod.mode_integrator='CVODE')"""
         # print sim_time
         Vtemp = numpy.zeros((self.__Nshape__[1]), 'd')
 
-        def function_sim(s, t):
-            return self._EvalODE(s, Vtemp)
+        if self.mode_integrator == 'LSODA':
+            def function_sim(s, t):
+                return self._EvalODE(s, Vtemp)
 
-        res, infodict = scipy.integrate.odeint(
-            function_sim,
-            initial.copy(),
-            sim_time,
-            atol=self.__settings__['lsoda_atol'],
-            rtol=self.__settings__[
-                'lsoda_rtol'
-            ],  ##  mxstep=self.__settings__["lsoda_mxstep"],\
-            mxstep=10000,
-            h0=self.__settings__["lsoda_h0"],
-            hmax=self.__settings__["lsoda_hmax"],
-            hmin=self.__settings__["lsoda_hmin"],
-            mxordn=self.__settings__["lsoda_mxordn"],
-            mxords=self.__settings__["lsoda_mxords"],
-            printmessg=self.__settings__["lsoda_mesg"],
-            full_output=1,
-        )
-        if infodict['message'] == 'Integration successful.':
-            status = True
-        else:
-            status = False
+            res, infodict = scipy.integrate.odeint(
+                function_sim,
+                initial.copy(),
+                sim_time,
+                atol=self.__settings__['lsoda_atol'],
+                rtol=self.__settings__[
+                    'lsoda_rtol'
+                ],  ##  mxstep=self.__settings__["lsoda_mxstep"],\
+                mxstep=10000,
+                h0=self.__settings__["lsoda_h0"],
+                hmax=self.__settings__["lsoda_hmax"],
+                hmin=self.__settings__["lsoda_hmin"],
+                mxordn=self.__settings__["lsoda_mxordn"],
+                mxords=self.__settings__["lsoda_mxords"],
+                printmessg=self.__settings__["lsoda_mesg"],
+                full_output=1,
+            )
+            if infodict['message'] == 'Integration successful.':
+                status = True
+            else:
+                status = False
+
+        elif self.mode_integrator == 'CVODE':
+            assert (
+                _HAVE_ASSIMULO
+            ), '\nAssimulo is not installed or did not import correctly\n{}'.format(
+                _ASSIMULO_LOAD_ERROR
+            )
+            def function_sim(t, s):
+                self._TIME_ = t
+                return self._EvalODE(s, Vtemp)
+
+            problem = EventsProblem(self, rhs=function_sim, y0=initial.copy())
+            sim = CVode(problem)
+            # initialise CVODE settings
+            if self.__settings__["cvode_stats"]:
+                sim.verbosity = 10
+            else:
+                sim.verbosity = 40
+            sim.atol = self.__settings__["cvode_abstol"]
+            sim.rtol = self.__settings__["cvode_reltol"]
+            sim.maxsteps = 10000
+            sim.inith = self.__settings__["cvode_h0"]
+            sim.maxh = self.__settings__["cvode_hmax"]
+            sim.minh = self.__settings__["cvode_hmin"]
+            sim.maxord = self.__settings__["cvode_mxord"]
+            _, res = sim.simulate(sim_time[-1], ncp=0, ncp_list=sim_time)
+            if sim.statistics['nnfails'] == 0:
+                status = True
+            else:
+                status = False
 
         # run through results if max(abs([x]-[x-1])) < self.__settings__['fintslv_tol'] score +1
         # if you get 5 points by seq end ... happiness
@@ -4373,6 +4397,8 @@ to CVODE (mod.mode_integrator='CVODE')"""
         scanpar3d [default=None]: additional output parameter for 3D plots
 
         """
+        assert pitcon_switch, 'PITCON is not installed! Continuation analysis not available.'
+
         if self.__HAS_RATE_RULES__:
             raise NotImplementedError(
                 '\nBifurcation analysis not currently available for models containing RateRules'
@@ -5000,7 +5026,7 @@ setting sim_points = 2.0\n*****'
             self.mode_solver = 'NLEQ2'
 
         # check for nleq2 and add if available this should be first
-        if nleq2_switch == 1:
+        if nleq2_switch :
             available_solvers.append('NLEQ2')
         else:
             if self.mode_solver == 'NLEQ2':
@@ -5441,7 +5467,7 @@ setting sim_points = 2.0\n*****'
          - elas_scaling_div0_fix [default=False] if INf's are detected after scaling set to zero
 
         """
-        if input == None or input2 == None:
+        if input is None or input2 is None:
             input = self.state_species
             input2 = self.state_flux
             # print 'INFO: Using state_species and state_flux as input'
@@ -5522,14 +5548,14 @@ setting sim_points = 2.0\n*****'
                     ):  # self.__settings__['mode_elas_deriv_min'] = 1.0e-12
                         hstep = self.__settings__['mode_elas_deriv_min']
 
-                    a = ScipyDerivative(
+                    der = Derivative(
                         self.__num_deriv_function__,
-                        input[met],
+                        step=hstep,
                         order=self.__settings__['mode_elas_deriv_order'],
-                        dx=hstep,
-                        n=1,
-                        args=(self.__reactions__[react], self.__species__[met]),
+                        n=1
                     )
+                    a = der(input[met], *(self.__reactions__[react], self.__species__[met]))
+
                 except Exception as ex:
                     print(ex)
                     print(
@@ -5673,7 +5699,7 @@ setting sim_points = 2.0\n*****'
          - elas_scaling_div0_fix [default=False] if NaN's are detected in the variable and parameter elasticity matrix replace with zero
 
         """
-        if input == None or input2 == None:
+        if input is None or input2 is None:
             input = self.state_species
             input2 = self.state_flux
         else:
@@ -5731,14 +5757,17 @@ setting sim_points = 2.0\n*****'
                     ):  # self.__settings__['mode_elas_deriv_min'] = 1.0e-12
                         hstep = self.__settings__['mode_elas_deriv_min']
 
-                    a = ScipyDerivative(
+                    der = Derivative(
                         self.__num_deriv_function__,
-                        getattr(self, self.__parameters__[par]),
+                        step=hstep,
                         order=self.__settings__['mode_elas_deriv_order'],
-                        dx=hstep,
-                        n=1,
-                        args=(self.__reactions__[react], self.__parameters__[par]),
+                        n=1
                     )
+                    a = der(
+                        getattr(self, self.__parameters__[par]),
+                        *(self.__reactions__[react],  self.__parameters__[par])
+                    )
+
                 except Exception as ex:
                     print(
                         '\nNumeric derivative evaluation failure in ',
@@ -5960,7 +5989,7 @@ setting sim_points = 2.0\n*****'
         """
         ScaleKL(input,input2)
 
-        Scale the K and L matrices with current steady state (if either input1 or 2 == None) or user input.
+        Scale the K and L matrices with current steady state (if either input1 or 2 is None) or user input.
 
         Arguments:
 
@@ -6050,7 +6079,8 @@ setting sim_points = 2.0\n*****'
         __num_deriv_function__(x,react,met)
 
         System function that evaluates the rate equation, used by numeric perturbation methods to derive
-        elasticities. It uses a specific format assigning x to met and evaluating react for v and is tailored for the ScipyDerivative() function using precompiled function strings.
+        elasticities. It uses a specific format assigning x to met and evaluating react for v and is tailored for the
+        Derivative() function using precompiled function strings.
 
         Arguments:
 
@@ -7223,7 +7253,7 @@ setting sim_points = 2.0\n*****'
         print('\nSpecies values')
         out_list.append('\n## species values\n')
         for x in range(len(self.__species__)):
-            if File == None:
+            if File is None:
                 ##  print self.__species__[x] + ' = ' +  self.__settings__['mode_number_format'] % eval('self.' + self.__species__[x])
                 print(
                     self.__species__[x]
@@ -7260,7 +7290,7 @@ setting sim_points = 2.0\n*****'
         print('\nSpecies initial values')
         out_list.append('\n## species initial values\n')
         for x in range(len(self.__species__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__species__[x]
                     + '_init = '
@@ -7295,7 +7325,7 @@ setting sim_points = 2.0\n*****'
         print('\nFixed species')
         out_list.append('\n## fixed species\n')
         for x in range(len(self.__fixed_species__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__fixed_species__[x]
                     + ' = '
@@ -7330,7 +7360,7 @@ setting sim_points = 2.0\n*****'
         print('\nParameters')
         out_list.append('\n## parameters\n')
         for x in range(len(self.__parameters__)):
-            if File == None:
+            if File is None:
                 print(
                     self.__parameters__[x]
                     + ' = '
@@ -7368,25 +7398,25 @@ setting sim_points = 2.0\n*****'
         for reac in self.__modifiers__:
             rstr = ''
             if len(reac[1]) == 1:
-                if File == None:
+                if File is None:
                     print(reac[0] + ' has modifier:', end=' ')
                 rstr = rstr + reac[0] + ' has modifier: '
                 for x in reac[1]:
-                    if File == None:
+                    if File is None:
                         print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None:
+                if File is None:
                     print(' ')
                 rstr += '\n'
             elif len(reac[1]) > 1:
-                if File == None:
+                if File is None:
                     print(reac[0] + ' has modifiers: ', end=' ')
                 rstr = rstr + reac[0] + ' has modifiers: '
                 for x in reac[1]:
-                    if File == None:
+                    if File is None:
                         print(x, end=' ')
                     rstr = rstr + x + ' '
-                if File == None:
+                if File is None:
                     print(' ')
                 rstr += '\n'
             else:
@@ -7401,14 +7431,14 @@ setting sim_points = 2.0\n*****'
             for n in range(len(noMod)):
                 cntr += 1
                 if cntr > 6:
-                    if File == None:
+                    if File is None:
                         print(' ')
                     rstr += '\n'
                     cntr = 0
-                if File == None:
+                if File is None:
                     print(noMod[n], end=' ')
                 rstr = rstr + noMod[n] + ' '
-            if File == None:
+            if File is None:
                 print(' ')
             rstr += '\n'
             out_list.append(rstr)
@@ -7434,7 +7464,7 @@ setting sim_points = 2.0\n*****'
         out_list.append('\n## Current steady-state species concentrations\n')
         if self.__StateOK__:
             for x in range(len(self.state_species)):
-                if File == None:
+                if File is None:
                     print(
                         self.__species__[x]
                         + '_ss = '
@@ -7457,7 +7487,7 @@ setting sim_points = 2.0\n*****'
         out_list.append('\n## Steady-state fluxes\n')
         if self.__StateOK__:
             for x in range(len(self.state_flux)):
-                if File == None:
+                if File is None:
                     print(
                         'J_'
                         + self.__reactions__[x]
@@ -7527,7 +7557,7 @@ setting sim_points = 2.0\n*****'
 
         # writes these out in a better order
         for key in self.Kmatrix.row:
-            if File == None:
+            if File is None:
                 print(key + ':')
             else:
                 out_list.append(key + ':\n')
@@ -7576,7 +7606,7 @@ setting sim_points = 2.0\n*****'
                 symbol = ' = '
             else:
                 symbol = ' > '
-            if File == None:
+            if File is None:
                 print('\t' + substring + symbol + prodstring)
                 print('\t' + self.__nDict__[key]['RateEq'].replace('self.', ''))
             else:
@@ -7798,10 +7828,10 @@ setting sim_points = 2.0\n*****'
         skipcheck [default=0]: skip check to see if the file exists (1) auto-averwrite
 
         """
-        if filepath == None:
+        if filepath is None:
             filepath = self.ModelDir
 
-        if filename == None:
+        if filename is None:
             print('\nFixed species')
             if len(self.__fixed_species__) == 0:
                 print('<none>')
@@ -8784,7 +8814,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Simulation ('
                 + self.ModelFile
@@ -9081,7 +9111,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('y', yl)
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Scan1 ('
                 + self.ModelFile
@@ -9141,7 +9171,7 @@ setting sim_points = 2.0\n*****'
         plt.setAxisLabel('z', 'Steady-state variable')
         if log != None:
             plt.setLogScale(log)
-        if title == None:
+        if title is None:
             plt.setGraphTitle(
                 'PySCeS Scan2D ('
                 + self.ModelFile

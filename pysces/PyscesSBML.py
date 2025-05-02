@@ -210,7 +210,7 @@ class PyscesSBML:
         self.model_obj = mod
         self.__nDict__ = self.model_obj.__nDict__
         self.model_filename = filename
-        if dir == None:
+        if dir is None:
             self.model_dir = self.model_obj.ModelOutput
         else:
             self.model_dir = dir
@@ -516,7 +516,7 @@ class PyscesSBML:
         dirOut [default=None]: the PSC file output directory
 
         """
-        if dir == None:
+        if dir is None:
             dir = os.getcwd()
         File = os.path.join(dir, filename)
         assert os.path.exists(File), "Invalid path"
@@ -634,7 +634,7 @@ class PyscesSBML:
                     # print getName(x)
                     init_par.append((getName(x), x.getValue()))
 
-        if dirOut == None:
+        if dirOut is None:
             self.model_filename = os.path.join(os.getcwd(), self.model_filename)
         else:
             self.model_filename = os.path.join(dirOut, self.model_filename)

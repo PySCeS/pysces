@@ -322,7 +322,7 @@ class MyInfixParser(MyInfixLexer):
             t[0] = str(float(t[1]))
         except ValueError:
             if t[1].strip() in self.MathmlToNumpy_symb:
-                if self.MathmlToNumpy_symb[t[1]] == None:
+                if self.MathmlToNumpy_symb[t[1]] is None:
                     self.SymbolErrors.append(t[1])
                     print('\nSymbol \"{}\" not yet supported by PySCeS.'.format(t[1]))
                     t[0] = 'unknown_symbol_' + t[1]
@@ -447,7 +447,7 @@ class MyInfixParser(MyInfixLexer):
             )
             t[0] = t[1] + t[2] + t[3] + t[4]
         elif t[1].strip() in self.MathmlToNumpy_funcs:
-            if self.MathmlToNumpy_funcs[t[1]] == None:
+            if self.MathmlToNumpy_funcs[t[1]] is None:
                 self.SymbolErrors.append(t[1])
                 print('\nFunction \"{}\" not supported by PySCeS'.format(t[1]))
                 t[0] = 'unknown_function_' + t[1] + t[2] + t[3] + t[4]

@@ -24,6 +24,7 @@ __doc__ = "PySCeS parser module -- uses  PLY 1.5 or newer"
 
 
 import os, copy
+import tempfile
 from .lib import lex
 from .lib import yacc
 from getpass import getuser
@@ -605,7 +606,7 @@ class PySCeSParser:
             t.value = ts[0]
             self.InDict.update({ts[0]: ts[1]})
         if t.value in self.MathmlToNumpy_symb:
-            if self.MathmlToNumpy_symb[t.value] == None:
+            if self.MathmlToNumpy_symb[t.value] is None:
                 self.SymbolErrors.append(t.value)
                 print('\nSymbol \"{}\" not yet supported by PySCeS.'.format(t.value))
                 gt = 'unknown_symbol_' + t.value
@@ -1267,7 +1268,7 @@ class PySCeSParser:
             )
             t[0] = t[1] + t[2] + t[3] + t[4]
         elif t[1] in self.MathmlToNumpy_funcs:
-            if self.MathmlToNumpy_funcs[t[1]] == None:
+            if self.MathmlToNumpy_funcs[t[1]] is None:
                 self.SymbolErrors.append(t[1])
                 print('\nFunction \"{}\" not supported by PySCeS'.format(t[1]))
                 t[0] = 'unknown_function_' + t[1] + t[2] + t[3] + t[4]
@@ -1390,10 +1391,9 @@ class PySCeSParser:
             tempDir = os.environ['TMP']
         elif 'TEMP' in os.environ:
             tempDir = os.environ['TEMP']
-        elif os.path.isdir(modeloutput):
-            tempDir = modeloutput
         else:
-            tempDir = os.getcwd()
+            td = tempfile.TemporaryDirectory()
+            tempDir = td.name
 
         os.chdir(tempDir)
 
