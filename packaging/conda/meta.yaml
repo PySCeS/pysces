@@ -1,7 +1,7 @@
 package:
   name: pysces
-  version: {{ GIT_DESCRIBE_TAG }}
-#  version: 1.2.3
+#  version: {{ GIT_DESCRIBE_TAG }}
+  version: 1.2.3
 
 source:
   # git_url: https://github.com/PySCeS/pysces.git
@@ -19,6 +19,7 @@ requirements:
     - {{ compiler('fortran') }}    # [unix]
   host:
     - python {{ python }}
+    - python-gil     # [py>=313]
     - numpy {{ numpy }}
     - meson>=1.2.3
     - meson-python
@@ -26,13 +27,13 @@ requirements:
     - pip
   run:
     - python {{ python }}
+    - python-gil     # [py>=313]
     - numpy>=1.23.5
     - scipy
     - matplotlib
     - ipyparallel
     - dill
-    - python-libsbml  # [win and py<=312]
-    - python-libsbml  # [linux and py<=312]
+    - python-libsbml  # [not arm64]
     - assimulo
     - numdifftools
 

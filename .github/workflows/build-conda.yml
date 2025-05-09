@@ -43,11 +43,12 @@ jobs:
         run: |
           conda install conda-build conda-verify anaconda-client
           mkdir build_output
+          which anaconda
           
       - name: Build packages for ${{ matrix.os }}
         shell: bash -el {0}
         run: conda build --no-anaconda-upload --output-folder ./build_output ./packaging/conda
-      
+
       - uses: actions/upload-artifact@v4
         with:
           name: build_outputs-${{ matrix.os }}
@@ -56,4 +57,5 @@ jobs:
       - name: Upload to anaconda.org
         # to publish when a GitHub Release is created:
         if: github.event_name == 'release' && github.event.action == 'released'
+        shell: bash -el {0}
         run: anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u pysces ./build_output/*/pysces*.*
