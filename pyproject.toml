@@ -76,9 +76,10 @@ tracker = "https://github.com/PySCeS/pysces/issues"
 [tool.cibuildwheel]
 build = "cp313-* cp312-* cp311-* cp310-*"
 archs = "auto64"
-skip = "*musllinux* pp*"
+skip = "*musllinux* pp* cp310-win_arm64"
 build-verbosity = "3"
 test-command = "python -s -c \"import pysces; pysces.test(3)\""
+test-skip = "*-win_arm64" #Skip test suite for Win-ARM64 due unavailable test deps
 build-frontend="pip"
 
 [tool.cibuildwheel.linux]
