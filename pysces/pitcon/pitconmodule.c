@@ -817,7 +817,7 @@ ierror,iwork,rwork,xr = pitcon1(df,fpar,fx,ipar,iwork,rwork,xr,[liw,nvar,lrw,imt
 static PyObject *f2py_rout_pitcon_pitcon1(const PyObject *capi_self,
                            PyObject *capi_args,
                            PyObject *capi_keywds,
-                           void (*f2py_func)(cb_df_in_pitcon1__user__routines_typedef,double*,cb_fx_in_pitcon1__user__routines_typedef,int*,int*,int*,int*,int*,double*,int*,double*,int*)) {
+                           int (*f2py_func)(cb_df_in_pitcon1__user__routines_typedef,double*,cb_fx_in_pitcon1__user__routines_typedef,int*,int*,int*,int*,int*,double*,int*,double*,int*)) {
     PyObject * volatile capi_buildvalue = NULL;
     volatile int f2py_success = 1;
 /*decl*/
