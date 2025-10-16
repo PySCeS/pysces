@@ -8,7 +8,6 @@ requires = [
 ]
 
 [tool.meson-python.args]
-#setup = ['-Dc_link_args=-lquadmath']
 compile = ['-j4']
 #install = []
 #dist = []

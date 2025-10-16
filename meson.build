@@ -23,7 +23,21 @@ incdir_f2py = incdir_numpy / '..' / '..' / 'f2py' / 'src'
 fortranobject_c = incdir_f2py / 'fortranobject.c'
 
 inc_np = include_directories(incdir_numpy, incdir_f2py)
-quadmath_dep = fc.find_library('quadmath', required: false)
+
+numpy_nodepr_api = ['-DNPY_NO_DEPRECATED_API=NPY_1_9_API_VERSION']
+
+fortranobject_lib = static_library('_fortranobject',
+  fortranobject_c,
+  c_args: numpy_nodepr_api,
+  dependencies: py_dep,
+  include_directories: inc_np,
+  gnu_symbol_visibility: 'hidden',
+)
+
+fortranobject_dep = declare_dependency(
+  link_with: fortranobject_lib,
+  include_directories: inc_np,
+)
 
 fortran_modules = run_command(py,
   ['config.py'],
