@@ -50,7 +50,7 @@ typedef int(*cb_df_in_pitcon1__user__routines_typedef)(int *,double *,int *,doub
 #define MIN(a,b) ((a < b) ? (a) : (b))
 #endif
 
-/* The following subroutine was added after the f2c translation */
+/* The following subroutines were added after the f2c translation */
 double d_sign(double *a, double *b)
 {
   double x;
@@ -62,6 +62,62 @@ double pow_dd(double *ap, double *bp)
 {
 return(pow(*ap, *bp) );
 }
+
+int pow_ii(int *ap, int *bp)
+{
+	int pow, x, n;
+	unsigned long u;
+	x = *ap;
+	n = *bp;
+	if (n <= 0) {
+		if (n == 0 || x == 1)
+			return 1;
+		if (x != -1)
+			return x == 0 ? 1/x : 0;
+		n = -n;
+		}
+	u = n;
+	for(pow = 1; ; )
+		{
+		if(u & 01)
+			pow *= x;
+		if(u >>= 1)
+			x *= x;
+		else
+			break;
+		}
+	return(pow);
+}
+
+double pow_di(double *ap, int *bp)
+{
+double pow, x;
+int n;
+unsigned long u;
+pow = 1;
+x = *ap;
+n = *bp;
+if(n != 0)
+	{
+	if(n < 0)
+		{
+		n = -n;
+		x = 1/x;
+		}
+	for(u = n; ; )
+		{
+		if(u & 01)
+			pow *= x;
+		if(u >>= 1)
+			x *= x;
+		else
+			break;
+		}
+	}
+return(pow);
+}
+
+/* end manually added subroutines */
 
 #define PRINTPYOBJERR(obj)\
     fprintf(stderr,"pitcon.error is related to ");\

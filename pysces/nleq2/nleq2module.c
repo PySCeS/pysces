@@ -50,7 +50,7 @@ typedef int(*cb_fcn_in_nleq2__user__routines_typedef)(int *,double *,double *,in
 #define MIN(a,b) ((a < b) ? (a) : (b))
 #endif
 
-/* The following subroutine was added after the f2c translation */
+/* The following subroutines were added after the f2c translation */
 double d_sign(double *a, double *b)
 {
   double x;
@@ -62,6 +62,8 @@ double pow_dd(double *ap, double *bp)
 {
 return(pow(*ap, *bp) );
 }
+
+/* end manually added subroutines */
 
 #define PRINTPYOBJERR(obj)\
     fprintf(stderr,"nleq2.error is related to ");\
@@ -174,7 +176,7 @@ return(pow(*ap, *bp) );
         sprintf(errstring, "%s: "show, "("tcheck") failed for "name, var);\
         PyErr_SetString(nleq2_error,errstring);\
         /*goto capi_fail;*/\
-    } else 
+    } else
 
 /************************ See f2py2e/cfuncs.py: cfuncs ************************/
 
