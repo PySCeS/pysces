@@ -407,7 +407,7 @@ static cb_df_in_pitcon1__user__routines_t *get_active_cb_df_in_pitcon1__user__ro
 #endif
 
 /*typedef void(*cb_df_in_pitcon1__user__routines_typedef)(int *,double *,int *,double *,double *,int *);*/
-static void cb_df_in_pitcon1__user__routines (int *nvar_cb_capi,double *fpar,int *ipar,double *x,double *fjac,int *ierror_cb_capi) {
+static int cb_df_in_pitcon1__user__routines (int *nvar_cb_capi,double *fpar,int *ipar,double *x,double *fjac,int *ierror_cb_capi) {
     cb_df_in_pitcon1__user__routines_t cb_local = { NULL, NULL, 0 };
     cb_df_in_pitcon1__user__routines_t *cb = NULL;
     PyTupleObject *capi_arglist = NULL;
@@ -564,7 +564,7 @@ capi_fail:
     }
 capi_return_pt:
     ;
-return;
+return 0;
 }
 /****************** end of cb_df_in_pitcon1__user__routines ******************/
 
@@ -606,7 +606,7 @@ static cb_fx_in_pitcon1__user__routines_t *get_active_cb_fx_in_pitcon1__user__ro
 #endif
 
 /*typedef void(*cb_fx_in_pitcon1__user__routines_typedef)(int *,double *,int *,double *,double *,int *);*/
-static void cb_fx_in_pitcon1__user__routines (int *nvar_cb_capi,double *fpar,int *ipar,double *x,double *fvec,int *ierror_cb_capi) {
+static int cb_fx_in_pitcon1__user__routines (int *nvar_cb_capi,double *fpar,int *ipar,double *x,double *fvec,int *ierror_cb_capi) {
     cb_fx_in_pitcon1__user__routines_t cb_local = { NULL, NULL, 0 };
     cb_fx_in_pitcon1__user__routines_t *cb = NULL;
     PyTupleObject *capi_arglist = NULL;
@@ -763,7 +763,7 @@ capi_fail:
     }
 capi_return_pt:
     ;
-return;
+return 0;
 }
 /****************** end of cb_fx_in_pitcon1__user__routines ******************/
 
