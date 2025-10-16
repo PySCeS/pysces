@@ -1,0 +1,84 @@
+package:
+  name: pysces
+  version: "1.2.3"
+  tag:
+    - cross-build
+  top-level:
+    - pysces
+source:
+  path: ./pysces
+
+build:
+  cflags: |
+    -DNPY_API_SYMBOL_ATTRIBUTE=__attribute__((visibility("default")))
+    -I$(WASM_LIBRARY_DIR)/include
+    -Wno-return-type
+    -DUNDERSCORE_G77
+    -fvisibility=default
+  cxxflags: |
+    -fexceptions
+    -fvisibility=default
+  ldflags: |
+    -L$(NUMPY_LIB)/core/lib/
+    -L$(NUMPY_LIB)/random/lib/
+    -fwasm-exceptions
+
+  # Exclude tests via Meson's install tags functionality.
+  unvendor-tests: true
+
+  backend-flags: |
+    build-dir=build
+
+  # IMPORTANT: Other locations important in scipy build process:
+  # There are two files built in the "capture" pass that need patching:
+  #    _blas_subroutines.h, and _cython
+  # Scipy has a bunch of custom logic implemented in
+  # pyodide-build/pyodide_build/_f2c_fixes.py.
+  script: |
+    set -x
+    git clone https://github.com/hoodmane/f2c.git --depth 1
+    (cd f2c/src && cp makefile.u makefile && sed -i "s/gram.c:/gram.c1:/" makefile && make)
+    export F2C_PATH=$(pwd)/f2c/src/f2c
+
+    echo F2C_PATH: $F2C_PATH
+    export NPY_BLAS_LIBS="-I$WASM_LIBRARY_DIR/include $WASM_LIBRARY_DIR/lib/libopenblas.so"
+    export NPY_LAPACK_LIBS="-I$WASM_LIBRARY_DIR/include $WASM_LIBRARY_DIR/lib/libopenblas.so"
+
+    # Change many functions that return void into functions that return int
+    find pysces -name "*.c*" -type f | xargs sed -i 's/extern void F_FUNC/extern int F_FUNC/g'
+
+    # https://github.com/mesonbuild/meson/blob/e542901af6e30865715d3c3c18f703910a096ec0/mesonbuild/backend/ninjabackend.py#L94
+    # Prevent from using response file. The response file that meson generates is not compatible to pyodide-build
+    export MESON_RSP_THRESHOLD=131072
+
+  _retain-test-patterns:
+    - "*_page_trend_test.py"
+    - "*bws_test.py"
+
+  cross-build-env: true
+
+requirements:
+  host:
+    - numpy
+    - openblas
+    - boost-cpp
+  run:
+    - numpy
+    - scipy
+    - matplotlib
+    - openblas
+  executable:
+    - gfortran
+
+test:
+  imports:
+    - pysces
+
+about:
+  summary:
+    The Python Simulator for Cellular Systems - simulation and analysis tools for modelling biological systems
+  license: BSD-3-Clause
+
+extra:
+  recipe-maintainers:
+    - jmrohwer
