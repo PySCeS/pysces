@@ -503,7 +503,7 @@ f2py_cb_start_clock();
     cb_df_in_pitcon1__user__routines_typedef cb_df_in_pitcon1__user__routines_cptr;
     cb_df_in_pitcon1__user__routines_cptr = F2PyCapsule_AsVoidPtr(cb->capi);
     (*cb_df_in_pitcon1__user__routines_cptr)(nvar_cb_capi,fpar,ipar,x,fjac,ierror_cb_capi);
-    return;
+    return 0;
     }
     if (capi_arglist==NULL) {
         capi_longjmp_ok = 0;
@@ -702,7 +702,7 @@ f2py_cb_start_clock();
     cb_fx_in_pitcon1__user__routines_typedef cb_fx_in_pitcon1__user__routines_cptr;
     cb_fx_in_pitcon1__user__routines_cptr = F2PyCapsule_AsVoidPtr(cb->capi);
     (*cb_fx_in_pitcon1__user__routines_cptr)(nvar_cb_capi,fpar,ipar,x,fvec,ierror_cb_capi);
-    return;
+    return 0;
     }
     if (capi_arglist==NULL) {
         capi_longjmp_ok = 0;
