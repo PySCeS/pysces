@@ -12,39 +12,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
-    name: Build Anaconda packages on ${{ matrix.os }}
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
 
+    name: Build Anaconda packages on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: (windows) Install rtools MinGW compilers
+      - name: (windows) Disable Visual Studio
         if: matrix.os == 'windows-latest'
         run: |
-          choco install rtools -y --no-progress --force --version=4.0.0.20220206
-
-      - name: (windows) Add compiler path to PATH
-        if: matrix.os == 'windows-latest'
-        uses: myci-actions/export-env-var-powershell@1
-        with:
-          name: PATH
-          value: c:\rtools40\ucrt64\bin;c:\rtools40\usr\bin;$env:PATH
+          del "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
 
       - name: Setup miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          auto-update-conda: true
-          python-version: 3.12
+          python-version: 3.13
           channels: conda-forge
 
       - name: Prepare conda environment
         shell: bash -el {0}
         run: |
-          conda install conda-build conda-verify anaconda-client
+          conda update --all -y
+          conda install conda-build anaconda-client
           mkdir build_output
           which anaconda
-          
+
       - name: Build packages for ${{ matrix.os }}
         shell: bash -el {0}
         run: conda build --no-anaconda-upload --output-folder ./build_output ./packaging/conda

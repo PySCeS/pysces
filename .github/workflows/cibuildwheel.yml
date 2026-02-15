@@ -13,17 +13,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-13, macos-latest]
+        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-15-intel, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: (windows) Install rtools MinGW compilers
+      - name: (windows-x86_64) Install rtools MinGW compilers
         if: matrix.os == 'windows-latest'
         run: |
           choco install rtools -y --no-progress --force --version=4.0.0.20220206
 
-      - name: Install LLVM for Windows ARM64
+      - name: (windows-arm64) Install LLVM for Windows ARM64
         if: matrix.os == 'windows-11-arm'
         shell: pwsh
         run: |
@@ -34,22 +34,22 @@ jobs:
           echo "FC=flang-new" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "AR=llvm-ar" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: (macos-13) Ensure gfortran is in path
-        if: matrix.os == 'macos-13'
+      - name: (macos-15-intel) Ensure gfortran is in path
+        if: matrix.os == 'macos-15-intel'
         run: |
-          sudo ln -s /usr/local/bin/gfortran-12 /usr/local/bin/gfortran
+          sudo ln -s /usr/local/bin/gfortran-13 /usr/local/bin/gfortran
           which gfortran
           gfortran --version
 
       - name: (macos-latest) Ensure gfortran is in path
         if: matrix.os == 'macos-latest'
         run: |
-          sudo ln -s /opt/homebrew/bin/gfortran-12 /opt/homebrew/bin/gfortran
+          sudo ln -s /opt/homebrew/bin/gfortran-13 /opt/homebrew/bin/gfortran
           which gfortran
           gfortran --version
 
       - name: Build wheels for CPython
-        uses: pypa/cibuildwheel@v2.23
+        uses: pypa/cibuildwheel@v3.3.1
 
       - uses: actions/upload-artifact@v4
         with:
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/setup-python@v5
         name: Install Python
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Build sdist
         run: |

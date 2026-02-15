@@ -14,9 +14,11 @@ build:
 
 requirements:
   build:
-    - {{ compiler('c') }}          # [unix]
-    - {{ compiler('cxx') }}        # [unix]
-    - {{ compiler('fortran') }}    # [unix]
+    - {{ compiler('c') }}        # [unix]
+    - {{ compiler('cxx') }}      # [unix]
+    - {{ compiler('fortran') }}  # [unix]
+    - gcc               # [win]
+    - gfortran          # [win]
   host:
     - python {{ python }}
     - python-gil     # [py>=313]
@@ -28,6 +30,7 @@ requirements:
   run:
     - python {{ python }}
     - python-gil     # [py>=313]
+    - libgfortran5   # [win]
     - numpy>=1.23.5
     - scipy
     - matplotlib

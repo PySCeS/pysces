@@ -1,0 +1,31 @@
+name: Test paths on macos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Test path on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15-intel, macos-latest]
+
+    steps:
+      - name: (macos-15-intel) Ensure gfortran is in path
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          ls -l /usr/local/bin/gfortran*
+          sudo ln -s /usr/local/bin/gfortran-13 /usr/local/bin/gfortran
+          which gfortran
+          gfortran --version
+
+      - name: (macos-latest) Ensure gfortran is in path
+        if: matrix.os == 'macos-latest'
+        run: |
+          ls -l /opt/homebrew/bin/gfortran*
+          sudo ln -s /opt/homebrew/bin/gfortran-13 /opt/homebrew/bin/gfortran
+          which gfortran
+          gfortran --version
+
