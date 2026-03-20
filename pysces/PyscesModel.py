@@ -2199,7 +2199,7 @@ class PysMod(object):
         # brett - 20050831
         self.__structural__.__species__ = copy.copy(self.__species__)
         self.__structural__.__reactions__ = copy.copy(self.__reactions__)
-        self.SerialEncode(self.STOICH, self.ModelFile[:-4] + '_stoichiometry')
+        self.SerialEncode(self.__structural__, self.ModelFile[:-4] + '_stoichiometry')
 
     def Stoichiometry_Load_Serial(self):
         """
