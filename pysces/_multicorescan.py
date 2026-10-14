@@ -19,7 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import sys, pickle
-from multiprocessing_on_dill import Pool
+from multiprocess import Pool
 from pysces.PyscesParScan import Analyze
 from time import sleep
 
