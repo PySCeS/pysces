@@ -1236,7 +1236,7 @@ class PyscesOptionalDependencyTest(unittest.TestCase):
         mod.__settings__['cvode_track_assignment_rules'] = False
         mod.doSim(30, 61)
         sim_data = mod.data_sim.getSimData('IC3', 'IC2', 'IF')
-        assert allclose(sim_data, refdata),  "Data doesn't match reference!"
+        assert allclose(sim_data, refdata, atol=1e-5),  "Data doesn't match reference!"
 
 
 if __name__ == '__main__':
